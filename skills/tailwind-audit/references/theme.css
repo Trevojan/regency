@@ -1,0 +1,80 @@
+/* Canonical token block (norm §2.1). With a build: paste into the CSS entry, after the Tailwind import line.
+   Browser build: paste into the text/tailwindcss style element.
+   Never write the Tailwind import statement inside a browser-build style element, not even in a comment:
+   the build looks for that text and, finding it, skips its own import (no preflight, no utilities, no error). */
+@theme {
+  /* Font */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Surfaces and text (neutrals) */
+  --color-surface: #ffffff;          /* cards, header, modal */
+  --color-surface-muted: #f8fafc;    /* page background, thead, row hover */
+  --color-surface-sunken: #f1f5f9;   /* disabled inputs, tracks, skeleton */
+  --color-line: #e2e8f0;             /* default borders, dividers */
+  --color-line-strong: #cbd5e1;      /* input border, emphasis divider */
+  --color-ink: #0f172a;              /* main text */
+  --color-ink-muted: #475569;        /* secondary text, labels */
+  --color-ink-subtle: #64748b;       /* placeholder, metadata, chart axis */
+  --color-ink-inverse: #ffffff;      /* text on solid primary/danger */
+
+  /* Primary (action) */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;      /* primary button, link, focus */
+  --color-primary-700: #1d4ed8;      /* primary hover */
+  --color-primary-800: #1e40af;      /* primary active */
+
+  /* Semantic: 50 = background, 200 = border, 600 = icon/solid, 700 = text */
+  --color-success-50: #f0fdf4;  --color-success-200: #bbf7d0; --color-success-600: #16a34a; --color-success-700: #15803d;
+  --color-warning-50: #fffbeb;  --color-warning-200: #fde68a; --color-warning-600: #d97706; --color-warning-700: #b45309;
+  --color-danger-50:  #fef2f2;  --color-danger-200:  #fecaca; --color-danger-600:  #dc2626; --color-danger-700:  #b91c1c;
+  --color-info-50:    #f0f9ff;  --color-info-200:    #bae6fd; --color-info-600:    #0284c7; --color-info-700:    #0369a1;
+
+  /* Categorical data palette (fixed order, norm §5) */
+  --color-data-1: #2563eb;
+  --color-data-2: #0d9488;
+  --color-data-3: #d97706;
+  --color-data-4: #7c3aed;
+  --color-data-5: #db2777;
+  --color-data-6: #64748b;
+
+  /* Radii */
+  --radius-sm: 0.25rem;   /* 4px  badge, checkbox, tag */
+  --radius-md: 0.375rem;  /* 6px  button, input, select, menu item */
+  --radius-lg: 0.5rem;    /* 8px  card, table, alert, dropdown */
+  --radius-xl: 0.75rem;   /* 12px modal, drawer */
+
+  /* Shadows: elevation, not decoration */
+  --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.08);
+  --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.10);
+  --shadow-lg: 0 16px 40px -8px rgb(15 23 42 / 0.20);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Dark theme (norm §7.4): only semantic tokens are redefined; no screen class changes.
+   Starting point, contrast not yet measured. */
+@layer base {
+  [data-theme=dark] {
+    --color-surface: #0f172a;
+    --color-surface-muted: #020617;
+    --color-surface-sunken: #1e293b;
+    --color-line: #1e293b;
+    --color-line-strong: #334155;
+    --color-ink: #f1f5f9;
+    --color-ink-muted: #94a3b8;
+    --color-ink-subtle: #7c8ba1;
+    --color-primary-50: #172554;
+    --color-primary-700: #3b82f6;
+    --color-success-50: #052e16; --color-success-200: #14532d; --color-success-700: #4ade80;
+    --color-warning-50: #451a03; --color-warning-200: #78350f; --color-warning-700: #fbbf24;
+    --color-danger-50:  #450a0a; --color-danger-200:  #7f1d1d; --color-danger-700:  #f87171;
+    --color-info-50:    #082f49; --color-info-200:    #0c4a6e; --color-info-700:    #38bdf8;
+  }
+}

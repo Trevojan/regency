@@ -1,0 +1,76 @@
+<glyph-package engine="3.4.7.05">
+  <schema/>
+  <block once="true">
+    <template name="germinate" expanded="true" means="Walks every aspect of a situation as seeds and grows the path to the goal as a tree: roots the problem, trunk the ordered effort, branches the resources it leans on, limits what is out of reach, locks what no step may bend, fruit the state that ends the work. Closes on an assumption that can be knocked down in one line.">
+      <skill imperative="true">
+        <user-input>tree logic structure</user-input>
+        <iterate>
+          <user-input slot="alvo">the emitted format is being replaced by glyph-package, and the parser discards the operator that the new format exists to record</user-input>
+        </iterate>
+      </skill>
+      <section binds="roots">
+        <user-input>roots</user-input>
+        <problem>
+          <invoke reads="[ERROR[CTX]]" species="composite" depth="1"/>
+          <user-input slot="alvo">the emitted format is being replaced by glyph-package, and the parser discards the operator that the new format exists to record</user-input>
+        </problem>
+      </section>
+      <section binds="trunk">
+        <user-input>trunk</user-input>
+        <instruction>
+          <user-input slot="esforco">carry the operator from the lexer to the XML, derive the golden from the specification, rederive the vectors, gate before emitter, decide the inverse, rewrite the reference, republish the skill</user-input>
+        </instruction>
+      </section>
+      <section binds="branches">
+        <user-input>branches</user-input>
+        <reference>
+          <user-input slot="ramo">the five examples, pure glyph plus verified engine output</user-input>
+          <user-input slot="ramo2">BUNDLE_TARGET.md, the specification for the six layers</user-input>
+          <user-input slot="ramo3">XML_REFERENCE.md lines 99 to 101, where extend, comma and divide are documented</user-input>
+          <user-input slot="ramo4">chainElement in glyph-parser.js, the marker the engine computes and never serialises</user-input>
+        </reference>
+      </section>
+      <section binds="limits">
+        <user-input>limits</user-input>
+        <restriction>
+          <invoke reads="[IF[SKEP[CNST]][TRUE][LIM-GO[CTX-EQ[CNST]]]]" species="composite" depth="1"/>
+          <user-input slot="limite">out of scope: the six-layer bundle emitters, the agent file writer, the _ORBITAL runtime, the RAG retrieval engine</user-input>
+        </restriction>
+      </section>
+      <section binds="locks">
+        <user-input>locks</user-input>
+        <constraint>
+          <user-input slot="trava">the operator reaches the XML before any chain element is emitted, and the golden derives from the specification, never from an implementation</user-input>
+        </constraint>
+        <never force="editorial">
+          <user-input>no self-attested gate, and no acceptance criterion rewritten so the work passes</user-input>
+        </never>
+      </section>
+      <section binds="fruit">
+        <user-input>fruit</user-input>
+        <target>
+          <user-input slot="fruto">a compiler whose emitted format records the operator it was given, and whose inverse returns what went in</user-input>
+        </target>
+        <ready>
+          <user-input>each fruit stated as an observable condition, not as an intention</user-input>
+        </ready>
+      </section>
+      <section binds="assumptions">
+        <user-input>assumptions</user-input>
+        <assumption>
+          <invoke reads="[ADD[CORE]],[NEV[VRFY]]" species="composite" depth="2"/>
+          <user-input slot="suposicao">the language sweep rides in this release, because the vectors, the reference and both skills are already being rewritten</user-input>
+        </assumption>
+        <question>
+          <invoke reads="[CTX[GET[CORE],[WHR[LOGIC-NONE]]],[ASK]]" species="composite" depth="1"/>
+          <user-input>knock this down in one line and the tree becomes a new version</user-input>
+        </question>
+      </section>
+      <validate>
+        <invoke reads="[CMP-CTX[CNST]][SUB[EQ[CMP-CTX]]][CAT-EQ]" species="composite" depth="5"/>
+        <user-input>the grown tree</user-input>
+        <user-input slot="criterio">the four guarantees the current XML makes: editorial force, block segmentation, needs, and exact string fidelity</user-input>
+      </validate>
+    </template>
+  </block>
+</glyph-package>

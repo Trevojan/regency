@@ -1,0 +1,127 @@
+<!-- lang: pt-BR -->
+<!-- Body fragment: data display (norm §4.4–§4.7, §4.12). Render: python scripts/preview.py.
+     The dashboard composition (KPI row, chart cards, table card, pagination) is in shell.html; this file holds
+     the variants shell.html does not show. -->
+<main class="mx-auto max-w-5xl space-y-12 px-4 py-8 sm:px-6">
+
+  <!-- Badge tones: dot + text + tone, never clickable (§4.4). Inline-flex content (F09). -->
+  <div data-pattern="badge" data-case="tones">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-success-200 bg-success-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-success-700"><span class="size-1.5 rounded-full bg-success-600" aria-hidden="true"></span>Concluído</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-warning-200 bg-warning-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-warning-700"><span class="size-1.5 rounded-full bg-warning-600" aria-hidden="true"></span>Em revisão</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-danger-200 bg-danger-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-danger-700"><span class="size-1.5 rounded-full bg-danger-600" aria-hidden="true"></span>Recusado</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-info-200 bg-info-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-info-700"><span class="size-1.5 rounded-full bg-info-600" aria-hidden="true"></span>Agendado</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-muted px-2 py-0.5 text-xs font-medium whitespace-nowrap text-ink-muted"><span class="size-1.5 rounded-full bg-ink-subtle" aria-hidden="true"></span>Rascunho</span>
+    </div>
+  </div>
+
+  <!-- Card anatomy: header (title + description + actions, F01 with min-w-0 / shrink-0), body flex-1 (F04),
+       optional footer. Cards in one row share height through the grid's stretch (G01). -->
+  <div data-pattern="card" data-case="anatomy">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <article data-component="card" class="flex flex-col rounded-lg border border-line bg-surface">
+        <header class="flex items-start justify-between gap-4 px-5 pt-5">
+          <div class="min-w-0">
+            <h2 class="truncate text-base font-semibold text-ink">Metas do trimestre por região comercial</h2>
+            <p class="mt-0.5 text-sm text-ink-muted">Julho a setembro</p>
+          </div>
+          <div class="flex shrink-0 items-center gap-1">
+            <button type="button" aria-label="Exportar" title="Exportar" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+              <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
+            </button>
+          </div>
+        </header>
+        <div class="flex-1 space-y-3 px-5 py-5">
+          <!-- progress against a target: KPI + bar (§5.1), track surface-sunken, fill primary -->
+          <div>
+            <div class="flex items-baseline justify-between gap-2 text-sm"><span class="truncate text-ink">Sudeste</span><span class="tabular-nums whitespace-nowrap text-ink-muted">82%</span></div>
+            <div class="mt-1.5 h-2 rounded-full bg-surface-sunken" role="progressbar" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100" aria-label="Sudeste"><div class="h-2 w-4/5 rounded-full bg-primary-600"></div></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between gap-2 text-sm"><span class="truncate text-ink">Sul</span><span class="tabular-nums whitespace-nowrap text-ink-muted">60%</span></div>
+            <div class="mt-1.5 h-2 rounded-full bg-surface-sunken" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Sul"><div class="h-2 w-3/5 rounded-full bg-primary-600"></div></div>
+          </div>
+        </div>
+        <footer class="border-t border-line px-5 py-3 text-xs text-ink-subtle">Meta definida em 01/07/2026 · atualizado há 5 min</footer>
+      </article>
+      <!-- Clickable card: the whole card is the <a>, no buttons inside; hover raises it (§4.5). -->
+      <a href="#" data-component="card" class="flex flex-col rounded-lg border border-line bg-surface p-5 transition duration-150 ease-standard hover:border-line-strong hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 motion-reduce:transition-none">
+        <h2 class="truncate text-base font-semibold text-ink">Relatório de devoluções</h2>
+        <p class="mt-0.5 line-clamp-2 flex-1 text-sm text-ink-muted">Motivos, prazos de reembolso e produtos mais devolvidos no período, por canal de venda e região.</p>
+        <p class="mt-4 text-xs text-ink-subtle">Gerado em 06/10/2026</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- Table with sortable header and sticky head inside a scroll area with a height (A07):
+       wrapper `relative max-h-96 overflow-auto` (relative keeps sr-only labels clipped), thead sticky top-0 z-10.
+       Sortable th holds a <button>; aria-sort on the th. Numbers right with tabular-nums; actions last, w-px. -->
+  <div data-pattern="table" data-case="sortable-sticky">
+    <div class="overflow-hidden rounded-lg border border-line bg-surface">
+      <div class="relative max-h-72 overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 z-10 bg-surface-muted">
+            <tr class="border-b border-line">
+              <th scope="col" aria-sort="none" class="h-10 px-4 text-start whitespace-nowrap">
+                <button type="button" class="inline-flex items-center gap-1 rounded-sm text-xs font-medium uppercase tracking-wide text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Cliente
+                  <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                </button>
+              </th>
+              <th scope="col" aria-sort="descending" class="h-10 px-4 text-end whitespace-nowrap">
+                <button type="button" class="inline-flex items-center gap-1 rounded-sm text-xs font-medium uppercase tracking-wide text-ink hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Valor
+                  <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+                </button>
+              </th>
+              <th scope="col" class="h-10 px-4 text-end text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Variação</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-line">
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Elisa Prado</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 5.900,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-success-700">▲ 8,0%</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Carla Dias</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 3.020,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-danger-700">▼ 1,5%</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Ana Souza</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 2.450,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-success-700">▲ 2,2%</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Gabriela Rocha</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 2.210,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-ink-subtle">—</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Bruno Lima</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 1.180,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-success-700">▲ 0,9%</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Diego Reis</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 640,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-danger-700">▼ 4,0%</td></tr>
+            <tr class="hover:bg-surface-muted"><td class="h-12 max-w-64 truncate px-4 text-ink">Fábio Nunes</td><td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 410,00</td><td class="h-12 px-4 text-end tabular-nums whitespace-nowrap text-success-700">▲ 1,1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label / value detail (G06): dl in a card. -->
+  <div data-pattern="detail-list" data-case="sample">
+    <article class="max-w-lg rounded-lg border border-line bg-surface p-5">
+      <h2 class="text-base font-semibold text-ink">Pedido #1042</h2>
+      <dl class="mt-4 grid grid-dl gap-x-6 gap-y-2 text-sm">
+        <dt class="text-ink-muted">Cliente</dt><dd class="truncate text-ink">Ana Souza Albuquerque de Oliveira</dd>
+        <dt class="text-ink-muted">Pagamento</dt><dd class="text-ink">Pix</dd>
+        <dt class="text-ink-muted">Valor</dt><dd class="tabular-nums text-ink">R$ 2.450,00</dd>
+        <dt class="text-ink-muted">Rastreio</dt><dd class="font-mono text-xs break-all text-ink">BR1042993817SP</dd>
+      </dl>
+    </article>
+  </div>
+
+  <!-- Avatar: initials or image, sizes 24 / 32 / 40px; group overlaps with -space-x-2 and a ring in the surface
+       colour so edges read on any background. Media object with text (F12). -->
+  <div data-pattern="avatar" data-case="sizes-group">
+    <div class="flex flex-wrap items-center gap-6">
+      <span class="inline-flex size-6 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700" title="Ana Souza">A</span>
+      <span class="inline-flex size-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700" title="Ana Souza">AS</span>
+      <span class="inline-flex size-10 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700" title="Ana Souza">AS</span>
+      <div class="flex -space-x-2">
+        <span class="inline-flex size-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700 ring-2 ring-surface" title="Ana Souza">AS</span>
+        <span class="inline-flex size-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700 ring-2 ring-surface" title="Bruno Lima">BL</span>
+        <span class="inline-flex size-8 items-center justify-center rounded-full bg-surface-sunken text-xs font-medium text-ink-muted ring-2 ring-surface" title="Mais 3 pessoas">+3</span>
+      </div>
+      <div class="flex min-w-0 items-start gap-3">
+        <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700">AS</span>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-medium text-ink">Ana Souza</p>
+          <p class="truncate text-xs text-ink-subtle">Gerente comercial · Campinas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>

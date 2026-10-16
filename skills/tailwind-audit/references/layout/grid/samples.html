@@ -1,0 +1,136 @@
+<!-- Body fragment. Render: python scripts/preview.py (pastes it into references/render-shell.html and loads
+     layout/utilities.css for grid-shell / grid-gallery / grid-dl).
+     Structural classes only. `demo` is a harness outline from preview.py, not design.
+     Each block: data-pattern = id in SPEC.md, data-case = broken | fixed | sample. -->
+<main class="mx-auto max-w-5xl space-y-8 px-4 py-8">
+
+  <!-- G01 12-column page grid. Broken: spans without the lg: prefix. At lg and up both look the same; below lg
+       the 1-column grid gets 7 implicit auto columns from col-span-8 and the row overflows. Render at 360px. -->
+  <div data-pattern="G01" data-case="broken">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div class="demo col-span-8 h-24 p-2">Receita mensal</div>
+      <div class="demo col-span-4 h-24 p-2">Canais</div>
+    </div>
+  </div>
+  <div data-pattern="G01" data-case="fixed">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div class="demo h-24 p-2 lg:col-span-8">Receita mensal</div>
+      <div class="demo h-24 p-2 lg:col-span-4">Canais</div>
+      <div class="demo h-24 p-2 lg:col-span-6">Pedidos por dia</div>
+      <div class="demo h-24 p-2 lg:col-span-6">Ticket médio</div>
+    </div>
+  </div>
+
+  <!-- G02 Responsive count: 1 → 2 (sm) → 4 (xl). Four items, so no hole at any width. -->
+  <div data-pattern="G02" data-case="sample">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="demo h-20 p-2">Receita total</div>
+      <div class="demo h-20 p-2">Pedidos</div>
+      <div class="demo h-20 p-2">Ticket médio</div>
+      <div class="demo h-20 p-2">Clientes ativos</div>
+    </div>
+  </div>
+
+  <!-- G03 Reflowing gallery: as many 16rem+ columns as fit; no breakpoints. -->
+  <div data-pattern="G03" data-case="sample">
+    <div class="grid grid-gallery gap-6">
+      <div class="demo h-20 p-2">Campinas</div>
+      <div class="demo h-20 p-2">Santos</div>
+      <div class="demo h-20 p-2">Ribeirão Preto</div>
+      <div class="demo h-20 p-2">Sorocaba</div>
+      <div class="demo h-20 p-2">São José dos Campos</div>
+    </div>
+  </div>
+
+  <!-- G04 Sidebar shell: one column below lg (sidebar would become a drawer), 16rem + rest from lg.
+       h-64 here only to keep the sample short; a real shell uses min-h-dvh. -->
+  <div data-pattern="G04" data-case="sample">
+    <div class="grid h-64 grid-cols-1 lg:grid-shell">
+      <nav class="demo hidden p-2 lg:block" aria-label="Seções">Visão geral · Pedidos · Clientes · Relatórios</nav>
+      <div class="demo min-w-0 p-2">Conteúdo da página</div>
+    </div>
+  </div>
+
+  <!-- G05 Form: one column until md; short related fields pair up; long field spans both. -->
+  <div data-pattern="G05" data-case="sample">
+    <form class="grid max-w-2xl gap-4 md:grid-cols-2">
+      <div class="demo p-2">Nome</div>
+      <div class="demo p-2">Sobrenome</div>
+      <div class="demo p-2 md:col-span-2">E-mail</div>
+      <div class="demo p-2">Cidade</div>
+      <div class="demo p-2">UF</div>
+    </form>
+  </div>
+
+  <!-- G06 Label / value list: labels take the widest label's width, values take the rest and may truncate. -->
+  <div data-pattern="G06" data-case="sample">
+    <dl class="demo grid max-w-md grid-dl gap-x-4 gap-y-2 p-2">
+      <dt>Cliente</dt><dd class="truncate">Ana Souza Albuquerque de Oliveira</dd>
+      <dt>Pedido</dt><dd>1042</dd>
+      <dt>Forma de pagamento</dt><dd>Pix</dd>
+      <dt>Endereço</dt><dd class="truncate">Rua Barão de Jaguara, 1481, sala 32 — Centro, Campinas</dd>
+    </dl>
+  </div>
+
+  <!-- G07 Stack without absolute: both children in cell 1/1. The box is as tall as the taller child, and the
+       label is placed with self-end / justify-self-start. -->
+  <div data-pattern="G07" data-case="sample">
+    <div class="grid max-w-sm">
+      <div class="demo col-start-1 row-start-1 h-40 p-2">Imagem do produto</div>
+      <p class="demo col-start-1 row-start-1 m-2 self-end justify-self-start p-2">Mais vendido</p>
+    </div>
+  </div>
+
+  <!-- G08 Subgrid. Broken: each card lays out its own rows, so bodies start at different heights when a title
+       wraps. Fixed: card spans 3 parent rows and uses them (grid-rows-subgrid). -->
+  <div data-pattern="G08" data-case="broken">
+    <div class="grid gap-6 md:grid-cols-3">
+      <article class="demo grid gap-2 p-2"><h3>Plano básico</h3><p>R$ 49/mês</p><p>Assinar</p></article>
+      <article class="demo grid gap-2 p-2"><h3>Plano profissional com relatórios avançados</h3><p>R$ 129/mês</p><p>Assinar</p></article>
+      <article class="demo grid gap-2 p-2"><h3>Plano empresa</h3><p>Sob consulta</p><p>Falar com vendas</p></article>
+    </div>
+  </div>
+  <div data-pattern="G08" data-case="fixed">
+    <div class="grid gap-6 md:grid-cols-3">
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano básico</h3><p>R$ 49/mês</p><p>Assinar</p></article>
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano profissional com relatórios avançados</h3><p>R$ 129/mês</p><p>Assinar</p></article>
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano empresa</h3><p>Sob consulta</p><p>Falar com vendas</p></article>
+    </div>
+  </div>
+
+  <!-- G09 Equal-height rows across the whole grid (uniform tiles only). -->
+  <div data-pattern="G09" data-case="sample">
+    <div class="grid auto-rows-fr grid-cols-2 gap-4 md:grid-cols-4">
+      <div class="demo p-2">Pix</div>
+      <div class="demo p-2">Cartão de crédito em até 12 vezes sem juros</div>
+      <div class="demo p-2">Boleto</div>
+      <div class="demo p-2">Transferência</div>
+      <div class="demo p-2">Débito</div>
+      <div class="demo p-2">Crédito</div>
+    </div>
+  </div>
+
+  <!-- G10 Centre one child on both axes. -->
+  <div data-pattern="G10" data-case="sample">
+    <div class="demo grid h-32 place-items-center">
+      <p class="demo p-2">Carregando relatório</p>
+    </div>
+  </div>
+
+  <!-- G11 Blowout. Broken: hand-written template with plain 1fr (inline style only to show the trap; never in
+       product code) - the URL's min-content widens its column and pushes the grid past its parent.
+       Fixed: grid-cols-2 (= minmax(0,1fr)) and the value breaks inside its column. -->
+  <div data-pattern="G11" data-case="broken">
+    <div class="demo grid w-80 gap-4 p-2" style="grid-template-columns: 1fr 1fr">
+      <div class="demo p-2">https://loja.exemplo.com.br/pedidos/1042/comprovante-de-pagamento.pdf</div>
+      <div class="demo p-2">Comprovante</div>
+    </div>
+  </div>
+  <div data-pattern="G11" data-case="fixed">
+    <div class="demo grid w-80 grid-cols-2 gap-4 p-2">
+      <div class="demo p-2 break-all">https://loja.exemplo.com.br/pedidos/1042/comprovante-de-pagamento.pdf</div>
+      <div class="demo p-2">Comprovante</div>
+    </div>
+  </div>
+
+</main>

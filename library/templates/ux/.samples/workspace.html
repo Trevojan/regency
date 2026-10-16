@@ -1,0 +1,166 @@
+<!doctype html>
+<!-- Workspace sample (scaffolded by /regency:ux-init). AppFrame + the workspace view (../.views/README.md, archetype 1).
+     Every visible string is placeholder data; rationale lives in comments only.
+     Theme: ?theme=paper (default void). Render: see ../.accessibility/README.md (Rendering). -->
+<html lang="en" data-theme="void">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workspace sample</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../.tokens/theme.css">
+<link rel="stylesheet" href="../.components/components.css">
+<script>
+  // theme from the query string, before first paint
+  var t = new URLSearchParams(location.search).get("theme");
+  if (t) document.documentElement.setAttribute("data-theme", t);
+</script>
+</head>
+<body>
+<div class="ws-app">
+
+  <!-- TitleBar: product name (no mark yet: README §9), crumbs, palette entry, engine version -->
+  <header class="ws-title">
+    <span class="ws-title-name">Product</span>
+    <nav class="ws-crumbs" aria-label="Location"><span>workspace</span><span>/</span><b>ITEM-012</b></nav>
+    <span class="ws-grow"></span>
+    <button class="ws-palette-entry" type="button"><span class="ws-grow" style="text-align:left">Search commands</span><span class="ws-kbd">Ctrl K</span></button>
+    <span class="ws-engine">engine <b>1.4.0</b></span>
+  </header>
+
+  <div class="ws-app-main">
+    <!-- Rail: three-letter codes from the brief; badge = worst severity + count -->
+    <nav class="ws-rail" aria-label="Views">
+      <button class="ws-rail-i" aria-current="page" title="Workspace · Ctrl 1">EXP</button>
+      <button class="ws-rail-i" title="Library · Ctrl 2">LIB</button>
+      <button class="ws-rail-i" title="Runs · Ctrl 3">RUN</button>
+      <button class="ws-rail-i" title="Problems · Ctrl 4">PRB<span class="ws-rail-b is-fix">2</span></button>
+      <span class="ws-rail-sp"></span>
+      <button class="ws-rail-i" title="Settings · Ctrl ,">CFG</button>
+    </nav>
+
+    <main class="ws-app-view">
+      <!-- Navigator: tree with marks; selection is a row fill -->
+      <section class="ws-col ws-col-nav" aria-label="Navigator">
+        <div class="ws-pane-head"><span class="ws-label">Workspace</span><span class="ws-grow"></span><span class="ws-nav-n">14</span></div>
+        <div class="ws-tree" role="tree">
+          <div class="ws-tree-row is-dir" role="treeitem" aria-expanded="true" style="padding-left:8px"><span class="ws-tree-caret">▾</span><span class="ws-tree-name">items</span><span class="ws-m is-fix">■</span></div>
+          <div class="ws-tree-row" role="treeitem" aria-selected="true" style="padding-left:28px"><span class="ws-tree-caret"></span><span class="ws-tree-name">ITEM-012.src</span><span class="ws-tab-dirty">●</span><span class="ws-pill is-bare is-stale"><span class="ws-pill-m">◆</span></span></div>
+          <div class="ws-tree-row" role="treeitem" style="padding-left:28px"><span class="ws-tree-caret"></span><span class="ws-tree-name">ITEM-011.src</span><span class="ws-m is-fix">■</span></div>
+          <div class="ws-tree-row" role="treeitem" style="padding-left:28px"><span class="ws-tree-caret"></span><span class="ws-tree-name">ITEM-010.src</span><span class="ws-m is-ok">✓</span></div>
+          <div class="ws-tree-row is-dir" role="treeitem" aria-expanded="false" style="padding-left:8px"><span class="ws-tree-caret">▸</span><span class="ws-tree-name">norms</span><span class="ws-tree-tag">entry</span></div>
+          <div class="ws-tree-row is-dir" role="treeitem" aria-expanded="false" style="padding-left:8px"><span class="ws-tree-caret">▸</span><span class="ws-tree-name">plan</span></div>
+          <div class="ws-tree-row is-dir is-attic" role="treeitem" aria-expanded="false" style="padding-left:8px"><span class="ws-tree-caret">▸</span><span class="ws-tree-name">.history</span><span class="ws-tree-tag">attic</span></div>
+        </div>
+        <span class="ws-grow"></span>
+        <div class="ws-section" style="border-top:1px solid var(--line);border-bottom:0">
+          <span class="ws-label">Insert</span>
+          <div class="ws-chips">
+            <span class="ws-term is-accent"><span class="ws-term-n">TERM</span></span>
+            <span class="ws-term is-human"><span class="ws-term-n">PAIR</span></span>
+            <span class="ws-term is-system"><span class="ws-term-n">BLOCK</span></span>
+            <span class="ws-term is-accent"><span class="ws-term-n">REF</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Centre: tabs → source → output → this file's problems -->
+      <section class="ws-col ws-col-centre" aria-label="Editor">
+        <div class="ws-tabs" role="tablist">
+          <button class="ws-tab" role="tab" aria-selected="true"><span class="ws-tab-kind">SRC</span>ITEM-012.src<span class="ws-tab-dirty">●</span></button>
+          <button class="ws-tab" role="tab" aria-selected="false">ITEM-011.src</button>
+          <button class="ws-tab" role="tab" aria-selected="false">README.md</button>
+        </div>
+        <div class="ws-pane" style="flex:1.1">
+          <div class="ws-pane-head"><span class="ws-label">Source</span><span class="ws-link">items/ITEM-012.src</span><span class="ws-grow"></span><span class="ws-sev is-ask"><span class="ws-sev-m">◆</span>ask <span class="ws-sev-n">1</span></span></div>
+          <div class="ws-pane-body ws-code">
+<div class="ws-line"><span class="ws-gutter">1</span><span><span class="c-term">TERM</span><span class="c-punct">:</span> <span class="c-literal">'first value'</span></span></div>
+<div class="ws-line"><span class="ws-gutter">2</span><span><span class="c-term2">PAIR</span><span class="c-punct">:</span> <span class="c-literal">'left'</span><span class="c-punct">,</span> <span class="c-literal">'right'</span></span></div>
+<div class="ws-line"><span class="ws-gutter">3</span><span><span class="c-struct">BLOCK</span><span class="c-punct"> {</span></span></div>
+<div class="ws-line"><span class="ws-gutter">4</span><span>  <span class="c-term">REF</span><span class="c-punct">:</span> <span class="c-literal">'norms/RULES.md#rule-07'</span></span></div>
+<div class="ws-line is-active"><span class="ws-gutter"><span class="ws-gm is-ask">◆</span>5</span><span>  <span class="c-term">ASK</span><span class="c-punct">:</span> <span class="c-literal">''</span><span class="ws-inline is-ask">ask · EmptySlot</span></span></div>
+<div class="ws-line"><span class="ws-gutter">6</span><span>  <span class="c-term">TERM</span><span class="c-punct">:</span> <span class="c-literal">'second value'</span><span class="ws-inline is-pin">⚑ QA</span></span></div>
+<div class="ws-line"><span class="ws-gutter">7</span><span><span class="c-punct">}</span></span></div>
+          </div>
+        </div>
+        <div class="ws-pane" style="flex:1">
+          <div class="ws-pane-head"><span class="ws-label">Output</span>
+            <span class="ws-seg" role="group" aria-label="Format"><button class="ws-seg-i" aria-pressed="false">SRC</button><button class="ws-seg-i" aria-pressed="true">XML</button><button class="ws-seg-i" aria-pressed="false">JSON</button></span>
+            <span class="ws-grow"></span><button class="ws-btn ws-btn-ghost ws-btn-sm" type="button">Copy <span class="ws-kbd">Ctrl Shift C</span></button></div>
+          <div class="ws-pane-body ws-code">
+<div class="ws-line"><span class="ws-gutter">1</span><span><span class="c-punct">&lt;</span><span class="c-term">item</span> <span class="c-term2">id</span><span class="c-punct">=</span><span class="c-literal">"ITEM-012"</span><span class="c-punct">&gt;</span></span></div>
+<div class="ws-line"><span class="ws-gutter">2</span><span>  <span class="c-punct">&lt;</span><span class="c-term">term</span><span class="c-punct">&gt;</span>first value<span class="c-punct">&lt;/</span><span class="c-term">term</span><span class="c-punct">&gt;</span></span></div>
+<div class="ws-line"><span class="ws-gutter">3</span><span>  <span class="c-punct">&lt;</span><span class="c-term">block</span><span class="c-punct">&gt;</span></span></div>
+<div class="ws-line is-missing"><span class="ws-gutter">4</span><span>    <span class="c-missing">&lt;missing slot="ask"/&gt;</span></span></div>
+<div class="ws-line"><span class="ws-gutter">5</span><span>  <span class="c-punct">&lt;/</span><span class="c-term">block</span><span class="c-punct">&gt;</span></span></div>
+          </div>
+        </div>
+        <div class="ws-pane" style="flex:none">
+          <div class="ws-pane-head"><span class="ws-label">Problems · this file</span><span class="ws-grow"></span><span class="ws-sev is-ask is-bare"><span class="ws-sev-m">◆</span><span class="ws-sev-n">1</span></span></div>
+          <div class="ws-prob" role="option" aria-selected="false"><span class="ws-m is-ask">◆</span><span class="ws-prob-code">EmptySlot</span><span class="ws-prob-msg">Slot has no value; output carries a missing marker.</span><span class="ws-prob-at">5:3</span></div>
+        </div>
+      </section>
+
+      <!-- Inspector: follows the navigator selection -->
+      <aside class="ws-col ws-col-inspector" aria-label="Inspector">
+        <div class="ws-pane-head"><span class="ws-label">ITEM-012</span><span class="ws-grow"></span><span class="ws-pill is-stale"><span class="ws-pill-m">◆</span>stale</span></div>
+        <div class="ws-section is-rows">
+          <div class="ws-fc-row"><span class="ws-m is-ok">✓</span><span class="ws-fc-k">unit</span><span class="ws-fc-v">M02.D03.T04</span></div>
+          <div class="ws-fc-row"><span class="ws-m is-ok">✓</span><span class="ws-fc-k">owner</span><span class="ws-fc-v">DV</span></div>
+          <div class="ws-fc-row"><span class="ws-m is-ok">✓</span><span class="ws-fc-k">reads</span><span class="ws-fc-v ws-link">norms/RULES.md</span></div>
+          <div class="ws-fc-row"><span class="ws-m is-ask">◆</span><span class="ws-fc-k">returns</span><span class="ws-fc-v ws-faint">—</span></div>
+        </div>
+        <div class="ws-section">
+          <span class="ws-label">Links</span>
+          <a class="ws-link" href="#">plan/BACKLOG.md#item-012</a>
+          <a class="ws-link" href="#">norms/RULES.md#rule-07</a>
+        </div>
+        <div class="ws-section">
+          <div class="ws-row"><span class="ws-label">Run</span><span class="ws-grow"></span><span class="ws-link">RUN-007</span></div>
+          <ol class="ws-steps">
+            <li class="ws-step"><span class="ws-step-s ws-muted">↺</span><span class="ws-step-n">frame</span><span class="ws-actor is-human">RGN</span><span class="ws-step-d">reused</span></li>
+            <li class="ws-step is-current is-active"><span class="ws-step-s">●</span><span class="ws-step-n">build</span><span class="ws-actor">DV</span><span class="ws-step-d">ITEM-012</span></li>
+            <li class="ws-step"><span class="ws-step-s" style="color:var(--system)">○</span><span class="ws-step-n">gate</span><span class="ws-actor is-machine">CI</span><span class="ws-step-d">pending</span></li>
+            <li class="ws-step is-pending"><span class="ws-step-s ws-faint">○</span><span class="ws-step-n">verify</span><span class="ws-actor">QA</span><span class="ws-step-d">pending</span></li>
+            <li class="ws-step is-pending"><span class="ws-step-s ws-faint">○</span><span class="ws-step-n">accept</span><span class="ws-actor is-human">RGN</span><span class="ws-step-d">after review</span></li>
+          </ol>
+        </div>
+        <div class="ws-section" style="border-bottom:0">
+          <span class="ws-label">Preflight</span>
+          <ul class="ws-pf">
+            <li class="ws-pf-i"><span class="ws-pf-m" style="color:var(--ok)">✓</span><span class="ws-grow">Engine check<span class="ws-pf-d">0 fix</span></span></li>
+            <li class="ws-pf-i"><span class="ws-pf-m" style="color:var(--ask)">◆</span><span class="ws-grow">Required fields<span class="ws-pf-d">returns · empty</span></span><button class="ws-btn ws-btn-sm" type="button">Fill</button></li>
+            <li class="ws-pf-i"><span class="ws-pf-m" style="color:var(--ok)">✓</span><span class="ws-grow">Paths resolve<span class="ws-pf-d">2/2</span></span></li>
+          </ul>
+          <div class="ws-pf-act">
+            <button class="ws-btn ws-btn-primary" type="button">Re-issue <span class="ws-kbd">Ctrl E</span></button>
+            <button class="ws-btn" type="button">Open run</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- StatusBar: left identical in every view (engine · severities · open run); right belongs to the view -->
+  <footer class="ws-status">
+    <span class="ws-status-i">engine <b>1.4.0</b></span>
+    <span class="ws-sev is-fix is-bare"><span class="ws-sev-m">■</span><span class="ws-sev-n">2</span></span>
+    <span class="ws-sev is-ask is-bare"><span class="ws-sev-m">◆</span><span class="ws-sev-n">3</span></span>
+    <span class="ws-sev is-note is-bare"><span class="ws-sev-m">●</span><span class="ws-sev-n">2</span></span>
+    <span class="ws-status-i">RUN-007 <b>M02.D03.T04</b></span>
+    <span class="ws-grow"></span>
+    <span class="ws-status-i">5:3</span><span class="ws-status-i">SRC</span><span class="ws-status-i">UTF-8</span>
+  </footer>
+
+  <!-- Toast: every file-changing action ends with one, carrying Undo and the path -->
+  <div class="ws-toast-slot">
+    <div class="ws-toast" role="status">
+      <span class="ws-m is-ok">✓</span>
+      <span class="ws-toast-t">ITEM-011 re-issued<span class="ws-toast-d">→ .history/ITEM-011.1.src</span></span>
+      <button class="ws-btn ws-btn-sm" type="button">Undo <span class="ws-kbd">Ctrl Z</span></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

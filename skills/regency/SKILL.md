@@ -1,0 +1,98 @@
+---
+name: regency
+description: "Regency, the Regent's portable toolkit, and the entry point for /regency and every /regency:* command: orchestrated team passes (PO/DV/QA/DA), proceed, commit-and-merge, measure-changes, the five inference engines (critical, causal, decision, control, clean), the Scribe sub-agent, Orders (germinate, handoff, dispatch, resume), guidelines and frontend-documentation scaffolding, and code-to-norm lineage. Use when the user types /regency, asks 'call the team', 'run a pass', 'hand off', 'resume the project', or asks what regency can do."
+argument-hint: "[help | doctor | <subcommand> … | <unit>]"
+---
+
+# regency — the entry point
+
+> **Root.** This file is `skills/regency/SKILL.md`. The **regency root** is two directories above
+> it (the folder that holds `.claude-plugin/`). Every `library/…`, `scripts/…`, `skills/…` path
+> in any regency file is relative to that root. The folder is self-contained and
+> relocatable: nothing in it points outside itself. Root resolved for this session:
+> `${CLAUDE_PLUGIN_ROOT}`. If that shows a placeholder instead of a real path, the plugin is not
+> loaded: use the two-directories-above rule.
+
+Regency is a folder of playbooks, specifications and small scripts that makes any Claude Code
+instance work the way the Regent works. Loaded as a plugin it gives `/regency` and
+`/regency:<name>[:<sub>]`. Not loaded, it still works: every command is a playbook file
+(`skills/<name>/SKILL.md`) that any agent can read and follow. `README.md` explains both.
+
+## First, always
+
+1. Read `library/conventions.md` (once per session). It fixes labels (RGN, RGN-*), language,
+   how to handle doubts, what "proceed" and "commit" mean, what may be run without asking, and the
+   reporting format.
+2. Do not assume a project layout. Locate the project's documents with `library/layouts.md`.
+3. **Returning to a repository?** The first peek is the work ledger: `python scripts/vp.py ongoing`
+   (what is ongoing vs backlog), then `python scripts/vp.py trace` (every trace of agent work), then
+   reconcile — `library/conventions.md` §10. Do this before reading anything else in the project.
+
+## Routing
+
+Take the first word of the arguments:
+
+| First word | Do |
+|---|---|
+| empty, `help`, `?` | print the command table below, then one line on the project state if the guidelines are found |
+| `doctor` | run `python scripts/doctor.py` from the regency root and report the result; offer nothing else |
+| a command id from the table (`team`, `proceed`, `engine`, …) | open that command's playbook `skills/<id>/SKILL.md` and follow it with the rest of the arguments |
+| a unit id such as `M2.F3.T04` | treat it as `team <unit>` |
+| anything else | do **not** guess. Ask one closed question (a pop-up) listing the closest commands |
+
+When the Skill tool is available, call the target skill (`regency:<id>`); otherwise read its
+`SKILL.md` and follow it as written. Sub-commands (`/regency:engine:critical`) are the same skill
+with a first argument (`/regency:engine critical`); both forms are equivalent.
+
+## Commands
+
+<!-- regency:dispatch:begin -->
+| Command | What it does | Arguments | Playbook (no-plugin fallback) |
+|---|---|---|---|
+| `/regency` | Entry point: help, routing, doctor. A first token that names a subcommand is routed to it; a unit id such as M02.D03.T04 runs a team pass. | `[help \| doctor \| <subcommand> ... \| <unit>]` | `skills/regency/SKILL.md` |
+| `/regency:team` | One orchestrated pass over one unit of work: should the PO/DV/QA/DA team act, who does what, dispatch, and stop at the human review packet. | `[unit]` | `skills/team/SKILL.md` |
+| `/regency:team:declare` | Declare the pass only; dispatch nothing. | `[unit]` | same playbook, subcommand `declare` |
+| `/regency:team:status` | Report the review queue, regime, open returns and escalations. Starts no pass. | `` | same playbook, subcommand `status` |
+| `/regency:team:reopen` | Reopen a unit: new pass, fresh context, labelled as a reopening. | `<unit>` | same playbook, subcommand `reopen` |
+| `/regency:proceed` | Work the whole queue: keep taking tasks, queue doubts, stop only at a real blocker or an empty queue. Never commits, merges or pushes. | `[scope or queue pointer]` | `skills/proceed/SKILL.md` |
+| `/regency:arrange-cycle-commit` | Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. Never pushes main. | `[scope]` | `skills/arrange-cycle-commit/SKILL.md` |
+| `/regency:measure-changes` | Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing. | `<intended change \| 'tree'>` | `skills/measure-changes/SKILL.md` |
+| `/regency:engine` | Run one of the five inference engines on a claim, plan, decision, system or repository. | `<critical\|causal\|decision\|control\|clean> <material>` | `skills/engine/SKILL.md` |
+| `/regency:engine:critical` | Audit a claim, argument or design goal: validity, support, semantics, defeaters. | `<claim or material>` | same playbook, subcommand `critical` |
+| `/regency:engine:causal` | Turn goals, resources and constraints into a causal, testable architecture and the smallest sufficient roadmap. | `<brief>` | same playbook, subcommand `causal` |
+| `/regency:engine:decision` | Structure a choice under uncertainty: options, criteria, value of information, recommendation or deferral. | `<decision situation>` | same playbook, subcommand `decision` |
+| `/regency:engine:control` | Analyse or design a system that must regulate itself: feedback, delay, stability, observability. | `<system>` | same playbook, subcommand `control` |
+| `/regency:engine:clean` | Inspect, plan and (only with approval) clean a repository, workspace or agent context. | `<scope>` | same playbook, subcommand `clean` |
+| `/regency:role` | Act as exactly one team role under its own contract: PO, DV, QA or DA. | `<po\|dv\|qa\|da> <task>` | `skills/role/SKILL.md` |
+| `/regency:role:po` | Product Owner: frame the problem, order the ladder, accept or refuse. | `<task>` | same playbook, subcommand `po` |
+| `/regency:role:dv` | Developer: build inside the declared span, in revertible commits that each cite the task. | `<task>` | same playbook, subcommand `dv` |
+| `/regency:role:qa` | Quality Analyst: challenge criteria, verify from artefacts, write the risk opinion. | `<task>` | same playbook, subcommand `qa` |
+| `/regency:role:da` | Data Analyst: shape events and contracts, define metrics, supply the oracle. | `<task>` | same playbook, subcommand `da` |
+| `/regency:scribe` | Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines. | `<delegated material>` | `skills/scribe/SKILL.md` |
+| `/regency:order` | Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project. | `<germinate\|handoff\|dispatch\|resume> [material]` | `skills/order/SKILL.md` |
+| `/regency:order:germinate` | Grow the path to a goal as a tree: roots, trunk, branches, limits, locks, fruit, assumption. | `<goal>` | same playbook, subcommand `germinate` |
+| `/regency:order:handoff` | Close a stretch of work and hand its state to whoever opens the next one. | `` | same playbook, subcommand `handoff` |
+| `/regency:order:dispatch` | Hear an order over the O3/O2/O1 hierarchy, classify it and emit the dispatch manifest. | `<order>` | same playbook, subcommand `dispatch` |
+| `/regency:order:resume` | Reopen a project mid-work from its shortcuts index only, never from the whole repository. | `` | same playbook, subcommand `resume` |
+| `/regency:init` | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. Names every path before creating it; never overwrites. | `[target directory]` | `skills/init/SKILL.md` |
+| `/regency:ux-init` | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root (brief, foundations, tokens, patterns, views, components, accessibility, assets, samples, UX-UI rules, changelog; a README per folder), fill the brief with the Regent, then one folder per view and component. Never overwrites. | `[guidelines root]` | `skills/ux-init/SKILL.md` |
+| `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing vs backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|check\|ongoing\|trace> [argument]` | `skills/virtualpath/SKILL.md` |
+| `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
+| `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |
+| `/regency:virtualpath:stale` | List slices marked STALE, waiting for the Regent's check. | `` | same playbook, subcommand `stale` |
+| `/regency:virtualpath:check` | Check that every slice resolves to an anchor and every target file exists. | `` | same playbook, subcommand `check` |
+| `/regency:virtualpath:ongoing` | Read the work ledger (.virtual/ongoing.json): what is ongoing, in review, blocked or only backlog. First peek on returning to a repo. | `` | same playbook, subcommand `ongoing` |
+| `/regency:virtualpath:trace` | Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger. | `` | same playbook, subcommand `trace` |
+| `/regency:tailwind-audit` | Audit, fix or build a Tailwind frontend against a design-system norm: deterministic scan, manual passes, headless render at 360/768/1280 in light and dark, and a flex/grid/absolute layout knowledge base for confusing positions. | `[path \| 'layout' <symptom> \| 'render' <page>]` | `skills/tailwind-audit/SKILL.md` |
+| `/regency:station` | Mise-en-place before a pass: check the station is prepped (toolchain, trust, gate tasks, ledger, lineage), run the gate through mise, or propose a mise.toml. mise is optional. | `[check [unit] \| gate [task] \| scaffold [write] \| line]` | `skills/station/SKILL.md` |
+| `/regency:station:check` | The station gate: one line per item; red stops the pass. Read-only. | `[unit]` | same playbook, subcommand `check` |
+| `/regency:station:gate` | Run the mechanical gate through mise, one verdict per check; refuses an untrusted station. | `[task]` | same playbook, subcommand `gate` |
+| `/regency:station:scaffold` | Propose a mise.toml from the repository's stack; writes only when none exists. | `[write]` | same playbook, subcommand `scaffold` |
+| `/regency:station:line` | The station as one slice line. | `` | same playbook, subcommand `line` |
+<!-- regency:dispatch:end -->
+
+## Maintaining regency itself
+
+`library/registry.json` is the single source of truth for the commands above. After editing it, run
+`python scripts/build.py`; run `python scripts/doctor.py` before sharing the folder. Never edit the
+generated `commands/` aliases or the tables between the markers by hand.

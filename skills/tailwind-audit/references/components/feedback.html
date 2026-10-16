@@ -1,0 +1,104 @@
+<!-- lang: pt-BR -->
+<!-- Body fragment: feedback (norm §4.9, §4.10 toast, §4.13 data states). Render: python scripts/preview.py. -->
+<main class="mx-auto max-w-5xl space-y-12 px-4 py-8 sm:px-6">
+
+  <!-- Inline alerts: media object (F12) - icon shrink-0 with mt-0.5 to sit on the first text line, text min-w-0.
+       Tones match the badge. Error uses role="alert"; the rest role="status". Page alerts go right under the page
+       header, never between cards. -->
+  <div data-pattern="alert" data-case="tones">
+    <div class="grid max-w-2xl gap-3">
+      <div role="status" class="flex gap-3 rounded-lg border border-info-200 bg-info-50 p-4">
+        <svg class="mt-0.5 size-4 shrink-0 text-info-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+        <div class="min-w-0 text-sm">
+          <p class="font-medium text-info-700">Nova versão do relatório</p>
+          <p class="mt-1 text-ink-muted">Os filtros salvos continuam disponíveis.</p>
+        </div>
+      </div>
+      <div role="status" class="flex gap-3 rounded-lg border border-success-200 bg-success-50 p-4">
+        <svg class="mt-0.5 size-4 shrink-0 text-success-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+        <div class="min-w-0 text-sm">
+          <p class="font-medium text-success-700">Importação concluída</p>
+          <p class="mt-1 text-ink-muted">2.340 pedidos importados.</p>
+        </div>
+      </div>
+      <div role="status" class="flex gap-3 rounded-lg border border-warning-200 bg-warning-50 p-4">
+        <svg class="mt-0.5 size-4 shrink-0 text-warning-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <div class="min-w-0 text-sm">
+          <p class="font-medium text-warning-700">Sincronização atrasada</p>
+          <p class="mt-1 text-ink-muted">Os dados de hoje podem estar incompletos.</p>
+        </div>
+      </div>
+      <div role="alert" class="flex gap-3 rounded-lg border border-danger-200 bg-danger-50 p-4">
+        <svg class="mt-0.5 size-4 shrink-0 text-danger-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+        <div class="min-w-0 text-sm">
+          <p class="font-medium text-danger-700">Falha ao gerar o relatório</p>
+          <p class="mt-1 text-ink-muted">A API demorou demais para responder. Tente de novo em instantes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data states (§4.13): one card, four states, same height. The body has a fixed height (h-60) so the card
+       never jumps between states; content is centred in it (F11). Loading = skeleton in the final shape,
+       never a lone spinner. Cards share the row through the grid (G01). -->
+  <div data-pattern="data-states" data-case="loading-empty-error">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <article class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-4" aria-busy="true">
+        <header class="px-5 pt-5">
+          <h2 class="truncate text-base font-semibold text-ink">Vendas por canal</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Últimos 30 dias</p>
+        </header>
+        <div class="flex h-60 flex-col justify-end gap-3 px-5 py-5 motion-safe:animate-pulse">
+          <div class="h-4 w-11/12 rounded-md bg-surface-sunken"></div>
+          <div class="h-4 w-3/4 rounded-md bg-surface-sunken"></div>
+          <div class="h-4 w-1/2 rounded-md bg-surface-sunken"></div>
+          <div class="h-4 w-1/3 rounded-md bg-surface-sunken"></div>
+        </div>
+      </article>
+      <article class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-4">
+        <header class="px-5 pt-5">
+          <h2 class="truncate text-base font-semibold text-ink">Vendas por canal</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Últimos 30 dias</p>
+        </header>
+        <div class="flex h-60 flex-col items-center justify-center gap-2 px-5 py-5 text-center">
+          <svg class="size-8 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>
+          <p class="text-sm font-medium text-ink">Nenhuma venda neste período</p>
+          <p class="text-sm text-ink-muted">Amplie o intervalo de datas.</p>
+          <button type="button" class="mt-1 inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Últimos 90 dias</button>
+        </div>
+      </article>
+      <article class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-4">
+        <header class="px-5 pt-5">
+          <h2 class="truncate text-base font-semibold text-ink">Vendas por canal</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Últimos 30 dias</p>
+        </header>
+        <div role="alert" class="flex h-60 flex-col items-center justify-center gap-2 px-5 py-5 text-center">
+          <svg class="size-8 text-danger-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+          <p class="text-sm font-medium text-ink">Não foi possível carregar</p>
+          <p class="text-sm text-ink-muted">A API demorou demais para responder.</p>
+          <button type="button" class="mt-1 inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Tentar de novo</button>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- Toast. Product: `fixed inset-x-4 bottom-4 z-60` on a container rendered outside any transformed or blurred
+       ancestor (A06). The container spans the viewport minus 16px each side and right-aligns a column of toasts
+       (items-end), so on a phone a toast is full width and from sm it is w-80: no arbitrary max-width needed.
+       Shown here `absolute` inside a relative box so the sample stays in place.
+       Disappears after 5 s; errors stay until closed. -->
+  <div data-pattern="toast" data-case="sample">
+    <div class="relative h-40 rounded-lg border border-dashed border-line-strong">
+      <div class="absolute inset-x-4 bottom-4 z-60 flex flex-col items-end gap-2" aria-live="polite">
+        <div role="status" class="flex w-full items-start gap-3 rounded-lg border border-line bg-surface p-4 shadow-lg sm:w-80">
+          <svg class="mt-0.5 size-4 shrink-0 text-success-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+          <p class="min-w-0 flex-1 text-sm text-ink">Pedido 1042 salvo</p>
+          <button type="button" aria-label="Fechar" title="Fechar" class="-me-1 -mt-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-ink-subtle transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+            <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>

@@ -1,0 +1,119 @@
+<glyph-package engine="3.4.7.05">
+  <schema/>
+  <block once="true">
+    <block binds="order">
+      <user-input>order</user-input>
+      <context>
+        <user-input>an order opened over an existing D-hierarchy</user-input>
+        <user-input>any project</user-input>
+        <user-input>filled by the Regente before dispatch</user-input>
+      </context>
+      <skill imperative="true" binds="call-team">
+        <user-input>call-team</user-input>
+        <instruction>
+          <user-input>hear this order, classify it, and emit the dispatch manifest</user-input>
+        </instruction>
+      </skill>
+      <section binds="hierarchy">
+        <user-input>hierarchy</user-input>
+        <define-symbol>
+          <user-input>D3</user-input>
+          <user-input>feature — the major concept; fragments into D2 and is never worked directly</user-input>
+        </define-symbol>
+        <define-symbol>
+          <user-input>D2</user-input>
+          <user-input>concept — the cluster of D1 that fills one D3; owns its file and acts as checkpoint</user-input>
+        </define-symbol>
+        <define-symbol>
+          <user-input>D1</user-input>
+          <user-input>task — atomic, the unit of work and the unit of resume</user-input>
+        </define-symbol>
+        <reference>
+          <needs slot="plano">where the D3/D2/D1 breakdown already lives — this order reads it, never re-derives it</needs>
+        </reference>
+        <do-not>
+          <user-input>fragment again what a previous command already fragmented</user-input>
+        </do-not>
+      </section>
+      <template name="germinate" expanded="true" means="Walks every aspect of a situation as seeds and grows the path to the goal as a tree: roots the problem, trunk the ordered effort, branches the resources it leans on, limits what is out of reach, locks what no step may bend, fruit the state that ends the work. Closes on an assumption that can be knocked down in one line.">
+        <skill imperative="true">
+          <user-input>tree logic structure</user-input>
+          <iterate>
+            <user-input slot="alvo">the D3 this order opens, stated as the problem it closes rather than as the thing to build</user-input>
+          </iterate>
+        </skill>
+        <section binds="roots">
+          <user-input>roots</user-input>
+          <problem>
+            <invoke reads="[ERROR[CTX]]" species="composite" depth="1"/>
+            <user-input slot="alvo">the D3 this order opens, stated as the problem it closes rather than as the thing to build</user-input>
+          </problem>
+        </section>
+        <section binds="trunk">
+          <user-input>trunk</user-input>
+          <instruction>
+            <user-input slot="esforco">the D2 concepts that fill this D3, in dependency order — one line each, no D1 detail here</user-input>
+          </instruction>
+        </section>
+        <section binds="branches">
+          <user-input>branches</user-input>
+          <reference>
+            <user-input slot="ramo">a D1 already written, named by id and file — repeat once per task this order consumes</user-input>
+          </reference>
+        </section>
+        <section binds="limits">
+          <user-input>limits</user-input>
+          <restriction>
+            <invoke reads="[IF[SKEP[CNST]][TRUE][LIM-GO[CTX-EQ[CNST]]]]" species="composite" depth="1"/>
+            <user-input slot="limite">the D2 and D3 this order does not touch, and the guarantees the result must not break</user-input>
+          </restriction>
+        </section>
+        <section binds="locks">
+          <user-input>locks</user-input>
+          <constraint>
+            <user-input slot="trava">what no D1 may bend, whatever else moves in the tree</user-input>
+          </constraint>
+          <never force="editorial">
+            <user-input>no self-attested gate, and no acceptance criterion rewritten so the work passes</user-input>
+          </never>
+        </section>
+        <section binds="fruit">
+          <user-input>fruit</user-input>
+          <target>
+            <user-input slot="fruto">the state that closes this D3 — observable by someone who did not do the work</user-input>
+          </target>
+          <ready>
+            <user-input>each fruit stated as an observable condition, not as an intention</user-input>
+          </ready>
+        </section>
+        <section binds="assumptions">
+          <user-input>assumptions</user-input>
+          <assumption>
+            <invoke reads="[ADD[CORE]],[NEV[VRFY]]" species="composite" depth="2"/>
+            <user-input slot="suposicao">what is taken as given about the existing breakdown and was not checked against the repo</user-input>
+          </assumption>
+          <question>
+            <invoke reads="[CTX[GET[CORE],[WHR[LOGIC-NONE]]],[ASK]]" species="composite" depth="1"/>
+            <user-input>knock this down in one line and the tree becomes a new version</user-input>
+          </question>
+        </section>
+        <validate>
+          <invoke reads="[CMP-CTX[CNST]][SUB[EQ[CMP-CTX]]][CAT-EQ]" species="composite" depth="5"/>
+          <user-input>the grown tree</user-input>
+          <user-input slot="criterio">the criterion the finished D3 is validated against</user-input>
+        </validate>
+      </template>
+      <section binds="resume">
+        <user-input>resume</user-input>
+        <get>
+          <where>
+            <user-input>the last completed D1</user-input>
+          </where>
+        </get>
+        <go>
+          <user-input>continue from there, never from the top of the tree</user-input>
+        </go>
+      </section>
+    </block>
+  </block>
+</glyph-package>

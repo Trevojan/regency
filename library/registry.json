@@ -1,0 +1,234 @@
+{
+  "plugin": "regency",
+  "version": "2.3",
+  "_about": "Single source of truth for every /regency command. Edit here, then run: python scripts/build.py. Never edit commands/ or the generated dispatch tables by hand. Version is a.b (library/conventions.md section 13).",
+  "commands": [
+    {
+      "id": "regency",
+      "skill": "regency",
+      "bare": true,
+      "summary": "Entry point: help, routing, doctor. A first token that names a subcommand is routed to it; a unit id such as M02.D03.T04 runs a team pass.",
+      "args": "[help | doctor | <subcommand> ... | <unit>]"
+    },
+    {
+      "id": "team",
+      "skill": "team",
+      "summary": "One orchestrated pass over one unit of work: should the PO/DV/QA/DA team act, who does what, dispatch, and stop at the human review packet.",
+      "args": "[unit]",
+      "subs": [
+        {
+          "id": "declare",
+          "summary": "Declare the pass only; dispatch nothing.",
+          "args": "[unit]"
+        },
+        {
+          "id": "status",
+          "summary": "Report the review queue, regime, open returns and escalations. Starts no pass.",
+          "args": ""
+        },
+        {
+          "id": "reopen",
+          "summary": "Reopen a unit: new pass, fresh context, labelled as a reopening.",
+          "args": "<unit>"
+        }
+      ]
+    },
+    {
+      "id": "proceed",
+      "skill": "proceed",
+      "summary": "Work the whole queue: keep taking tasks, queue doubts, stop only at a real blocker or an empty queue. Never commits, merges or pushes.",
+      "args": "[scope or queue pointer]"
+    },
+    {
+      "id": "arrange-cycle-commit",
+      "skill": "arrange-cycle-commit",
+      "summary": "Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. Never pushes main.",
+      "args": "[scope]"
+    },
+    {
+      "id": "measure-changes",
+      "skill": "measure-changes",
+      "summary": "Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing.",
+      "args": "<intended change | 'tree'>"
+    },
+    {
+      "id": "engine",
+      "skill": "engine",
+      "summary": "Run one of the five inference engines on a claim, plan, decision, system or repository.",
+      "args": "<critical|causal|decision|control|clean> <material>",
+      "subs": [
+        {
+          "id": "critical",
+          "summary": "Audit a claim, argument or design goal: validity, support, semantics, defeaters.",
+          "args": "<claim or material>"
+        },
+        {
+          "id": "causal",
+          "summary": "Turn goals, resources and constraints into a causal, testable architecture and the smallest sufficient roadmap.",
+          "args": "<brief>"
+        },
+        {
+          "id": "decision",
+          "summary": "Structure a choice under uncertainty: options, criteria, value of information, recommendation or deferral.",
+          "args": "<decision situation>"
+        },
+        {
+          "id": "control",
+          "summary": "Analyse or design a system that must regulate itself: feedback, delay, stability, observability.",
+          "args": "<system>"
+        },
+        {
+          "id": "clean",
+          "summary": "Inspect, plan and (only with approval) clean a repository, workspace or agent context.",
+          "args": "<scope>"
+        }
+      ]
+    },
+    {
+      "id": "role",
+      "skill": "role",
+      "summary": "Act as exactly one team role under its own contract: PO, DV, QA or DA.",
+      "args": "<po|dv|qa|da> <task>",
+      "subs": [
+        {
+          "id": "po",
+          "summary": "Product Owner: frame the problem, order the ladder, accept or refuse.",
+          "args": "<task>"
+        },
+        {
+          "id": "dv",
+          "summary": "Developer: build inside the declared span, in revertible commits that each cite the task.",
+          "args": "<task>"
+        },
+        {
+          "id": "qa",
+          "summary": "Quality Analyst: challenge criteria, verify from artefacts, write the risk opinion.",
+          "args": "<task>"
+        },
+        {
+          "id": "da",
+          "summary": "Data Analyst: shape events and contracts, define metrics, supply the oracle.",
+          "args": "<task>"
+        }
+      ]
+    },
+    {
+      "id": "scribe",
+      "skill": "scribe",
+      "summary": "Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines.",
+      "args": "<delegated material>"
+    },
+    {
+      "id": "order",
+      "skill": "order",
+      "summary": "Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project.",
+      "args": "<germinate|handoff|dispatch|resume> [material]",
+      "subs": [
+        {
+          "id": "germinate",
+          "summary": "Grow the path to a goal as a tree: roots, trunk, branches, limits, locks, fruit, assumption.",
+          "args": "<goal>"
+        },
+        {
+          "id": "handoff",
+          "summary": "Close a stretch of work and hand its state to whoever opens the next one.",
+          "args": ""
+        },
+        {
+          "id": "dispatch",
+          "summary": "Hear an order over the O3/O2/O1 hierarchy, classify it and emit the dispatch manifest.",
+          "args": "<order>"
+        },
+        {
+          "id": "resume",
+          "summary": "Reopen a project mid-work from its shortcuts index only, never from the whole repository.",
+          "args": ""
+        }
+      ]
+    },
+    {
+      "id": "init",
+      "skill": "init",
+      "summary": "Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. Names every path before creating it; never overwrites.",
+      "args": "[target directory]"
+    },
+    {
+      "id": "ux-init",
+      "skill": "ux-init",
+      "summary": "Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root (brief, foundations, tokens, patterns, views, components, accessibility, assets, samples, UX-UI rules, changelog; a README per folder), fill the brief with the Regent, then one folder per view and component. Never overwrites.",
+      "args": "[guidelines root]"
+    },
+    {
+      "id": "virtualpath",
+      "skill": "virtualpath",
+      "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing vs backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
+      "args": "<code|slice|stale|check|ongoing|trace> [argument]",
+      "subs": [
+        {
+          "id": "code",
+          "summary": "Which norm slices govern this code file? Read them before editing it.",
+          "args": "<code path>"
+        },
+        {
+          "id": "slice",
+          "summary": "Which code does this norm slice govern?",
+          "args": "<virtual path>"
+        },
+        {
+          "id": "stale",
+          "summary": "List slices marked STALE, waiting for the Regent's check.",
+          "args": ""
+        },
+        {
+          "id": "check",
+          "summary": "Check that every slice resolves to an anchor and every target file exists.",
+          "args": ""
+        },
+        {
+          "id": "ongoing",
+          "summary": "Read the work ledger (.virtual/ongoing.json): what is ongoing, in review, blocked or only backlog. First peek on returning to a repo.",
+          "args": ""
+        },
+        {
+          "id": "trace",
+          "summary": "Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger.",
+          "args": ""
+        }
+      ]
+    },
+    {
+      "id": "tailwind-audit",
+      "skill": "tailwind-audit",
+      "summary": "Audit, fix or build a Tailwind frontend against a design-system norm: deterministic scan, manual passes, headless render at 360/768/1280 in light and dark, and a flex/grid/absolute layout knowledge base for confusing positions.",
+      "args": "[path | 'layout' <symptom> | 'render' <page>]"
+    },
+    {
+      "id": "station",
+      "skill": "station",
+      "summary": "Mise-en-place before a pass: check the station is prepped (toolchain, trust, gate tasks, ledger, lineage), run the gate through mise, or propose a mise.toml. mise is optional.",
+      "args": "[check [unit] | gate [task] | scaffold [write] | line]",
+      "subs": [
+        {
+          "id": "check",
+          "summary": "The station gate: one line per item; red stops the pass. Read-only.",
+          "args": "[unit]"
+        },
+        {
+          "id": "gate",
+          "summary": "Run the mechanical gate through mise, one verdict per check; refuses an untrusted station.",
+          "args": "[task]"
+        },
+        {
+          "id": "scaffold",
+          "summary": "Propose a mise.toml from the repository's stack; writes only when none exists.",
+          "args": "[write]"
+        },
+        {
+          "id": "line",
+          "summary": "The station as one slice line.",
+          "args": ""
+        }
+      ]
+    }
+  ]
+}
