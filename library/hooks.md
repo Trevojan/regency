@@ -32,9 +32,10 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted; a release verb ends the hazard watch; routes a Regent verb |
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write; `ask` destructive, layout, install |
-| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, lock slices, banned names; `ask` under hazard watch (R4.4) |
+| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
 | `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint; STALE under governing slices (R4.3) |
-| `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command |
+| `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command that reached the project |
+| `PostToolUse` | `Agent\|Task` | `hook-hazard.py` | recorder | records the write permits a `po` or `qa` role agent returned |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; one context line |
@@ -82,15 +83,29 @@ First match wins:
 3. **A lock slice** cites the file in the manifest → deny; the Regent changes the norm first.
 4. **A new name** (file or missing folder) carries `Base`, `Abs`, `Mgr`, `Helper`, `Common`, `Utils`
    → deny (conventions §14). Existing files keep their names.
-5. **Hazard watch on** → ask.
+5. **Hazard watch on** and no permit covers the path → deny, naming the two ways through: a permit, or
+   the Regent's release verb.
 
 ### The hazard watch
 
 ```text
-off ──(a destructive command ran: PostToolUse)──▶ on ──(the Regent says a release verb: UserPromptSubmit)──▶ off
-              while on: every file write asks the Regent; reading, searching, git status stay free
+off ──(a destructive command reached the project: PostToolUse)──▶ on ──(the Regent says a release verb: UserPromptSubmit)──▶ off
+              while on: a file write no permit covers is refused; reading, searching, git status stay free
               an ordinary message from the Regent keeps it on (R5.2)
 ```
+
+**Reaching the project.** `history` and `discard` always do. A `delete` does unless every path it names
+lies outside the project root: `rm -rf` on a temp or scratch folder starts nothing. A path the hook cannot
+resolve (`$d`, a glob) counts as inside.
+
+**Permits.** The watch interrupts nobody: the refusal goes to the agent, not to a pop-up. The agent
+dispatches the `po` or `qa` role agent with the files it needs and why; the role agent answers with one
+line per grant, `permit: <glob>[, <glob>] -- <reason>`, and `hook-hazard.py` (`PostToolUse Agent|Task`)
+records the globs for the session. A line without a reason grants nothing; any other agent's lines are
+ignored, so the agent that needs a permit never grants it (conventions §1). A role agent may grant ahead
+of any watch: that is the session's permission list. Globs match the path relative to the project root.
+Permits need the role agents installed (`scripts/install-agents.py`); without them, only the release
+verb opens the watch.
 
 The release verbs are the rows of conventions §9 whose command is `hook-hazard.py --clear`
 (`libere`, `release`); the ask shown on every write names them. Session-scoped, stored outside the

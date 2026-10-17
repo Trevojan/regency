@@ -39,6 +39,7 @@ the self-tests. The consequences are in `library/hooks.md` §6.
 | `async: true` hooks run in the background, unbounded, and cannot block | the journal is async except on `PreCompact` and `SessionEnd` |
 | `SessionEnd` hooks share a 1.5 s budget | the journal's `SessionEnd` entry has a 2 s timeout |
 | `CLAUDE_PLUGIN_DATA` is the plugin's persistent data folder | session state (the hazard watch) lives there, never in a repository |
+| `PostToolUse` on `Agent`/`Task` carries `tool_input.subagent_type` and the subagent's returned text in `tool_response` | `hook-gov.py` routes packets and `hook-hazard.py` records PO/QA permits from it; confirm on the first live permit |
 
 ## Traps met while testing
 
@@ -46,8 +47,11 @@ the self-tests. The consequences are in `library/hooks.md` §6.
   `git -C remote.git fetch ../work main:seed` instead of pushing.
 - Testing a plugin hook while the same guard is installed at user level: both deny, so the user-level one
   hides the result. Load a copy with a renamed plugin and a tagged deny reason, then look for the tag.
-- The hazard hook asks before `rm`, so a live test that cleans up with `rm` then sees every write ask
-  until the Regent says `libere`. Release with `python scripts/hook-hazard.py --clear`.
+- The hazard hook asks before `rm`. A live test that cleans up inside the project then sees every write
+  refused until a PO/QA permit or the Regent's `libere`; clean up in a temp folder instead, which starts
+  no watch. Release with `python scripts/hook-hazard.py --clear`.
+- Run `doctor.py` with `PYTHONUTF8=1` on Windows: under the cp1252 console the hook wire check and the
+  `ux brief` check crash on `§` and `⟨` before they test anything.
 - Hook self-tests build their project with `hook_wire.build_fixture` in a temp folder and point session
   state at `REGENCY_HOOK_STATE`; never run a self-test against a real project.
 
@@ -61,6 +65,7 @@ the self-tests. The consequences are in `library/hooks.md` §6.
 | 2026-10-06 | the push guard ships with the plugin (`hooks/hooks.json`); the user-level hook stays as a second guard until the plugin hook is confirmed live | yes |
 | 2026-10-06 | Glyph is outside regency's scope for now: the Order templates are read from `library/orders/README.md` alone; revisit when Glyph joins | yes |
 | 2026-10-09 | R5: cloud reads run, a cloud write needs the exact command quoted by the Regent in the pass; the hazard watch ends only on a release verb; checkpoint journal and fingerprints are tracked in git; guards fail closed | yes |
+| 2026-10-17 | the hazard watch interrupts nobody: it starts only when a destructive command reached the project, refuses the writes no permit covers, and a `po` or `qa` role agent grants the permits — a session list, when needed; the release verb still ends it | yes |
 | 2026-10-08 | R4: hooks are triggers, scripts are engines; SessionStart resume slice; PostToolUse fingerprint + STALE; PreToolUse acts and naming guard with the hazard watch; no Stop hook (`library/hooks.md`) | yes |
 
 ## Machine-level pieces and their sources

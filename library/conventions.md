@@ -95,8 +95,9 @@ Without asking, an agent may: read, search, edit inside the task, run the build,
 app, containers and local servers, and kill its own stray processes.
 Ask first before: deleting, force operations, "danger-zone" commands, changing worktree or branch
 layout, installing system software, and **anything that touches cloud, production or shared data**.
-`scripts/hook-hazard.py` asks for the destructive ones before they run and, once one has run, keeps
-file writes waiting for the Regent until the Regent says a release verb (§9; `library/hooks.md` §2).
+`scripts/hook-hazard.py` asks for the destructive ones before they run and, once one has reached the
+project, refuses file writes that no permit from the `po` or `qa` agent covers, until the Regent says a
+release verb (§9; `library/hooks.md` §2). The agent that needs a permit never grants it.
 
 ## 6. Scope and ownership
 
