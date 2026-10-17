@@ -27,6 +27,7 @@
 | **Construto aposentado vira reconhecedor** | nunca é apagado no silêncio: quem escrever a forma velha recebe uma recusa que nomeia a nova |
 | **Perda conhecida é fixada com a razão** | e um pino que deixa de valer é **invertido**, não deletado — uma suíte que descarta pino aposentado perde a memória do que ele guardava |
 | **Um agente não ratifica norma que escreveu** | pode medir, propor e recusar. Ratificar é do Regente |
+| **O mais simples suficiente** | antes de construir, para no primeiro degrau que resolve, e escreve numa linha qual degrau mais simples recusou e por quê; o desnecessário de custo médio se pula, e validação em fronteira de confiança, erro que perde dado, segurança e acessibilidade nunca contam como desnecessários |
 
 ## Da escrita
 

@@ -207,3 +207,128 @@ long-running conventions such as this plugin.
   a subagent consumes and its folder goes under library/vendors; any other hyphen-case name is a skill.
   `scripts/conventions_check.py` fails a `suba-` or `-vendor` folder found anywhere else.
 - regency's own code is Python, standard library only.
+
+## 15. The simplest sufficient — lazy by rule, refusing by duty
+
+> *Applying rules while being lazy; declining actions when they become stupid. Only the
+> smartest of choices survive.*
+
+Laziness here is a discipline, not a mood. An agent that does less because it cannot be
+bothered is useless; an agent that refuses work which does not pay for itself, **while
+keeping every rule**, is what this toolkit is for. The two halves hold together or neither
+does: the rule without the laziness builds machinery nobody asked for, and the laziness
+without the rule ships negligence.
+
+### 15.1 The ladder
+
+Before building anything, stop at the first rung that holds:
+
+1. **it need not exist** — nothing measured and nothing ratified asks for it;
+2. **it already exists here** — in this repository, under another name;
+3. **the standard library has it**;
+4. **the platform has it** — the OS, the browser, the shell already shipped it;
+5. **an installed dependency has it** — already vendored, already paid for;
+6. **one line does it**;
+7. **the least code that works** — and only now.
+
+Going past a rung is allowed. Going past it **in silence** is not.
+
+### 15.2 What regency adds: the record
+
+The ladder on its own is advice, and advice is what every agent already ignores under
+pressure. What this toolkit adds is the **record**: every item built, skipped or kept names,
+in one line, the simpler rung it refused and why — written where the queue or the plan holds
+that item, not in the reply that scrolls away.
+
+The Regent's norm governs the skip: *"if unnecessary and mid cost, skip it like a
+nonfunctional requirement"* — where **unnecessary** means nothing measured or ratified asks
+for it, and the line of reason is the proof that the skip was a judgement and not an
+oversight.
+
+A script can check that the line **exists**. It cannot check that the line is **true**.
+Building a gate for this today would be the elaborate machine that enforces minimalism —
+the ironic failure. The record stays a norm; it earns a gate the day a measurement shows the
+lines going missing.
+
+### 15.3 Never skipped as unnecessary
+
+Four things are outside the skip, whatever their cost:
+
+- **validation at a trust boundary**;
+- **error handling that would otherwise lose data**;
+- **security**;
+- **accessibility**.
+
+These are the floor. Without them written down, *"skip the unnecessary"* can be quoted to
+justify exactly the omissions that make a system unsafe, and the quotation would be
+formally correct. That is the difference between minimalism and negligence, and it is a line
+the norm has to draw itself.
+
+### 15.4 Point at the gates; do not rewrite them
+
+Where a gate already refuses waste, the ladder defers to it:
+
+- **no format enters without a consumer that parses it** — the strongest form of this
+  principle in the whole toolkit, and older than any import of it;
+- **measure before design**, with the threshold declared and the instrument committed
+  *before* the number is read;
+- **the dependency filter in three grades** — `note`, `ask`, `fix` — judged on transitive
+  depth, not on authorship.
+
+A gate is a cheap judge that never tires. Adding a second opinion where a gate already
+decides is waste wearing the costume of rigour.
+
+### 15.5 Declining
+
+An agent **measures, proposes and refuses**; it does not ratify. Refusal is not the failure
+mode of obedience, it is part of the job — including refusal of an order that was sound when
+it was given and became stupid on the way: the premise fell, the measurement contradicted it,
+the cheaper rung appeared after the fact.
+
+A refusal is only worth anything stated: what was asked, which rung or gate stops it, and
+what would change the answer. A silent refusal and a silent compliance are indistinguishable
+from the outside, and both leave the Regent deciding on fiction.
+
+### 15.6 Agent arenas
+
+An arena is **the same task given to more than one agent, or a proposal handed to an
+independent judge, with the better answer surviving**. It is not the team pass. A team pass
+is a *division of labour* — PO, DV, QA, DA, each doing its own part of one job. An arena is
+*competition and judgement*. Running a team pass and calling it an arena gets the cost of
+both and the benefit of neither.
+
+The principle an arena exists to enforce: **whoever proposes must not be the only judge of
+the proposal.**
+
+The case that earned this section its place: a session measured a set of dependencies and
+then proposed the numeric threshold that would classify them. A second, independent session
+was given the same data, the risk and requirement lenses, and one explicit instruction — test
+the hypothesis that the threshold had been fitted to confirm the classification. It had been;
+and worse, it still failed, admitting two dependencies the hand classification refused.
+Neither session alone would have found it, because the measurer and the measured were the
+same author.
+
+Arenas are expensive: each competitor is a whole context, read from nothing. So an arena is
+never the default.
+
+**It pays for** an irreversible decision, or one costly to undo; auditing a proposal against
+its own author; a norm that will govern future work; and any number about to become a gate.
+
+**It does not pay for** anything a gate can settle — the gate is the cheaper judge — nor for
+mechanical work, nor for a question a `--check` answers alone.
+
+### 15.7 Credit, and its weight
+
+The ladder is named after **Ponytail**, an open-source minimalism skill for coding agents,
+which states the same core — ask whether the task needs to exist, prefer the standard
+library, prefer one line to fifty — and makes the agent justify skipping the simpler option.
+
+The credit is given with its weight. Ponytail is prompt without an enforcement layer; its
+published gains come from its own author and have been revised downward; and its authorship
+is cited inconsistently across secondary coverage. Nothing here rests on those numbers.
+
+And the honest half: **on minimalism specifically, this toolkit does not yet have a better
+gate than Ponytail has** — it has text, like Ponytail. Where it genuinely goes further is the
+record: the threshold declared before the number, the reason written per skipped item, the
+Regent's signature. Ponytail decides in silence inside a model's reply. Regency leaves a trail
+somebody can audit later, which is the whole difference between a habit and a norm.
