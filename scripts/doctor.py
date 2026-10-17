@@ -59,6 +59,7 @@ REQUIRED_WIRING = (
     ("PreToolUse", "NotebookEdit", "hook-acts-guard.py"),
     ("PostToolUse", "Edit", "hook-lineage.py"), ("PostToolUse", "Write", "hook-lineage.py"),
     ("PostToolUse", "Bash", "hook-hazard.py"), ("PostToolUse", "PowerShell", "hook-hazard.py"),
+    ("PostToolUse", "Agent", "hook-hazard.py"), ("PostToolUse", "Task", "hook-hazard.py"),
     ("PostToolUse", "Edit", "hook-journal.py"), ("PostToolUse", "Bash", "hook-journal.py"),
     ("SessionStart", "startup", "hook-resume.py"), ("SessionStart", "resume", "hook-resume.py"),
     ("SessionStart", "compact", "hook-resume.py"),

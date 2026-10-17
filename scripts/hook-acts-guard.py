@@ -8,8 +8,9 @@ Decision record R4.4. One answer per call, first match wins:
                          ladder plan LADDER_*, opinion, dated handoff — add a new one   (conventions §7)
   deny  lock slice       the file is governed by a manifest slice with on_mutation=lock (virtualpath §2)
   deny  banned name      a NEW path carries Base/Abs/Mgr/Helper/Common/Utils           (conventions §14)
-  ask   hazard watch     a destructive step ran this session; writes wait until the Regent says a
-                         release verb (set by hook-hazard.py, released by hook-verbs.py; R5.2)
+  deny  hazard watch     a destructive step ran in the project this session and no PO/QA permit covers
+                         the path; a permit or the Regent's release verb lets writes through
+                         (set and permitted by hook-hazard.py, released by hook-verbs.py; R5.2)
   (nothing)              the write proceeds
 
 Market pattern: tool guardrail with a tripwire (OpenAI Agents SDK), policy-as-code before the side
@@ -18,6 +19,7 @@ effect. A broken guard answers 'ask', never a silent pass (hook_wire.serve, guar
 Modes:  (no args) hook · --selftest
 Pure standard library, Python 3.8+.
 """
+import importlib.util
 import os
 import re
 import sys
@@ -28,6 +30,10 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
 from conventions_check import BANNED, tokens  # noqa: E402
+
+_spec = importlib.util.spec_from_file_location("hook_hazard", Path(__file__).resolve().parent / "hook-hazard.py")
+hazard = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(hazard)  # the permits live with the watch
 
 ACTS = (  # (kind, filename pattern, what to do instead)
     ("Order", re.compile(r"^ORD-\d{4,}"), "an Order is immutable: write a versioned file or an INTAKE-*.md"),
@@ -84,10 +90,12 @@ def respond(event):
             return wire.permission("deny", f"new name '{part}' uses banned token {sorted(hit)} (conventions §14, S3): "
                                            "name it by role")
     watch = wire.load_state(event, "hazard")
-    if watch:
+    if watch and not hazard.permitted(event, rel):
         release = "' or '".join(wire.release_words()) or "a release verb"
-        return wire.permission("ask", f"hazard watch: '{watch.get('label')}' ran at {watch.get('at')}; "
-                                      f"writes wait for the Regent until the Regent says '{release}' (R4.4, R5.2)")
+        return wire.permission("deny", f"hazard watch: '{watch.get('label')}' ran at {watch.get('at')}; {rel} has no permit. "
+                                       "Dispatch the po or qa agent with the files you need and why; its "
+                                       "'permit: <glob> -- <reason>' lines let them through. Or the Regent says "
+                                       f"'{release}' (R4.4, R5.2)")
     return None
 
 
@@ -134,7 +142,10 @@ def selftest():
         cases.append((verdict(respond(ev("Edit", "src/CommonThing.cs"))) == "allow",
                       "an existing banned-name file can still be edited"))
         wire.save_state(ev("Edit", "x"), "hazard", {"label": "git reset --hard", "at": "t"})
-        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "ask", "hazard watch -> ask"))
+        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "deny", "hazard watch, no permit -> deny"))
+        wire.save_state(ev("Edit", "x"), "permit", {"globs": ["src/*.razor"], "grants": []})
+        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "allow", "hazard watch, permitted path -> allow"))
+        cases.append((verdict(respond(ev("Edit", "src/Parser.cs"))) == "deny", "hazard watch, path outside permit -> deny"))
         cases.append((verdict(respond(ev("Edit", "src/Page.razor", sid="s2"))) == "allow",
                       "hazard watch is per session"))
         cases.append((respond({"tool_name": "Bash", "tool_input": {"command": "ls"}}) is None, "other tools pass"))

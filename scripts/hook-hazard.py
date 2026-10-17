@@ -7,9 +7,13 @@ PreToolUse   classify every command segment:
                              confirmed that exact command in this pass            (conventions §6, R5.1)
                destructive   deleting, discarding work, force / history rewrites  ask (conventions §5)
                layout, install                                                    ask
-PostToolUse  when a destructive command actually ran, switch on the session's HAZARD WATCH:
-             hook-acts-guard.py then asks before every write until the Regent says a release verb
-             (conventions §9, R5.2). The agent may still look around (R4.4).
+PostToolUse  when a destructive command actually ran inside the project, switch on the session's
+             HAZARD WATCH: hook-acts-guard.py then refuses every write no permit covers, until the
+             Regent says a release verb (conventions §9, R5.2). The agent may still look around (R4.4).
+             A delete whose every path lies outside the project (a temp or scratch folder) starts nothing.
+PostToolUse  Agent|Task: a PO or QA role agent that returns 'permit: <glob>[, <glob>] -- <reason>'
+             lines grants this session writes to those paths while the watch is on. The agent that
+             needs the permit never grants it (conventions §1).
 
 A pass is the work between two messages of the Regent. hook-verbs.py records, at each message, the
 cloud commands the Regent quoted (in backticks, a code block, or on a line of their own); only those
@@ -21,6 +25,7 @@ circuit breaker that stays open until a human closes it.
 Modes:  (no args) hook · --selftest · --clear (release every hazard watch on this machine)
 Pure standard library, Python 3.8+.
 """
+import fnmatch
 import importlib.util
 import os
 import re
@@ -36,6 +41,9 @@ import hook_wire as wire  # noqa: E402
 _spec = importlib.util.spec_from_file_location("guard_push", HERE / "guard-push.py")
 guard_push = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(guard_push)  # one tokenizer for every shell guard
+_spec = importlib.util.spec_from_file_location("hook_gov", HERE / "hook-gov.py")
+hook_gov = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(hook_gov)  # one reader for what a subagent returned
 
 SHELLS = guard_push.SHELLS
 INSTALLERS = {"apt", "apt-get", "yum", "dnf", "pacman", "zypper", "brew", "choco", "winget", "scoop", "snap"}
@@ -175,6 +183,77 @@ def findings(command, depth=0):
     return out
 
 
+RM_COMMANDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd", "remove-item", "ri"}
+
+
+def inside(arg, cwd, repo):
+    """True unless the path surely lies outside the project; a variable or a glob counts as inside."""
+    if re.search(r"[$%*?{]", arg):
+        return True
+    m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
+    p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
+    p = p if p.is_absolute() else Path(cwd) / p
+    try:
+        Path(os.path.normpath(str(p))).relative_to(repo)
+        return True
+    except ValueError:
+        return False
+
+
+def hits_project(command, cwd, depth=0):
+    """The first destructive finding that reaches the project, or None. A delete that names only
+    paths outside the project (temp, scratch) does not reach it."""
+    repo = wire.repo_root(Path(cwd))
+    for seg in guard_push.segments(command or ""):
+        if depth < 3 and seg and name(seg[0]) in SHELLS:
+            for t in seg[1:]:
+                found = hits_project(t, cwd, depth + 1) if " " in t else None
+                if found:
+                    return found
+        w = words(seg)
+        f = classify_words(w)
+        if not f or f[0] not in DESTRUCTIVE:
+            continue
+        paths = [a for a in w[1:] if not a.startswith("-")]
+        if name(w[0]) not in RM_COMMANDS or not paths or any(inside(a, cwd, repo) for a in paths):
+            return f
+    return None
+
+
+# ---------- permits: a PO or QA role agent lets writes through the watch -------------------------
+
+PERMITTERS = ("po", "qa")
+PERMIT_LINE = re.compile(r"(?im)^[\s>*-]*permit:\s*(.+?)\s+(?:--|—)\s+(\S.*)$")
+
+
+def permits(text):
+    """[(globs, reason)] from the permit lines of a returned packet; a line without a reason is no permit."""
+    return [([g.strip("`") for g in re.split(r"[,\s]+", m.group(1)) if g.strip("`")], m.group(2).strip())
+            for m in PERMIT_LINE.finditer(text or "")]
+
+
+def permitted(event, rel):
+    st = wire.load_state(event, "permit") or {}
+    return any(fnmatch.fnmatchcase(rel, g) for g in st.get("globs", []))
+
+
+def grant(event):
+    """Record the permits a PO or QA role agent returned; one context line, or None."""
+    agent = str(wire.tool_input(event).get("subagent_type") or "")
+    if agent.split(":")[-1].strip().lower() not in PERMITTERS:
+        return None
+    found = permits(hook_gov.returned_text(event))
+    if not found:
+        return None
+    st = wire.load_state(event, "permit") or {"globs": [], "grants": []}
+    for globs, reason in found:
+        st["globs"] += [g for g in globs if g not in st["globs"]]
+        st["grants"].append({"by": agent, "globs": globs, "reason": reason, "at": wire.now()})
+    wire.save_state(event, "permit", st)
+    return wire.context("PostToolUse", f"permit from {agent}: writes to {', '.join(st['globs'])} pass the hazard watch "
+                                       f"for this session ({found[-1][1]})")
+
+
 ORDER = {"cloud-write": 0, "history": 1, "discard": 2, "delete": 3, "layout": 4, "install": 5}
 DESTRUCTIVE = {"history", "discard", "delete"}
 
@@ -214,6 +293,8 @@ def confirmed(event):
 # ---------- hook ---------------------------------------------------------------------------------
 
 def respond(event):
+    if event.get("hook_event_name") == "PostToolUse" and event.get("tool_name") in hook_gov.AGENT_TOOLS:
+        return grant(event)
     if event.get("tool_name") not in wire.SHELL_TOOLS:
         return None
     command = wire.tool_input(event).get("command", "")
@@ -230,13 +311,13 @@ def respond(event):
         if local:
             return wire.permission("ask", f"{local[0][0]}: '{local[0][1]}' needs the Regent's yes (conventions §5)")
         return None
-    found = classify(command)
-    if phase == "PostToolUse" and found and found[0] in DESTRUCTIVE:
+    found = hits_project(command, event.get("cwd") or os.getcwd()) if phase == "PostToolUse" else None
+    if found:
         kind, label = found
         wire.save_state(event, "hazard", {"label": label, "kind": kind, "at": wire.now()})
         words_ = "', '".join(wire.release_words()) or "a release verb"
-        return wire.context("PostToolUse", f"hazard watch on: '{label}' ran. File writes ask the Regent until the "
-                                           f"Regent says '{words_}' (conventions §9); reading and inspecting stay free (R4.4)")
+        return wire.context("PostToolUse", f"hazard watch on: '{label}' ran. Writes no PO/QA permit covers are refused "
+                                           f"until the Regent says '{words_}' (conventions §9); reading and inspecting stay free (R4.4)")
     return None
 
 
@@ -347,6 +428,25 @@ def selftest():
         st = wire.load_state(ev("x", ""), "hazard")
         cases.append((bool(out) and bool(st) and st.get("label") == "git reset --hard", "post: reset --hard sets the watch"))
         cases.append((wire.load_state(ev("x", "", sid="s2"), "hazard") is None, "post: watch is per session"))
+        outside = Path(tmp).parent / "elsewhere-regency" / "scratch"
+        cases.append((respond(ev("PostToolUse", f'rm -rf "{outside}"', sid="s3")) is None,
+                      "post: a delete outside the project starts no watch"))
+        cases.append((bool(respond(ev("PostToolUse", f'rm -rf "{outside}" build', sid="s3"))),
+                      "post: one path inside the project is enough"))
+        cases.append((bool(respond(ev("PostToolUse", 'rm -rf "$d"', sid="s4"))), "post: an unknown path counts as inside"))
+
+        def agent(kind, text, sid="s5"):
+            return respond({"hook_event_name": "PostToolUse", "tool_name": "Agent", "session_id": sid, "cwd": tmp,
+                            "tool_input": {"subagent_type": kind},
+                            "tool_response": {"content": [{"type": "text", "text": text}]}})
+        pkt = "Granted.\npermit: library/*.md, `scripts/hook-*.py` -- rewrite of the chapter the agent reset\npermit: x.md"
+        cases.append((agent("general-purpose", pkt) is None and wire.load_state(ev("x", "", sid="s5"), "permit") is None,
+                      "permit: only a PO or QA role agent grants"))
+        out = agent("regency:po", pkt)
+        e5 = ev("x", "", sid="s5")
+        cases.append((bool(out) and permitted(e5, "library/conventions.md") and permitted(e5, "scripts/hook-hazard.py")
+                      and not permitted(e5, "x.md") and not permitted(e5, "README.md"),
+                      "permit: globs recorded; a line without a reason grants nothing"))
         return wire.check(cases)
 
 
