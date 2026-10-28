@@ -110,7 +110,7 @@ Replace `<path>` with where this folder lives.
 with a different layout); way 2 by `claude plugin validate` plus install in an isolated config; way 3
 by loading it as a skills-directory plugin. Way 7 runs in Claude's cloud sessions: regency 2.3,
 installed on the account, loads its skills and hooks there. Way 6 follows the documented settings shape
-and has not been run. On Claude Code 2.1.312, regency 2.9 passes `claude plugin validate`. Cloud
+and has not been run. On Claude Code 2.1.312, regency 2.10 passes `claude plugin validate`. Cloud
 sessions do not load local plugins: use way 7, or way 4 or 5.
 
 **Permissions.** A session whose working directory is a project reads regency's files from outside
