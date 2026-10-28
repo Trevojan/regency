@@ -1,6 +1,6 @@
 {
   "name": "regency",
-  "version": "2.3",
+  "version": "2.6",
   "description": "The Regent's portable toolkit: orchestrated team passes (PO/DV/QA/DA), proceed / commit-and-merge / measure-changes, five inference engines, the Scribe, Orders, guidelines and frontend-documentation scaffolding (/regency:ux-init), code-to-norm lineage, guard and recorder hooks (push, hazard, acts, lineage, journal, resume), and a Tailwind frontend audit with a flex/grid/absolute layout knowledge base.",
   "author": {
     "name": "Regent"

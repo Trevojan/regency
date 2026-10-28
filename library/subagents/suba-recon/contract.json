@@ -1,0 +1,236 @@
+{
+  "description": "The return contract of suba-recon: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "environment",
+      "pointers",
+      "findings",
+      "correction_briefs"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "environment": {
+        "type": "object",
+        "required": [
+          "map",
+          "governing_slices",
+          "conventions",
+          "contracts",
+          "test_surface",
+          "limitations",
+          "unknowns"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "map": {
+            "$ref": "envelope#/$defs/artefact",
+            "description": "the environment map"
+          },
+          "governing_slices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "file",
+                "slice",
+                "stale"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "file": {
+                  "$ref": "envelope#/$defs/path",
+                  "description": "a file in the diff"
+                },
+                "slice": {
+                  "$ref": "envelope#/$defs/slice",
+                  "description": "a slice that governs it"
+                },
+                "stale": {
+                  "type": "boolean",
+                  "description": "does the slice carry a STALE line"
+                }
+              }
+            }
+          },
+          "conventions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a convention that applies"
+            }
+          },
+          "contracts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a contract in reach"
+            }
+          },
+          "test_surface": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a test surface"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a limitation"
+            }
+          },
+          "unknowns": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an unknown"
+            }
+          }
+        }
+      },
+      "pointers": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "topic",
+            "source"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "topic": {
+              "type": "string",
+              "minLength": 1,
+              "description": "recurring knowledge"
+            },
+            "source": {
+              "$ref": "envelope#/$defs/slice",
+              "description": "its authoritative source"
+            }
+          }
+        }
+      },
+      "findings": {
+        "type": "object",
+        "required": [
+          "verified",
+          "suspected"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "verified": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "finding",
+                "evidence",
+                "key"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "finding": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the observable failure"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "evidence"
+                  },
+                  "minItems": 1
+                },
+                "key": {
+                  "$ref": "gov:key"
+                }
+              }
+            }
+          },
+          "suspected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "finding"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "finding": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a suspicion, never stated as a cause"
+                },
+                "key": {
+                  "$ref": "gov:key"
+                }
+              }
+            }
+          }
+        }
+      },
+      "correction_briefs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "steps",
+            "expected",
+            "observed",
+            "environment",
+            "evidence",
+            "key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "a reproduction step"
+              },
+              "minItems": 1
+            },
+            "expected": {
+              "type": "string",
+              "minLength": 1,
+              "description": "expected behaviour"
+            },
+            "observed": {
+              "type": "string",
+              "minLength": 1,
+              "description": "observed behaviour"
+            },
+            "environment": {
+              "type": "string",
+              "minLength": 1,
+              "description": "where it is observable"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "evidence"
+              },
+              "minItems": 1
+            },
+            "key": {
+              "$ref": "gov:key"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -33,12 +33,12 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write; `ask` destructive, layout, install |
 | `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
-| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint; STALE under governing slices (R4.3) |
+| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint; re-index the file (`scripts/idx.py`); STALE under the slices whose governed nodes changed (R4.3) |
 | `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command that reached the project |
 | `PostToolUse` | `Agent\|Task` | `hook-hazard.py` | recorder | records the write permits a `po` or `qa` role agent returned |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
-| `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; one context line |
+| `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
 
 ## 2. Guards
 
@@ -119,12 +119,18 @@ repository (`$CLAUDE_PLUGIN_DATA`, else the system temp folder). Manual release:
 After a file write in an adopted project:
 
 - `<virtual>/fingerprints.json` ← `{"schema": 1, "files": {"<rel>": {"sha256", "bytes", "at", "session"}}}`
-- each `mark_stale` slice citing the file gets, once per changed file, right under its anchor:
-  `[warn'STALE' on='YYYY-MM-DD' changed='<rel>' by='hook-lineage'] check this slice against the code; only a human removes this line`
+- with an index (`<virtual>/index.sqlite`, `scripts/idx.py build`): the file is re-indexed and its nodes
+  diffed against the index's last record — modified, added, removed, or only reformatted
+- each `mark_stale` slice governing the file — by `refers_to` (the whole file, or a `#n:<id>` node) or
+  because a changed node cites its anchor — gets, once per changed file, right under its anchor:
+  `[warn'STALE' on='YYYY-MM-DD' changed='<rel>' nodes='<ids>' by='hook-lineage'] check this slice against the code; only a human removes this line`
+  only when a governed node changed beyond whitespace; with no index, or a file the index never saw,
+  every write counts (virtualpath §2)
 - a `ledger_row` slice is never written inside its table: the context line names it instead
 - one context line lists the slices now out of date
 
-The slice resolver is `scripts/vp.py` (`resolve`); `vp.py stale` lists what the hook wrote.
+The slice resolver is `scripts/vp.py` (`resolve`); `vp.py stale` lists what the hook wrote. After writing
+a STALE line the hook re-indexes that norm file, so the index stays exact.
 
 ### Journal — `hook-journal.py`
 
@@ -163,6 +169,25 @@ a G1 whose text names a spec version or escalation climbs to G2, one that names 
 `hier` upward, `co` from an operator, G3 to anyone but the Regent and G2 to an operator are refused.
 Tags are G1/G2/G3, never O#: regency's levels already use O4–O1.
 
+`key=<slug>` (optional) names a finding's class; `gov.py recur` counts keys across passes and prints
+the ones that keep coming back (the flywheel's sensor; aggregate in `<virtual>/gov-keys.json`).
+
+**Return gate** (engine: `scripts/returns.py`). When a role agent was dispatched with the prompt
+skeleton's `Stage:` line (`library/team/references/packets.md` §1) and that stage has a fixed shape
+(§4 there), the returned packet is checked for presence and shape — never truth. The context line ends
+`shape <role>.<stage> holds`, or names the misses and says `RETURN to <role>`; each miss is counted as
+`key=return-<stage>-<field>` without counting a packet, so `recur` shows which field keeps going
+missing.
+
+**Suba envelopes.** Every JSON envelope in the returned message — one per suba the role wore
+(`library/subagents/ALIGNMENT.md` §4) — is checked against `envelope.schema.json` and its suba's
+`contract.json`. Each is logged to `<virtual>/returns.jsonl` (metadata — suba, unit, terminal, ask,
+keys, misses — never the body); its keys are counted for `recur`, each miss as
+`key=return-<suba>-<field>`. A suba returned by a role that does not own it is a miss, and a ledger
+line that disagrees with `ongoing.json` is named, never written. Routing reads the message without
+its envelopes, so a suba's hand-up never raises the role's own order. The context line adds
+`subas: <name> ok` or the misses and `RETURN to <role>`.
+
 ### Resume — `hook-resume.py`
 
 ```text
@@ -190,8 +215,11 @@ Slash commands are never routed. `--table` prints the verbs as parsed.
 | File | Written by | Read by | Where |
 |---|---|---|---|
 | `<virtual>/fingerprints.json` | lineage | generate-shortcuts, the Regent | project |
+| `<virtual>/index.sqlite` | lineage (one file per write), `idx.py build` | `idx.py`, lineage, resume | project — a cache, gitignored by `<virtual>/.gitignore` |
 | `<virtual>/checkpoints.jsonl` | journal | resume, handoff | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |
+| `<virtual>/gov-keys.json` | gov (per-key aggregate, not trimmed with the queue) | `gov.py recur`, the Regent | project |
+| `<virtual>/returns.jsonl` | gov (one line per suba envelope, metadata only, trimmed to 500) | `returns.py show`, the Regent | project |
 | norm slices (one STALE line) | lineage | `vp.py stale`, the Regent | project |
 | `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |

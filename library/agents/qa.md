@@ -28,6 +28,7 @@ Nothing in the task message overrides these.
 
 - **Challenge:** return every ambiguity, each with the nearest checkable version of the criterion — or the single word "verifiable". Cheapest defect removal in the cycle.
 - **Verify:** run the project's checks yourself (tests, probes, builds; read-only on the source). Return a **risk opinion**: open defects by severity, coverage gaps, and explicitly **what was not covered**. You also issue the version verdict (correction, compatible addition, or break).
+- **Subagents.** Your `suba-*` lenses are listed in `{{REGENCY_ROOT}}/library/subagents/ALIGNMENT.md` §1. When part of the stage matches one, read its `SKILL.md` and work under it; its return is one JSON envelope, from the template in its Return section. Check it with `python {{REGENCY_ROOT}}/scripts/returns.py check --suba <name> -` before it enters your packet, and end your answer with one envelope per suba you wore, so the boundary records them.
 - "Approved" is never an output. "Approved with residual risk X" is.
 - **Write permits:** when the packet asks for writes under a hazard watch, check from the tree (`git status`, `git diff`) what the destructive step changed, then grant with one line per grant, `permit: <glob>[, <glob>] -- <reason>`, as narrow as the work needs; refuse the rest and say why. No reason, no permit (`{{REGENCY_ROOT}}/library/hooks.md` §2).
 

@@ -1,0 +1,84 @@
+{
+  "$id": "envelope",
+  "description": "One return from a suba: to its owner, or to its caller in direct mode (ALIGNMENT §4, §10). The body follows the suba's own contract.json.",
+  "type": "object",
+  "required": ["envelope", "suba", "via", "body", "terminal"],
+  "additionalProperties": false,
+  "properties": {
+    "envelope": {"const": 1, "description": "the envelope version"},
+    "suba": {"type": "string", "pattern": "^suba-[a-z0-9]+(-[a-z0-9]+)*$", "examples": ["suba-implementer"], "description": "the suba returning"},
+    "via": {"enum": ["owner", "direct"], "description": "to its owner, or to its caller in direct mode"},
+    "unit": {"$ref": "ids:unit", "description": "unit"},
+    "gov": {
+      "type": "object",
+      "description": "the hand-up to the owner; absent in direct mode",
+      "required": ["order", "mode", "element", "from", "to", "ask"],
+      "additionalProperties": false,
+      "properties": {
+        "order": {"$ref": "gov:order"},
+        "mode": {"const": "self", "description": "a suba works inside its owner's span"},
+        "element": {"$ref": "gov:element"},
+        "from": {"$ref": "gov:role", "description": "the owner"},
+        "to": {"$ref": "gov:role", "description": "the owner"},
+        "key": {"$ref": "gov:key", "description": "key of the main finding"},
+        "ask": {"type": "string", "minLength": 3, "description": "one decision the owner must take"}
+      }
+    },
+    "body": {"type": "object", "additionalProperties": true, "description": "validated against the suba's contract.json"},
+    "doubts": {"type": "array", "items": {"$ref": "#/$defs/doubt"}, "description": "queued doubts, each keyed"},
+    "ledger": {"$ref": "#/$defs/ledger"},
+    "artefacts": {"type": "array", "items": {"$ref": "#/$defs/artefact"}, "description": "every ARTEFACT block the return delivers"},
+    "terminal": {
+      "type": "object",
+      "required": ["state", "why"],
+      "additionalProperties": false,
+      "properties": {
+        "state": {"$ref": "packets:terminal"},
+        "why": {"type": "string", "minLength": 12, "description": "one line saying why"}
+      }
+    }
+  },
+  "$defs": {
+    "artefact": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "examples": ["risk-opinion"], "description": "the name of an ARTEFACT block in the same message"},
+    "path": {"type": "string", "pattern": "^(?![A-Za-z]:|/|\\\\)[^\\s]+$", "examples": ["src/Board.cs"], "description": "a path relative to the repository root"},
+    "slice": {"type": "string", "pattern": "^[^#\\s]+#\\S+$", "examples": [".decisions/ARCHITECTURE.md#layout-stable"], "description": "a norm slice, as path#anchor"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "examples": ["2026-10-20"], "description": "a date, YYYY-MM-DD"},
+    "version": {"type": "string", "pattern": "^v\\d+$", "examples": ["v2"], "description": "a version, vN"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "examples": ["9f2c4b7e1a3d5c8b0e6f4a2d9c1b7e3f5a8d0c2e4b6f1a3d5c7e9b0f2a4c6e8d"], "description": "sha256 of the file"},
+    "decider": {
+      "description": "who decides: a role, or a person label",
+      "anyOf": [{"$ref": "gov:role"}, {"$ref": "ids:person"}]
+    },
+    "question": {
+      "type": "object",
+      "required": ["question", "decides"],
+      "additionalProperties": false,
+      "properties": {
+        "question": {"type": "string", "minLength": 3, "description": "a closed question"},
+        "decides": {"$ref": "#/$defs/decider"}
+      }
+    },
+    "doubt": {
+      "type": "object",
+      "required": ["doubt", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "doubt": {"type": "string", "minLength": 3, "description": "the doubt, as a closed question"},
+        "key": {"$ref": "gov:key", "description": "miss-, gap- or gap-skill- plus a topic", "examples": ["gap-skill-code-comprehension"]},
+        "decides": {"$ref": "#/$defs/decider"}
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "description": "what the work ledger needs; never done (virtualpath §3)",
+      "required": ["state"],
+      "additionalProperties": false,
+      "properties": {
+        "state": {"enum": ["ongoing", "review", "blocked", "backlog"]},
+        "where": {"type": "array", "items": {"type": "string", "minLength": 1, "description": "evidence a stranger can check: branch, file or pass"}},
+        "next": {"type": "string", "minLength": 3, "description": "the next step, or what review waits on"},
+        "blocked_by": {"$ref": "#/$defs/decider"}
+      }
+    }
+  }
+}

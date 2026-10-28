@@ -124,8 +124,13 @@ def manifest_entries(vdir):
     return []
 
 
+def ref_path(ref):
+    """The file part of a refers_to entry: 'src/a.py' or 'src/a.py#n:<id>' (a node selector, idx.py)."""
+    return (ref or "").partition("#")[0]
+
+
 def governing(entries, rel):
-    return [e for e in entries if rel in (e.get("refers_to") or [])]
+    return [e for e in entries if any(ref_path(r) == rel for r in (e.get("refers_to") or []))]
 
 
 # ---------- files ------------------------------------------------------------------------------

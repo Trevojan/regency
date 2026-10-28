@@ -8,7 +8,8 @@ closes the loop: each **slice** of a norm declares, once, which code it governs,
 agent) can go from a file to its rules, from a rule to its files, and notice when a rule has aged.
 This is also called *context lineage*, *reverse traceability* or *documentation impact radius*.
 
-Tool: `scripts/vp.py` (read-only). Procedure: `skills/virtualpath/SKILL.md`.
+Tools: `scripts/vp.py` (read-only queries) and `scripts/idx.py` (the exact index, §6). Procedure:
+`skills/virtualpath/SKILL.md`.
 
 ## 2. The model (as implemented in the reference project)
 
@@ -26,7 +27,7 @@ and stable):
 | Field | Meaning |
 |---|---|
 | `virtual_path` | the **slice**, not the file: `FILE.md#anchor`, relative to the guidelines root |
-| `refers_to` | the code the slice governs — a **list**, relative to the repository root (one norm often governs many files) |
+| `refers_to` | the code the slice governs — a **list**, relative to the repository root (one norm often governs many files). An entry is a file (`src/Page.razor`: every node in it) or one node (`src/Page.razor#n:3f2a9b1c0d4e`: the id `idx.py node` prints) |
 | `selector_type` | how the anchor is found: `markdown_anchor` (a heading carrying `§name`, or a heading whose whole text is the name), `glyph_block` (`[block'name'`), `ledger_row` (a table row by the bold label of its first cell; a paid row may be struck through) |
 | `on_mutation` | what happens to the slice when a target changes: `mark_stale` or `lock` |
 
@@ -43,14 +44,20 @@ Rules that make it trustworthy:
 
 | Value | Used for | Effect |
 |---|---|---|
-| `mark_stale` | norms and decisions — a human decides | a warning line is written right under the anchor and stays until a human checks the slice against the code |
+| `mark_stale` | norms and decisions — a human decides | when a governed node changes, a warning line is written right under the anchor and stays until a human checks the slice against the code |
 | `lock` | hard constraints | the change is refused |
 | ~~`reconcile`~~ | — | **not part of the model**: an agent rewriting a norm itself breaks *an agent does not ratify a norm it wrote*. Acceptable only for derived facts, by explicit Regent decision |
 
-The warning line, in the project's notation, starts with `STALE`, carries the date and the changed
-file, and is removed **only** by a human who has checked the slice. "Newer" is decided by git
-topology (the newest commit touching a target vs. the newest commit touching the slice's own lines),
-not by wall clock, and counts only changes after a recorded **baseline commit**.
+The warning line, in the project's notation, starts with `STALE`, carries the date, the changed file
+and the changed node ids, and is removed **only** by a human who has checked the slice.
+
+What counts as a change is decided **node by node** by the index (§6). A slice governs every node of
+a file it cites bare, the one node of a `#n:` selector, and any node — in any file — that cites its
+anchor. The warning is written when one of those nodes was added, removed, or changed its shape hash.
+A write that only moves whitespace changes no shape and writes nothing. The baseline is the index's
+last record of the file: a file the index has never seen counts as changed, and without an index
+every write to a cited file counts — the conservative rule, so a missing index can only add warnings,
+never hide one.
 
 Documents that are **acts** (ladder plans, gate sheets, opinions, closed Orders, dated handoffs) are
 not scanned and not rewritten: they record the name a norm had on the day they were written.
@@ -109,35 +116,46 @@ guideline files touched recently, `STALE` lines and the Orders. Then compare:
 2. **The manifest is valid** — each slice resolves, each target exists. Born listing, not failing:
    fix the dead citations, then turn the gate on.
 3. **Staleness fires** — the gate writes the warning when a target changes after the baseline.
+4. **The index is built** — `python scripts/idx.py build` — and staleness turns node-exact (§2, §6).
+   The index is a cache: deleting it loses nothing, and rebuilding it changes no id.
 
 A gate is trusted only after it has been **seen failing** on a planted defect.
 
 ## 5. Agent protocol
 
-Before editing code: `vp.py code <file>`, read the slices. After editing: report which slices are now
-out of date. Never remove a `STALE` line; never edit a norm to match the code. If the code is right
-and the norm is wrong, that is a decision for the Regent.
+Before editing code: `vp.py code <file>` — or `idx.py governs <file>:<line>` for the slices governing
+that exact node — and read the slices; `idx.py get <id>` returns a node's exact bytes. After editing:
+report which slices are now out of date. Never remove a `STALE` line; never edit a norm to match the
+code. If the code is right and the norm is wrong, that is a decision for the Regent.
 
-## 6. Direction, not yet built (design notes absorbed from earlier research)
+## 6. The index — exact, for the harness
 
-Treat these as the intended direction. Nothing here is implemented by `vp.py`.
+`scripts/idx.py` keeps a cache at `<virtual>/index.sqlite` (gitignored by `<virtual>/.gitignore`,
+rebuilt by `idx.py build`). It is written for the harness, not for a reader: every answer is a JSON
+line, every position exact. The human-readable anchor stays the interface; it resolves to a node.
 
-> **Do not index text. Index semantic positions in ordered structures.** The text is only the
-> physical representation; the human-readable anchor stays as the interface, but it resolves once to a
-> stable node id.
+| Layer | What it is | Exactness |
+|---|---|---|
+| Nodes | every structural node of every indexed file: the file itself; in Markdown, each heading's section, paragraph, list, table, table row, code fence and front matter; in any other file, blocks found by one language-agnostic rule — indentation and blank lines, with attached comments, attributes and closing lines — down to three levels | the parser never guesses a language |
+| Stable ids | 12 hex derived from the node's structural key (a `§anchor` or the heading text; a block's first line that is not a comment or attribute; a glyph block's name) and its parent's chain — never its position | an insertion elsewhere changes no id, and a rebuild from nothing gives the same ids; identical siblings are numbered among themselves; renaming a key changes its id, and recovery proposes the relink |
+| Ranges | bytes `[b0, b1)` and lines `l0`–`l1` (1-based, inclusive) over the file as stored | `idx.py get <id>` returns exactly those bytes |
+| Order | `ord`: document order within the file | `before(a, b)` is a comparison |
+| Fingerprints | `exact`: sha256 of the node (CRLF read as LF, `STALE` lines left out); `shape`: whitespace collapsed, spaces beside punctuation dropped, indentation kept as relative ranks | a reformat keeps the shape; a re-indent that moves a line into or out of a block does not |
+| Edges | manifest slice → governed nodes; node → the `§anchors` and ids it cites (`library/ids.md`: unit, gate, UI rule, Order, conflict), attributed to the deepest node holding the citing line | a citation in the code is evidence the manifest did not have to infer |
+| Recovery | a removed node leaves a tombstone; a node that reappears with the same shape (moved), the same body under a new key (renamed) or a close trigram sketch (similar) is recorded as a move | `idx.py check` proposes the relink with its score; nothing is relinked silently |
 
-Layers: (1) a document becomes an **AST**; (2) every structural node gets a **stable id** — identity
-must not be the ordinal ("third paragraph"), which shifts on every insertion; (3) **order
-maintenance** keeps `before(a, b)` valid under insert/move/delete (the classic order-maintenance
-problem, Dietz–Sleator, O(1) order queries); (4) an **offset/rope** map `NodeID → [start, end)`
-extracts content in `O(log n + L)`; (5) **fingerprints** detect that a node's state changed without
-comparing meaning; (6) a **dependency graph** between code and documentation propagates invalidation;
-(7) a **recovery index** (q-gram/FM-index search) is used only when structural identity fails.
+The write hook re-indexes only the written file — the cost is the nodes of that file, not the
+repository — and decides staleness from the node diff (§2). Queries: `node`, `get`, `governs`,
+`cites`, `check`, `shortcuts`.
 
-Consequence: "what comes above X?" stops being a retrieval problem and becomes an order query plus a
-range query, and the agent consumes relations that are already materialised instead of re-inferring
-them on every run. Incremental update cost is `O(k log n)` with `k` the number of structural nodes
-touched, not the size of the repository.
+**Raw shortcuts.** `idx.py shortcuts` resolves the prose index (the links in `.shortcuts/README.md`),
+the ledger's `where` evidence, every `STALE` slice and the latest Order to exact rows — path, node id,
+line and byte range, hash — so a resumed session reads the bytes it needs instead of re-inferring
+the prose.
+
+Still direction: per-language syntax trees (the block rule is deliberately one rule), order labels
+that survive an edit without renumbering the file, and a full-text FM-index; the trigram sketch
+covers recovery today.
 
 ## 7. Ancestry worth remembering
 

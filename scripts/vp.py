@@ -10,7 +10,8 @@ The manifest links NORM SLICES (anchors inside guidelines documents) to the CODE
       "on_mutation": "mark_stale | lock"}]}
 
 Commands (all read-only):
-  vp.py code  <code path>        slices that govern this code file (read them BEFORE editing it)
+  vp.py code  <code path>        slices that govern this code file (read them BEFORE editing it);
+                                 a refers_to entry may name one node: path#n:<id> (idx.py)
   vp.py slice <virtual_path>     code governed by this slice;  add --show to print the slice text
   vp.py stale                    slices carrying a STALE warning line (waiting for the Regent's check)
   vp.py check                    every slice resolves to an anchor; every refers_to file exists
@@ -121,12 +122,14 @@ def resolve(guidelines, entry):
 def cmd_code(entries, target, repo):
     t = Path(target)
     rel = str(t.resolve().relative_to(repo)).replace("\\", "/") if t.is_absolute() else target.replace("\\", "/")
-    hits = [e for e in entries if rel in e.get("refers_to", [])]
+    hits = [e for e in entries if any(r.partition("#")[0] == rel for r in e.get("refers_to", []))]
     if not hits:
-        print(f"no slice cites {rel}")
+        print(f"no slice cites {rel} (code that cites an anchor: idx.py governs {rel})")
         return 0
     for e in hits:
-        print(f"{e['virtual_path']}   [{e.get('selector_type', '?')}, {e.get('on_mutation', '?')}]")
+        nodes = [r.partition("#")[2] for r in e.get("refers_to", []) if r.partition("#")[0] == rel and "#" in r]
+        scope = f"  nodes {', '.join(nodes)}" if nodes else ""
+        print(f"{e['virtual_path']}   [{e.get('selector_type', '?')}, {e.get('on_mutation', '?')}]{scope}")
     return 0
 
 
@@ -165,7 +168,7 @@ def cmd_check(entries, guidelines, repo):
             print(f"UNRESOLVED  {e['virtual_path']}  ({e.get('selector_type', 'markdown_anchor')})")
             bad += 1
         for r in e.get("refers_to", []):
-            if not (repo / r).exists():
+            if not (repo / r.partition("#")[0]).exists():
                 print(f"MISSING     {r}  <- {e['virtual_path']}")
                 bad += 1
     refs = sum(len(e.get("refers_to", [])) for e in entries)

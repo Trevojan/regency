@@ -29,6 +29,19 @@ python <regency-root>/scripts/vp.py trace                       # every trace of
 Add `--manifest FILE` or `--repo DIR` if auto-discovery picks the wrong place. If no manifest exists,
 say so in one line: the project does not use virtual paths; do not create one.
 
+**Exact queries** (`library/virtualpath.md` §6) — JSON lines for the harness, once `idx.py build` has run:
+
+```bash
+python <regency-root>/scripts/idx.py governs <path>:<line>   # slices governing that exact node (manifest or citation)
+python <regency-root>/scripts/idx.py node <path>[:<line>]    # node ids, line and byte ranges, hashes
+python <regency-root>/scripts/idx.py get <id>                # one node's exact bytes
+python <regency-root>/scripts/idx.py check                   # unresolved slices, missing nodes, relink proposals
+python <regency-root>/scripts/idx.py shortcuts               # the prose index, ledger, STALE and latest Order, resolved
+```
+
+Read the bytes a node id points to instead of re-reading a whole file or re-deriving where a rule
+lives. Relink proposals from `check` are proposals: the manifest changes only when the Regent says so.
+
 ## When to use it
 
 | Moment | Do |

@@ -1,0 +1,257 @@
+{
+  "description": "The return contract of suba-architect: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "architecture",
+      "decisions",
+      "open"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "architecture": {
+        "type": "object",
+        "required": [
+          "components",
+          "boundaries",
+          "interfaces",
+          "dependencies",
+          "invariants",
+          "scale"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "responsibility"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "component"
+                },
+                "responsibility": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its one responsibility"
+                }
+              }
+            }
+          },
+          "boundaries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a boundary"
+            }
+          },
+          "interfaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "published"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "interface"
+                },
+                "published": {
+                  "type": "boolean",
+                  "description": "does anyone consume it already"
+                }
+              }
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from",
+                "to"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "component"
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the component it depends on"
+                }
+              }
+            }
+          },
+          "invariants": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an invariant the build must preserve"
+            }
+          },
+          "scale": {
+            "type": "object",
+            "required": [
+              "size",
+              "rung"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "size": {
+                "enum": [
+                  "short",
+                  "medium",
+                  "large"
+                ],
+                "description": "scale of the step (DV.md §9)"
+              },
+              "rung": {
+                "type": "string",
+                "minLength": 1,
+                "description": "the rung of DV.md §9 the step stands on"
+              }
+            }
+          }
+        }
+      },
+      "decisions": {
+        "type": "object",
+        "required": [
+          "taken",
+          "frontier",
+          "consult"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "taken": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "decision"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "decision": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a structural decision"
+                },
+                "adr": {
+                  "$ref": "envelope#/$defs/artefact",
+                  "description": "its ADR draft"
+                }
+              }
+            }
+          },
+          "frontier": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "options",
+                "decided_by"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "an option kept open"
+                  },
+                  "minItems": 2
+                },
+                "decided_by": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the evidence that would decide it"
+                }
+              }
+            }
+          },
+          "consult": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "item",
+                "rule"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "what DV consults on before acting"
+                },
+                "rule": {
+                  "enum": [
+                    "dependency",
+                    "published-contract",
+                    "debt",
+                    "dependency-arrow",
+                    "data-schema",
+                    "climb-step",
+                    "deadline"
+                  ],
+                  "description": "the DV.md §12 consult it falls under"
+                }
+              }
+            }
+          }
+        }
+      },
+      "open": {
+        "type": "object",
+        "required": [
+          "assumptions",
+          "questions",
+          "missing"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an assumption"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "envelope#/$defs/question"
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "environment knowledge DV must obtain through QA"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "description": "The return contract of suba-modeling: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "model",
+      "contract",
+      "lineage"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "model": {
+        "type": "object",
+        "required": [
+          "process",
+          "grain",
+          "facts",
+          "dimensions",
+          "metrics"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "process": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the business process, as the PO defined it"
+          },
+          "grain": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the declared grain"
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a fact"
+            }
+          },
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "scd"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "dimension"
+                },
+                "scd": {
+                  "enum": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7"
+                  ],
+                  "description": "SCD type"
+                }
+              }
+            }
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "formula",
+                "grain"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "metric"
+                },
+                "formula": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its formula"
+                },
+                "grain": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its grain: the model's grain"
+                }
+              }
+            }
+          }
+        }
+      },
+      "contract": {
+        "type": "object",
+        "required": [
+          "name",
+          "trigger",
+          "payload",
+          "key",
+          "granularity",
+          "owner",
+          "version",
+          "deprecation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "event or table"
+          },
+          "trigger": {
+            "type": "string",
+            "minLength": 1,
+            "description": "trigger"
+          },
+          "payload": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "type",
+                "optional"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "field"
+                },
+                "type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "type"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "description": "is it optional"
+                }
+              }
+            }
+          },
+          "key": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a key field"
+            },
+            "minItems": 1
+          },
+          "granularity": {
+            "type": "string",
+            "minLength": 1,
+            "description": "granularity"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "description": "who owns the contract"
+          },
+          "version": {
+            "$ref": "envelope#/$defs/version"
+          },
+          "supersedes": {
+            "$ref": "envelope#/$defs/version",
+            "description": "the version it supersedes"
+          },
+          "deprecation": {
+            "type": "string",
+            "minLength": 1,
+            "description": "how consumers move off an older version"
+          }
+        }
+      },
+      "lineage": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "feature",
+            "source",
+            "point_in_time"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "feature": {
+              "type": "string",
+              "minLength": 1,
+              "description": "feature"
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "its source"
+            },
+            "point_in_time": {
+              "type": "boolean",
+              "description": "checked point-in-time correct"
+            }
+          }
+        }
+      }
+    }
+  }
+}

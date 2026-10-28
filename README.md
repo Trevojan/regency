@@ -1,13 +1,83 @@
-# regency
+# Regency
 
-The Regent's portable toolkit for Claude Code: orchestrated team passes (PO / DV / QA / DA), the
-verbs *proceed*, *commit-and-merge* and *measure-changes*, five inference engines, the Scribe
-sub-agent, the four standard Orders, a `.guidelines/` scaffold, a code-to-norm lineage tool, and the
-hooks that hold the conventions at the moment of every tool call.
+**Good practice for software development with AA** — the Regent's portable toolkit for Claude Code.
+
+Welcome, Regent.
+
+Software development already has its practices. What it does not have yet is an official name for the
+person who gives the commands when an AI writes the code. Regency gives one: that person is the
+**Regent**, and the AI is the **Advanced Algorithm** — **AA**.
+
+Regency manages AA's capabilities. It sets down what developing with AA takes — who decides, who
+builds, who verifies, what must be true before a commit exists — as files AA reads and scripts that
+check them. The knowledge and patterns behind it are refined in a manual, *Hackiavelli — The Manual of
+Good Regency*; this repository is its practical part, built alongside the book and run on it, so that
+every candidate practice is proved first-hand.
+
+It exists to solve a problem. AA makes code cheap; review stays human. When production speeds up and
+review does not, work that nobody has checked piles up, and the team gathers risk while it looks more
+productive. Regency's answer is a few adjustments to software development as it already is: the
+familiar roles — product owner, developer, quality analyst, data analyst — played by AA, working in
+units small enough to judge without reading everything, through a machine gate before any human looks,
+up to a review packet where the Regent decides.
+
+It is a vanguard idea, and it needs people. If you develop software with AA, it was written for you:
+try it on real work, and help refine it.
 
 **Portable by construction.** The folder is self-contained and relocatable: every path in it is
 relative to the folder itself, the scripts use only the Python standard library, and nothing points at
 a machine, a user or a project. Copy it, mount it, clone it, or point any Claude Code instance at it.
+
+## Start in a minute
+
+1. **Load it** for one session: `claude --plugin-dir <path>`, where `<path>` is this folder. Every other
+   way is [below](#use-it--pick-one-way).
+2. **Check it:** `/regency doctor`. It checks the folder and makes every hook prove itself on a real
+   event.
+3. **Try an engine** — no project needed: `/regency:engine:critical <a claim you would defend>`.
+4. **In a project:** `/regency:init` scaffolds the guidelines, `/regency:team <unit>` runs one pass and
+   stops at the review packet, and `/regency:virtualpath:ongoing` is the first peek when you come back.
+
+## How it works
+
+**Rule zero — Mastery spares Synthesis** (*Domínio evita Síntese*). Whatever can be written down as a
+script, a template, a registry entry or a hook is written down, and AA reads it instead of inferring it
+again. The less AA has to fill gaps, the better both sides perform.
+
+**The Regent decides.** AA measures, proposes and refuses; it never ratifies a norm it wrote. A choice
+that belongs to the Regent comes back as a closed question, never as a guess.
+
+**Work is cut until it can be judged.** Ideal (MAX) → MVP (MIN) → Module → Step → Task → Phases F0–F6.
+The Ideal is never a target: it makes the MVP defensible by contrast. Each task declares the span of
+phases it may touch; needing one outside it stops the task and sends it back.
+
+**A team, isolated by role.** Each role sees only what cannot corrupt its judgement, and the roles
+exchange artefacts, never reasoning: QA never reads DV's explanation of why the code is right, because
+agreement is the default failure of a model reviewing a model. DA joins when the work touches data.
+
+```text
+/regency:team <unit>          should the team act? who does what?
+   │
+   ▼
+PO frames → QA challenges → DA models → DV builds → gate → QA verifies → PO weighs the risk
+   │                     artefacts only, never reasoning
+   ▼
+review packet                 span declared vs touched · gate result · manifest diff
+   │                          · QA's risk opinion · the diff, read last
+   ▼
+the Regent decides
+```
+
+**Returns are checked before you read them.** Every subagent return is a JSON envelope under its own
+contract, checked against it by `scripts/returns.py`, and again by `hook-gov.py` when the owner's
+packet comes back. A finding that keeps returning is counted by its class (`scripts/gov.py recur`), so
+a class that recurs shows itself instead of hiding behind new instances.
+
+**Memory travels with the repository.** The project's guidelines hold its norms; `.shortcuts/.virtual/`
+holds the work ledger and the code-to-norm lineage, with an exact index kept beside them as a local
+cache, so a fresh session resumes from traces, not from memory.
+
+The method in full: `library/team/ORCHESTRATION.md`. The ids it uses: `library/ids.md`.
 
 ## Use it — pick one way
 
@@ -23,20 +93,21 @@ Replace `<path>` with where this folder lives.
 | 6 | **A team** | everyone gets it | push this folder to a git repo, then in the project's `.claude/settings.json`: `{"extraKnownMarketplaces":{"regency":{"source":{"source":"github","repo":"<org>/<repo>"}}},"enabledPlugins":{"regency@regency":true}}` |
 | 7 | **Claude account** (cloud sessions, Cowork) | sessions that cannot load a local plugin | `python scripts/package.py`, then install `dist/regency-<version>.plugin` on the account |
 
-**Verified against this exact folder on Claude Code 2.1.201:** ways 1, 4 and 5 in live sessions
-(`/regency` help, `/regency doctor`, `/regency:engine:critical`, and a read-only
-`/regency:team:status` on a real project with a different layout); way 2 by `claude plugin validate`
-plus install in an isolated config; way 3 by loading it as a skills-directory plugin. Way 6 follows
-the documented settings shape and was not run. Way 7 is built and structurally checked, not yet run.
-Cloud sessions do not load local plugins: use way 7, or way 4 or 5.
+**Verified.** On Claude Code 2.1.201: ways 1, 4 and 5 in live sessions (`/regency` help,
+`/regency doctor`, `/regency:engine:critical`, and a read-only `/regency:team:status` on a real project
+with a different layout); way 2 by `claude plugin validate` plus install in an isolated config; way 3
+by loading it as a skills-directory plugin. Way 7 runs in Claude's cloud sessions: regency 2.3,
+installed on the account, loads its skills and hooks there. Way 6 follows the documented settings shape
+and has not been run. On Claude Code 2.1.305, regency 2.6 passes `claude plugin validate`. Cloud
+sessions do not load local plugins: use way 7, or way 4 or 5.
 
 **Permissions.** A session whose working directory is a project reads regency's files from outside
 that directory. In a headless run (`claude -p`) that read is denied unless you grant it: add
 `--add-dir <path>` (or a `Read(<path>/**)` rule). Interactively, Claude Code asks the first time.
 
-First command, any way: **`/regency doctor`** (or `python scripts/doctor.py`).
-
 ## What you get
+
+Every command, from `library/registry.json`:
 
 <!-- regency:dispatch:begin -->
 | Command | What it does | Arguments | Playbook (no-plugin fallback) |
@@ -60,7 +131,7 @@ First command, any way: **`/regency doctor`** (or `python scripts/doctor.py`).
 | `/regency:role:dv` | Developer: build inside the declared span, in revertible commits that each cite the task. | `<task>` | same playbook, subcommand `dv` |
 | `/regency:role:qa` | Quality Analyst: challenge criteria, verify from artefacts, write the risk opinion. | `<task>` | same playbook, subcommand `qa` |
 | `/regency:role:da` | Data Analyst: shape events and contracts, define metrics, supply the oracle. | `<task>` | same playbook, subcommand `da` |
-| `/regency:scribe` | Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines. | `<delegated material>` | `skills/scribe/SKILL.md` |
+| `/regency:scribe` | Call suba-scribe to write a text for the caller - a document, spec, essay or chapter - in increments the caller reviews; the same subagent DV wears for development artefacts, here with none of DV's authority. | `<what to write, and the material>` | `skills/scribe/SKILL.md` |
 | `/regency:order` | Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project. | `<germinate\|handoff\|dispatch\|resume> [material]` | `skills/order/SKILL.md` |
 | `/regency:order:germinate` | Grow the path to a goal as a tree: roots, trunk, branches, limits, locks, fruit, assumption. | `<goal>` | same playbook, subcommand `germinate` |
 | `/regency:order:handoff` | Close a stretch of work and hand its state to whoever opens the next one. | `` | same playbook, subcommand `handoff` |
@@ -86,6 +157,26 @@ First command, any way: **`/regency doctor`** (or `python scripts/doctor.py`).
 `/regency:<id>:<sub>` is the same playbook as `/regency:<id> <sub>`. With no plugin loaded, open the
 playbook named in the last column and follow it.
 
+## The team and its subagents
+
+Four roles, played by AA under their own contracts (`library/team/`). PO and QA are managers: they frame
+the work and judge it. DV and DA are operators: they produce it, as code and as data contracts. DA and
+DV never talk directly; what one needs from the other goes through a manager.
+
+| Role | Answers for | Its subagents |
+|---|---|---|
+| **PO** — Product Owner | what is worth building, and in what order | suba-requirements-analyst · suba-design · suba-strategy\* · suba-research\* |
+| **QA** — Quality Analyst | whether it really works, and how it breaks | suba-recon · suba-tester · suba-validator |
+| **DA** — Data Analyst | what the data support, and with what confidence | suba-acquisition · suba-analysis · suba-modeling |
+| **DV** — Developer | how it works, and at what maintenance cost | suba-scribe · suba-architect · suba-implementer |
+
+\* proposals, awaiting ratification.
+
+A subagent — a *suba* — is a lens inside its owner's stage: the owner wears it rather than dispatching
+it, and it never sees more than its owner may see. `library/subagents/ALIGNMENT.md` holds what every
+suba inherits; `scripts/gov.py` holds who owns which. The Scribe is also a command: `/regency:scribe`
+writes a text for you, with none of DV's authority.
+
 ## Hooks
 
 Shipped with the plugin in `hooks/hooks.json`; each one runs a script in `scripts/` and answers with one
@@ -94,16 +185,18 @@ line at most. Full reference: `library/hooks.md`.
 | Hook | When | What it does |
 |---|---|---|
 | `guard-push.py` | before a git command | denies a push to `main`/`master` in any form |
-| `hook-hazard.py` | before / after a shell command | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs; after a destructive step, keeps writes waiting until the Regent says a release verb |
+| `hook-hazard.py` | before / after a shell command, after a role agent returns | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs; after a destructive step, keeps file writes waiting for a PO or QA permit or the Regent's release verb |
 | `hook-acts-guard.py` | before a file write | denies writes in `.scope/`, rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), changes under a `lock` slice, and new names with banned tokens |
-| `hook-lineage.py` | after a file write | refreshes the file's fingerprint and writes a STALE line under every norm slice that governs it |
-| `hook-journal.py` | after writes, git changes, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
-| `hook-resume.py` | session start, resume, clear, compaction | one resume line: ledger counts, STALE lines, latest Order, last checkpoint |
+| `hook-lineage.py` | after a file write | refreshes the file's fingerprint, re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
+| `hook-gov.py` | a subagent starts or returns | gives a role or suba its governance line; routes the returned packet (G1 to the ledger, G2 and G3 to the Regent); checks a packet that names its stage against that stage's return shape, and every suba envelope in it against its contract |
+| `hook-journal.py` | after writes, git and hazardous shell commands, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
+| `hook-resume.py` | session start, resume, clear, compaction | one resume line: ledger counts, STALE lines, latest Order, last checkpoint, the index |
 | `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands, ends the hazard watch on a release verb, names the command for a Regent verb (conventions §9) |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
-the hooks are silent. A hook whose script is missing **fails open**, so `scripts/doctor.py` runs every
-hook's self-test and feeds each one a real event. Without the plugin (ways 4 and 5),
+the hooks are silent. A guard whose script cannot start blocks its call (`onFailure: block`, Claude Code
+2.1.295 and later); a recorder, or a guard on an older version, fails open — so `scripts/doctor.py` runs
+every hook's self-test and feeds each one a real event. Without the plugin (ways 4 and 5),
 `python scripts/guard-push.py --snippet` prints the push guard's settings block for this machine.
 
 ## Frontend documentation for a project
@@ -136,11 +229,13 @@ reversible. The installers never overwrite a file they did not create.
 - **No assumed layout.** Commands locate a project's documents through `library/layouts.md`
   (dotted `.guidelines/` or classic Orbital), prefer the project's own role specs over the bundled
   ones, and report a missing document instead of improvising.
-- **One source of truth.** `library/registry.json` defines the commands; `scripts/build.py` generates
-  the nested aliases and the tables above. `scripts/doctor.py` proves the folder is consistent.
-- **Heavy material on demand.** The always-on cost of the whole plugin is the twelve skill descriptions
-  (measure with `claude plugin details regency`) plus one resume line per session; engines, role specs
-  and templates load only when a command needs them.
+- **One source of truth.** `library/registry.json` defines the commands and each suba's `contract.json`
+  its return; `scripts/build.py` generates the nested aliases, the command tables and the return
+  templates. `scripts/doctor.py` proves the folder is consistent.
+- **Heavy material on demand.** The always-on cost of the whole plugin is its fourteen skill
+  descriptions — about 2.7k tokens on Claude Code 2.1.305 (`claude --plugin-dir <path> plugin details
+  regency`) — plus one resume line per session; engines, role specs, subagents and templates load only
+  when a command needs them.
 - **The Regent's way of working travels with it** in `library/conventions.md`, so a fresh instance
   needs no prior conversation to behave correctly.
 
@@ -152,10 +247,13 @@ regency/
 ├── CLAUDE.md              read by Claude Code when opened here
 ├── README.md
 ├── hooks/hooks.json       triggers only: every hook runs a script in scripts/ (library/hooks.md)
-├── skills/<id>/SKILL.md   the playbooks (12)
+├── skills/<id>/SKILL.md   the playbooks (14)
 ├── commands/<id>/<sub>.md generated aliases for /regency:<id>:<sub>
-├── library/               conventions, hooks, rules/, layouts, registry, maintaining, team/, agents/, engines/, orders/, templates/, examples/
-├── scripts/               build · doctor · package · vp · conventions_check · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
+├── library/               conventions, ids, layouts, registry, hooks, virtualpath, task-granulation,
+│                          maintaining; team/, agents/, subagents/, engines/, orders/, rules/,
+│                          templates/, examples/
+├── scripts/               build · doctor · package · conventions_check · vp · idx · gov · returns ·
+│                          station · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
 ├── dist/                  generated .plugin archives (package.py); never edit, never commit
 └── discard/               superseded material (see discard/INDEX.md); safe to omit when sharing
 ```
@@ -163,10 +261,33 @@ regency/
 ## Maintain
 
 ```bash
-python scripts/build.py     # after editing library/registry.json
+python scripts/build.py     # after editing library/registry.json or a suba's contract.json
 python scripts/doctor.py    # before sharing; exit code 1 means something is broken
 python scripts/package.py   # after a version bump: dist/<name>-<version>.plugin for way 7
 ```
 
+regency is versioned `a.b`: `+b` for a content change, `+a` for a major rule finished, reinterpreted or
+invented, with no cap on either. `library/registry.json` and `.claude-plugin/plugin.json` carry the same
+value.
+
 Requirements: Python 3.8+ on the PATH as `python` (scripts and hooks, standard library only) and a
-Claude Code version that supports plugins. Verified on Claude Code 2.1.201.
+Claude Code version that supports plugins.
+
+## Read next
+
+| File | What it holds |
+|---|---|
+| `library/conventions.md` | how the Regent works: rule zero, labels, language, doubts, git verbs, permissions |
+| `library/team/ORCHESTRATION.md` | the method: review compression, the tree, the cycle of a task, the review packet |
+| `library/team/TEAM.md` | the common standard of the four roles |
+| `library/subagents/ALIGNMENT.md` | what every suba inherits, and its return envelope |
+| `library/hooks.md` | every hook: what it guards or records, and the files it touches |
+| `library/virtualpath.md` | the code-to-norm lineage, the work ledger and the exact index |
+| `library/maintaining.md` | verified Claude Code behaviour, and the traps met while building this |
+
+## Help shape it
+
+Regency improves on evidence from real use. The most useful kinds: a rule that failed on real work, a
+doubt that kept coming back, an instruction AA needed explained twice — which, by rule zero, wants to
+become a script or a template. Bring it as an issue or a pull request, with its evidence: a practice
+enters as a proposal and becomes a rule only when ratified.

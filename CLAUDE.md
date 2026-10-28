@@ -41,7 +41,7 @@ Precedence: the user's message → the project's own `CLAUDE.md` / `.guidelines/
 | `/regency:role:dv` | Developer: build inside the declared span, in revertible commits that each cite the task. | `<task>` | same playbook, subcommand `dv` |
 | `/regency:role:qa` | Quality Analyst: challenge criteria, verify from artefacts, write the risk opinion. | `<task>` | same playbook, subcommand `qa` |
 | `/regency:role:da` | Data Analyst: shape events and contracts, define metrics, supply the oracle. | `<task>` | same playbook, subcommand `da` |
-| `/regency:scribe` | Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines. | `<delegated material>` | `skills/scribe/SKILL.md` |
+| `/regency:scribe` | Call suba-scribe to write a text for the caller - a document, spec, essay or chapter - in increments the caller reviews; the same subagent DV wears for development artefacts, here with none of DV's authority. | `<what to write, and the material>` | `skills/scribe/SKILL.md` |
 | `/regency:order` | Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project. | `<germinate\|handoff\|dispatch\|resume> [material]` | `skills/order/SKILL.md` |
 | `/regency:order:germinate` | Grow the path to a goal as a tree: roots, trunk, branches, limits, locks, fruit, assumption. | `<goal>` | same playbook, subcommand `germinate` |
 | `/regency:order:handoff` | Close a stretch of work and hand its state to whoever opens the next one. | `` | same playbook, subcommand `handoff` |
@@ -83,13 +83,14 @@ Precedence: the user's message → the project's own `CLAUDE.md` / `.guidelines/
 | `library/registry.json` | the single source of truth for the command table |
 | `library/team/` | role specs (`PO` `DV` `QA` `DA`), `TEAM`, `ORCHESTRATION`, the control spec, packets, vocabulary map |
 | `library/agents/` | sources of the four role subagents (`po` `dv` `qa` `da`); installed to `~/.claude/agents/` by `scripts/install-agents.py` |
+| `library/subagents/` | `suba-*` lenses inside an owner role's stage: a short `SKILL.md` spine, a `contract.json` (the return contract; the spine's Return block is generated from it) and `references/`; all point to `library/subagents/ALIGNMENT.md`; every return is a JSON envelope (`library/subagents/envelope.schema.json`) checked by `scripts/returns.py`; owners in `scripts/gov.py`, drift caught by `scripts/conventions_check.py` |
 | `library/engines/` | the five inference engines: `<id>.md` operating protocol, `<id>.full.md` exhaustive reference |
 | `library/orders/` | the four standard Order templates and how to read them |
 | `library/templates/guidelines/` | the `.guidelines/` scaffold used by `init` |
 | `library/virtualpath.md` | the code-to-norm lineage model and the work ledger |
 | `library/examples/` | worked examples (not instructions) |
 | `hooks/hooks.json` | triggers only: each hook runs one script in `scripts/` via `${CLAUDE_PLUGIN_ROOT}` |
-| `scripts/` | `build.py` (regenerate aliases and tables), `doctor.py` (health), `package.py` (build the installable `.plugin` from an allowlist of the folder), `vp.py` (virtual-path and work-ledger queries), `conventions_check.py` (the Regent's conventions as checks), `ux.py` (the `.ux/` scaffold: plan, scaffold, expand; tokens and brief checks; builds `theme.css`), `install-agents.py`, `install-rules.py`, and the hooks: `hook_wire.py` (shared wire contract), `guard-push.py`, `hook-hazard.py`, `hook-acts-guard.py`, `hook-lineage.py`, `hook-journal.py`, `hook-resume.py`, `hook-verbs.py` |
+| `scripts/` | `build.py` (regenerate aliases and tables), `doctor.py` (health), `package.py` (build the installable `.plugin` from an allowlist of the folder), `vp.py` (virtual-path and work-ledger queries), `idx.py` (the exact index under `.virtual`: nodes, fingerprints, edges, recovery, raw shortcuts), `returns.py` (the return gate), `gov.py` (governance routing and the flywheel's keys), `conventions_check.py` (the Regent's conventions as checks), `ux.py` (the `.ux/` scaffold: plan, scaffold, expand; tokens and brief checks; builds `theme.css`), `install-agents.py`, `install-rules.py`, and the hooks: `hook_wire.py` (shared wire contract), `guard-push.py`, `hook-hazard.py`, `hook-acts-guard.py`, `hook-lineage.py`, `hook-journal.py`, `hook-resume.py`, `hook-verbs.py`, `hook-gov.py` |
 | `dist/` | generated `.plugin` archives from `scripts/package.py`; never edit, never commit |
 | `discard/` | superseded material, kept for reference, never read as instructions; see `discard/INDEX.md` |
 

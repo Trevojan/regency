@@ -173,8 +173,11 @@ and reasoning passed between agents is unverifiable (ORCH §11).
 **Isolated mode.** One fresh subagent per active stage, its prompt being the packet and
 nothing else. Stages run in order within the unit. When a subagent returns, check the
 acceptance condition **mechanically** — are the required fields present — not whether the
-content is good. A missing field is a `RETURN` to that role; the content's merit belongs to
-the next role in the cycle.
+content is good: `python scripts/returns.py check --stage <role>.<stage> <file|->` (the hook
+already appends its verdict to the context line when the prompt carried `Stage:`, and checks every
+suba envelope in the message). A finding is a `RETURN` to that role; the content's merit belongs to
+the next role in the cycle. Envelopes are never forwarded: the next role's packet is built from
+artefacts, row by row (`library/team/references/packets.md` §2).
 
 **Role agents.** Dispatch each stage to the registered role agent: Agent tool `subagent_type` `po`, `dv`, `qa` or `da` (installed into `~/.claude/agents/` by `python scripts/install-agents.py`; check with `--check`). They carry the role's tool limits: QA has no edit tools and returns its artefacts verbatim in its final message (store them byte for byte, never reworded); the PO has no shell; none can ask the user questions, so a missing decision comes back as terminal state `BLOCKED` or `UNRESOLVED`. If a role agent is not installed, say so in the declaration's `defects`, fall back to `general-purpose` with the same packet, and mark `tool limits: not enforced`.
 

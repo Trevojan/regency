@@ -1,6 +1,6 @@
 {
   "plugin": "regency",
-  "version": "2.3",
+  "version": "2.6",
   "_about": "Single source of truth for every /regency command. Edit here, then run: python scripts/build.py. Never edit commands/ or the generated dispatch tables by hand. Version is a.b (library/conventions.md section 13).",
   "commands": [
     {
@@ -115,8 +115,8 @@
     {
       "id": "scribe",
       "skill": "scribe",
-      "summary": "Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines.",
-      "args": "<delegated material>"
+      "summary": "Call suba-scribe to write a text for the caller - a document, spec, essay or chapter - in increments the caller reviews; the same subagent DV wears for development artefacts, here with none of DV's authority.",
+      "args": "<what to write, and the material>"
     },
     {
       "id": "order",

@@ -28,6 +28,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
+import idx  # noqa: E402  (summary(): the exact index, virtualpath §6)
 
 _spec = importlib.util.spec_from_file_location("hook_journal", HERE / "hook-journal.py")
 journal = importlib.util.module_from_spec(_spec)
@@ -82,7 +83,8 @@ def line_for(repo, source=None):
     stale = stale_count(g)
     return wire.one_line(f"regency resume{' after ' + source if source in ('compact', 'clear') else ''}",
                          ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
-                         checkpoint_part(vdir), "first peek: vp.py ongoing, vp.py trace")
+                         checkpoint_part(vdir), idx.summary(vdir) if vdir else None,
+                         "first peek: vp.py ongoing, vp.py trace" + (", idx.py shortcuts" if vdir else ""))
 
 
 def respond(event):
@@ -118,7 +120,11 @@ def selftest():
              "guidelines without .virtual: says so"),
             (respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(plain)}) is None,
              "no guidelines: silent"),
+            ("index absent (idx.py build)" in out, "no index: the line says how to build one"),
         ]
+        idx.build(root, root / ".guidelines/.shortcuts/.virtual", guidelines_only=True)
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append((re.search(r"index \d+ nodes", out) is not None, f"with an index: its size is named ({out[-90:]})"))
         return wire.check([(ok, label) for ok, label in cases])
 
 

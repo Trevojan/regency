@@ -12,7 +12,7 @@ Checks
   6. all JSON and XML under the root parse
   7. the push guard's built-in decision table passes (scripts/guard-push.py --selftest)
   8. the four role-agent sources are valid; WARN if they are not installed (or are stale) in ~/.claude/agents
-  9. frontmatter of skills, commands and agent sources parses strictly (an unquoted ": " drops every field), and
+  9. frontmatter of skills, commands, agent sources and subagent spines parses strictly (an unquoted ": " drops every field), and
      no description carries an XML-like tag (`claude plugin validate` rejects the plugin for it)
  10. `claude plugin validate` on the components, when the CLI is available
  11. WARN while unapproved drafts exist in library/team/_draft
@@ -27,6 +27,8 @@ Checks
  16. the .ux/ scaffold holds (scripts/ux.py): its self-test detects every planted defect and scaffolds a
      throwaway project, the template tokens pass (roles, naming, computed contrast), theme.css matches
      them, the template brief parses
+ 17. the engines behind the hooks prove themselves: gov.py (routing, keys, recur), returns.py (the
+     return gate) and idx.py (the exact index) each pass their own --selftest, planting a defect per rule
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -345,6 +347,22 @@ def check_ux():
             rec("OK", f"ux {label}: {last}")
 
 
+def check_engines():
+    for name in ("gov.py", "returns.py", "idx.py"):
+        s = ROOT / "scripts" / name
+        if not s.is_file():
+            rec("FAIL", f"scripts/{name} is missing")
+            continue
+        r = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True, encoding="utf-8")
+        lines = [l for l in (r.stdout + r.stderr).strip().splitlines() if l.strip()]
+        if r.returncode != 0:
+            bad = [l for l in lines if l.startswith(("FAIL", "MISS"))] or lines[-1:]
+            rec("FAIL", f"{name}: " + " | ".join(bad[:3]))
+        else:
+            out = [l for l in r.stdout.strip().splitlines() if l.strip()]
+            rec("OK", f"{name}: {out[-1] if out else 'selftest ok'}")
+
+
 def check_rules():
     s = ROOT / "scripts" / "install-rules.py"
     if not s.is_file():
@@ -408,13 +426,13 @@ def frontmatter_risks(path):
 
 def check_frontmatter():
     bad = []
-    for pat in ("skills/*/SKILL.md", "commands/**/*.md", "library/agents/*.md"):
+    for pat in ("skills/*/SKILL.md", "commands/**/*.md", "library/agents/*.md", "library/subagents/*/SKILL.md"):
         for p in sorted(ROOT.glob(pat)):
             bad += frontmatter_risks(p)
     for b in bad:
         rec("FAIL", "frontmatter: " + b)
     if not bad:
-        rec("OK", "frontmatter of skills, commands and agents is strictly parseable")
+        rec("OK", "frontmatter of skills, commands, agents and subagents is strictly parseable")
 
 
 def check_cli_validate():
@@ -440,7 +458,7 @@ def check_drafts():
 
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
-          check_conventions, check_hook_scripts, check_ux)
+          check_conventions, check_hook_scripts, check_ux, check_engines)
 
 
 def main(argv):

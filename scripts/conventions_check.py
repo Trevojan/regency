@@ -11,10 +11,16 @@ Checks (library/conventions.md section 0, 11, 12, 13; library/ids.md)
   banned    FAIL for S3 banned name tokens in paths and in Python def/class names
   canonical FAIL for a canonical document name not in UPPER_CASE (N5)
   suba      FAIL for suba-/-vendor folders outside library/subagents and library/vendors (N1, N2)
+  subagent  each library/subagents/suba-*: SKILL.md present, name == folder, metadata.owner agrees with
+            gov.py OWNER (FAIL); every spine link into references/ resolves (FAIL); a contract.json returns.py
+            accepts and a generated return block in the spine (FAIL); the alignment stamp still matches the owner's role
+            spec and agent file (WARN: drifted, re-check then re-stamp); metadata.status: proposal (WARN
+            until the Regent ratifies); an OWNER entry with no folder (WARN) (library/subagents/ALIGNMENT.md)
 
 Every finding is one line, so a reader takes a slice instead of inferring the whole.
 Pure standard library, Python 3.8+. Reads only; writes nothing (the self-test writes to a temp dir).
 """
+import hashlib
 import json
 import re
 import sys
@@ -30,6 +36,49 @@ LEGACY_EXEMPT = ("library/ids.md", "library/examples/", "discard/")
 CANONICAL_EXEMPT = ("library/examples/", "discard/")  # samples are named after what they show
 JSON_BLOCK = re.compile(r"```json\n(.*?)\n```", re.S)
 VERSION = re.compile(r"^\d+\.\d+$")
+FRONT = re.compile(r"^---\n(.*?)\n---\n", re.S)
+STAMP = re.compile(r"([\w./-]+\.md)#([0-9a-f]{12})")
+REF_LINK = re.compile(r"(?:\]\(|`)(references/[^)`\s#]+)")
+
+
+def fingerprint(path):
+    """First 12 hex of sha256 over the file with line endings normalised (a CRLF checkout is no drift)."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:12]
+
+
+def contract_problems(name, root):
+    """returns.py's verdict on a suba's contract.json: [] when its schemas hold and its template is coherent."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import returns  # noqa: E402  (stdlib-only sibling)
+    return returns.contract_problems(name, root)
+
+
+def owner_map():
+    """gov.py's OWNER: the single source of which role owns which subagent."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import gov  # noqa: E402  (stdlib-only sibling)
+    return dict(gov.OWNER)
+
+
+def front_fields(text):
+    """Top-level and metadata.* scalars of a SKILL.md frontmatter, quotes stripped; {} when absent."""
+    m = FRONT.match(text.replace("\r\n", "\n"))
+    if not m:
+        return {}
+    out, section = {}, None
+    for line in m.group(1).split("\n"):
+        k = re.match(r"^(\s*)([A-Za-z][\w-]*):\s*(.*)$", line)
+        if not k:
+            continue
+        indent, key, val = k.groups()
+        val = val.strip().strip('"').strip("'")
+        if not indent:
+            section = key if not val else None
+            if val:
+                out[key] = val
+        elif section:
+            out[f"{section}.{key}"] = val
+    return out
 
 
 def tokens(name):
@@ -166,9 +215,65 @@ class Checker:
         if not bad:
             self.rec("OK", "suba", "suba-/-vendor placement holds")
 
+    def check_subagent(self, owners=None):
+        subs = self.root / "library" / "subagents"
+        if not subs.is_dir():
+            return
+        owners = owner_map() if owners is None else owners
+        fails = warns = 0
+        present = set()
+        for d in sorted(p for p in subs.iterdir() if p.is_dir() and p.name.startswith("suba-")):
+            name, spine = d.name, d / "SKILL.md"
+            present.add(name)
+            r = self.rel(spine)
+            if not spine.is_file():
+                fails += 1
+                self.rec("FAIL", "subagent", f"{self.rel(d)}: no SKILL.md")
+                continue
+            text = spine.read_text(encoding="utf-8-sig")
+            f = front_fields(text)
+            if f.get("name") != name:
+                fails += 1
+                self.rec("FAIL", "subagent", f"{r}: name={f.get('name')!r} differs from its folder")
+            owner, want = f.get("metadata.owner"), owners.get(name)
+            if owner != want:
+                fails += 1
+                self.rec("FAIL", "subagent", f"{r}: metadata.owner={owner!r} but gov.py OWNER says {want!r}")
+            for problem in contract_problems(name, self.root):
+                fails += 1
+                self.rec("FAIL", "subagent", f"{self.rel(d)}/contract.json: {problem}")
+            if "<!-- regency:return:begin" not in text:
+                fails += 1
+                self.rec("FAIL", "subagent", f"{r}: no generated return block (regency:return markers); run build.py")
+            if f.get("metadata.status") == "proposal":
+                warns += 1
+                self.rec("WARN", "subagent", f"{r}: proposal, awaiting the Regent's ratification (ALIGNMENT §9)")
+            for link in sorted(set(REF_LINK.findall(text))):
+                if not (d / link).exists():
+                    fails += 1
+                    self.rec("FAIL", "subagent", f"{r}: points to {link}, which does not exist")
+            stamps = STAMP.findall(f.get("metadata.aligned", ""))
+            if not stamps:
+                warns += 1
+                self.rec("WARN", "subagent", f"{r}: no metadata.aligned stamp; check it against its owner, then stamp")
+            for doc, sha in stamps:
+                target = self.root / doc
+                if not target.is_file():
+                    fails += 1
+                    self.rec("FAIL", "subagent", f"{r}: aligned with {doc}, which does not exist")
+                elif fingerprint(target) != sha:
+                    warns += 1
+                    self.rec("WARN", "subagent", f"{r}: drifted, {doc} changed since #{sha} (now #{fingerprint(target)});"
+                                                 " re-read the suba against it, then re-stamp")
+        for name in sorted(set(owners) - present):
+            warns += 1
+            self.rec("WARN", "subagent", f"gov.py OWNER names {name} ({owners[name]}), no folder in library/subagents")
+        if not fails and not warns:
+            self.rec("OK", "subagent", f"{len(present)} subagent(s) aligned with their owners")
+
     def run(self):
         for fn in (self.check_version, self.check_ids, self.check_legacy,
-                   self.check_banned, self.check_canonical, self.check_suba):
+                   self.check_banned, self.check_canonical, self.check_suba, self.check_subagent):
             fn()
         return self.out
 
@@ -204,6 +309,60 @@ def selftest():
         cases.append((ok_ids, "ids", "real grammar passes"))
         quiet = not any(c == "canonical" and "examples/" in m for _, c, m in found)
         cases.append((quiet, "canonical", "example files are exempt"))
+    with tempfile.TemporaryDirectory() as tmp:  # subagent: one clean suba and one planted defect per rule
+        root = Path(tmp)
+        team = root / "library" / "team"
+        (team / "references").mkdir(parents=True)
+        (team / "DV.md").write_text("role: DV\n", encoding="utf-8")
+        real = Path(__file__).resolve().parent.parent
+        for rel in ("library/ids.md", "library/team/references/packets.md", "library/subagents/envelope.schema.json"):
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text((real / rel).read_text(encoding="utf-8"), encoding="utf-8")
+        sha = fingerprint(team / "DV.md")
+        subs = root / "library" / "subagents"
+
+        sound = {"returns": {"type": "object", "required": ["note"], "additionalProperties": False,
+                             "properties": {"note": {"type": "string", "minLength": 1, "description": "a note"}}}}
+
+        def suba(name, owner, aligned, link="references/doctrine.md", real_name=None, make_ref=True,
+                 ret="## Return to the owner\n\n<!-- regency:return:begin -->\n<!-- regency:return:end -->\n", status="",
+                 con=sound):
+            d = subs / name
+            (d / "references").mkdir(parents=True)
+            if make_ref:
+                (d / "references" / "doctrine.md").write_text("x\n", encoding="utf-8")
+            if con is not None:
+                (d / "contract.json").write_text(json.dumps(con), encoding="utf-8")
+            (d / "SKILL.md").write_text(
+                f'---\nname: {real_name or name}\ndescription: "x"\nmetadata:\n  owner: {owner}\n'
+                f'  aligned: "{aligned}"\n{status}---\n\n{ret}\nDepth: [doctrine]({link})\n', encoding="utf-8")
+
+        suba("suba-good", "DV", f"library/team/DV.md#{sha}")
+        suba("suba-drift", "QA", "library/team/DV.md#000000000000")
+        suba("suba-wrong", "DA", f"library/team/DV.md#{sha}", link="references/nope.md", real_name="suba-other")
+        suba("suba-mute", "DV", f"library/team/DV.md#{sha}", ret="## Return\n\nWhatever seems right.\n")
+        suba("suba-loose", "DV", f"library/team/DV.md#{sha}", con={"returns": {"type": "object", "properties": {"x": {}}}})
+        suba("suba-bare", "DV", f"library/team/DV.md#{sha}", con=None)
+        suba("suba-draft", "PO", f"library/team/DV.md#{sha}", status="  status: proposal\n")
+        (subs / "suba-empty").mkdir()
+        owners = {"suba-good": "DV", "suba-drift": "QA", "suba-wrong": "PO", "suba-empty": "DV", "suba-absent": "DA",
+                  "suba-mute": "DV", "suba-draft": "PO", "suba-loose": "DV", "suba-bare": "DV"}
+        ck = Checker(root)
+        ck.check_subagent(owners)
+        found = ck.out
+        want = [("FAIL", "suba-wrong/SKILL.md: name="), ("FAIL", "metadata.owner='DA' but gov.py OWNER says 'PO'"),
+                ("FAIL", "points to references/nope.md"), ("FAIL", "suba-empty: no SKILL.md"),
+                ("WARN", "suba-drift/SKILL.md: drifted"), ("WARN", "names suba-absent (DA), no folder"),
+                ("FAIL", "suba-mute/SKILL.md: no generated return block"), ("WARN", "suba-draft/SKILL.md: proposal"),
+                ("FAIL", "suba-loose/contract.json: returns: /: open object"), ("FAIL", "suba-bare/contract.json: no contract.json")]
+        for lvl, needle in want:
+            cases.append((any(l == lvl and c == "subagent" and needle in m for l, c, m in found), "subagent", needle))
+        cases.append((not any("suba-good" in m for _, _, m in found), "subagent", "a clean suba raises nothing"))
+        (team / "DV.md").write_text("role: DV\nchanged\n", encoding="utf-8")
+        ck = Checker(root)
+        ck.check_subagent({"suba-good": "DV"})
+        cases.append((any("suba-good/SKILL.md: drifted" in m for _, _, m in ck.out), "subagent",
+                      "editing the owner's spec makes a clean suba drift"))
     for hit, check, needle in cases:
         print(f"{'pass' if hit else 'MISS'}  {check}: {needle}")
     missed = sum(1 for hit, _, _ in cases if not hit)
