@@ -4,7 +4,7 @@
 Decision record R4.2. On startup, resume, clear and compact, for a project that has guidelines:
 
   regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1 · latest Order ORD-0001
-  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.D01.T01) · first peek: vp.py ongoing, vp.py trace
+  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.D01.T01) · first peek: shortcuts.py peek, vp.py trace
 
 A project without guidelines gets nothing (the plugin is silent outside the Regent's projects).
 SessionStart plain output becomes context; this script answers with additionalContext JSON instead,
@@ -28,6 +28,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
+import shortcuts  # noqa: E402  (summary_part(): index check and drift counts, R7)
 
 _spec = importlib.util.spec_from_file_location("hook_journal", HERE / "hook-journal.py")
 journal = importlib.util.module_from_spec(_spec)
@@ -82,7 +83,8 @@ def line_for(repo, source=None):
     stale = stale_count(g)
     return wire.one_line(f"regency resume{' after ' + source if source in ('compact', 'clear') else ''}",
                          ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
-                         checkpoint_part(vdir), "first peek: vp.py ongoing, vp.py trace")
+                         checkpoint_part(vdir), shortcuts.summary_part(shortcuts.locate(repo)),
+                         "first peek: shortcuts.py peek, vp.py trace")
 
 
 def respond(event):
@@ -110,6 +112,7 @@ def selftest():
             ("ledger 1 ongoing / 1 review / 1 blocked / 2 backlog" in out, "ledger counted by state"),
             ("STALE 1" in out, "STALE lines counted"),
             ("latest Order ORD-0001" in out, "latest Order named"),
+            ("shortcuts check " in out and "drift " in out, "shortcuts index and drift counted (R7)"),
             ("Edit src/Page.razor" in out, "last checkpoint read back"),
             ("\n" not in out and len(out) <= wire.MAX_LINE, "one slice line, capped"),
             ("after compact" in text(respond({"hook_event_name": "SessionStart", "source": "compact", "cwd": str(root)})),

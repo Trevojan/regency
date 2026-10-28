@@ -27,6 +27,8 @@ Checks
  16. the .ux/ scaffold holds (scripts/ux.py): its self-test detects every planted defect and scaffolds a
      throwaway project, the template tokens pass (roles, naming, computed contrast), theme.css matches
      them, the template brief parses
+ 17. the shortcuts engine holds (scripts/shortcuts.py --selftest): store, migration, node ids against
+     vp.resolve, drift, refresh, index check and the state-block guard, one planted defect per rule (R7)
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -65,6 +67,7 @@ REQUIRED_WIRING = (
     ("SessionStart", "compact", "hook-resume.py"),
     ("UserPromptSubmit", "", "hook-verbs.py"),
     ("PreCompact", "", "hook-journal.py"), ("SubagentStop", "", "hook-journal.py"),
+    ("SessionEnd", "", "hook-shortcuts.py"),
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
 )
 GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
@@ -285,6 +288,7 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-lineage.py": {"hook_event_name": "PostToolUse", "tool_name": "Edit", "tool_input": {"file_path": "nowhere.txt"}},
     "hook-journal.py": {"hook_event_name": "PreCompact", "trigger": "auto"},
     "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
+    "hook-shortcuts.py": {"hook_event_name": "SessionEnd", "reason": "other"},
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
     "hook-gov.py": {"hook_event_name": "PostToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "suba-validator"},
                     "tool_response": "gov: order=G2 · mode=co · element=image · from=QA · to=RGN\nask: approve SPEC v3"},
@@ -343,6 +347,21 @@ def check_ux():
         else:
             last = lines[-1] if label == "selftest" else next((l.split(None, 1)[1] for l in lines if l.startswith("OK")), "ok")
             rec("OK", f"ux {label}: {last}")
+
+
+def check_shortcuts():
+    s = ROOT / "scripts" / "shortcuts.py"
+    if not s.is_file():
+        return rec("FAIL", "scripts/shortcuts.py is missing")
+    with tempfile.TemporaryDirectory() as tmp:
+        env = dict(os.environ, REGENCY_HOOK_STATE=str(Path(tmp) / "state"))
+        r = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True,
+                           encoding="utf-8", env=env, cwd=tmp)
+    lines = [l for l in r.stdout.strip().splitlines() if l.strip()] or ["(no output)"]
+    if r.returncode != 0:
+        rec("FAIL", "shortcuts selftest: " + " | ".join([l for l in lines if l.startswith("MISS")][:3] or lines[-1:]))
+    else:
+        rec("OK", f"shortcuts: {lines[-1]}")
 
 
 def check_rules():
@@ -440,7 +459,7 @@ def check_drafts():
 
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
-          check_conventions, check_hook_scripts, check_ux)
+          check_conventions, check_hook_scripts, check_ux, check_shortcuts)
 
 
 def main(argv):
