@@ -47,7 +47,9 @@ def ledger_part(vdir):
     except ValueError:
         return "ledger UNREADABLE (vp.py ongoing)"
     counts = {s: sum(1 for it in items if it.get("state") == s) for s in STATES}
-    return "ledger " + " / ".join(f"{counts[s]} {s}" for s in STATES)
+    drafts = sum(1 for it in items if it.get("state") == "draft")
+    unverified = f" / {drafts} draft UNVERIFIED" if drafts else ""  # a speed mode's output (SPEED_MODES §6)
+    return "ledger " + " / ".join(f"{counts[s]} {s}" for s in STATES) + unverified
 
 
 def stale_count(g):
@@ -125,6 +127,13 @@ def selftest():
         idx.build(root, root / ".guidelines/.shortcuts/.virtual", guidelines_only=True)
         out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
         cases.append((re.search(r"index \d+ nodes", out) is not None, f"with an index: its size is named ({out[-90:]})"))
+        cases.append(("draft" not in out, "no draft item, no draft count"))
+        led = root / ".guidelines/.shortcuts/.virtual/ongoing.json"
+        data = json.loads(led.read_text(encoding="utf-8"))
+        data["items"].append({"id": "M04.D01.T01", "title": "f", "state": "draft", "where": ["branch:plumbing"]})
+        led.write_text(json.dumps(data), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("2 backlog / 1 draft UNVERIFIED" in out, f"drafts counted apart, marked unverified ({out[:90]})"))
         return wire.check([(ok, label) for ok, label in cases])
 
 

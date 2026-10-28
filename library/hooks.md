@@ -250,6 +250,7 @@ A2A task state → ledger state:
 |---|---|---|
 | `submitted` | `backlog` | decided, not started |
 | `working` | `ongoing` | needs evidence in `where` |
+| `completed`, by a speed mode | `draft` | DRAFT/UNVERIFIED on plumbing until a `/regency:team` pass verifies it (`library/team/SPEED_MODES.md` §6) |
 | `input-required`, `auth-required` | `blocked` | `blocked_by` names who decides |
 | `completed` | `review` → `done` | an agent never writes `done` on its own work (T5) |
 | `canceled`, `rejected`, `failed` | removed | version control and the handoff are the record |

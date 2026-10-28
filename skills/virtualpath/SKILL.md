@@ -1,7 +1,7 @@
 ---
 name: virtualpath
-description: "Regency virtual paths and work ledger. Query the code-to-norm lineage registry with scripts/vp.py (which norm slices govern a code file, which code a slice governs, which slices are STALE, whether everything still resolves) and read or reconcile the work ledger (.virtual/ongoing.json): what is ongoing versus backlogged, plus every trace of agent work in the repo. Use for /regency:virtualpath[:code|slice|stale|check|ongoing|trace], before editing governed code, and FIRST when returning to a repository: 'what is ongoing', 'what did the agents leave', 'resume'."
-argument-hint: "<code|slice|stale|check|ongoing|trace> [argument]"
+description: "Regency virtual paths and work ledger. Query the code-to-norm lineage registry with scripts/vp.py (which norm slices govern a code file, which code a slice governs, which slices are STALE, whether everything still resolves) and read or reconcile the work ledger (.virtual/ongoing.json): what is ongoing versus backlogged, plus every trace of agent work in the repo. Use for /regency:virtualpath[:code|slice|stale|check|ongoing|trace|drafts], before editing governed code, and FIRST when returning to a repository: 'what is ongoing', 'what did the agents leave', 'resume'."
+argument-hint: "<code|slice|stale|check|ongoing|trace|drafts> [argument]"
 ---
 
 # virtualpath — the lineage between norms and code
@@ -22,8 +22,9 @@ python <regency-root>/scripts/vp.py code  <code path>           # norms that gov
 python <regency-root>/scripts/vp.py slice <virtual_path> --show # code it governs, and the slice text
 python <regency-root>/scripts/vp.py stale                       # STALE warnings waiting for the Regent
 python <regency-root>/scripts/vp.py check                       # every slice and target resolves?
-python <regency-root>/scripts/vp.py ongoing                     # the work ledger: ongoing / review / blocked / backlog
+python <regency-root>/scripts/vp.py ongoing                     # the work ledger: ongoing / draft / review / blocked / backlog
 python <regency-root>/scripts/vp.py trace                       # every trace of agent work: git, guidelines, orders
+python <regency-root>/scripts/vp.py drafts                      # unverified speed-mode drafts; exit 1 while one remains
 ```
 
 Add `--manifest FILE` or `--repo DIR` if auto-discovery picks the wrong place. If no manifest exists,
@@ -64,7 +65,10 @@ schema: `library/virtualpath.md` §3). When you return to a repository, in this 
    **orphan work**; an old claim with no recent commit is a **stale claim**. Report each with its
    evidence and ask the Regent about every one that is a decision. Never adopt orphan work silently and
    never promote `backlog` to `ongoing` on your own.
-4. Keep the ledger true as you work, without asking: `ongoing` + `where` (evidence) when you start an
+4. `drafts` — when the ledger or `trace` shows a draft: every unverified speed-mode draft, ledger item and
+   commit. A draft is verified only by a `/regency:team` pass over its unit (`library/team/SPEED_MODES.md`
+   §6); report the list, never promote a draft by hand.
+5. Keep the ledger true as you work, without asking: `ongoing` + `where` (evidence) when you start an
    item, `next` at each boundary, `review` (never `done`) when you finish, removal of `done` items at
    handoff, and `updated` set. It points to the document with the detail and never copies it.
 

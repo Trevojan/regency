@@ -20,8 +20,8 @@ elsewhere is referenced, never copied:
 Rules beyond the subset (library/subagents/ALIGNMENT.md section 10): a value that is wholly <...> is an
 unfilled placeholder; to its owner an envelope carries a gov block running from and to the owner (gov.py
 OWNER), in direct mode none; every artefact the body names is listed in the envelope and, with the message
-at hand, delivered as an ARTEFACT block; a ledger line carries what its state needs (ongoing: where,
-review: next, blocked: blocked_by) and is never 'done'. Every value of type gov:key is a finding class,
+at hand, delivered as an ARTEFACT block; a ledger line carries what its state needs (ongoing and draft:
+where, review: next, blocked: blocked_by) and is never 'done'. Every value of type gov:key is a finding class,
 collected for gov.py recur. Validated envelopes are logged to <virtual>/returns.jsonl - metadata only,
 never the body.
 
@@ -384,7 +384,7 @@ def check_envelope(env, delivered=None, root=ROOT):
         c.miss("gov", "a direct-mode return carries no gov block")
     led = env.get("ledger")
     if isinstance(led, dict):
-        need = {"ongoing": "where", "review": "next", "blocked": "blocked_by"}.get(led.get("state"))
+        need = {"ongoing": "where", "draft": "where", "review": "next", "blocked": "blocked_by"}.get(led.get("state"))
         if need and not led.get(need):
             c.miss(f"ledger.{need}", f"a {led['state']} ledger line needs {need}")
     listed = [a for a in env.get("artefacts") or [] if isinstance(a, str)]
@@ -840,6 +840,10 @@ def selftest():
     cases.append(("ledger.state" in paths(mutate(imp, lambda e: e["ledger"].update(state="done"))), "envelope: never 'done'"))
     cases.append(("ledger.blocked_by" in paths(mutate(imp, lambda e: (e["ledger"].update(state="blocked"), e["ledger"].pop("blocked_by")))),
                   "envelope: blocked needs blocked_by"))
+    cases.append(("ledger.where" in paths(mutate(imp, lambda e: (e["ledger"].update(state="draft"), e["ledger"].pop("where", None)))),
+                  "envelope: a draft needs where"))
+    cases.append((not [q for q in paths(mutate(imp, lambda e: e["ledger"].update(state="draft", where=["branch:plumbing"])))
+                       if q.startswith("ledger")], "envelope: a draft with where holds"))
     cases.append(("terminal.state" in paths(mutate(imp, lambda e: e["terminal"].update(state="DONE"))), "envelope: terminal from packets.md"))
     cases.append(("suba" in paths(mutate(imp, lambda e: e.update(suba="suba-ghost"))), "envelope: an unknown suba"))
     direct = template("suba-scribe", direct=True, mode="filled")

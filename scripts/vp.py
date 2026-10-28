@@ -15,15 +15,19 @@ Commands (all read-only):
   vp.py slice <virtual_path>     code governed by this slice;  add --show to print the slice text
   vp.py stale                    slices carrying a STALE warning line (waiting for the Regent's check)
   vp.py check                    every slice resolves to an anchor; every refers_to file exists
-  vp.py ongoing                  the work ledger (.virtual/ongoing.json): ongoing / review / blocked / backlog
+  vp.py ongoing                  the work ledger (.virtual/ongoing.json): ongoing / draft / review / blocked / backlog
   vp.py trace                    every trace of agent work in the repo (git, guidelines, orders), to reconcile the ledger
+  vp.py drafts                   unverified drafts from a speed mode: ledger items in 'draft' and 'Draft: UNVERIFIED'
+                                 commits with no 'Verified-Draft:' commit for their unit; exit 1 while any remain
+                                 (library/team/SPEED_MODES.md section 6: nothing merges past plumbing until it is 0)
+  vp.py --selftest               plant a defect per ledger rule and per draft rule; exit 1 if one goes unseen
 
 Options:
   --manifest FILE   explicit manifest (default: found by searching .shortcuts/.virtual/manifest*.json)
   --repo DIR        repository root that refers_to is relative to (default: nearest .git, else guessed)
   --from DIR        where to start searching for the manifest (default: current directory)
 
-Pure standard library, Python 3.8+. Never writes anything.
+Pure standard library, Python 3.8+. Never writes anything (the self-test writes to a temp folder).
 """
 import json
 import re
@@ -176,7 +180,11 @@ def cmd_check(entries, guidelines, repo):
     return 1 if bad else 0
 
 
-LEDGER_STATES = ("ongoing", "review", "blocked", "backlog", "done")
+LEDGER_STATES = ("ongoing", "draft", "review", "blocked", "backlog", "done")
+DRAFT_FORBIDDEN = ("main", "master", "testing")  # a draft lives on plumbing; it never reaches these (SPEED_MODES §6)
+TRAILER_DRAFT = re.compile(r"(?m)^Draft:[ \t]*UNVERIFIED[ \t]*$")
+TRAILER_UNIT = re.compile(r"(?m)^Unit:[ \t]*(\S+)[ \t]*$")
+TRAILER_VERIFIED = re.compile(r"(?m)^Verified-Draft:[ \t]*(\S+)[ \t]*$")
 
 
 def virtual_dir(args):
@@ -229,6 +237,9 @@ def cmd_trace(vdir, repo):
             if ahead not in (None, "0") and branch != default:
                 print(f"commits on this branch not in {default}: {ahead}")
         print(f"stashes: {len(lines_of(git(repo, 'stash', 'list')))}")
+        dc = draft_commits(repo)
+        if dc and dc[0]:
+            print(f"unverified draft commits: {len(dc[0])} unit(s)  {', '.join(sorted(dc[0])[:8])}  (vp.py drafts)")
         print("last commits:")
         for l in lines_of(git(repo, "log", "-8", "--date=short", "--pretty=%h %ad %s")):
             print("   ", l[:150])
@@ -260,6 +271,68 @@ def cmd_trace(vdir, repo):
     return 0
 
 
+def draft_problems(it):
+    """What a 'draft' ledger item lacks: a branch and files as evidence, never a branch past plumbing."""
+    where = it.get("where") or []
+    branches = [w.split(":", 1)[1] for w in where if w.startswith("branch:")]
+    out = []
+    if not branches:
+        out.append(f"{it['id']}: draft with no 'branch:' evidence in 'where'")
+    for b in branches:
+        if b in DRAFT_FORBIDDEN:
+            out.append(f"{it['id']}: draft on branch {b}: a draft never leaves plumbing until a team pass verifies it")
+    return out
+
+
+def default_branch(repo):
+    return next((b for b in ("main", "master") if git(repo, "rev-parse", "--verify", "--quiet", b) is not None), None)
+
+
+def draft_commits(repo):
+    """(unverified, verified): units with a 'Draft: UNVERIFIED' commit on HEAD and not on the default branch,
+    minus those a later 'Verified-Draft: <unit>' commit closed; None when git cannot answer."""
+    default = default_branch(repo)
+    rng = [f"{default}..HEAD"] if default and git(repo, "rev-parse", "--abbrev-ref", "HEAD") != default else ["HEAD"]
+    log = git(repo, "log", "--format=%h%x00%B%x01", *rng)
+    if log is None:
+        return None
+    drafted, verified = {}, set()
+    for rec in log.split("\x01"):
+        sha, _, body = rec.strip().partition("\x00")
+        if not sha:
+            continue
+        verified.update(TRAILER_VERIFIED.findall(body))
+        if TRAILER_DRAFT.search(body):
+            for unit in TRAILER_UNIT.findall(body) or ["(no Unit: trailer)"]:
+                drafted.setdefault(unit, []).append(sha)
+    return {u: c for u, c in drafted.items() if u not in verified}, verified
+
+
+def cmd_drafts(vdir, repo):
+    """Every unverified draft: ledger items in 'draft' and draft commits no verifying commit has closed."""
+    items = []
+    led = vdir / "ongoing.json" if vdir else None
+    if led and led.is_file():
+        items = [it for it in json.loads(led.read_text(encoding="utf-8-sig")).get("items", []) if it.get("state") == "draft"]
+    commits = draft_commits(repo)
+    print(f"ledger drafts: {len(items)}")
+    for it in items:
+        print(f"  {it.get('id', '?')}  {it.get('title', '')}  where: {', '.join(it.get('where') or []) or '-'}")
+        for p in draft_problems(it) if it.get("id") else []:
+            print(f"      problem: {p}")
+    if commits is None:
+        print("draft commits: git unavailable or not a repository")
+        unverified = {}
+    else:
+        unverified, verified = commits
+        print(f"draft commits not yet verified: {len(unverified)} unit(s)" + (f"   (verified: {len(verified)})" if verified else ""))
+        for unit, shas in sorted(unverified.items()):
+            print(f"  {unit}  {' '.join(shas[:6])}{' ...' if len(shas) > 6 else ''}")
+    n = len(items) + len(unverified)
+    print(f"{n} unverified draft(s)" + (": nothing merges past plumbing until a /regency:team pass verifies each" if n else ""))
+    return 1 if n else 0
+
+
 def cmd_ongoing(vdir, repo):
     if not vdir:
         print("no .shortcuts/.virtual directory: this project keeps no work ledger yet.")
@@ -285,6 +358,8 @@ def cmd_ongoing(vdir, repo):
             continue
         if it["state"] == "ongoing" and not it.get("where"):
             problems.append(f"{it['id']}: ongoing with no evidence in 'where'")
+        if it["state"] == "draft":
+            problems += draft_problems(it)
         if it["state"] == "blocked" and not it.get("blocked_by"):
             problems.append(f"{it['id']}: blocked with no 'blocked_by'")
         by[it["state"]].append(it)
@@ -293,7 +368,7 @@ def cmd_ongoing(vdir, repo):
                 problems.append(f"{it['id']}: evidence path missing: {w}")
     print(f"ledger updated: {data.get('updated', '?')}   items: {len(items)}")
     for s in LEDGER_STATES:
-        if s == "done" and not by[s]:
+        if s in ("draft", "done") and not by[s]:
             continue
         print(f"\n{s.upper()} ({len(by[s])})")
         for it in by[s]:
@@ -309,6 +384,88 @@ def cmd_ongoing(vdir, repo):
     return 1 if problems else 0
 
 
+def selftest():
+    """Plant a defect per ledger and draft rule in a throwaway project; every one must be seen."""
+    import contextlib
+    import io
+    import shutil
+    import tempfile
+    cases = []
+
+    def run(fn, *a):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = fn(*a)
+        return code, buf.getvalue()
+
+    tmp = Path(tempfile.mkdtemp(prefix="vp-selftest-"))
+    try:
+        repo = tmp / "p"
+        vdir = repo / ".guidelines" / ".shortcuts" / ".virtual"
+        vdir.mkdir(parents=True)
+        (repo / "src").mkdir()
+        (repo / "src" / "a.py").write_text("x = 1\n", encoding="utf-8")
+
+        def ledger(*items):
+            (vdir / "ongoing.json").write_text(json.dumps({"schema": 1, "updated": "2026-10-28", "items": list(items)}),
+                                               encoding="utf-8")
+            return run(cmd_ongoing, vdir, repo)
+
+        good = {"id": "M01.D01.T01", "title": "a", "state": "draft", "who": "DV",
+                "where": ["branch:plumbing", "src/a.py"], "next": "verify: /regency:team M01.D01.T01"}
+        code, out = ledger(good)
+        cases.append((code == 0 and "DRAFT (1)" in out, "a draft with branch and files holds"))
+        code, out = ledger(dict(good, where=["src/a.py"]))
+        cases.append((code == 1 and "no 'branch:' evidence" in out, "a draft with no branch is named"))
+        code, out = ledger(dict(good, where=["branch:main", "src/a.py"]))
+        cases.append((code == 1 and "draft on branch main" in out, "a draft on main is named"))
+        code, out = ledger(dict(good, where=["branch:testing", "src/a.py"]))
+        cases.append((code == 1 and "draft on branch testing" in out, "a draft on testing is named"))
+        code, out = ledger(dict(good, state="ongoing", where=[]))
+        cases.append((code == 1 and "ongoing with no evidence" in out, "ongoing still needs evidence"))
+        code, out = ledger(dict(good, state="drafted"))
+        cases.append((code == 1 and "unknown state" in out, "an unknown state is named"))
+        code, out = ledger(dict(good, state="review"))
+        cases.append((code == 0 and "DRAFT" not in out, "no draft, no DRAFT section"))
+
+        if shutil.which("git"):
+            def g(*a):
+                return subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
+                                       "-c", "commit.gpgsign=false", *a], capture_output=True, text=True)
+            g("init", "-q", "-b", "main")
+            g("add", "-A")
+            g("commit", "-qm", "base")
+            g("checkout", "-qb", "plumbing")
+            (repo / "src" / "b.py").write_text("y = 2\n", encoding="utf-8")
+            g("add", "-A")
+            g("commit", "-qm", "draft(M01.D01.T02): b\n\nDraft: UNVERIFIED\nUnit: M01.D01.T02\nSpeed-Mode: just-in-time")
+            ledger(dict(good, id="M01.D01.T02"))
+            code, out = run(cmd_drafts, vdir, repo)
+            cases.append((code == 1 and "M01.D01.T02" in out and "1 unit(s)" in out, f"an unverified draft commit is listed: {out[-90:]!r}"))
+            ledger(dict(good, id="M01.D01.T02", state="review"))
+            code, out = run(cmd_drafts, vdir, repo)
+            cases.append((code == 1 and "not yet verified: 1" in out, "a ledger moved by hand does not verify the commit"))
+            (repo / "src" / "b.py").write_text("y = 2  # verified\n", encoding="utf-8")
+            g("add", "-A")
+            g("commit", "-qm", "feat(M01.D01.T02): b, verified\n\nVerified-Draft: M01.D01.T02")
+            code, out = run(cmd_drafts, vdir, repo)
+            cases.append((code == 0 and "0 unverified" in out, f"a Verified-Draft commit closes it: {out[-60:]!r}"))
+            g("commit", "-q", "--allow-empty", "-m", "draft: no unit\n\nDraft: UNVERIFIED")
+            code, out = run(cmd_drafts, vdir, repo)
+            cases.append((code == 1 and "(no Unit: trailer)" in out, "a draft commit without Unit: is named"))
+            code, out = run(cmd_trace, vdir, repo)
+            cases.append(("unverified draft commits: 1" in out, "trace names unverified draft commits"))
+        else:
+            cases.append((True, "git unavailable: draft-commit cases skipped"))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    bad = [name for ok, name in cases if not ok]
+    for name in bad:
+        print("MISS", name)
+    print(f"vp selftest: {len(cases) - len(bad)}/{len(cases)} ok")
+    return 1 if bad else 0
+
+
 def main(argv):
     opts, pos, i = {}, [], 0
     while i < len(argv):
@@ -322,6 +479,8 @@ def main(argv):
         elif a in ("-h", "--help"):
             print(__doc__)
             return 0
+        elif a == "--selftest":
+            return selftest()
         else:
             pos.append(a)
             i += 1
@@ -329,10 +488,10 @@ def main(argv):
         print(__doc__)
         return 2
     cmd, rest = pos[0], pos[1:]
-    if cmd in ("trace", "ongoing"):
+    if cmd in ("trace", "ongoing", "drafts"):
         vdir = virtual_dir(opts)
         repo = repo_root(vdir.parent.parent if vdir else Path(opts.get("from") or ".").resolve(), opts.get("repo"))
-        return cmd_trace(vdir, repo) if cmd == "trace" else cmd_ongoing(vdir, repo)
+        return {"trace": cmd_trace, "ongoing": cmd_ongoing, "drafts": cmd_drafts}[cmd](vdir, repo)
     manifest, entries, guidelines, repo = load(opts)
     if cmd == "code" and rest:
         return cmd_code(entries, rest[0], repo)

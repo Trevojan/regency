@@ -5,7 +5,7 @@
 
 | arquivo | o que guarda |
 |---|---|
-| `ongoing.json` | **o primeiro relance.** O trabalho dos agentes: `ongoing` (começou, não fechou — com evidência), `review` (pronto, espera conferência humana), `blocked` (espera uma decisão nomeada), `backlog` (planejado, não começou). Aponta para o documento onde o detalhe mora; nunca copia. |
+| `ongoing.json` | **o primeiro relance.** O trabalho dos agentes: `ongoing` (começou, não fechou — com evidência), `draft` (rascunho de um modo de velocidade: DRAFT/UNVERIFIED, só na plumbing, sem testes, até um passe do time verificar), `review` (pronto, espera conferência humana), `blocked` (espera uma decisão nomeada), `backlog` (planejado, não começou). Aponta para o documento onde o detalhe mora; nunca copia. |
 | `manifesto.json` | o elo norma ↔ código: cada fatia de norma declara o código que governa, e o porteiro avisa quando o código muda. |
 
 ## Quem atualiza `ongoing.json`, e quando
@@ -17,4 +17,4 @@ repositório: relance `ongoing.json`, junte os rastros (`vp.py trace`), reconcil
 evidência é fantasma; evidência sem item é trabalho órfão — e pergunte ao Regente sobre o que for decisão.
 Promover `backlog` para `ongoing` é ato da fila ou do Regente, nunca do acaso.
 
-Ferramenta: `python <regency>/scripts/vp.py ongoing` e `vp.py trace` (somente leitura).
+Ferramenta: `python <regency>/scripts/vp.py ongoing`, `vp.py trace` e `vp.py drafts` (somente leitura; `drafts` sai com 1 enquanto houver rascunho não verificado).

@@ -84,6 +84,7 @@ to read it), and it is the first thing looked at when work resumes.
 | `state` | Means | Required |
 |---|---|---|
 | `ongoing` | started and not closed | `where`: evidence a stranger can check — a branch, the files, a pass or Order id |
+| `draft` | drafted by a speed mode, **DRAFT/UNVERIFIED**: on the plumbing branch only, no tests, not verified (`library/team/SPEED_MODES.md` §6) | `where`: the branch (never `main`, `master` or `testing`) and the files; `next`: the verifying pass |
 | `review` | the agent finished; a human or QA must check | what is being waited on, in `next` |
 | `blocked` | waits on a named decision | `blocked_by`: who decides, and what |
 | `backlog` | decided or planned, **not started** | `source`: where it was decided |
@@ -93,6 +94,11 @@ Rules:
 
 - **It points, it never copies.** A short `title`; the detail lives in `source`.
 - **An agent never writes `done` on its own work.** It writes `review`.
+- **A `draft` leaves `draft` only through a normal `/regency:team` pass over its unit**: `ongoing` when that
+  pass starts, `review` when it ends, and its commit carries `Verified-Draft: <unit>`. Nothing else promotes a
+  draft. `python scripts/vp.py drafts` lists every unverified draft (ledger items and `Draft: UNVERIFIED`
+  commits no verifying commit closed) and exits 1 while one remains; nothing merges past plumbing until it
+  exits 0.
 - **Promoting `backlog` to `ongoing` is the queue's or the Regent's act**, not an accident of
   opportunity. An agent does not start backlog items to be helpful.
 - **Updated by the agent, without asking**, at: starting an item, each boundary (`next`), finishing

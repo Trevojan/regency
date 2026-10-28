@@ -28,8 +28,8 @@ Checks
      throwaway project, the template tokens pass (roles, naming, computed contrast), theme.css matches
      them, the template brief parses
  17. the engines behind the hooks and the playbooks prove themselves: gov.py (routing, keys, recur),
-     returns.py (the return gate), idx.py (the exact index) and speed.py (fuel, ranges,
-     waves, fuel packets) each pass their own --selftest, planting a defect per rule
+     returns.py (the return gate), idx.py (the exact index), vp.py (the ledger and its drafts) and speed.py
+     (fuel, ranges, waves, fuel packets) each pass their own --selftest, planting a defect per rule
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -349,7 +349,7 @@ def check_ux():
 
 
 def check_engines():
-    for name in ("gov.py", "returns.py", "idx.py", "speed.py"):
+    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")

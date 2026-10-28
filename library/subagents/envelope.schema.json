@@ -74,8 +74,8 @@
       "required": ["state"],
       "additionalProperties": false,
       "properties": {
-        "state": {"enum": ["ongoing", "review", "blocked", "backlog"]},
-        "where": {"type": "array", "items": {"type": "string", "minLength": 1, "description": "evidence a stranger can check: branch, file or pass"}},
+        "state": {"enum": ["ongoing", "draft", "review", "blocked", "backlog"]},
+        "where": {"type": "array", "items": {"type": "string", "minLength": 1, "description": "evidence a stranger can check: branch, file or pass (a draft names its branch)"}},
         "next": {"type": "string", "minLength": 3, "description": "the next step, or what review waits on"},
         "blocked_by": {"$ref": "#/$defs/decider"}
       }

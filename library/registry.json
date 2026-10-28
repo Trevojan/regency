@@ -161,8 +161,8 @@
     {
       "id": "virtualpath",
       "skill": "virtualpath",
-      "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing vs backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
-      "args": "<code|slice|stale|check|ongoing|trace> [argument]",
+      "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
+      "args": "<code|slice|stale|check|ongoing|trace|drafts> [argument]",
       "subs": [
         {
           "id": "code",
@@ -186,12 +186,17 @@
         },
         {
           "id": "ongoing",
-          "summary": "Read the work ledger (.virtual/ongoing.json): what is ongoing, in review, blocked or only backlog. First peek on returning to a repo.",
+          "summary": "Read the work ledger (.virtual/ongoing.json): what is ongoing, drafted, in review, blocked or only backlog. First peek on returning to a repo.",
           "args": ""
         },
         {
           "id": "trace",
           "summary": "Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger.",
+          "args": ""
+        },
+        {
+          "id": "drafts",
+          "summary": "List every unverified speed-mode draft (ledger items and DRAFT commits no verifying commit closed); exits 1 while one remains, and nothing merges past plumbing until it is 0.",
           "args": ""
         }
       ]

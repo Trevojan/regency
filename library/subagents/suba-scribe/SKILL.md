@@ -106,8 +106,8 @@ missing field and any field the contract does not name.
     }
   ],
   "ledger": {
-    "state": "<ongoing | review | blocked | backlog>",
-    "where": ["<evidence a stranger can check: branch, file or pass>"],
+    "state": "<ongoing | draft | review | blocked | backlog>",
+    "where": ["<evidence a stranger can check: branch, file or pass (a draft names its branch)>"],
     "next": "<the next step, or what review waits on>",
     "blocked_by": "<who decides: a role, or a person label>"
   },
