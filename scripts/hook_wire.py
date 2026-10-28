@@ -232,6 +232,16 @@ def regent_verbs():
         return []
 
 
+HARNESS_BLOCK = re.compile(r"<system-reminder>.*?</system-reminder>", re.S)
+
+
+def regent_text(prompt):
+    """The Regent's own words: some surfaces prepend <system-reminder> blocks (a timezone line, context) to
+    the prompt a hook receives. They are the harness's, never the Regent's, so a verb can open the message
+    behind them and a command quoted inside them confirms nothing."""
+    return HARNESS_BLOCK.sub("", prompt or "").strip()
+
+
 def opening_verb(prompt, table):
     """The (phrase, meaning, command) a short message opens with, or None. Slash commands never match."""
     p = re.sub(r"\s+", " ", (prompt or "").strip().lower())

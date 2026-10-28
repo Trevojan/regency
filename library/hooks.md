@@ -194,6 +194,10 @@ Every message of the Regent opens a pass. The hook:
 3. otherwise, for a message of 80 characters or fewer that opens with a verb, adds one line:
    `Regent verb 'prossiga' = work the whole queue -> /regency:proceed (conventions §9)`.
 
+The hook reads the Regent's own words only: `<system-reminder>` blocks some surfaces prepend to the prompt
+(a timezone line, context) are removed first (`hook_wire.regent_text`), so a verb behind them still opens
+the message and a command quoted inside them confirms nothing.
+
 Verbs come from the table in `library/conventions.md` §9, the only copy (`hook_wire.regent_verbs`).
 Slash commands are never routed. `--table` prints the verbs as parsed.
 
