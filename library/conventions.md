@@ -163,6 +163,10 @@ command named in context, and a release verb ends the hazard watch. Edit the tab
 
 Work resumes from **traces**, not from memory. On returning to a project:
 
+0. **The version gate**: `python scripts/migrate.py gate`. Exit 1: the project is behind the installed
+   regency, or carries no stamp — say "I need to update this before going on" and offer `/regency:update`;
+   nothing else writes into the project first. Exit 2: the project is on a newer regency — say "I can't go
+   on: this project is newer" and stop; the plugin is what must be updated (`library/migrations/README.md`).
 1. **First peek: the work ledger** (`.shortcuts/.virtual/ongoing.json`, `python scripts/vp.py ongoing`):
    what is `ongoing`, what is `review`, `blocked`, and what is merely `backlog`. The session already
    opens with a one-line resume slice (ledger counts, STALE lines, latest Order, last checkpoint) from

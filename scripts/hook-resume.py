@@ -29,6 +29,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
 import idx  # noqa: E402  (summary(): the exact index, virtualpath §6)
+import migrate  # noqa: E402  (gate(): the project's stamp against the installed regency, migrations §2)
 
 _spec = importlib.util.spec_from_file_location("hook_journal", HERE / "hook-journal.py")
 journal = importlib.util.module_from_spec(_spec)
@@ -83,8 +84,12 @@ def line_for(repo, source=None):
         return None
     vdir = wire.virtual_dir(repo)
     stale = stale_count(g)
+    try:
+        code, version = migrate.gate(repo)
+    except (OSError, ValueError, KeyError):
+        code, version = 0, None
     return wire.one_line(f"regency resume{' after ' + source if source in ('compact', 'clear') else ''}",
-                         ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
+                         f"VERSION: {version}" if code else None, ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
                          checkpoint_part(vdir), idx.summary(vdir) if vdir else None,
                          "first peek: vp.py ongoing, vp.py trace" + (", idx.py shortcuts" if vdir else ""))
 
@@ -134,6 +139,14 @@ def selftest():
         led.write_text(json.dumps(data), encoding="utf-8")
         out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
         cases.append(("2 backlog / 1 draft UNVERIFIED" in out, f"drafts counted apart, marked unverified ({out[:90]})"))
+        cases.append(("VERSION: this project carries no regency stamp" in out, "an unstamped project is named first"))
+        stamp = root / ".guidelines" / migrate.STAMP
+        stamp.write_text(json.dumps({"schema": 1, "regency": migrate.installed()}), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("VERSION" not in out, "a project on the installed version says nothing about it"))
+        stamp.write_text(json.dumps({"schema": 1, "regency": "999.0"}), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("newer than the installed" in out and "update the plugin" in out, "a newer project is named"))
         return wire.check([(ok, label) for ok, label in cases])
 
 

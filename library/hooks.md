@@ -195,7 +195,9 @@ regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1
 · last checkpoint 2026-10-09T20:28:20-03:00 Edit src/Page.razor · first peek: vp.py ongoing, vp.py trace
 ```
 
-After compaction it reads `regency resume after compact`. `--print` shows the line for the current folder.
+After compaction it reads `regency resume after compact`. When the project's stamp disagrees with the
+installed regency, the line opens with `VERSION: …` — the version gate's own words
+(`library/migrations/README.md` §2). `--print` shows the line for the current folder.
 
 ### Verbs — `hook-verbs.py`
 

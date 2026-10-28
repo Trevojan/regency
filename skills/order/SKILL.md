@@ -14,7 +14,8 @@ argument-hint: "<germinate|handoff|dispatch|resume> [material] | lazy [EMS-id]"
 
 The first argument names the kind (`germinate`, `handoff`, `dispatch`, `resume`). If it does not, ask
 (pop-up) which. Then read `library/orders/README.md` (how to read the XML, slot filling, numbering)
-and the template `library/orders/<kind>.xml`. `lazy` fills no template: it runs the Orders an Emission
+and the template `library/orders/<kind>.xml`. In a project, run the version gate first
+(`python scripts/migrate.py gate`, `library/conventions.md` §10): exit 1 or 2 stops here. `lazy` fills no template: it runs the Orders an Emission
 already carries (§3, *lazy*).
 
 ## 2. Fill

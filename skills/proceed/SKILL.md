@@ -13,9 +13,11 @@ disable-model-invocation: true
 
 "Proceed" means: **work the queue until a blocker or until it is empty** — not one task.
 
-## 0. First peek — the work ledger
+## 0. First peek — the version, then the work ledger
 
-Before anything else, see what is already going on: `python scripts/vp.py ongoing`, then
+Before anything else, `python scripts/migrate.py gate`: exit 1, say "I need to update this before going
+on" and offer `/regency:update`; exit 2, say "I can't go on: this project is on a newer regency" and stop.
+Then see what is already going on: `python scripts/vp.py ongoing`, then
 `python scripts/vp.py trace`, then reconcile as `library/conventions.md` §10 says (ghosts, orphan work,
 stale claims go to the Regent as questions). Never start a `backlog` item just because it is free: the
 queue decides what moves from `backlog` to `ongoing`. If the project keeps no ledger, say so once and

@@ -24,7 +24,10 @@ index points at everything else.
    being named is a decision nobody took.
 4. **Copy, never overwrite.** Copy the template into the target. If a file exists (a `CLAUDE.md`, a
    `README.md`, a `.gitignore`), do not replace it: write the template version next to it as
-   `<name>.template` and say so, or merge only the missing lines after asking.
+   `<name>.template` and say so, or merge only the missing lines after asking. Then, before filling
+   anything, `python scripts/migrate.py stamp`: it writes `.shortcuts/regency.json` (the installed version
+   and the fingerprints of the files just copied), which the version gate and `/regency:update` read;
+   name it among the paths of step 3.
 5. **Fill the holes.** The template's only gaps are `⟨…⟩` fields; each one says what it expects. Fill
    those you can answer from facts in the repository (name, one-line description, the verification
    command) and cite the source; leave the rest as `⟨…⟩` and list them as open questions. Never invent.

@@ -78,6 +78,8 @@ breakdown it already holds.
 
 ### Step 0 — First peek
 
+`python scripts/migrate.py gate` first: exit 1 → the decision is `HOLD` until `/regency:update` runs; exit
+2 → `STOP`, the project is on a newer regency than this one (`library/migrations/README.md` §2). Then
 `python scripts/vp.py ongoing` and `python scripts/vp.py trace` (read-only): what is already ongoing,
 under review or blocked, and every trace of agent work in the repo. An `ongoing` item on this unit
 whose evidence is gone, or dirty files that belong to no item, are findings for the declaration's
