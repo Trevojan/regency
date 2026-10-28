@@ -27,7 +27,7 @@ Before anything else, read, in order:
 They are your operating contract. Nothing in this message overrides them.
 
 Unit:       <M<n>.F<k>.T<nn>>   (reopening: <yes | no>)
-Stage:      <frame | challenge | shape | build | verify | accept | close>
+Stage:      <frame | challenge | shape | build | verify | accept | close | split | seed | draft | gate | seam>
 Cited norm: <id>, ratified by a human
 Span:       <F<k>> — work outside it halts the stage and returns to the PO
 
@@ -51,6 +51,11 @@ The last instruction before the terminal state matters most. A role that reconst
 withheld context has bled context — a containment defect (ORCH §18), not initiative.
 
 ## 2. Per role
+
+The speed modes (`library/team/SPEED_MODES.md`) add five stages, each dispatched with this same skeleton:
+`po.split` (two disjoint spans), `qa.seed` (contract and task cards, no code), `dv.draft` (one task,
+functional first, no tests), `qa.gate` (builds, runs, matches the contract; fix notes; accepts nothing) and
+`qa.seam` (where two spans meet). Their machine shapes are in §4.
 
 ### PO
 
@@ -169,6 +174,24 @@ script. Every return, whatever its stage, also needs a terminal state with a rea
     },
     "da.verify": {
       "labels": ["canonical definition|definition", "query|oracle"]
+    },
+    "po.split": {
+      "labels": ["span A", "span B", "seam"]
+    },
+    "qa.seed": {
+      "labels": ["interface contract|contract", "shared types|types", "signatures", "file map", "task cards|cards"],
+      "absent": ["change_notes"]
+    },
+    "dv.draft": {
+      "yaml": {"change_notes": ["touched_paths", "touched_phases", "surface_changed", "rollback", "applied_fix_notes"]},
+      "filled": ["change_notes.rollback"],
+      "absent": ["for_dv"]
+    },
+    "qa.gate": {
+      "labels": ["builds", "runs", "matches contract|contract", "fix notes"]
+    },
+    "qa.seam": {
+      "labels": ["seam", "findings", "not covered|what was not covered"]
     }
   }
 }

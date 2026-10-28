@@ -24,6 +24,8 @@ never typed: `M03.D02.T04 [F1–F3]`.
 | `GT-##` | a verification gate (T1–T5 discipline) | `GT-03` |
 | `UX-UI-##` | a UI / palette rule | `UX-UI-07` |
 | `ORD-####` | an Order (immutable once closed) | `ORD-0012` |
+| `EMS-###` | an Emission: a Glyph emission carrying a sequence of Orders, run by `/regency:order:lazy`; read, never written | `EMS-011` |
+| `FX-<wave>-<n>` | a fix note a `just-in-time` gate writes for the next wave (`library/team/SPEED_MODES.md` §5) | `FX-4-2` |
 | `C-##` | a conflict between norms, open until resolved | `C-01` |
 | `a.b` | regency's own version: `+b` content change, `+a` major rule finished, reinterpreted or invented; no caps | `2.0`, `99.999` |
 
@@ -51,6 +53,8 @@ never typed: `M03.D02.T04 [F1–F3]`.
   "gate":    {"pattern": "^GT-\\d{2,}$",      "example": "GT-03"},
   "ui-rule": {"pattern": "^UX-UI-\\d{2,}$",   "example": "UX-UI-07"},
   "order":   {"pattern": "^ORD-\\d{4,}$",     "example": "ORD-0012"},
+  "emission":{"pattern": "^EMS-\\d{3,}$",     "example": "EMS-011"},
+  "fix-note":{"pattern": "^FX-\\d+-\\d+$",    "example": "FX-4-2"},
   "conflict":{"pattern": "^C-\\d{2,}$",       "example": "C-01"},
   "version": {"pattern": "^\\d+\\.\\d+$",     "example": "2.0"},
   "person":  {"pattern": "^RGN(-(PO|Client|DA|DV-\\d+))?$", "example": "RGN-DV-2"}
