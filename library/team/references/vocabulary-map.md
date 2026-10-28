@@ -27,7 +27,7 @@ authoritative** and only the *role* of each term carries over.
 | Rule B — reference direction | classic `AR3`–`AR7` (the inward arrow); dotted: the layering norm | INFERRED | "does it reference only what it may" |
 | F3 manifest | classic `SOURCES/API_SURFACE.md`; dotted `.sources/API_ENDPOINTS.md` | INFERRED | the outward surface F3 publishes |
 | `Ev` / `Cmd` | events and commands in the data model and the surface document | INFERRED | no such prefixes exist in the id grammar |
-| Task states `ativa` / `bloqueada` / `revogada` | the item's status in the checklist or backlog | INFERRED | ORCH §6; only `ativa` counts as pending progress |
+| Task states `active` / `blocked` / `revoked` (older projects: `ativa` / `bloqueada` / `revogada`, read as input) | the item's status in the checklist or backlog | INFERRED | ORCH §6; only `active` counts as pending progress |
 | Delivered / closed / concluded | all tasks of a step done / step with the gate passed / module with every step closed | SUPPORTED | ORCH §5, §22 |
 | Review packet | the five-item packet in `skills/team/SKILL.md`, Step 7 | SUPPORTED | ORCH §15 |
 | Human | the human operator, RA escalation L4 | SUPPORTED | TEAM §6, §7.8 |

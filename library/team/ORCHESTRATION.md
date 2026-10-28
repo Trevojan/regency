@@ -128,9 +128,9 @@ Every task has a state:
 
 | State | Meaning | Counts toward progress |
 |---|---|---|
-| `ativa` | In progress or to do | Yes |
-| `bloqueada` | Stopped by an external dependency | No |
-| `revogada` | Cancelled by a recorded decision | No |
+| `active` | In progress or to do | Yes |
+| `blocked` | Stopped by an external dependency | No |
+| `revoked` | Cancelled by a recorded decision | No |
 
 A revoked task is not a pending task. Counting it as pending contaminates every
 sum above it.
@@ -360,7 +360,7 @@ finds where it stopped, whether a new person on the team or the next agent.
 - [ ] Human reviewed the packet
 - [ ] Every commit cites this task, and none spans another task
 
-Each item takes one of three states: `pendente`, `cumprido` or `não se aplica`.
+Each item takes one of three states: `pending`, `met` or `not applicable`.
 The third is mandatory because two items are conditional. A task that does not
 touch data will never have DA instrumentation and, counted out of twelve, would
 never reach one hundred percent. **The denominator is the number of applicable

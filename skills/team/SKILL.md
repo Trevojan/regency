@@ -59,7 +59,7 @@ around it.
 
 | Invocation | Meaning |
 |---|---|
-| `/regency:team` | the next unit: the first **active** task (state `ativa`) of the module in flight, per the checklist; `bloqueada` and `revogada` tasks are skipped |
+| `/regency:team` | the next unit: the first **active** task (state `active`) of the module in flight, per the checklist; `blocked` and `revoked` tasks are skipped |
 | `/regency:team M03.D02.T04` | that unit (the span is read from the task, e.g. `[F1–F3]`) |
 | `/regency:team:declare [unit]` (or `/regency:team declare`) | declare only; dispatch nothing |
 | `/regency:team:status` (or `/regency:team status`) | no new pass — report open packets, review queue, regime, returns in flight |
@@ -113,7 +113,7 @@ information" (RA §10).
 |---|---|---|---|---|---|
 | 0 | Halt | an L5 escalation is open anywhere in the module | `STOP` | human | TEAM §7.8 |
 | 1 | Review queue | a previous packet awaits a human decision, or anything is merged unreviewed | `HOLD` | human | ORCH §18 — the queue is the ceiling |
-| 2 | Unit resolves | the id is absent from the checklist or does not match its place in the tree, or its blueprint is missing; **or** the task is `revogada` (a revoked task is not pending) → `RETURN`; `bloqueada` → `HOLD`, routed to whoever owns the dependency | `RETURN` / `HOLD` | PO / dependency owner | ORCH §6, §8 |
+| 2 | Unit resolves | the id is absent from the checklist or does not match its place in the tree, or its blueprint is missing; **or** the task is `revoked` (a revoked task is not pending) → `RETURN`; `bloqueada` → `HOLD`, routed to whoever owns the dependency | `RETURN` / `HOLD` | PO / dependency owner | ORCH §6, §8 |
 | 3 | Module gate | the module has no signed gate sheet with three attestations | `RESTRICT` — framing and attestation stages only; no build | PO | TEAM §4, PO §19 |
 | 4 | Norm ratified | the cited norm is missing, or was drafted by an agent and not ratified by a human | `HOLD` | human | ORCH §7 — F0 is human-anchored |
 | 5 | Span | the task declares no span, or the phases it touches are not inside the span it declared (a range such as `[F1–F3]` is legal) | `RETURN` | PO | ORCH §7 |
@@ -237,11 +237,13 @@ These rules decide what a pass may *report*, and they are what keeps `status` ho
 
 | State | Meaning | Counts as pending progress |
 |---|---|---|
-| `ativa` | in progress or to do | yes |
-| `bloqueada` | stopped by an external dependency | no |
-| `revogada` | cancelled by a recorded decision | no |
+| `active` | in progress or to do | yes |
+| `blocked` | stopped by an external dependency | no |
+| `revoked` | cancelled by a recorded decision | no |
 
 A revoked task is not a pending task: counting it as pending contaminates every sum above it.
+A project written before these names may still use `ativa` / `bloqueada` / `revogada` and `pendente` /
+`cumprido` / `não se aplica`: read them as input, as the same states.
 
 **Delivered is not closed.** A step whose tasks are all done is *delivered* and ready to be signed;
 **the gate closes it**, and until the gate passes it counts as open. A report that marks a step done
@@ -253,8 +255,8 @@ production, not a progress mark.
 challenged the criteria; DA specified instrumentation *if applicable*; phases touched inside the span;
 Rule A and B pass; tests pass and a failing test preceded the rule change; F3 manifest diff empty or
 declared *if applicable*; QA risk opinion naming what was not covered; PO accepted with known defects
-recorded; human reviewed the packet; every commit cites the task and none spans another task). Each item is `pendente`, `cumprido` or `não se
-aplica`. **The denominator is the number of applicable items**: a task that touches no data never has a
+recorded; human reviewed the packet; every commit cites the task and none spans another task). Each item is `pending`, `met` or `not
+applicable`. **The denominator is the number of applicable items**: a task that touches no data never has a
 DA item, and counted over twelve it could never reach one hundred percent. Marking an item not
 applicable is a recorded decision, never an omission.
 
@@ -319,12 +321,12 @@ ALWAYS emit this block first, whatever the decision:
 ```yaml
 pass:
   unit: M03.D02.T04            # derived from the tree, or UNRESOLVED
-  task_state: ativa | bloqueada | revogada
+  task_state: active | blocked | revoked
   reopening: false
   cites: BR7                   # the norm; ratified: true | false
   span: [F1–F3]                # declared by the task
   unblocks: M01                # module this task releases, or none
-  checklist: "7/10 applicable (70%)"   # cumprido / applicable; não se aplica leaves the denominator
+  checklist: "7/10 applicable (70%)"   # met / applicable; not applicable leaves the denominator
   mode: isolated | single-context | declare-only
   independence: full | degraded
   adoption_stage: 1..5 | UNRESOLVED
@@ -386,7 +388,7 @@ This skill never:
 - continues a reopened unit in the old context
 - paraphrases a role file into a prompt
 - types an identifier the tree already determines
-- counts a `revogada` or `bloqueada` task as pending
+- counts a `revoked` or `blocked` task as pending
 - calls a step closed before its gate has passed, or reports progress "by phase"
 - runs `extreme-go-horse` without the fuel the Regent declared, or lets a speed mode's output leave
   `plumbing` before a normal pass has verified it
