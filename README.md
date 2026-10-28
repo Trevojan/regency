@@ -251,8 +251,8 @@ reversible. The installers never overwrite a file they did not create.
 - **One source of truth.** `library/registry.json` defines the commands and each suba's `contract.json`
   its return; `scripts/build.py` generates the nested aliases, the command tables and the return
   templates. `scripts/doctor.py` proves the folder is consistent.
-- **Heavy material on demand.** The always-on cost of the whole plugin is its fourteen skill
-  descriptions — about 2.8k tokens on Claude Code 2.1.312 (`claude --plugin-dir <path> plugin details
+- **Heavy material on demand.** The always-on cost of the whole plugin is its fifteen skill
+  descriptions — about 3.0k tokens on Claude Code 2.1.312 (`claude --plugin-dir <path> plugin details
   regency`) — plus one resume line per session; engines, role specs, subagents and templates load only
   when a command needs them.
 - **The Regent's way of working travels with it** in `library/conventions.md`, so a fresh instance
@@ -266,7 +266,7 @@ regency/
 ├── CLAUDE.md              read by Claude Code when opened here
 ├── README.md
 ├── hooks/hooks.json       triggers only: every hook runs a script in scripts/ (library/hooks.md)
-├── skills/<id>/SKILL.md   the playbooks (14)
+├── skills/<id>/SKILL.md   the playbooks (15)
 ├── commands/<id>/<sub>.md generated aliases for /regency:<id>:<sub>
 ├── library/               conventions, ids, layouts, registry, hooks, virtualpath, task-granulation,
 │                          maintaining; team/, agents/, subagents/, engines/, orders/, rules/,
