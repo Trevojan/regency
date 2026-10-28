@@ -74,7 +74,8 @@ from its brief; a UI rule changes there first, then in code.
 
 - **"Commit"** means small, split commits, each with a descriptive message: `feat`, `fix`, `docs`,
   `add`, `test`, kept apart (the Regent cannot follow 100% of generated code, so separation is the
-  review aid). Work stays on the branch/working tree in use; never create a worktree on your own.
+  review aid). Work stays on the branch/working tree in use; never create a worktree on your own. The
+  speed modes the Regent invokes open one per DV through the Agent tool (`library/team/SPEED_MODES.md` §2).
 - **"Commit and merge"** additionally merges the branches up to `main` following the project's
   documented branch contract. If the contract is not documented, ask before merging.
 - **The Regent pushes `main`.** An agent never pushes `main`/`master`, never force-pushes, never rewrites
@@ -151,6 +152,7 @@ command named in context, and a release verb ends the hazard watch. Edit the tab
 | handoff, retomada, resumo | close the stretch and hand the state over | `/regency:order:handoff` |
 | retome | reopen from the shortcuts index only | `/regency:order:resume` |
 | chame o TEAM | one orchestrated pass | `/regency:team` |
+| release the kraken, solte o kraken | two full teams, passes chained on the declared fuel; it is not a release verb | `/regency:team:extreme-go-horse` |
 | libere, release | end the hazard watch: file writes stop asking | `hook-hazard.py --clear` |
 
 ## 10. Returning to a repository
