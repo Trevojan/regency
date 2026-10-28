@@ -98,8 +98,9 @@ milestone** (the last completed D1), **next** — filled, never inferred — the
 
 A speed mode: read `library/team/SPEED_MODES.md` §1–§3 first; it holds the doctrine this list obeys.
 
-1. **Find the Emission**: the `EMS-###` named in the arguments, else the one the project marks open, under
-   `.orders/` (§3 there). None, or two open: stop with one line naming what you probed.
+1. **Find the Emission**: the `EMS-###` named in the arguments, else the one the open Order names in its
+   `position` slot. Its Orders are every Order under `.orders/` whose `position` names it, taken in number
+   order (§3 there). None found: stop with one line naming what you probed.
 2. **First peek**: `python scripts/vp.py ongoing` and `python scripts/vp.py trace`, as for any return to a
    repository; the run writes itself into the ledger as `pass:lazy-<EMS-id>`.
 3. **Each Order, in sequence**: one that depends on a skipped or blocked Order joins the blocked chain;

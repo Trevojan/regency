@@ -24,7 +24,7 @@ never typed: `M03.D02.T04 [F1–F3]`.
 | `GT-##` | a verification gate (T1–T5 discipline) | `GT-03` |
 | `UX-UI-##` | a UI / palette rule | `UX-UI-07` |
 | `ORD-####` | an Order (immutable once closed) | `ORD-0012` |
-| `EMS-###` | an Emission: a Glyph emission carrying a sequence of Orders, run by `/regency:order:lazy`; read, never written | `EMS-011` |
+| `EMS-###` | an Emission: the Orders that name it in their `position` slot, run in number order by `/regency:order:lazy`; read, never written | `EMS-011` |
 | `FX-<wave>-<n>` | a fix note a `just-in-time` gate writes for the next wave (`library/team/SPEED_MODES.md` §5) | `FX-4-2` |
 | `C-##` | a conflict between norms, open until resolved | `C-01` |
 | `a.b` | regency's own version: `+b` content change, `+a` major rule finished, reinterpreted or invented; no caps | `2.0`, `99.999` |

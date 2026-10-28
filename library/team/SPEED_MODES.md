@@ -68,13 +68,13 @@ packets queue up for the Regent's one review at the end. A packet older than the
 
 ## 3. `/regency:order:lazy [EMS-id]` — the no-brainer run
 
-**The Emission.** An Emission (`EMS-###`, `library/ids.md`) is a Glyph emission that carries a sequence
-of Orders; regency reads it and never writes it. Find it in the project's `.orders/` (`library/layouts.md`
-§2): a folder `EMS-###/` holding its Orders, or a file `EMS-###.*` in one of the four Glyph formats, which
-lists its Orders in sequence. Without an argument, take the Emission the project marks open (the `.orders/`
-index, or the Emission's own status line). Nothing found, or two marked open: stop with one line naming
-what was probed. The Regent marking the Emission open is what authorises its Orders; `lazy` never opens an
-Order or an Emission itself.
+**The Emission.** An Emission (`EMS-###`, `library/ids.md`) is the set of Orders that name it: every
+production Order carries its Emission in its `position` slot ("to which EMS this ORD belongs?"), beside
+`goal`, `step`, `repo`, `author` and `deadline`. Find them in the project's `.orders/` (`library/layouts.md`
+§2) and take them in the order of their numbers. Without an argument, take the Emission the open Order
+names. Nothing found, or Orders that name no Emission: stop with one line naming what was probed. The
+Regent opening the Emission's Order is what authorises the run; `lazy` then takes the Emission's Orders
+in sequence and never opens another Emission. regency reads Orders; it never writes them.
 
 **For each Order, in sequence:**
 
