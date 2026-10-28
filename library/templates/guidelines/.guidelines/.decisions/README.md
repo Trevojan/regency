@@ -1,43 +1,43 @@
-# Decisões — quem decidiu, e por quê
+# Decisions — who decided, and why
 
-> Uma decisão sem razão registrada volta a ser discutida. Uma decisão sem autor
-> registrado é re-decidida por quem não tinha autoridade.
+> A decision with no recorded reason gets discussed again. A decision with no recorded author gets
+> re-decided by someone who had no authority to.
 >
-> **Só o Regente decide.** Um agente pode medir, propor e recusar — nunca
-> ratificar norma que ele próprio escreveu.
+> **Only the Regent decides.** An agent may measure, propose and refuse — never ratify a norm it wrote
+> itself.
 
-## Formato
+## Format
 
-Uma seção por data, a mais recente no topo. A razão, quando existe na voz do
-Regente, entra **citada** — a frase original decide melhor que a paráfrase.
+One section per date, the newest on top. The reason, when it exists in the Regent's own words, goes in
+**quoted** — the original sentence decides better than a paraphrase.
 
 ```
-## AAAA-MM-DD
+## YYYY-MM-DD
 
-| decisão | razão |
+| decision | reason |
 |---|---|
-| **⟨o que ficou decidido⟩** | ⟨por quê. Cite quando houver frase⟩ |
+| **⟨what was decided⟩** | ⟨why. Quote it when there is a sentence⟩ |
 ```
 
 ---
 
-## ⟨AAAA-MM-DD⟩
+## ⟨YYYY-MM-DD⟩
 
-| decisão | razão |
+| decision | reason |
 |---|---|
 | **⟨…⟩** | ⟨…⟩ |
 
-## Anteriores, ainda em vigor
+## Earlier, still in force
 
-> Decisão antiga que ninguém revogou. Fica aqui para não voltar à mesa.
+> An old decision nobody revoked. It stays here so it does not come back to the table.
 
-| decisão | razão |
+| decision | reason |
 |---|---|
 | **⟨…⟩** | ⟨…⟩ |
 
-## Decisões que um agente tomou e o Regente ainda não ratificou
+## Decisions an agent took that the Regent has not ratified yet
 
-> Enquanto estiver nesta lista, **não é norma** e nada pode citá-la como
-> vinculante. Sair daqui é ato do Regente, não do agente.
+> While it is on this list it **is not a norm**, and nothing may cite it as binding. Leaving this list is
+> the Regent's act, not the agent's.
 
-- ⟨o quê, onde está escrito, e o que falta para ratificar⟩
+- ⟨what, where it is written, and what ratifying it still needs⟩

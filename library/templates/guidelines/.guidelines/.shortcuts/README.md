@@ -1,68 +1,66 @@
-# Atalhos — comece por aqui
+# Shortcuts — start here
 
-> **O ponto de entrada.** Quem retoma o projeto lê este arquivo primeiro e só
-> então abre o que precisa. O objetivo é que apenas **o passo anterior, o atual
-> e o próximo** precisem ser decifrados; todo o resto se alcança por atalho em
-> vez de ser reconstruído por inferência.
+> **The entry point.** Whoever resumes the project reads this file first and only then opens what they
+> need. The aim is that only **the previous step, the current one and the next** need deciphering;
+> everything else is reached by shortcut instead of being rebuilt by inference.
 >
-> Este índice **aponta**. Nunca copia. Se um fato está em dois lugares, um dos
-> dois está errado e ninguém sabe qual.
+> This index **points**. It never copies. If a fact is in two places, one of them is wrong and nobody
+> knows which.
 
-## Onde estou
+## Where I am
 
 | | |
 |---|---|
-| versão | ⟨preencher⟩ |
-| suíte | ⟨o comando, e se está verde⟩ |
-| último marco | ⟨o que acabou de ficar pronto⟩ |
-| próximo | ⟨o que vem a seguir — ou um link para `.plan/`⟩ |
+| version | ⟨fill in⟩ |
+| suite | ⟨the command, and whether it is green⟩ |
+| last milestone | ⟨what has just been finished⟩ |
+| next | ⟨what comes next — or a link to `.plan/`⟩ |
 
-## Os eixos
+## The axes
 
-> **O ponto na frente do nome é intencional.** Marca caminho de baixo nível —
-> lido pelo harness, não pela pessoa que abre o repositório para ver o que o
-> projeto faz. A raiz fica com as portas de entrada; o pensamento fica aqui.
+> **The dot in front of the name is deliberate.** It marks a low-level path, read by the harness, not by
+> the person who opens the repository to see what the project does. The root keeps the front doors; the
+> thinking stays here.
 
-| eixo | o que guarda |
+| axis | what it holds |
 |---|---|
-| [`.sources/`](../.sources/) | referências externas de fato usadas, e o que cada uma **decidiu** |
-| [`.decisions/`](../.decisions/) | decisões tomadas, quem decidiu, e a razão |
-| [`.plan/`](../.plan/) | o que vem a seguir, e o que ficou para depois |
-| [`.orders/`](../.orders/) | as Ordens — o contrato que despacha o trabalho, imutável e numerado |
-| [`.constraints/`](../.constraints/) | o que o projeto **se proíbe** de fazer |
-| [`.changelog/`](../.changelog/) | o que mudou, e como o número de versão se move |
-| `.shortcuts/` | este arquivo, e [`.virtual/`](.virtual/README.md) — o primeiro relance do agente: o que está em andamento, o que é só backlog, e qual norma governa qual código |
+| [`.sources/`](../.sources/) | external references actually used, and what each one **decided** |
+| [`.decisions/`](../.decisions/) | decisions taken, who took them, and why |
+| [`.plan/`](../.plan/) | what comes next, and what was put off |
+| [`.orders/`](../.orders/) | the Orders — the contract that dispatches the work, immutable and numbered |
+| [`.constraints/`](../.constraints/) | what the project **forbids itself** |
+| [`.changelog/`](../.changelog/) | what changed, and how the version number moves |
+| `.shortcuts/` | this file, and [`.virtual/`](.virtual/README.md) — the agent's first peek: what is ongoing, what is only backlog, and which norm governs which code |
 
-Os quatro do meio são um ciclo, e é nessa ordem que se lê:
-**decide → agenda → comissiona → registra.**
+The four in the middle are a cycle, and that is the order to read them in:
+**decide → schedule → commission → record.**
 
-[`.history/`](../.history/) fica ao lado e **não é eixo**: é o sótão, onde um
-documento superado sai do caminho de leitura sem sair do repositório.
+[`.history/`](../.history/) sits beside them and **is not an axis**: it is the attic, where a superseded
+document leaves the reading path without leaving the repository.
 
-## O mapa do projeto, em cinco linhas
+## The project's map, in five lines
 
-> Cinco linhas, não mais. Se não cabe em cinco, o que sobra é documento, não
-> atalho — e vai para o eixo que lhe corresponde.
+> Five lines, no more. If it does not fit in five, the rest is a document, not a shortcut, and it goes to
+> the axis it belongs to.
 
-1. ⟨qual arquivo é o núcleo, e o que consome o quê⟩
-2. ⟨qual é a fonte de verdade, e quais são as projeções dela⟩
-3. ⟨o que **não pode** ser a fonte de verdade, e por quê⟩
-4. ⟨como o projeto trata o caso incompleto — erro, ou pergunta?⟩
-5. ⟨por onde passa toda mudança de formato, e contra o que é medida⟩
+1. ⟨which file is the core, and what consumes what⟩
+2. ⟨what the source of truth is, and which are its projections⟩
+3. ⟨what **cannot** be the source of truth, and why⟩
+4. ⟨how the project treats the incomplete case — an error, or a question?⟩
+5. ⟨where every format change passes, and what it is measured against⟩
 
-## Os documentos que mais se consulta
+## The documents consulted most
 
-> A coluna da esquerda é a **pergunta que a pessoa tem**, não o título do
-> documento. Quem retoma um projeto sabe o que quer saber; raramente sabe onde
-> foi escrito.
+> The left column is **the question the person has**, not the document's title. Whoever resumes a
+> project knows what they want to know; they rarely know where it was written.
 
-| quando a pergunta é | abra |
+| when the question is | open |
 |---|---|
-| ⟨"…?"⟩ | ⟨`ARQUIVO.md`⟩ |
+| ⟨"…?"⟩ | ⟨`FILE.md`⟩ |
 
-## Vocabulário do projeto
+## The project's vocabulary
 
-> Só os termos cunhados **aqui** — os que um leitor não encontraria fora deste
-> repositório. Termo de domínio público não entra.
+> Only the terms coined **here** — the ones a reader would not find outside this repository. A term in
+> public use does not go in.
 
-- **⟨termo⟩** — ⟨o que significa neste projeto⟩
+- **⟨term⟩** — ⟨what it means in this project⟩

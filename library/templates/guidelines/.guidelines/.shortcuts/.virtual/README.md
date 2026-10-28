@@ -1,20 +1,21 @@
-# `.virtual/` — o relance do agente
+# `.virtual/` — the agent's peek
 
-> Escrito para o agente, não para quem abre o repositório. Serve para chegar à linha certa
-> com pouco esforço: o que está **em andamento**, o que é só **backlog**, e qual norma governa qual código.
+> Written for the agent, not for whoever opens the repository. It gets the agent to the right line with
+> little effort: what is **ongoing**, what is only **backlog**, and which norm governs which code.
 
-| arquivo | o que guarda |
+| file | what it holds |
 |---|---|
-| `ongoing.json` | **o primeiro relance.** O trabalho dos agentes: `ongoing` (começou, não fechou — com evidência), `draft` (rascunho de um modo de velocidade: DRAFT/UNVERIFIED, só na plumbing, sem testes, até um passe do time verificar), `review` (pronto, espera conferência humana), `blocked` (espera uma decisão nomeada), `backlog` (planejado, não começou). Aponta para o documento onde o detalhe mora; nunca copia. |
-| `manifesto.json` | o elo norma ↔ código: cada fatia de norma declara o código que governa, e o porteiro avisa quando o código muda. |
+| `ongoing.json` | **the first peek.** The agents' work: `ongoing` (started, not closed — with evidence), `draft` (a speed mode's draft: DRAFT/UNVERIFIED, on plumbing only, no tests, until a team pass verifies it), `review` (finished, waiting for a human check), `blocked` (waiting for a named decision), `backlog` (planned, not started). It points to the document where the detail lives; it never copies. |
+| `manifesto.json` | the norm ↔ code link: each norm slice declares the code it governs, and the gatekeeper warns when that code changes. |
 
-## Quem atualiza `ongoing.json`, e quando
+## Who updates `ongoing.json`, and when
 
-O agente, sem pedir licença: ao **começar** um item (`ongoing`, com evidência em `where`: branch,
-arquivos, passe), a cada **fronteira** (a linha `next`), ao **terminar** (`review`, nunca `done` por
-conta própria), ao **parar** e no **handoff** (itens `done` saem: o git é o registro). Ao **voltar** ao
-repositório: relance `ongoing.json`, junte os rastros (`vp.py trace`), reconcilie — item `ongoing` sem
-evidência é fantasma; evidência sem item é trabalho órfão — e pergunte ao Regente sobre o que for decisão.
-Promover `backlog` para `ongoing` é ato da fila ou do Regente, nunca do acaso.
+The agent, without asking: when **starting** an item (`ongoing`, with evidence in `where`: branch, files,
+pass), at each **boundary** (the `next` line), when **finishing** (`review`, never `done` on its own), when
+**stopping**, and at **handoff** (`done` items leave: git is the record). On **returning** to the
+repository: peek at `ongoing.json`, gather the traces (`vp.py trace`), reconcile — an `ongoing` item with
+no evidence is a ghost; evidence with no item is orphan work — and ask the Regent about whatever is a
+decision. Promoting `backlog` to `ongoing` is an act of the queue or of the Regent, never of chance.
 
-Ferramenta: `python <regency>/scripts/vp.py ongoing`, `vp.py trace` e `vp.py drafts` (somente leitura; `drafts` sai com 1 enquanto houver rascunho não verificado).
+Tools: `python <regency>/scripts/vp.py ongoing`, `vp.py trace` and `vp.py drafts` (read-only; `drafts`
+exits 1 while an unverified draft remains).

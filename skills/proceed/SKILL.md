@@ -56,7 +56,7 @@ does the commits when the Regent asks.
 ## 3. Doubts and blockers
 
 - A doubt that does not block → add it to the project's open-questions queue
-  ("Questões em aberto ao Regente" or equivalent), and keep going with an explicit assumption.
+  ("Open, waiting for the Regent" in `.plan/README.md`, or the project's equivalent), and keep going with an explicit assumption.
 - A **blocker** (a decision only the Regent can take, a missing ratified norm, a failing gate you
   cannot fix in scope, work that would leave your scope or touch cloud/production/shared data)
   → add it to the queue **first in line**, then route around everything it touches and continue with

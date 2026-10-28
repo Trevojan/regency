@@ -1,10 +1,8 @@
 # Changelog
 
-A regra de como o número se move está em
-[`.guidelines/.changelog/README.md`](.guidelines/.changelog/README.md). Aqui fica
-o registro.
+The rule for how the number moves is in
+[`.guidelines/.changelog/README.md`](.guidelines/.changelog/README.md). This is the record.
 
-## [⟨x.y.z.w⟩] — ⟨o que esta release decidiu⟩
+## [⟨x.y.z.w⟩] — ⟨what this release decided⟩
 
-⟨O que mudou, e por quê. Uma release que não sabe dizer o que decidiu ainda não
-é uma release.⟩
+⟨What changed, and why. A release that cannot say what it decided is not a release yet.⟩

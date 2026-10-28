@@ -29,7 +29,7 @@ index points at everything else.
    those you can answer from facts in the repository (name, one-line description, the verification
    command) and cite the source; leave the rest as `⟨…⟩` and list them as open questions. Never invent.
    Order that avoids rework: `CLAUDE.md` → `.shortcuts/README.md` ("Where I am" and the five-line map)
-   → `.constraints/README.md` ("Do artefato") → the rest only when there is something to record. An
+   → `.constraints/README.md` ("Of the artefact") → the rest only when there is something to record. An
    empty axis is honest; an invented one lies.
 6. **The ledger.** The template includes `.shortcuts/.virtual/` with an empty `ongoing.json` (the work
    ledger: what is ongoing vs backlog), an empty `manifesto.json` (norm ↔ code lineage) and a short

@@ -1,246 +1,242 @@
-# Plano — reescrever `Docs/.guidelines/PLAN/` como escada de execução
+# Plan — rewrite `Docs/.guidelines/PLAN/` as an execution ladder
 
-## Contexto
+> A worked example from a client project, kept as the client wrote its artefacts: file names, code
+> identifiers and commit messages in backticks are that project's own, quoted as they were.
 
-O cliente pediu um plano de desenvolvimento **do mínimo ao máximo**, organizado como
-checklist do mais simples até o sistema entregável, com uma hierarquia literal:
+## Context
+
+The client asked for a development plan **from the minimum to the maximum**, organised as a checklist
+from the simplest thing up to the deliverable system, with a literal hierarchy:
 
 ```
-degrau = módulo → fases → afazeres → arquivos → código → norma → teste → missão cumprida
+rung = module → phases → to-dos → files → code → norm → test → mission accomplished
 ```
 
-Cada passo é um commit; o esforço mora na escada, não no GRAND nem no MINIMUM. A
-primeira tentativa de planos (escrita antes desta explicação) ficou leve demais na
-execução e a folha de gate reprovou a abertura. Além disso, o `PLAN.md` da raiz — que é o
-backlog real, com 141 itens e as dependências declaradas — estava fora da pasta e não
-tinha sido incorporado.
+Each step is a commit; the effort lives in the ladder, not in GRAND or in MINIMUM. The first attempt at
+the plans (written before this explanation) was too light on execution, and the gate sheet failed the
+opening. On top of that, the root `PLAN.md` — the real backlog, with 141 items and their dependencies
+declared — sat outside the folder and had not been brought in.
 
-**A planta antes das paredes.** Os **sete** degraus são escritos agora, com o mesmo rigor
-e o mesmo detalhamento: fases, afazeres, arquivos, funções, norma e teste de cada um.
-O que fica para o momento certo é o **conteúdo** — o código. Isso não conflita com a
-regra 3 do `PLANOS.md` ("`LADDER` nunca é sobrescrito"), porque um degrau só **congela**
-quando o gate dele é assinado `SOLUTION: sim`; antes disso é planta, e planta se corrige
-com o que a realidade responder nos degraus anteriores.
+**The blueprint before the walls.** All **seven** rungs are written now, with the same rigour and the same
+detail: phases, to-dos, files, functions, norm and test for each one. What waits for the right moment is
+the **content** — the code. This does not conflict with rule 3 of `PLANOS.md` ("a `LADDER` is never
+overwritten"), because a rung only **freezes** when its gate is signed `SOLUTION: sim`; before that it is
+a blueprint, and a blueprint is corrected by what reality answers on the earlier rungs.
 
-**Resultado esperado:** `PLAN/` com um plano executável de 7 degraus e ~129 afazeres
-nomeados um a um, dois marcos (MVP-0 em 22 commits, MVP-1 em 78), rastreio item-a-item
-contra o backlog e uma checklist marcável.
+**Expected result:** `PLAN/` with an executable plan of 7 rungs and about 129 to-dos named one by one, two
+milestones (MVP-0 at 22 commits, MVP-1 at 78), item-by-item tracing against the backlog, and a checklist
+that can be ticked.
 
-**Decisões já tomadas pelo cliente:** emendar a fórmula do gate para somatório; renomear
-o backlog para `BACKLOG.md`; nomear dois MVPs; **não** fazer agora o POC de conferência
-com cards reais.
+**Decisions the client had already taken:** amend the gate formula into a sum; rename the backlog to
+`BACKLOG.md`; name two MVPs; **not** run the reconciliation POC with real cards now.
 
 ---
 
-## 1. Movimentação de arquivos
+## 1. Moving files
 
-| Ação | De | Para |
+| Action | From | To |
 |---|---|---|
-| `git mv` | `PLAN.md` (raiz) | `Docs/.guidelines/PLAN/BACKLOG.md` |
-| Reescrever | `PLAN/GRAND_PLAN.md` | idem — enxuga, teto de 120 linhas |
-| Reescrever | `PLAN/MINIMUM_PLAN.md` | idem — teto de 90 linhas, ganha §Alcance do MVP e §POC nuclear |
-| Reescrever | `PLAN/LADDER_PLAN_PART_1.md` | o módulo Cadastro completo, detalhado |
-| Criar | — | `PLAN/LADDER_PLAN_PART_2.md` … `PART_7.md` — **mesmo detalhamento do PART_1** |
-| Criar | — | `PLAN/CHECKLIST.md`, `PLAN/RASTREIO.md`, `PLAN/README.md` |
-| Excluir | `PLAN/GATE_2026-08-14_PARTE_1.md` | substituído por `GATE_PARTE_1_<data>.md` |
-| Emendar | `PLAN/PLANOS.md` | bloco `## Emendas` datado no fim — **sem tocar no texto do cliente** |
+| `git mv` | `PLAN.md` (root) | `Docs/.guidelines/PLAN/BACKLOG.md` |
+| Rewrite | `PLAN/GRAND_PLAN.md` | the same — trimmed, capped at 120 lines |
+| Rewrite | `PLAN/MINIMUM_PLAN.md` | the same — capped at 90 lines, gains §MVP reach and §Core POC |
+| Rewrite | `PLAN/LADDER_PLAN_PART_1.md` | the complete Registration module, in detail |
+| Create | — | `PLAN/LADDER_PLAN_PART_2.md` … `PART_7.md` — **the same detail as PART_1** |
+| Create | — | `PLAN/CHECKLIST.md`, `PLAN/TRACE.md`, `PLAN/README.md` |
+| Delete | `PLAN/GATE_2026-08-14_PARTE_1.md` | replaced by `GATE_PARTE_1_<date>.md` |
+| Amend | `PLAN/PLANOS.md` | a dated `## Amendments` block at the end — **without touching the client's text** |
 
-`git mv` e não cópia: preserva o histórico das 880 linhas do backlog.
+`git mv`, not a copy: it keeps the history of the backlog's 880 lines.
 
 ---
 
-## 2. A hierarquia, com definição operacional
+## 2. The hierarchy, with an operational definition
 
-**As 7 fases são fixas em todos os degraus** — ditadas pelo `DECISIONS/ARCHITECTURE.md`,
-para que duas pessoas decomponham igual. Fase vazia se declara vazia, não se omite.
+**The 7 phases are fixed on every rung** — dictated by `DECISIONS/ARCHITECTURE.md`, so that two people
+decompose the same way. An empty phase is declared empty, not left out.
 
-| Fase | Nome | Onde mexe | Contrato que publica |
+| Phase | Name | Where it works | Contract it publishes |
 |---|---|---|---|
-| F0 | Norma | `DECISIONS/`, `SOURCES/` | a regra citável que as próximas obedecem |
-| F1 | Contrato | `Models/`, `Services/I*.cs`, `Data/Migrations/` | tipos, assinaturas, schema |
-| F2 | Regra | `Services/*.cs` + `REMUNERACAO_PROBE` | comportamento provado |
-| F3 | Exposição | `API_PANEL/Controllers/`, `Auth/Perfis.cs` | rota HTTP + autorização |
-| F4 | Consumo | `UPLINK_DRIVE/` | cliente tipado |
-| F5 | Tela | `VIEW_CORE/` + `Telas.Prontas` + `VIEW_PROBE` | tela navegável e marcada pronta |
-| F6 | Fechamento | `CHANGELOG.md`, `API_ENDPOINTS.md`, `BACKLOG.md`, gate | o degrau seguinte abre |
+| F0 | Norm | `DECISIONS/`, `SOURCES/` | the citable rule the next phases obey |
+| F1 | Contract | `Models/`, `Services/I*.cs`, `Data/Migrations/` | types, signatures, schema |
+| F2 | Rule | `Services/*.cs` + `REMUNERACAO_PROBE` | proven behaviour |
+| F3 | Exposure | `API_PANEL/Controllers/`, `Auth/Perfis.cs` | HTTP route + authorisation |
+| F4 | Consumption | `UPLINK_DRIVE/` | typed client |
+| F5 | Screen | `VIEW_CORE/` + `Telas.Prontas` + `VIEW_PROBE` | a navigable screen, marked ready |
+| F6 | Closing | `CHANGELOG.md`, `API_ENDPOINTS.md`, `BACKLOG.md`, gate | the next rung opens |
 
-**Afazer = um commit.** Critério fechado: build sem avisos novos; os dois `*_PROBE` verdes
-rodados projeto a projeto; cabe numa frase imperativa sem "e"; e é revertível sozinho.
-Calibragem: um afazer é sempre dificuldade 1 na escala do backlog.
+**A to-do is one commit.** Closed criterion: builds with no new warnings; both `*_PROBE` suites green, run
+project by project; fits in one imperative sentence without "and"; and can be reverted on its own.
+Calibration: a to-do is always difficulty 1 on the backlog's scale.
 
-**Fase é fronteira de dependência; afazer é fronteira de reversibilidade.** Trocar duas
-fases de ordem quebra o sistema (F3 antes de F2 é regra no Controller, que o
-`ARCHITECTURE.md` proíbe com `[MAND]`); trocar dois afazeres da mesma fase não quebra nada.
+**A phase is a dependency boundary; a to-do is a reversibility boundary.** Swapping two phases breaks the
+system (F3 before F2 puts a rule in the Controller, which `ARCHITECTURE.md` forbids with `[MAND]`);
+swapping two to-dos of the same phase breaks nothing.
 
-**Norma** = a regra citável que aquele código obedece: um `[MAND]` do `ARCHITECTURE.md`,
-uma linha do `BUSINESS_RULES.md`, ou um ADR. Todo afazer cita a sua — afazer sem norma é
-código sem critério de aceite.
+**Norm** = the citable rule that code obeys: a `[MAND]` of `ARCHITECTURE.md`, a line of
+`BUSINESS_RULES.md`, or an ADR. Every to-do cites its own — a to-do with no norm is code with no
+acceptance criterion.
 
 ---
 
-## 3. A escada — 7 degraus, ~129 afazeres
+## 3. The ladder — 7 rungs, about 129 to-dos
 
-| # | Degrau | Módulo | Commits | Acum. | Marco |
+| # | Rung | Module | Commits | Total | Milestone |
 |---|---|---|---:|---:|---|
-| 1 | Cadastro e Administração | 8º módulo (DHO) | 22 | 22 | **MVP-0 — Piloto de cadastro** |
-| 2 | Aprovação & Nota Fiscal | 3 | 22 | 44 | — |
-| 3 | Conferência Mensal | 4 | 19 | 63 | — |
-| 4 | Extrato individual (leitura) | 6a | 15 | 78 | **MVP-1 — Um mês fechado** |
-| 5 | Folha | 5 | 19 | 97 | — |
-| 6 | Fechamento & envio | 6b | 18 | 115 | — |
-| 7 | DRE Gerencial | 7 | 14 | 129 | **Entregável topo de linha** |
+| 1 | Registration and administration | 8th module (DHO) | 22 | 22 | **MVP-0 — Registration pilot** |
+| 2 | Approval & invoice | 3 | 22 | 44 | — |
+| 3 | Monthly reconciliation | 4 | 19 | 63 | — |
+| 4 | Individual statement (read) | 6a | 15 | 78 | **MVP-1 — One month closed** |
+| 5 | Payroll | 5 | 19 | 97 | — |
+| 6 | Closing & sending | 6b | 18 | 115 | — |
+| 7 | Management P&L | 7 | 14 | 129 | **Top-of-the-line deliverable** |
 
-**Ordem por dependência real, não por preferência:** o degrau 1 é o único sem dependência
-de entrada, preenche `gestor_id`/`centro_receita_id` que o Módulo 3 precisa para rotear a
-aprovação, e cria as contas de gestor e financeiro sem as quais o Módulo 3 **não pode ser
-homologado** — não se aceita um handoff entre três papéis com uma conta só. Do degrau 2 em
-diante vale a ordem do backlog: sem card em `Recebido` não há conferência, sem apuração
-não há extrato, sem mês fechado não há DRE.
+**Ordered by real dependency, not by preference:** rung 1 is the only one with no incoming dependency; it
+fills `gestor_id`/`centro_receita_id`, which Module 3 needs to route the approval, and creates the manager
+and finance accounts without which Module 3 **cannot be signed off** — a hand-off between three roles is
+not accepted with a single account. From rung 2 on, the backlog's order holds: with no card in `Recebido`
+there is no reconciliation, with no calculation there is no statement, with no closed month there is no
+P&L.
 
-**Requisito não funcional não vira degrau.** Ancora na F0 ou F5 do primeiro degrau que
-sofreria sem ele; se nenhum sofre, fica `[late]` no backlog e nunca entra na escada.
+**A non-functional requirement does not become a rung.** It anchors in F0 or F5 of the first rung that
+would suffer without it; if none would, it stays `[late]` in the backlog and never enters the ladder.
 
 ---
 
-## 4. Conteúdo de cada arquivo
+## 4. What each file holds
 
-### `GRAND_PLAN.md` — teto 120 linhas
-Seções do template + **`## Definição de entregável topo de linha`**: os 7 módulos mais as
-convenções não-funcionais que aceleram o core (motor como fonte única, restrição de
-visibilidade no Service, blindagem por build configuration, prova por `*_PROBE`). É ela
-que dá critério ao último degrau.
-**Não entra:** nome de arquivo, assinatura, estimativa, id de backlog.
+### `GRAND_PLAN.md` — capped at 120 lines
+The template's sections plus **`## Definition of the top-of-the-line deliverable`**: the 7 modules plus the
+non-functional conventions that speed up the core (the engine as the single source, the visibility
+restriction in the Service, shielding by build configuration, proof by `*_PROBE`). It is what gives the
+last rung its criterion.
+**Does not go in:** file names, signatures, estimates, backlog ids.
 
-### `MINIMUM_PLAN.md` — teto 90 linhas
-Tabela de fatores **encolhe para 4 colunas** (`# | Fator | Depende de | Degrau alvo`) — as
-colunas de atestado saem, porque atestado é da escada. Ganha:
-- **`## Alcance do MVP`** — declara `N_mvp = 4`, que a fórmula emendada do gate consome.
-- **`## POC nuclear`** — o provedor de e-mail, com cinco campos: risco não provado,
-  pergunta fechada, como se responde, critério de descarte, o que muda se der não. Roda
-  em paralelo ao degrau 1 porque não é trabalho de código, e três coisas dependem dele
-  (recuperação de senha do ADR-012, credencial inicial do degrau 1, envio do extrato do
-  degrau 6).
-- **`## Emendas`** — bloco append-only, vazio na abertura.
-- **`## Riscos aceitos sem prova`** — registra que o motor nunca encontrou um card real e
-  que a conferência contra a planilha do escritório foi adiada para o degrau 4, por
-  decisão do PO nesta data.
+### `MINIMUM_PLAN.md` — capped at 90 lines
+The factor table **shrinks to 4 columns** (`# | Factor | Depends on | Target rung`) — the attestation
+columns leave, because attestation belongs to the ladder. It gains:
+- **`## MVP reach`** — declares `N_mvp = 4`, which the amended gate formula consumes.
+- **`## Core POC`** — the e-mail provider, with five fields: the unproven risk, the closed question, how
+  it gets answered, the discard criterion, what changes if the answer is no. It runs in parallel with
+  rung 1 because it is not code work, and three things depend on it (password recovery in ADR-012, rung
+  1's initial credential, rung 6's statement sending).
+- **`## Amendments`** — an append-only block, empty at the opening.
+- **`## Risks accepted without proof`** — records that the engine has never met a real card and that the
+  reconciliation against the office's spreadsheet was put off to rung 4, by the PO's decision on that
+  date.
 
-### `LADDER_PLAN_PART_1.md` … `PART_7.md` — onde o esforço mora
-**Os sete têm a mesma estrutura, o mesmo rigor e o mesmo nível de detalhe.** Seções do
-`PLANOS.md` (`Por que este degrau agora`, `Funções afetadas`, `Escopo`, `Atestados`,
-`POC necessário`, `Critério de conclusão`) mais a seção central `## Fases e afazeres`,
-com uma tabela por fase:
+### `LADDER_PLAN_PART_1.md` … `PART_7.md` — where the effort lives
+**All seven have the same structure, the same rigour and the same level of detail.** The sections of
+`PLANOS.md` (why this rung now, affected functions, scope, attestations, POC needed, completion
+criterion) plus the central section `## Phases and to-dos`, with one table per phase:
 
-| Afazer | Cobre | Arquivos | Função / assinatura | Norma | Teste | Commit |
+| To-do | Covers | Files | Function / signature | Norm | Test | Commit |
 |---|---|---|---|---|---|---|
-| `P1.F2.A03` | `B-CAD-01` | `REMUNERACAO_CORE/Services/CadastroService.cs` | `Task<PessoaViewModel> CriarPessoaAsync(PessoaRequest, EscopoUsuario)` | ADR-005 · BR §Validações | `CadastroServiceTests.CriarPessoaAsync_NascePendenteDeTroca` | `feat(CADASTRO): criar pessoa com senha provisória gerada` |
+| `P1.F2.A03` | `B-CAD-01` | `REMUNERACAO_CORE/Services/CadastroService.cs` | `Task<PessoaViewModel> CriarPessoaAsync(PessoaRequest, EscopoUsuario)` | ADR-005 · BR §Validations | `CadastroServiceTests.CriarPessoaAsync_NascePendenteDeTroca` | `feat(CADASTRO): criar pessoa com senha provisória gerada` |
 
-O que **é** escrito agora, para os sete: o caminho de cada arquivo, o nome e a assinatura
-de cada função, a norma que a governa, o nome do teste que a prova e a mensagem de commit.
-O que **não** é escrito: o corpo das funções. Planta, não parede.
+What **is** written now, for all seven: the path of each file, the name and signature of each function,
+the norm that governs it, the name of the test that proves it and the commit message. What is **not**
+written: the bodies of the functions. Blueprint, not wall.
 
-**Onde a planta é necessariamente menos firme, ela diz isso** em vez de fingir precisão —
-por exemplo, o download do `.xlsx` numa janela Photino (degrau 7, F5) é um desconhecido
-real: janela nativa não tem pasta de downloads de navegador. Fica registrado como `POC
-necessário` daquele degrau, com a pergunta que ele responde.
+**Where the blueprint is necessarily less firm, it says so** instead of faking precision — for example,
+downloading the `.xlsx` in a Photino window (rung 7, F5) is a real unknown: a native window has no browser
+downloads folder. It is recorded as that rung's `POC needed`, with the question it answers.
 
-### `CHECKLIST.md` — a rampa pedida
-Arquivo próprio, único, global, **derivado** da escada (linha sem afazer de origem é bug
-de processo). Marcável com `- [ ]`. Ordem declarada e reproduzível: topológica primeiro,
-dificuldade crescente dentro do que está livre, `[late]` só quando nada mais está livre.
-Marcos `⟦ MARCO ⟧` para MVP-0, MVP-1 e topo de linha. Fica fora dos `LADDER` porque marcar
-caixinha é escrever no arquivo, e a regra 3 diz que `LADDER` não se sobrescreve: **o
-LADDER é o que foi decidido, o CHECKLIST é o que foi feito.**
+### `CHECKLIST.md` — the ramp that was asked for
+A file of its own, single, global, **derived** from the ladder (a line with no originating to-do is a
+process bug). Tickable with `- [ ]`. A declared, reproducible order: topological first, increasing
+difficulty within what is free, `[late]` only when nothing else is free. Milestone markers for MVP-0,
+MVP-1 and the top of the line. It stays outside the `LADDER` files because ticking a box is writing to
+the file, and rule 3 says a `LADDER` is not overwritten: **the LADDER is what was decided, the CHECKLIST
+is what was done.**
 
-### `RASTREIO.md` — nada se perde, nada nasce do nada
-Uma linha por item do backlog, id estável `B-<AREA>-<nn>` e **exatamente quatro estados**:
-`coberto` (com o afazer), `adiado` (com degrau alvo), `fora da escada` (com motivo),
-`descartado` (com motivo). Sem célula vazia.
-- **Sentido 1:** nº de linhas do RASTREIO == nº de itens da Parte II do BACKLOG.
-- **Sentido 2:** todo afazer cita um `B-id`, ou `origem: GRAND`, ou `origem: norma`.
+### `TRACE.md` — nothing is lost, nothing comes from nowhere
+One line per backlog item, a stable id `B-<AREA>-<nn>` and **exactly four states**: covered (with the
+to-do), deferred (with the target rung), off the ladder (with the reason), discarded (with the reason). No
+empty cell.
+- **Direction 1:** the number of TRACE lines == the number of items in Part II of the BACKLOG.
+- **Direction 2:** every to-do cites a `B-id`, or `origin: GRAND`, or `origin: norm`.
 
-O sentido 2 já pega dois buracos reais: `Shell.razor` §roteamento e §guarda de saída, e o
-ADR de política de resíduo — trabalho prometido na Parte III sem cartão na Parte II.
+Direction 2 already catches two real holes: `Shell.razor` §routing and §exit guard, and the ADR on the
+residue policy — work promised in Part III with no card in Part II.
 
-### `BACKLOG.md` (o antigo `PLAN.md`)
-Estrutura preservada. Quatro mudanças: id `B-<AREA>-<nn>` em cada linha das Partes I e II;
-corrigir "18 categorias" para 19; o bloco "Funções a implementar" da Parte III passa a ser
-matéria-prima com ponteiro `→ LADDER_PART_X §Fase N`; e a nota de precedência reescrita:
+### `BACKLOG.md` (the old `PLAN.md`)
+Structure kept. Four changes: a `B-<AREA>-<nn>` id on every line of Parts I and II; correct "18
+categories" to 19; the "Functions to implement" block of Part III becomes raw material with a pointer
+`→ LADDER_PART_X §Phase N`; and the precedence note rewritten:
 
-> **BACKLOG manda sobre fato** (o que existe, o que falta, quanto custa).
-> **GRAND/MINIMUM/LADDER mandam sobre decisão** (o que se faz, em que ordem, sob qual critério).
-> **Regra de negócio não mora em nenhum dos dois** — mora em `DECISIONS/BUSINESS_RULES.md`.
+> **The BACKLOG rules on fact** (what exists, what is missing, what it costs).
+> **GRAND/MINIMUM/LADDER rule on decision** (what is done, in what order, under which criterion).
+> **A business rule lives in neither** — it lives in `DECISIONS/BUSINESS_RULES.md`.
 
-### `README.md` da pasta
-Tabela arquivo → pergunta que responde → dono → quando muda; ordem de leitura; índice
-datado dos gates emitidos.
+### The folder's `README.md`
+A table of file → the question it answers → owner → when it changes; the reading order; a dated index of
+the gates issued.
 
 ---
 
-## 5. Emendas ao `PLANOS.md` (bloco datado, texto do cliente intacto)
+## 5. Amendments to `PLANOS.md` (a dated block, the client's text intact)
 
-**5. O esforço mora na escada** — GRAND ≤ 120 linhas, MINIMUM ≤ 90. Excedente migra.
+**5. The effort lives in the ladder** — GRAND ≤ 120 lines, MINIMUM ≤ 90. The excess moves.
 
-**6. Fórmula do gate** *(autorizada pelo cliente)*:
+**6. The gate formula** *(authorised by the client)*:
 ```
 ((MINIMUM < GRAND) & (MINIMUM <= (Σ LADDER_PART_1..N_mvp + POC))) = SOLUTION
 ```
-com `N_mvp` declarado em `MINIMUM_PLAN §Alcance do MVP`. Não afrouxa: continua exigindo
-cobertura integral por degraus escritos mais POC delimitado. Replicar em `TEAM/TEAM.md §4`
-e `TEAM/PO.md §8`, senão os papéis contradizem a lei.
+with `N_mvp` declared in `MINIMUM_PLAN §MVP reach`. It does not loosen anything: it still demands full
+coverage by written rungs plus a bounded POC. Replicate it in `TEAM/TEAM.md §4` and `TEAM/PO.md §8`, or the
+roles contradict the law.
 
-**7. A planta inteira é escrita antes da primeira parede.** Os sete `LADDER` existem, com
-o mesmo detalhamento, antes de a execução abrir. O que a regra 4 do cliente governa é a
-**abertura** de um degrau, não a existência da sua planta.
+**7. The whole blueprint is written before the first wall.** All seven `LADDER` files exist, with the
+same detail, before execution opens. What the client's rule 4 governs is the **opening** of a rung, not
+the existence of its blueprint.
 
-**8. Um `LADDER` só congela quando o gate dele é assinado `SOLUTION: sim`.** Antes disso é
-planta e pode ser corrigida pelo que os degraus anteriores ensinarem — e é isso que
-autoriza descartar a primeira tentativa sem quebrar a regra 3.
+**8. A `LADDER` only freezes when its gate is signed `SOLUTION: sim`.** Before that it is a blueprint and
+may be corrected by what the earlier rungs teach — which is what allows the first attempt to be thrown
+away without breaking rule 3.
 
-**9. Dois tipos de folha de gate** — `tipo: triangulacao` (uma vez, na abertura do P1) e
-`tipo: degrau` (nas seguintes: critério da parte anterior + veredicto do QA + nenhum item
-do RASTREIO regredido).
+**9. Two kinds of gate sheet** — `tipo: triangulacao` (once, at the opening of P1) and `tipo: degrau` (on
+the following ones: the previous part's criterion + QA's verdict + no TRACE item regressed).
 
-**10. Dois tipos de POC** — *nuclear* (no MINIMUM, sobre a viabilidade do MVP) e *de
-degrau* (no LADDER, sobre a viabilidade daquele degrau). POC vive em branch que não chega
-à `main`; o único artefato que sobrevive é documento.
+**10. Two kinds of POC** — *core* (in MINIMUM, on the MVP's viability) and *rung* (in the LADDER, on that
+rung's viability). A POC lives on a branch that never reaches `main`; the only artefact that survives is a
+document.
 
-**11. Ciclo de fechamento de degrau** (tudo no mesmo commit): verificar o critério →
-marcar `DEGRAU X CUMPRIDO` no CHECKLIST → mover os itens cobertos da Parte II para a I no
-BACKLOG preservando o `B-id` → atualizar RASTREIO → emitir o gate da parte seguinte →
-revisar a planta do degrau seguinte com o que se aprendeu → congelar o degrau que fechou.
+**11. The rung-closing cycle** (all in the same commit): check the criterion → mark the rung done in the
+CHECKLIST → move the covered items from Part II to Part I of the BACKLOG, keeping the `B-id` → update
+TRACE → issue the next part's gate → revise the next rung's blueprint with what was learnt → freeze the
+rung that closed.
 
-**12. Degrau em execução não muda de escopo** — pedido novo vai para o BACKLOG.
-
----
-
-## 6. Referências a corrigir no mesmo commit da migração
-
-- `SOURCES/AGENTS.md` — a tabela de `PLAN/` cita `PLAN.md` da raiz; passa a citar
-  `PLAN/BACKLOG.md`. Corrigir também "18 áreas" → 19.
-- `SOURCES/README.md` — descreve `PLAN/` só como "templates".
-- `SOURCES/GLYPH_LEGEND.md` — lista o `PLAN.md` da raiz entre os não-Glyph; o caminho muda.
-- `TEAM/TEAM.md` e `TEAM/PO.md` — a fórmula do gate, em três lugares.
+**12. A rung in execution does not change scope** — a new request goes to the BACKLOG.
 
 ---
 
-## 7. Verificação
+## 6. References to fix in the same commit as the move
 
-Não há código nesta entrega; a verificação é de coerência e de contagem.
+- `SOURCES/AGENTS.md` — the `PLAN/` table cites the root `PLAN.md`; it now cites `PLAN/BACKLOG.md`. Also
+  correct "18 areas" → 19.
+- `SOURCES/README.md` — describes `PLAN/` only as "templates".
+- `SOURCES/GLYPH_LEGEND.md` — lists the root `PLAN.md` among the non-Glyph files; the path changes.
+- `TEAM/TEAM.md` and `TEAM/PO.md` — the gate formula, in three places.
 
-1. **Rastreio fecha nos dois sentidos:** `nº de linhas do RASTREIO.md == nº de itens da
-   Parte II do BACKLOG.md`, zero linhas sem estado, e zero afazeres sem origem declarada.
-2. **Paridade de detalhamento:** os sete `LADDER` têm as mesmas seções e todos os afazeres
-   com as sete colunas preenchidas — nenhuma célula "a definir" fora de `POC necessário`.
-3. **Soma dos commits:** a contagem por degrau no `CHECKLIST.md` bate com a soma das
-   tabelas de cada `LADDER_PART_X`, e o total fecha 129.
-4. **Tetos:** `wc -l GRAND_PLAN.md` ≤ 120 e `MINIMUM_PLAN.md` ≤ 90.
-5. **Gate:** a folha nova fecha `SOLUTION: sim` com a fórmula emendada e `N_mvp = 4`.
-6. **Sem referência quebrada:** `grep -rn "PLAN.md" --include=*.md .` não aponta para a raiz.
-7. **Git:** `git log --follow Docs/.guidelines/PLAN/BACKLOG.md` mostra o histórico anterior
-   do arquivo — prova de que o `git mv` preservou a linha do tempo.
+---
 
-## Fora do escopo desta entrega
+## 7. Verification
 
-Nenhum código de produção. O degrau 1 só abre depois do gate aprovado, e o primeiro
-afazer dele (`P1.F0.A01`) é escrever o ADR do cadastro.
+There is no code in this delivery; the verification is of coherence and of counts.
+
+1. **Tracing closes both ways:** `the number of lines in TRACE.md == the number of items in Part II of
+   BACKLOG.md`, zero lines with no state, and zero to-dos with no declared origin.
+2. **Equal detail:** the seven `LADDER` files have the same sections and every to-do has all seven columns
+   filled — no "to be defined" cell outside `POC needed`.
+3. **Commit sum:** the count per rung in `CHECKLIST.md` matches the sum of each `LADDER_PART_X`'s tables,
+   and the total closes at 129.
+4. **Caps:** `wc -l GRAND_PLAN.md` ≤ 120 and `MINIMUM_PLAN.md` ≤ 90.
+5. **Gate:** the new sheet closes `SOLUTION: sim` with the amended formula and `N_mvp = 4`.
+6. **No broken reference:** `grep -rn "PLAN.md" --include=*.md .` does not point at the root.
+7. **Git:** `git log --follow Docs/.guidelines/PLAN/BACKLOG.md` shows the file's earlier history — proof
+   that `git mv` kept the timeline.
+
+## Out of scope for this delivery
+
+No production code. Rung 1 opens only after the gate is approved, and its first to-do (`P1.F0.A01`) is to
+write the registration ADR.

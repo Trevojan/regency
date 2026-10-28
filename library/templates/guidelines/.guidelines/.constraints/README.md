@@ -1,47 +1,44 @@
-# Restrições — o que o projeto se proíbe
+# Constraints — what the project forbids itself
 
-> Uma restrição é mais barata que a decisão que ela evita. Estas valem sem
-> discussão nova; para mudar uma, é decisão do Regente e vai para
-> [`.decisions/`](../.decisions/).
+> A constraint is cheaper than the decision it spares. These hold without a new discussion; changing one
+> is the Regent's decision and goes to [`.decisions/`](../.decisions/).
 >
-> As tabelas **Do método**, **Da escrita** e **Do processo** já vêm preenchidas:
-> são o método, e não mudam de projeto para projeto. **Do artefato** é a que
-> cada projeto escreve.
+> The tables **Of the method**, **Of writing** and **Of the process** come filled in: they are the method,
+> and they do not change from project to project. **Of the artefact** is the one each project writes.
 
-## Do artefato
+## Of the artefact
 
-> O que *esta* coisa se proíbe de ser. Exemplos do que cabe aqui: zero
-> dependências; uma raiz única no formato emitido; nada que execute o que
-> apenas descreve.
+> What *this* thing forbids itself to be. Examples of what fits here: zero dependencies; a single root in
+> the emitted format; nothing that executes what it only describes.
 
 | | |
 |---|---|
-| **⟨restrição⟩** | ⟨a razão, em uma linha⟩ |
+| **⟨constraint⟩** | ⟨the reason, in one line⟩ |
 
-## Do método
-
-| | |
-|---|---|
-| **Domínio evita síntese** | o que couber em código, esquema ou tabela **nunca** deve ser re-inferido |
-| **O portão vem antes da coisa que ele guarda** | e todo portão precisa ter sido **observado falhando** antes de contar |
-| **Construto aposentado vira reconhecedor** | nunca é apagado no silêncio: quem escrever a forma velha recebe uma recusa que nomeia a nova |
-| **Perda conhecida é fixada com a razão** | e um pino que deixa de valer é **invertido**, não deletado — uma suíte que descarta pino aposentado perde a memória do que ele guardava |
-| **Um agente não ratifica norma que escreveu** | pode medir, propor e recusar. Ratificar é do Regente |
-| **O mais simples suficiente** | antes de construir, para no primeiro degrau que resolve, e escreve numa linha qual degrau mais simples recusou e por quê; o desnecessário de custo médio se pula, e validação em fronteira de confiança, erro que perde dado, segurança e acessibilidade nunca contam como desnecessários |
-
-## Da escrita
+## Of the method
 
 | | |
 |---|---|
-| **O índice aponta, não copia** | se um fato está em dois lugares, um dos dois está errado e ninguém sabe qual |
-| **A prosa declara o estado, nunca a correção** | o texto que dizia "isto é A" **torna-se** "isto é B"; não ganha um "não é mais A". Micro-correção acumulada é resíduo que o leitor infere e descarta, por não auxiliar o estado final. Onde a aposentadoria precisa agir, ela age no mecanismo — não na prosa |
-| **Nada desaparece em silêncio** | o que some sem recusa é defeito, não economia |
-| **Diagnóstico nomeia a causa** | não o conserto. Mensagem mais detalhada não ajuda; posição e estrutura ajudam |
+| **Mastery spares Synthesis** | whatever fits in code, a schema or a table **never** has to be inferred again |
+| **The gate comes before the thing it guards** | and every gate must have been **seen failing** before it counts |
+| **A retired construct becomes a recogniser** | it is never deleted in silence: whoever writes the old form gets a refusal that names the new one |
+| **A known loss is pinned with its reason** | and a pin that stops holding is **inverted**, not deleted — a suite that drops a retired pin loses the memory of what it guarded |
+| **An agent never ratifies a norm it wrote** | it may measure, propose and refuse. Ratifying is the Regent's |
+| **The simplest sufficient** | before building, stop at the first rung that solves it, and write in one line which simpler rung was refused and why; the unnecessary at medium cost is skipped, and validation at a trust boundary, errors that lose data, security and accessibility never count as unnecessary |
 
-## Do processo
+## Of writing
 
 | | |
 |---|---|
-| **Um passo por commit** | com a verificação verde em cada um |
-| **Regenerar o snapshot para deixar a suíte verde derrota o snapshot** | regenera-se quando a mudança é **decisão**, e a decisão fica escrita |
-| **Uma Ordem aberta é imutável salvo por versão** | e duas Ordens concorrentes são proibidas — material novo vira *intake*, não emenda. As Ordens vivem em [`.orders/`](../.orders/) |
+| **The index points, it never copies** | if a fact is in two places, one of them is wrong and nobody knows which |
+| **Prose states the present, never the correction** | text that said "this is A" **becomes** "this is B"; it does not gain a "no longer A". Accumulated micro-corrections are residue the reader infers and throws away, because they do not help the final state. Where retirement has to act, it acts on the mechanism, not on the prose |
+| **Nothing disappears in silence** | what vanishes without a refusal is a defect, not a saving |
+| **A diagnostic names the cause** | not the repair. A more detailed message does not help; position and structure do |
+
+## Of the process
+
+| | |
+|---|---|
+| **One step per commit** | with the verification green at each one |
+| **Regenerating the snapshot to turn the suite green defeats the snapshot** | it is regenerated when the change is a **decision**, and the decision is written down |
+| **An open Order is immutable except by version** | and two concurrent Orders are forbidden — new material becomes *intake*, not an amendment. The Orders live in [`.orders/`](../.orders/) |
