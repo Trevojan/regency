@@ -272,9 +272,10 @@ is assembled from those declarations. The order changes during a project, and th
 
 Read `library/team/SPEED_MODES.md` whole before the first speed run of a session: §1 (what speed trades
 and never trades), §2 (shared mechanics), and the section of the mode. The pass above still applies to
-each unit a speed mode touches, with three differences the doctrine states: team check 1 counts only
-packets older than the run, the PO splits or the QA seeds instead of framing each task, and the human
-reviews the run's packets at the end instead of between passes. Every agent is dispatched from here (a
+each unit a speed mode touches, with four differences the doctrine states: team check 1 counts only
+packets older than the run; the PO splits or the QA seeds instead of framing each task; the human reviews
+the run's packets at the end instead of between passes; and you commit each DV's change in its worktree
+(the DV still returns it uncommitted) and merge it into `plumbing`, never further. Every agent is dispatched from here (a
 subagent cannot spawn one), with the skeleton of `library/team/references/packets.md` §1 and its
 `Stage:` line.
 
@@ -283,13 +284,14 @@ subagent cannot spawn one), with the skeleton of `library/team/references/packet
 1. **Fuel**: `python scripts/speed.py fuel <arguments>`. Exit 2 → print its one line and stop. Fuel the
    Regent declared in a message of this conversation counts; name it in the first report line.
 2. **Range**: `python scripts/speed.py range <from> [<to>]` (default: the active tasks of the module in
-   flight). Run Step 0–2 above for the range; a check other than 1 that fails decides as usual.
+   flight). Run Step 0–2 above for the range; a failing check decides as usual (check 1 counts only
+   packets older than the run).
 3. **Cast**: PO-A, DA-A, DV-A, QA-A and PO-B, DA-B, DV-B, QA-B. DVs with `model: sonnet`, QAs with
    `model: opus`, PO and DA without an override; each DV with `isolation: "worktree"`. A range inside one
    module has one span: team B is not spawned.
 4. **Each pass** (§4 there): open (the split on the first pass, `Stage: split`; the last packet's returns
-   first afterwards) → shape → build straight through, both DVs at once → merge both worktree branches
-   into `plumbing`, machine gate per task → review, each QA its own span in one batch (`Stage: verify`),
+   first afterwards) → shape → build straight through, both DVs at once → commit each DV's change in its
+   worktree, merge both worktree branches into `plumbing`, machine gate per task → review, each QA its own span in one batch (`Stage: verify`),
    then both the seam (`Stage: seam`) → write `PASS-<nn>.json`, `python scripts/speed.py packet <it>
    <previous>` must hold → ledger: reviewed units `review` → report the pass → spend one pass of fuel.
 5. **T4**: a return failing a third time leaves the packet as an escalation to the Regent.
@@ -303,11 +305,11 @@ subagent cannot spawn one), with the skeleton of `library/team/references/packet
    no code. Store both byte for byte as `CONTRACT.md` and `cards.json` in the run's folder.
 3. **Waves**: `python scripts/speed.py waves cards.json`.
 4. **Each wave**: one DV per card with `model: haiku`, `isolation: "worktree"`, `Stage: draft`, all at once
-   (card, contract, the previous gate's fix notes; functional first, no tests; draft trailers on each
-   commit) → merge into `plumbing` → the seeding QA, continued (else a fresh one on `opus` with the run's
-   files), `Stage: gate`: builds, runs, matches the contract, fix notes for the next wave, accepts nothing → write `WAVE-<nn>.json`, `speed.py packet`
-   must hold → ledger: each unit `draft`, open questions answered with the most functional option and
-   listed in its `assumed`.
+   (card, contract, the previous gate's fix notes; functional first, no tests) → commit each change in its
+   worktree with the draft trailers → merge into `plumbing` → the seeding QA, continued (else a fresh one
+   on `opus` with the run's files), `Stage: gate`: builds, runs, matches the contract, fix notes for the
+   next wave, accepts nothing → write `WAVE-<nn>.json`, `speed.py packet` must hold → ledger: each unit
+   `draft`, open questions answered with the most functional option and listed in its `assumed`.
 5. **Report** in the shape of §5 there, ending with the verifying passes the drafts wait for.
 
 ## Output — the Pass Declaration

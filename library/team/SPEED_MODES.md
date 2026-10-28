@@ -19,6 +19,7 @@ the doctrine they point to; read it whole before the first run of a session.
 |---|---|
 | verification depth: fewer reviews, later | **T5** — no role accepts its own work: QA gates and reviews, never accepts; a unit ends at `review` or `draft`, never `done` |
 | the human review between passes: the run's own packets wait for one review at the end | **T4** — two QA → DV loops at most; the third failure goes to the Regent |
+| the human approval before a commit: the main session commits each DV's change in its worktree and merges it into `plumbing`; nothing goes further | the role contracts: a DV still returns its change uncommitted, a QA still edits nothing |
 | framing per task: the PO splits, or the QA seeds a contract | **infrastructure stays with the Regent**: accounts, environments, triggers, scheduled jobs, cloud writes |
 | tests, in drafts only (`just-in-time`): they come with the verifying pass | **nothing irreversible or destructive-class runs without the Regent** (below) |
 | | the gate: never skipped, only narrowed (`just-in-time` §5) and run in full by the verifying pass |
@@ -48,8 +49,9 @@ packets queue up for the Regent's one review at the end. A packet older than the
   (Sonnet 5.5), `haiku` (Haiku 5.5). PO and DA get no override and run on the session's model. The role
   sources in `library/agents/` carry no `model:` line and never get one.
 - **One worktree per DV** (`ORCHESTRATION.md` §4: one workspace per module): each DV runs with the Agent
-  tool's `isolation: "worktree"` and commits there, one commit per task, the task id in the subject. The
-  main session merges the worktree branches into `plumbing`. A merge conflict between two spans or two
+  tool's `isolation: "worktree"` and returns its change uncommitted, as its contract says. The main session
+  commits it in that worktree, one commit per task, the task id in the subject (and the draft trailers of
+  §6 in `just-in-time`), then merges the worktree branches into `plumbing`. A merge conflict between two spans or two
   modules stops that merge and goes to the Regent. Worktrees stay in place after the merge and are listed
   in the report; removing one is the Regent's call (`git worktree remove` asks).
 - **`plumbing` only.** If the project's branch contract calls its first branch something else, use that
@@ -174,7 +176,8 @@ range exists, verified later.
    one task per module per wave (one agent per module).
 3. **Draft** — one DV on `haiku` per card (`Stage: draft`), each in its own worktree, all the wave's DVs
    at once. Each gets its card, the contract and the previous gate's fix notes, applies the fix notes
-   first, then drafts its task, functional first, no tests. It commits with the draft trailers (§6).
+   first, then drafts its task, functional first, no tests, and returns it uncommitted; the main session
+   commits it in the DV's worktree with the draft trailers (§6).
 4. **Merge** — the main session merges the wave's worktree branches into `plumbing`.
 5. **Gate** — the seeding QA (`Stage: gate`), continued with its context; when it cannot be continued, a
    fresh QA on `opus` that receives `CONTRACT.md`, `cards.json` and the earlier `WAVE-<nn>.json`. It checks
