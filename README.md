@@ -77,6 +77,12 @@ a class that recurs shows itself instead of hiding behind new instances.
 holds the work ledger and the code-to-norm lineage, with an exact index kept beside them as a local
 cache, so a fresh session resumes from traces, not from memory.
 
+**Speed when the fuel is short.** Three speed modes seed the whole terrain first and leave the
+cultivating to normal passes: `/regency:order:lazy` runs an Emission's Orders and skips every one that
+needs you; `/regency:team:extreme-go-horse` runs two full teams on the fuel you declare;
+`/regency:team:just-in-time` drafts a whole range, DRAFT/UNVERIFIED on `plumbing` until a normal pass
+verifies it. Speed trades verification depth, never the hard rules (`library/team/SPEED_MODES.md`).
+
 The method in full: `library/team/ORCHESTRATION.md`. The ids it uses: `library/ids.md`.
 
 ## Use it — pick one way
@@ -237,7 +243,7 @@ reversible. The installers never overwrite a file they did not create.
   its return; `scripts/build.py` generates the nested aliases, the command tables and the return
   templates. `scripts/doctor.py` proves the folder is consistent.
 - **Heavy material on demand.** The always-on cost of the whole plugin is its fourteen skill
-  descriptions — about 2.7k tokens on Claude Code 2.1.305 (`claude --plugin-dir <path> plugin details
+  descriptions — about 2.8k tokens on Claude Code 2.1.312 (`claude --plugin-dir <path> plugin details
   regency`) — plus one resume line per session; engines, role specs, subagents and templates load only
   when a command needs them.
 - **The Regent's way of working travels with it** in `library/conventions.md`, so a fresh instance
@@ -257,7 +263,7 @@ regency/
 │                          maintaining; team/, agents/, subagents/, engines/, orders/, rules/,
 │                          templates/, examples/
 ├── scripts/               build · doctor · package · conventions_check · vp · idx · gov · returns ·
-│                          station · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
+│                          speed · station · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
 ├── dist/                  generated .plugin archives (package.py); never edit, never commit
 └── discard/               superseded material (see discard/INDEX.md); safe to omit when sharing
 ```
