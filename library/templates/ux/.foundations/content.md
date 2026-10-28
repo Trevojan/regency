@@ -1,7 +1,7 @@
 # Content
 
-- **Language:** ⟨from BRIEF: English · pt-BR⟩ across the interface. In pt-BR write *sua/seu*, never
-  *tua/teu*.
+- **Language:** ⟨from BRIEF: English · pt-BR⟩ across the interface. In pt-BR write `sua`/`seu`, never
+  `tua`/`teu`.
 - **Terse and objective.** What happened, then what to do. No developer notes, rationale, task ids or
   explanations on the screen; they belong in comments or here.
 - **Labels** are sentence case, one or two words, a verb for an action: "Issue", "Re-check", "Copy".

@@ -67,6 +67,7 @@ the self-tests. The consequences are in `library/hooks.md` §6.
 | 2026-10-09 | R5: cloud reads run, a cloud write needs the exact command quoted by the Regent in the pass; the hazard watch ends only on a release verb; checkpoint journal and fingerprints are tracked in git; guards fail closed | yes |
 | 2026-10-17 | the hazard watch interrupts nobody: it starts only when a destructive command reached the project, refuses the writes no permit covers, and a `po` or `qa` role agent grants the permits — a session list, when needed; the release verb still ends it | yes |
 | 2026-10-08 | R4: hooks are triggers, scripts are engines; SessionStart resume slice; PostToolUse fingerprint + STALE; PreToolUse acts and naming guard with the hazard watch; no Stop hook (`library/hooks.md`) | yes |
+| 2026-10-28 | R9: the app's own sources are English — templates, moulds, commands, playbooks, scripts, samples; only inputs vary, quoted as they are; `scripts/conventions_check.py` fails on Portuguese elsewhere | yes |
 | 2026-10-23 | speed modes `order:lazy`, `team:extreme-go-horse`, `team:just-in-time` (`library/team/SPEED_MODES.md` §9): speed trades verification depth, never T4, T5, infrastructure or a destructive-class action; drafts stay DRAFT/UNVERIFIED on plumbing until a team pass verifies them; models set at spawn, never in `library/agents/` | yes |
 
 ## Machine-level pieces and their sources

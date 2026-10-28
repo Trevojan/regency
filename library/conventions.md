@@ -44,9 +44,13 @@ Choose by who the reply is for:
 | an enterprise / client project | the project's own language (PT-BR where the project is Brazilian) |
 
 When the Regent's message switches language, it is usually to reduce translation noise: follow it.
+**The app's own sources are English.** A template, a mould, a command, a playbook, a script or a sample
+never carries Portuguese; only inputs vary: what the Regent types, a project's own documents and data.
+Quote an input as it is, in backticks or double quotes; `scripts/conventions_check.py` fails on
+Portuguese anywhere else in this folder (§9 is the Regent's verbs, so it is input).
 Project glossaries beat habit: use the project's terms and never a word the glossary bans.
 User-facing text in a product is **terse and objective**, with no developer notes, annotations or
-explanations leaking into the screen. In Brazilian Portuguese write *sua/seu*, never *tua/teu*.
+explanations leaking into the screen. In Brazilian Portuguese write `sua`/`seu`, never `tua`/`teu`.
 Visual defects (borders, misplaced or misaligned elements) are what a client notices first: fix them
 before anything cosmetic or optional. The path-scoped copy of these lines is `library/rules/ui-text.md`.
 A project's frontend is documented in `<guidelines>/.ux/`, scaffolded by `/regency:ux-init` and started

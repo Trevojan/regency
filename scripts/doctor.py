@@ -21,7 +21,7 @@ Checks
      (onFailure: block), and there is no Stop hook (R4.5)
  13. the path-scoped rule sources (library/rules) are valid; WARN if they are not installed (or are stale) in ~/.claude/rules
  14. the Regent's conventions hold (scripts/conventions_check.py: a.b version, id grammar, O-levels,
-     banned names, canonical UPPER_CASE, suba-/-vendor placement) and its self-test detects every planted defect
+     banned names, canonical UPPER_CASE, suba-/-vendor placement, the app's sources in English) and its self-test detects every planted defect
  15. every hook script passes its own --selftest, and answers the real wire: an empty event and a
      sample event on stdin give exit 0 and either nothing or valid JSON (a broken hook FAILS OPEN)
  16. the .ux/ scaffold holds (scripts/ux.py): its self-test detects every planted defect and scaffolds a

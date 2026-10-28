@@ -11,6 +11,9 @@ Checks (library/conventions.md section 0, 11, 12, 13; library/ids.md)
   banned    FAIL for S3 banned name tokens in paths and in Python def/class names
   canonical FAIL for a canonical document name not in UPPER_CASE (N5)
   suba      FAIL for suba-/-vendor folders outside library/subagents and library/vendors (N1, N2)
+  language  FAIL for Portuguese in the app's own sources (conventions §2): templates, playbooks, scripts and
+            samples are English; an input is quoted in backticks or double quotes, and the Regent's verbs
+            (conventions §9) are input
   subagent  each library/subagents/suba-*: SKILL.md present, name == folder, metadata.owner agrees with
             gov.py OWNER (FAIL); every spine link into references/ resolves (FAIL); a contract.json returns.py
             accepts and a generated return block in the spine (FAIL); the alignment stamp still matches the owner's role
@@ -39,6 +42,17 @@ VERSION = re.compile(r"^\d+\.\d+$")
 FRONT = re.compile(r"^---\n(.*?)\n---\n", re.S)
 STAMP = re.compile(r"([\w./-]+\.md)#([0-9a-f]{12})")
 REF_LINK = re.compile(r"(?:\]\(|`)(references/[^)`\s#]+)")
+PT_CHARS = re.compile(r"[ãõçÃÕÇ]")
+PT_WORDS = re.compile(r"(?<![\w@./-])(não|você|também|então|porque|isso|isto|essa|esse|esta|este|uma|seu|sua|pelo|pela|"
+                      r"está|são|já|até|quando|onde|ainda|nunca|sempre|mais|como|sem|nenhum|nenhuma|deve|pode|fazer|"
+                      r"sobre|entre|depois|antes|aqui|agora|para|que|com|quem|qual|cada|foi|ser|tem|muito)(?![\w-])", re.I)
+QUOTED = re.compile(r"`[^`\n]*`|\"[^\"\n]*\"|“[^”\n]*”")  # an input quoted as it is
+LANG_SUFFIXES = {".md", ".json", ".py", ".xml", ".html", ".css", ".js", ".mjs", ".txt", ".toml", ".yml", ".yaml", ".pgml"}
+LANG_INPUT = {  # where Portuguese is input, not source: the file, and the section it is confined to (None: whole file)
+    "library/conventions.md": "## 9.",   # the Regent's verbs
+    "scripts/hook-verbs.py": None,       # the same table, as the hook's test fixture
+    "scripts/conventions_check.py": None,  # its self-test plants Portuguese on purpose
+}
 
 
 def fingerprint(path):
@@ -159,6 +173,29 @@ class Checker:
         if not hits:
             self.rec("OK", "legacy", "no D1-D4 level names left")
 
+    def check_language(self):
+        hits = 0
+        for p in self.walk():
+            r = self.rel(p)
+            if not p.is_file() or (p.suffix not in LANG_SUFFIXES and p.name != ".gitignore") or r.startswith("dist/"):
+                continue
+            if r in LANG_INPUT and LANG_INPUT[r] is None:
+                continue
+            section, inside = LANG_INPUT.get(r), False
+            for i, line in enumerate(p.read_text(encoding="utf-8-sig", errors="replace").splitlines(), 1):
+                if section and line.startswith("## "):
+                    inside = line.startswith(section)
+                if inside:
+                    continue
+                bare = QUOTED.sub(" ", line)
+                word = PT_CHARS.search(bare) or PT_WORDS.search(bare)
+                if word:
+                    hits += 1
+                    self.rec("FAIL", "language", f"{r}:{i}: Portuguese in an app source ({word.group(0)!r}); "
+                                                 "write it in English, or quote it if it is input")
+        if not hits:
+            self.rec("OK", "language", "the app's own sources are English (inputs quoted)")
+
     def check_banned(self):
         bad = 0
         for p in self.walk():
@@ -272,7 +309,7 @@ class Checker:
             self.rec("OK", "subagent", f"{len(present)} subagent(s) aligned with their owners")
 
     def run(self):
-        for fn in (self.check_version, self.check_ids, self.check_legacy,
+        for fn in (self.check_version, self.check_ids, self.check_legacy, self.check_language,
                    self.check_banned, self.check_canonical, self.check_suba, self.check_subagent):
             fn()
         return self.out
@@ -295,13 +332,21 @@ def selftest():
         (root / "library" / "examples").mkdir()
         (root / "library" / "examples" / "ladder-plan.example.md").write_text("x\n", encoding="utf-8")
         (root / "library" / "plan.md").write_text("classify at D3 or D2\n", encoding="utf-8")
+        (root / "library" / "templates").mkdir()
+        (root / "library" / "templates" / "README.md").write_text(
+            "# Start\n\nPonto de partida para um projeto novo.\nAções do pedido\n"
+            "Quote the input: `pode seguir`, \"vê isso\".\n", encoding="utf-8")
+        (root / "library" / "conventions.md").write_text(
+            "## 2. Language\n\nescreva sempre assim\n\n## 9. Verbs\n\n| prossiga, vê isso | queue |\n\n## 10. Next\n\nok\n",
+            encoding="utf-8")
         (root / "scripts").mkdir()
         (root / "scripts" / "StringHelper.py").write_text("def parse_utils():\n    pass\n", encoding="utf-8")
         found = Checker(root).run()
         want = [("version", "is not a.b"), ("version", "versions differ"), ("legacy", "plan.md:1"),
                 ("banned", "StringHelper"), ("banned", "parse_utils"), ("canonical", "readme.md"),
                 ("suba", "must start with suba-"), ("suba", "must end with -vendor"),
-                ("suba", "outside library/subagents")]
+                ("suba", "outside library/subagents"), ("language", "templates/README.md:3"),
+                ("language", "templates/README.md:4"), ("language", "conventions.md:3")]
         for check, needle in want:
             hit = any(c == check and needle in m and lvl in ("FAIL", "WARN") for lvl, c, m in found)
             cases.append((hit, check, needle))
@@ -309,6 +354,10 @@ def selftest():
         cases.append((ok_ids, "ids", "real grammar passes"))
         quiet = not any(c == "canonical" and "examples/" in m for _, c, m in found)
         cases.append((quiet, "canonical", "example files are exempt"))
+        lang = [m for _, c, m in found if c == "language"]
+        cases.append((not any("templates/README.md:5" in m for m in lang), "language", "quoted input is not source"))
+        cases.append((not any("conventions.md:7" in m for m in lang), "language", "the Regent's verbs (§9) are input"))
+        cases.append((not any("conventions.md:11" in m or "plan.md" in m for m in lang), "language", "English raises nothing"))
     with tempfile.TemporaryDirectory() as tmp:  # subagent: one clean suba and one planted defect per rule
         root = Path(tmp)
         team = root / "library" / "team"
