@@ -77,6 +77,12 @@ a class that recurs shows itself instead of hiding behind new instances.
 holds the work ledger and the code-to-norm lineage, with an exact index kept beside them as a local
 cache, so a fresh session resumes from traces, not from memory.
 
+**Projects follow the toolkit's version.** Each project carries a stamp (`.shortcuts/regency.json`). A
+project behind the installed regency is updated before anything writes into it: `/regency:update` plans
+every change to what regency owns, applies it on one yes in a clean git tree, and leaves the project's own
+text alone. A project ahead of it stops the session until the plugin is updated
+(`library/migrations/README.md`).
+
 **Speed when the fuel is short.** Three speed modes seed the whole terrain first and leave the
 cultivating to normal passes: `/regency:order:lazy` runs an Emission's Orders and skips every one that
 needs you; `/regency:team:extreme-go-horse` runs two full teams on the fuel you declare;
@@ -148,6 +154,9 @@ Every command, from `library/registry.json`:
 | `/regency:order:lazy` | Speed mode: execute the open (or named) Emission's Orders in sequence, deciding where the conventions settle it; an Order that needs the Regent is skipped and logged with two candidate answers. One report: done, skipped, blocked chain. | `[EMS-id]` | same playbook, subcommand `lazy` |
 | `/regency:init` | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. Names every path before creating it; never overwrites. | `[target directory]` | `skills/init/SKILL.md` |
 | `/regency:ux-init` | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root (brief, foundations, tokens, patterns, views, components, accessibility, assets, samples, UX-UI rules, changelog; a README per folder), fill the brief with the Regent, then one folder per view and component. Never overwrites. | `[guidelines root]` | `skills/ux-init/SKILL.md` |
+| `/regency:update` | Bring a project to the installed regency: from its stamp, plan every operation the newer version needs (replace untouched scaffold files, put the new text beside edited ones, create, rename, move, delete, rewrite what regency owns), apply the whole plan on one yes in a clean git tree, then check. Never touches the project's own prose, its acts or .scope/. | `[plan \| check]` | `skills/update/SKILL.md` |
+| `/regency:update:plan` | Dry run: the gate, then every operation the update would run, numbered, with its plan id. Applies nothing. | `` | same playbook, subcommand `plan` |
+| `/regency:update:check` | Does the project fit the installed regency? The stamp agrees and no operation is pending. | `` | same playbook, subcommand `check` |
 | `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|check\|ongoing\|trace\|drafts> [argument]` | `skills/virtualpath/SKILL.md` |
 | `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
 | `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |
@@ -200,7 +209,7 @@ line at most. Full reference: `library/hooks.md`.
 | `hook-lineage.py` | after a file write | refreshes the file's fingerprint, re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
 | `hook-gov.py` | a subagent starts or returns | gives a role or suba its governance line; routes the returned packet (G1 to the ledger, G2 and G3 to the Regent); checks a packet that names its stage against that stage's return shape, and every suba envelope in it against its contract |
 | `hook-journal.py` | after writes, git and hazardous shell commands, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
-| `hook-resume.py` | session start, resume, clear, compaction | one resume line: ledger counts, STALE lines, latest Order, last checkpoint, the index |
+| `hook-resume.py` | session start, resume, clear, compaction | one resume line: a version mismatch first, then ledger counts, STALE lines, latest Order, last checkpoint, the index |
 | `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands, ends the hazard watch on a release verb, names the command for a Regent verb (conventions §9) |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
@@ -263,7 +272,8 @@ regency/
 │                          maintaining; team/, agents/, subagents/, engines/, orders/, rules/,
 │                          templates/, examples/
 ├── scripts/               build · doctor · package · conventions_check · vp · idx · gov · returns ·
-│                          speed · station · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
+│                          speed · migrate · station · ux · install-agents · install-rules · guard-push ·
+│                          hook_wire · hook-*
 ├── dist/                  generated .plugin archives (package.py); never edit, never commit
 └── discard/               superseded material (see discard/INDEX.md); safe to omit when sharing
 ```
@@ -273,6 +283,7 @@ regency/
 ```bash
 python scripts/build.py     # after editing library/registry.json or a suba's contract.json
 python scripts/doctor.py    # before sharing; exit code 1 means something is broken
+python scripts/migrate.py record   # after a version bump that changed a template: file its fingerprints
 python scripts/package.py   # after a version bump: dist/<name>-<version>.plugin for way 7
 ```
 

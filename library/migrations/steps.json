@@ -1,0 +1,5 @@
+{
+  "schema": 1,
+  "_about": "Explicit operations a regency version needs beyond refreshing untouched scaffold files (library/migrations/README.md, 'Adding a step'). Paths are relative to the project's guidelines root. Kinds: rename (alias move), delete, rewrite (literal replacements in a regency-owned file), mkdir.",
+  "steps": []
+}

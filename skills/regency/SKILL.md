@@ -24,7 +24,9 @@ instance work the way the Regent works. Loaded as a plugin it gives `/regency` a
    how to handle doubts, what "proceed" and "commit" mean, what may be run without asking, and the
    reporting format.
 2. Do not assume a project layout. Locate the project's documents with `library/layouts.md`.
-3. **Returning to a repository?** The first peek is the work ledger: `python scripts/vp.py ongoing`
+3. **Returning to a repository?** First the version gate, `python scripts/migrate.py gate` (exit 1:
+   offer `/regency:update` and write nothing; exit 2: stop, the plugin is behind). Then the first peek is
+   the work ledger: `python scripts/vp.py ongoing`
    (what is ongoing vs backlog), then `python scripts/vp.py trace` (every trace of agent work), then
    reconcile — `library/conventions.md` §10. Do this before reading anything else in the project.
 
@@ -79,6 +81,9 @@ with a first argument (`/regency:engine critical`); both forms are equivalent.
 | `/regency:order:lazy` | Speed mode: execute the open (or named) Emission's Orders in sequence, deciding where the conventions settle it; an Order that needs the Regent is skipped and logged with two candidate answers. One report: done, skipped, blocked chain. | `[EMS-id]` | same playbook, subcommand `lazy` |
 | `/regency:init` | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. Names every path before creating it; never overwrites. | `[target directory]` | `skills/init/SKILL.md` |
 | `/regency:ux-init` | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root (brief, foundations, tokens, patterns, views, components, accessibility, assets, samples, UX-UI rules, changelog; a README per folder), fill the brief with the Regent, then one folder per view and component. Never overwrites. | `[guidelines root]` | `skills/ux-init/SKILL.md` |
+| `/regency:update` | Bring a project to the installed regency: from its stamp, plan every operation the newer version needs (replace untouched scaffold files, put the new text beside edited ones, create, rename, move, delete, rewrite what regency owns), apply the whole plan on one yes in a clean git tree, then check. Never touches the project's own prose, its acts or .scope/. | `[plan \| check]` | `skills/update/SKILL.md` |
+| `/regency:update:plan` | Dry run: the gate, then every operation the update would run, numbered, with its plan id. Applies nothing. | `` | same playbook, subcommand `plan` |
+| `/regency:update:check` | Does the project fit the installed regency? The stamp agrees and no operation is pending. | `` | same playbook, subcommand `check` |
 | `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|check\|ongoing\|trace\|drafts> [argument]` | `skills/virtualpath/SKILL.md` |
 | `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
 | `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |

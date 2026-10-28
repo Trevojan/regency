@@ -29,7 +29,9 @@ Checks
      them, the template brief parses
  17. the engines behind the hooks and the playbooks prove themselves: gov.py (routing, keys, recur),
      returns.py (the return gate), idx.py (the exact index), vp.py (the ledger and its drafts) and speed.py
-     (fuel, ranges, waves, fuel packets) each pass their own --selftest, planting a defect per rule
+     (fuel, ranges, waves, fuel packets) and migrate.py (gate, plan, apply, stamp) each pass their own
+     --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
+     under the current version (migrate.py record --check)
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -349,7 +351,7 @@ def check_ux():
 
 
 def check_engines():
-    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py"):
+    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py", "migrate.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
@@ -362,6 +364,13 @@ def check_engines():
         else:
             out = [l for l in r.stdout.strip().splitlines() if l.strip()]
             rec("OK", f"{name}: {out[-1] if out else 'selftest ok'}")
+
+
+def check_history():
+    s = ROOT / "scripts" / "migrate.py"
+    r = subprocess.run([sys.executable, str(s), "record", "--check"], capture_output=True, text=True, encoding="utf-8")
+    out = (r.stdout + r.stderr).strip().splitlines()
+    rec("OK" if r.returncode == 0 else "FAIL", f"migrations: {out[-1] if out else 'record --check gave no answer'}")
 
 
 def check_rules():
@@ -459,7 +468,7 @@ def check_drafts():
 
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
-          check_conventions, check_hook_scripts, check_ux, check_engines)
+          check_conventions, check_hook_scripts, check_ux, check_engines, check_history)
 
 
 def main(argv):
