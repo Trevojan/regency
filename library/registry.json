@@ -30,6 +30,16 @@
           "id": "reopen",
           "summary": "Reopen a unit: new pass, fresh context, labelled as a reopening.",
           "args": "<unit>"
+        },
+        {
+          "id": "extreme-go-horse",
+          "summary": "Speed mode, 'Release the Kraken!': two full teams on disjoint spans (DV on Sonnet, QA on Opus), each pass built straight through and reviewed at its end, chained until the fuel the Regent declared runs out; one packet per pass. Refuses without fuel.",
+          "args": "[range] fuel=<n>|fuel=all"
+        },
+        {
+          "id": "just-in-time",
+          "summary": "Speed mode: an Opus QA seeds the contract and task cards, Haiku DVs draft every task of the range in dependency waves, the QA gates each wave and accepts nothing; all DRAFT/UNVERIFIED on plumbing until a normal pass verifies it.",
+          "args": "<from> <to>"
         }
       ]
     },
@@ -121,8 +131,8 @@
     {
       "id": "order",
       "skill": "order",
-      "summary": "Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project.",
-      "args": "<germinate|handoff|dispatch|resume> [material]",
+      "summary": "Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project; or run an open Emission's Orders lazily.",
+      "args": "<germinate|handoff|dispatch|resume> [material] | lazy [EMS-id]",
       "subs": [
         {
           "id": "germinate",
@@ -143,6 +153,11 @@
           "id": "resume",
           "summary": "Reopen a project mid-work from its shortcuts index only, never from the whole repository.",
           "args": ""
+        },
+        {
+          "id": "lazy",
+          "summary": "Speed mode: execute the open (or named) Emission's Orders in sequence, deciding where the conventions settle it; an Order that needs the Regent is skipped and logged with two candidate answers. One report: done, skipped, blocked chain.",
+          "args": "[EMS-id]"
         }
       ]
     },

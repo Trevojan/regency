@@ -1,7 +1,7 @@
 ---
 name: team
-description: "Regency team pass. Declare, for one pass over one unit of work, whether the PO/DV/QA/DA team should act and who does what, then dispatch the role agents with isolated context, route their returns and stop at the human review packet. Use for /regency:team, /regency:team:declare|status|reopen, a unit id such as M03.D02.T04, or when asked to 'call the team', 'run a pass', 'dispatch the agents', 'who does what next', 'should the team act'. Works on any project that has guidelines (see library/layouts.md)."
-argument-hint: "[unit] | declare [unit] | status | reopen <unit>"
+description: "Regency team pass. Declare, for one pass over one unit of work, whether the PO/DV/QA/DA team should act and who does what, then dispatch the role agents with isolated context, route their returns and stop at the human review packet. Speed modes: extreme-go-horse (two teams, passes chained on declared fuel) and just-in-time (draft a range, unverified, on plumbing). Use for /regency:team, /regency:team:declare|status|reopen|extreme-go-horse|just-in-time, a unit id such as M03.D02.T04, or when asked to 'call the team', 'run a pass', 'dispatch the agents', 'who does what next', 'should the team act', 'release the Kraken'. Works on any project that has guidelines (see library/layouts.md)."
+argument-hint: "[unit] | declare | status | reopen <unit> | extreme-go-horse [range] fuel=<n> | just-in-time <from> <to>"
 ---
 
 # team — one pass, one declaration
@@ -64,6 +64,8 @@ around it.
 | `/regency:team:declare [unit]` (or `/regency:team declare`) | declare only; dispatch nothing |
 | `/regency:team:status` (or `/regency:team status`) | no new pass — report open packets, review queue, regime, returns in flight |
 | `/regency:team:reopen M03.D02.T04` (or `/regency:team reopen …`) | a reopening: new pass, fresh context, labelled as a reopening (`ORCHESTRATION.md` §6) |
+| `/regency:team:extreme-go-horse [range] fuel=<n>\|fuel=all` | speed mode: two full teams, chained passes until the declared fuel runs out (§ *Speed modes*) |
+| `/regency:team:just-in-time M01.D01.T01 M03.D06.T09` | speed mode: draft every task of the range, DRAFT/UNVERIFIED on plumbing (§ *Speed modes*) |
 
 **Identifiers come from the tree, never from typing:** `M03` is a module, `M03.D02` its second step, `M03.D02.T04` the fourth task of that step, `[F1–F3]` the span the task declared. A code typed by hand diverges from the tree, and from then on the plan stops describing the repository. If the project still uses the classic grammar `M<n>.F<k>.T<nn>`, read `F<k>` as the span (`library/team/references/vocabulary-map.md`).
 
@@ -81,6 +83,12 @@ under review or blocked, and every trace of agent work in the repo. An `ongoing`
 whose evidence is gone, or dirty files that belong to no item, are findings for the declaration's
 `defects` — never silently adopted. The pass writes itself into the ledger as `pass:<unit>` evidence
 when it starts, and ends the unit at `review` (never `done`) until the human approves.
+
+**A unit in `draft`** is a speed mode's output, DRAFT/UNVERIFIED (`library/team/SPEED_MODES.md` §6): this
+pass is its verification. Frame and Challenge are `active`, never `reused` (a seed card is an input, not a
+frame); Build starts from the draft and DV writes the named tests; Verify goes to a fresh QA, never the one
+that seeded or gated the draft, and mutation analysis comes before the green suite counts. Close carries
+`Verified-Draft: <unit>` in its commit.
 
 ### Step 1 — Establish state
 
@@ -260,6 +268,48 @@ project types a version by hand somewhere that a tree could compute it, report t
 **Execution order is not numbering.** A task may declare the module it unblocks; the path to a delivery
 is assembled from those declarations. The order changes during a project, and that is expected.
 
+## Speed modes
+
+Read `library/team/SPEED_MODES.md` whole before the first speed run of a session: §1 (what speed trades
+and never trades), §2 (shared mechanics), and the section of the mode. The pass above still applies to
+each unit a speed mode touches, with three differences the doctrine states: team check 1 counts only
+packets older than the run, the PO splits or the QA seeds instead of framing each task, and the human
+reviews the run's packets at the end instead of between passes. Every agent is dispatched from here (a
+subagent cannot spawn one), with the skeleton of `library/team/references/packets.md` §1 and its
+`Stage:` line.
+
+### `extreme-go-horse [range] fuel=<n>|fuel=all` — "Release the Kraken!"
+
+1. **Fuel**: `python scripts/speed.py fuel <arguments>`. Exit 2 → print its one line and stop. Fuel the
+   Regent declared in a message of this conversation counts; name it in the first report line.
+2. **Range**: `python scripts/speed.py range <from> [<to>]` (default: the active tasks of the module in
+   flight). Run Step 0–2 above for the range; a check other than 1 that fails decides as usual.
+3. **Cast**: PO-A, DA-A, DV-A, QA-A and PO-B, DA-B, DV-B, QA-B. DVs with `model: sonnet`, QAs with
+   `model: opus`, PO and DA without an override; each DV with `isolation: "worktree"`. A range inside one
+   module has one span: team B is not spawned.
+4. **Each pass** (§4 there): open (the split on the first pass, `Stage: split`; the last packet's returns
+   first afterwards) → shape → build straight through, both DVs at once → merge both worktree branches
+   into `plumbing`, machine gate per task → review, each QA its own span in one batch (`Stage: verify`),
+   then both the seam (`Stage: seam`) → write `PASS-<nn>.json`, `python scripts/speed.py packet <it>
+   <previous>` must hold → ledger: reviewed units `review` → report the pass → spend one pass of fuel.
+5. **T4**: a return failing a third time leaves the packet as an escalation to the Regent.
+6. **Stop** when the fuel is spent (finish the review, save the packet), the range is built with no
+   return left, a destructive-class action is next, or a span conflict needs the Regent.
+
+### `just-in-time <from> <to>` — draft everything, verify later
+
+1. **Range**: `python scripts/speed.py range <from> <to>`; Step 0–2 above for the range.
+2. **Seed**: one QA with `model: opus`, `Stage: seed`: the interface contract and one task card per task,
+   no code. Store both byte for byte as `CONTRACT.md` and `cards.json` in the run's folder.
+3. **Waves**: `python scripts/speed.py waves cards.json`.
+4. **Each wave**: one DV per card with `model: haiku`, `isolation: "worktree"`, `Stage: draft`, all at once
+   (card, contract, the previous gate's fix notes; functional first, no tests; draft trailers on each
+   commit) → merge into `plumbing` → the seeding QA, continued (else a fresh one on `opus` with the run's
+   files), `Stage: gate`: builds, runs, matches the contract, fix notes for the next wave, accepts nothing → write `WAVE-<nn>.json`, `speed.py packet`
+   must hold → ledger: each unit `draft`, open questions answered with the most functional option and
+   listed in its `assumed`.
+5. **Report** in the shape of §5 there, ending with the verifying passes the drafts wait for.
+
 ## Output — the Pass Declaration
 
 ALWAYS emit this block first, whatever the decision:
@@ -336,6 +386,8 @@ This skill never:
 - types an identifier the tree already determines
 - counts a `revogada` or `bloqueada` task as pending
 - calls a step closed before its gate has passed, or reports progress "by phase"
+- runs `extreme-go-horse` without the fuel the Regent declared, or lets a speed mode's output leave
+  `plumbing` before a normal pass has verified it
 
 ## `/regency:team:status`
 

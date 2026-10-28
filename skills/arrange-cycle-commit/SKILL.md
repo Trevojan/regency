@@ -52,6 +52,11 @@ history, never create a worktree.
 
 ## 3. Merge up to main
 
+**Drafts hold the merge.** Before any merge past `plumbing`, run `python scripts/vp.py drafts`. Exit 1
+means a speed mode's DRAFT/UNVERIFIED work is still on `plumbing` (`library/team/SPEED_MODES.md` §6):
+merge nothing past `plumbing`, list the drafts in the report, and name the `/regency:team` passes that
+would verify them.
+
 Follow the contract from §0, branch by branch, in the documented direction. Prefer the project's
 stated method (fast-forward vs merge commit). After each merge run the verification command.
 Conflicts: resolve only the ones inside your own commits' files; anything else → stop and ask.
@@ -81,6 +86,7 @@ After the commits and merges, push **the branches this run touched, except `main
 ```text
 Commits   <n>   – <hash> <subject> (one line each)
 Merged    <branch> → <branch> … (or "none: <why>")
+Held      <n> unverified draft(s) on plumbing: <units> (or omit the line when vp.py drafts exits 0)
 Verified  <command> → green | red <where>
 Pushed    <branch> → origin (or "none: <why>"; branches held back for a pipeline: <list>)
 Untouched your uncommitted files: <list> (not staged)
