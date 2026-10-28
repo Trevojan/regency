@@ -120,7 +120,10 @@ and the norm is wrong, that is a decision for the Regent.
 
 ## 6. Direction, not yet built (design notes absorbed from earlier research)
 
-Treat these as the intended direction. Nothing here is implemented by `vp.py`.
+Treat these as the intended direction. Nothing here is implemented by `vp.py`. Layers (2), (3) and (5)
+exist in `scripts/shortcuts.py` (R7): stable node ids that are the exact anchors, document order as a
+column, and a fingerprint per node over its own lines (`library/shortcuts.md` §3). Offsets/ropes (4), the
+dependency graph (6) and the recovery index (7) are not built.
 
 > **Do not index text. Index semantic positions in ordered structures.** The text is only the
 > physical representation; the human-readable anchor stays as the interface, but it resolves once to a

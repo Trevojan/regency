@@ -32,13 +32,14 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted; a release verb ends the hazard watch; routes a Regent verb |
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write; `ask` destructive, layout, install |
-| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
-| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint; STALE under governing slices (R4.3) |
+| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, a hand edit of the shortcuts state block (R7), lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
+| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the shortcuts store; STALE under governing slices (R4.3, R7) |
 | `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command that reached the project |
 | `PostToolUse` | `Agent\|Task` | `hook-hazard.py` | recorder | records the write permits a `po` or `qa` role agent returned |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; one context line |
+| `SessionEnd` | — | `hook-shortcuts.py` | recorder | none: rewrites the generated state block of `.shortcuts/README.md` when the state moved (R7.3) |
 
 ## 2. Guards
 
@@ -118,7 +119,9 @@ repository (`$CLAUDE_PLUGIN_DATA`, else the system temp folder). Manual release:
 
 After a file write in an adopted project:
 
-- `<virtual>/fingerprints.json` ← `{"schema": 1, "files": {"<rel>": {"sha256", "bytes", "at", "session"}}}`
+- `shortcuts.record()` → `<virtual>/shortcuts.db`: the file's row (sha256, bytes, mtime, the hash it replaced,
+  when, session) and, for a guideline doc, its nodes (`library/shortcuts.md` §3); a norm doc the hook writes a
+  STALE line into is recorded too, so the hook's own write never reads as drift
 - each `mark_stale` slice citing the file gets, once per changed file, right under its anchor:
   `[warn'STALE' on='YYYY-MM-DD' changed='<rel>' by='hook-lineage'] check this slice against the code; only a human removes this line`
 - a `ledger_row` slice is never written inside its table: the context line names it instead
@@ -167,10 +170,19 @@ Tags are G1/G2/G3, never O#: regency's levels already use O4–O1.
 
 ```text
 regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1 · latest Order ORD-0001
-· last checkpoint 2026-10-09T20:28:20-03:00 Edit src/Page.razor · first peek: vp.py ongoing, vp.py trace
+· last checkpoint 2026-10-09T20:28:20-03:00 Edit src/Page.razor · shortcuts check 0 · drift 0
+· first peek: shortcuts.py peek, vp.py trace
 ```
 
-After compaction it reads `regency resume after compact`. `--print` shows the line for the current folder.
+`shortcuts check N · drift N` comes from `shortcuts.summary_part()` (R7). After compaction it reads
+`regency resume after compact`. `--print` shows the line for the current folder.
+
+### Shortcuts — `hook-shortcuts.py`
+
+At `SessionEnd`, `shortcuts.refresh()`: the block between the `shortcuts:state` markers of
+`.shortcuts/README.md` is rewritten when the state moved and left alone when it did not; no markers, no
+write. No hashing, so it fits the shared 1.5 s `SessionEnd` budget. The engine is `scripts/shortcuts.py`
+(`library/shortcuts.md`).
 
 ### Verbs — `hook-verbs.py`
 
@@ -189,15 +201,17 @@ Slash commands are never routed. `--table` prints the verbs as parsed.
 
 | File | Written by | Read by | Where |
 |---|---|---|---|
-| `<virtual>/fingerprints.json` | lineage | generate-shortcuts, the Regent | project |
+| `<virtual>/shortcuts.db` | lineage, shortcuts, `shortcuts.py index` | `shortcuts.py drift`, `check`, `peek`; resume | project, gitignored (`<virtual>/.gitignore`) |
+| `.shortcuts/README.md` state block | shortcuts | every returning agent | project |
 | `<virtual>/checkpoints.jsonl` | journal | resume, handoff | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |
 | norm slices (one STALE line) | lineage | `vp.py stale`, the Regent | project |
 | `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
 
-`<virtual>` is `<guidelines>/.shortcuts/.virtual/`. The two project files are tracked in git with the
-ledger (R5.3); the session files never leave the machine.
+`<virtual>` is `<guidelines>/.shortcuts/.virtual/`. `checkpoints.jsonl` and `gov-queue.jsonl` are tracked in git
+with the ledger (R5.3); `shortcuts.db` is a gitignored cache any clone rebuilds with `shortcuts.py index` (R7.2,
+which replaces the tracked `fingerprints.json`); the session files never leave the machine.
 
 ## 5. Market standards and where regency meets them
 
@@ -206,7 +220,7 @@ ledger (R5.3); the session files never leave the machine.
 | Durable execution: persist state per step, resume a thread from its last checkpoint | LangGraph checkpointers keyed by `thread_id` | journal + resume line; `PreCompact` writes a checkpoint before context is lost |
 | Human-in-the-loop interrupt, resumed by human input | LangGraph `interrupt()` / `Command(resume=…)` | `ask` decisions; the hazard watch, released by a release verb |
 | Approval scoped to one exact tool call | tool-call approval in agent SDKs | a cloud write runs only as the exact command the Regent quoted, for one pass |
-| Idempotent side effects (a resumed step may run twice) | LangGraph interrupt rules (upsert, not create) | STALE written once per changed file; fingerprints overwrite; journal append-only and trimmed |
+| Idempotent side effects (a resumed step may run twice) | LangGraph interrupt rules (upsert, not create) | STALE written once per changed file; fingerprints upsert; journal append-only and trimmed |
 | Tool guardrails with a tripwire that halts the run | OpenAI Agents SDK input, output and tool guardrails | PreToolUse guards (`deny` = tripwire) |
 | Input routing before the model call | router / triage agents | `hook-verbs.py`, by table instead of inference |
 | Handoffs between agents | OpenAI Agents SDK handoffs; A2A tasks | Orders (`handoff`, `dispatch`), role agents, `invoke_agent` lines in the journal |
@@ -256,6 +270,8 @@ interpreter it was started with, so run it as `python scripts/doctor.py`.
 | release the hazard watch now | `python scripts/hook-hazard.py --clear` |
 | last checkpoints | `python scripts/hook-journal.py --tail 20` |
 | the resume line here | `python scripts/hook-resume.py --print` |
+| the first read on resume | `python scripts/shortcuts.py peek` |
+| is the entry index honest / what changed outside the hooks | `python scripts/shortcuts.py check` · `python scripts/shortcuts.py drift` |
 | the verbs as parsed | `python scripts/hook-verbs.py --table` |
 | write a packet header | `python scripts/gov.py header --order G2 --mode co --element image --from QA --to RGN --ask "…"` |
 | route a packet before sending | `python scripts/gov.py check packet.md --sender suba-validator` |

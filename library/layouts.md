@@ -32,6 +32,7 @@ None found → the project has no guidelines. Say so, continue with the library 
 | Attic (superseded docs) | `.history/` | — |
 | Code ↔ norm lineage | `.shortcuts/.virtual/manifesto.json` (or `manifest.json`) | — |
 | Work ledger (ongoing vs backlog) — the first peek on returning | `.shortcuts/.virtual/ongoing.json` | — |
+| Shortcuts store (file and node fingerprints; gitignored cache) | `.shortcuts/.virtual/shortcuts.db` — `library/shortcuts.md` | — |
 | Id grammar | project's own (D3/D2/D1; ADR-n; B-xxx) | `DC<n>`, `AR<n>`, `BR<n>`, `M<n>.F<k>.T<nn>` — see `library/team/ORBITAL_AGENTS.md` |
 
 Mixed or custom names: match by purpose using the table above, and report the mapping you used.

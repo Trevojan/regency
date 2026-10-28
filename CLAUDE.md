@@ -87,9 +87,10 @@ Precedence: the user's message → the project's own `CLAUDE.md` / `.guidelines/
 | `library/orders/` | the four standard Order templates and how to read them |
 | `library/templates/guidelines/` | the `.guidelines/` scaffold used by `init` |
 | `library/virtualpath.md` | the code-to-norm lineage model and the work ledger |
+| `library/shortcuts.md` | the entry index and its store: cost and use per part, the SQLite schema, the generated state block |
 | `library/examples/` | worked examples (not instructions) |
 | `hooks/hooks.json` | triggers only: each hook runs one script in `scripts/` via `${CLAUDE_PLUGIN_ROOT}` |
-| `scripts/` | `build.py` (regenerate aliases and tables), `doctor.py` (health), `package.py` (build the installable `.plugin` from an allowlist of the folder), `vp.py` (virtual-path and work-ledger queries), `conventions_check.py` (the Regent's conventions as checks), `ux.py` (the `.ux/` scaffold: plan, scaffold, expand; tokens and brief checks; builds `theme.css`), `install-agents.py`, `install-rules.py`, and the hooks: `hook_wire.py` (shared wire contract), `guard-push.py`, `hook-hazard.py`, `hook-acts-guard.py`, `hook-lineage.py`, `hook-journal.py`, `hook-resume.py`, `hook-verbs.py` |
+| `scripts/` | `build.py` (regenerate aliases and tables), `doctor.py` (health), `package.py` (build the installable `.plugin` from an allowlist of the folder), `vp.py` (virtual-path and work-ledger queries), `shortcuts.py` (the entry index and its SQLite store: index, drift, check, refresh, peek), `conventions_check.py` (the Regent's conventions as checks), `ux.py` (the `.ux/` scaffold: plan, scaffold, expand; tokens and brief checks; builds `theme.css`), `install-agents.py`, `install-rules.py`, and the hooks: `hook_wire.py` (shared wire contract), `guard-push.py`, `hook-hazard.py`, `hook-acts-guard.py`, `hook-lineage.py`, `hook-journal.py`, `hook-resume.py`, `hook-verbs.py`, `hook-shortcuts.py` |
 | `dist/` | generated `.plugin` archives from `scripts/package.py`; never edit, never commit |
 | `discard/` | superseded material, kept for reference, never read as instructions; see `discard/INDEX.md` |
 
