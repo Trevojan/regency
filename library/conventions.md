@@ -82,8 +82,17 @@ from its brief; a UI rule changes there first, then in code.
   `add`, `test`, kept apart (the Regent cannot follow 100% of generated code, so separation is the
   review aid). Work stays on the branch/working tree in use; never create a worktree on your own. The
   speed modes the Regent invokes open one per DV through the Agent tool (`library/team/SPEED_MODES.md` §2).
-- **"Commit and merge"** additionally merges the branches up to `main` following the project's
-  documented branch contract. If the contract is not documented, ask before merging.
+- **"Commit and merge"** additionally merges the branches up to `main` following the branch contract:
+  the project's own when its docs state one, otherwise the Regent's default below. A branch of the
+  contract that does not exist yet is created only after asking (§5).
+- **The Regent's default branch contract** (C-07, the Regent's professional practice): `plumbing` →
+  `testing` → `main`, merged in that order, so the Regent can inspect closely how the agents work.
+  - `plumbing` — pure code: the first code straight from the agents, so the generation of pure methods
+    can be measured.
+  - `testing` — pure validation and security of every kind: the agents' last pass before the work reads
+    as done. A *pass* is an entire run of the agents after they receive the Regent's input.
+  - `main` — the docs and the latest merge from `testing`: where the Regent judges whether the work is
+    done or needs better guidance. The Regent pushes it (below).
 - **The Regent pushes `main`.** An agent never pushes `main`/`master`, never force-pushes, never rewrites
   published history; a hook (`scripts/guard-push.py`) enforces the first. `/regency:arrange-cycle-commit`
   may push the *other* branches it touched (plain `git push -u origin <branch>`, no tags, no `--all`), and

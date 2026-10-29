@@ -15,7 +15,7 @@
       "$defaults",
       "Regency staging [must name: the files]: staging or committing files the session did not change. Other uncommitted changes in the tree are the Regent's and stay untouched and unstaged.",
       "Regency branch layout [must name: the worktree or branch change]: creating or removing git worktrees, or renaming or deleting branches, when the Regent did not ask for that change.",
-      "Regency merge to main [must name: the merge]: merging any branch into main or master when the project documents no branch contract, or when the Regent did not ask for a merge.",
+      "Regency merge to main [must name: the merge]: merging any branch into main or master out of the branch contract's order (the project's documented contract, else the Regent's default plumbing -> testing -> main), or when the Regent did not ask for a merge.",
       "Regency installs [must name: the package or tool]: installing system software (sudo, apt-get, brew, winget, choco, scoop) or changing a pinned toolchain (mise install, mise use, mise lock), including official one-line toolchain installers: in the Regent's projects this rule takes precedence over the Toolchain Bootstrap exception.",
       "Regency cloud writes [must name: the exact command, quoted by the Regent]: any cloud CLI call that creates, changes or deletes something (kubectl, helm, terraform, gcloud, aws, az, gsutil, bq, doctl, oci and similar) runs only when the Regent's current message quotes that exact command, flags and region included. A verb that is not clearly a read counts as a write."
     ],

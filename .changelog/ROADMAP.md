@@ -92,7 +92,6 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | 2026-10-13 | exposure | an exposure slot in the PO's frame, compared with the gate's F3 diff | the frame, the gate |
 | 2026-10-13 | intake notes | the first freeze of a quality brief goes to the Regent; PO acceptance is a recommendation; sample the G1 ledger | `ORCHESTRATION.md`, `gov.py` |
 | 2026-10-10 | C-09 | phases are a sequence: a task passes F0 to F6 within its declared span | `ORCHESTRATION.md` §7, §18 |
-| 2026-10-10 | C-07 | the Regent's default branch contract: plumbing → testing → main, a project's own contract overriding it | conventions §4, `arrange-cycle-commit` |
 | 2026-10-10 | C-13 | one map between mechanisms and chapters, seeded with seven patterns | the manual map in `library/` (step 12 above) |
 | 2026-10-10 | C-12 | drop the words "Big-O basis"; the levels are named O4 to O1, largest to smallest | conventions §11, `ids.md`, task granulation |
 | 2026-10-10 | C-10 | cloud writes: the Regent's quoted command stands for the owner's confirmation; align §6's wording | conventions §6 |

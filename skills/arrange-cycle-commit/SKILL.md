@@ -1,6 +1,6 @@
 ---
 name: arrange-cycle-commit
-description: "Regency arrange-cycle-commit. Split the finished work into small, described commits (feat, fix, docs, add, test kept apart), merge up to main following the project's documented branch contract, then push every branch except main. Never pushes main: the Regent does, and a hook enforces it. Use for /regency:arrange-cycle-commit, or when the Regent says commite, mescle, 'commit and merge', 'prepare the merge', 'separe os commits'."
+description: "Regency arrange-cycle-commit. Split the finished work into small, described commits (feat, fix, docs, add, test kept apart), merge up to main following the branch contract (the project's own, else the Regent's default plumbing → testing → main), then push every branch except main. Never pushes main: the Regent does, and a hook enforces it. Use for /regency:arrange-cycle-commit, or when the Regent says commite, mescle, 'commit and merge', 'prepare the merge', 'separe os commits'."
 argument-hint: "[scope]"
 disable-model-invocation: true
 ---
@@ -15,11 +15,13 @@ disable-model-invocation: true
 
 Run `git status` and `git branch --show-current`. Stop and say so if this is not a git repository.
 
-1. **Learn the project's branch contract** from its docs (the entry index, `AGENTS.md`, a "branch
+1. **Learn the branch contract** from the project's docs (the entry index, `AGENTS.md`, a "branch
    flow" section): which branch carries which kind of work, what merges onto what, what the
    verification command is, and any rule such as "code commits carry no new tests" or "tests are a
-   separate pass". Quote the rule you are applying. If the contract is not documented, **ask**
-   (pop-up) before merging; committing on the current branch needs no such answer.
+   separate pass". Quote the rule you are applying. When the project documents none, apply the
+   Regent's default (`library/conventions.md` §4: `plumbing` → `testing` → `main`) and say so in the
+   report. When a branch of the contract does not exist yet, **ask** (pop-up) before creating it;
+   committing on the current branch needs no such answer.
 2. **Whose changes are these?** List every modified/untracked file. Group them into: (a) work done in
    this session, (b) everything else. Stage only (a). Files in (b) belong to the Regent: leave them
    untouched and unstaged, and name them in the report. If a file mixes both, ask.
