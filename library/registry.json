@@ -266,8 +266,8 @@
     {
       "id": "health",
       "skill": "health",
-      "summary": "The Regent's checkup, one line per finding with its method: a summary of every check that applies here; the project's ratified check set; the harness checking itself; and single checks for shortcuts, release outputs, engines, hooks, queues, always-on context and the input-process-output pipeline. Read-only unless the Regent answers yes.",
-      "args": "[project | harness | doctor | shortcuts | distributable | engines | hooks | queues | context | pipeline]",
+      "summary": "The Regent's checkup, one line per finding with its method: a summary of every check that applies here; the project's ratified check set; the harness checking itself; and single checks for shortcuts, the project's regency version, split copies of regency, release outputs, engines, hooks, queues, always-on context and the input-process-output pipeline. Read-only unless the Regent answers yes.",
+      "args": "[project | harness | doctor | shortcuts | version | copies | distributable | engines | hooks | queues | context | pipeline]",
       "subs": [
         {
           "id": "project",
@@ -286,8 +286,18 @@
         },
         {
           "id": "shortcuts",
-          "summary": "Virtual paths and the exact index in one report: unresolved slices, missing targets, drifted files.",
+          "summary": "Virtual paths, the entry index and its drift, and the exact index in one report: unresolved slices, missing targets, dead pointers, a stale state block, drifted files.",
           "args": ""
+        },
+        {
+          "id": "version",
+          "summary": "The project against the installed regency: the version gate, update operations still owed, unverified speed-mode drafts.",
+          "args": ""
+        },
+        {
+          "id": "copies",
+          "summary": "Split copies of regency: this folder, every installed copy on the machine and every git branch - lines of work that split, a version naming two contents, a version only an install holds, uncommitted work.",
+          "args": "[--root DIR]"
         },
         {
           "id": "distributable",

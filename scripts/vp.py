@@ -327,7 +327,7 @@ def cmd_drafts(vdir, repo):
         unverified, verified = commits
         print(f"draft commits not yet verified: {len(unverified)} unit(s)" + (f"   (verified: {len(verified)})" if verified else ""))
         for unit, shas in sorted(unverified.items()):
-            print(f"  {unit}  {' '.join(shas[:6])}{' ...' if len(shas) > 6 else ''}")
+            print(f"  {unit}  {' '.join(shas[:6])}{f' and {len(shas) - 6} more' if len(shas) > 6 else ''}")
     n = len(items) + len(unverified)
     print(f"{n} unverified draft(s)" + (": nothing merges past plumbing until a /regency:team pass verifies each" if n else ""))
     return 1 if n else 0
