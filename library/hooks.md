@@ -45,7 +45,13 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 
 ### Push to main — `guard-push.py`
 
-Unchanged: the Regent pushes `main` (conventions §4). 38-case table.
+Unchanged: the Regent pushes `main` (conventions §4). 45-case table.
+
+**What a guard reads.** Both shell guards scan the command a shell would run: `guard_push.data_only` takes
+out heredoc bodies that are only data before splitting. A body stays when a shell reads it (`bash <<'EOF'`,
+`cat <<EOF | sh`); a quoted delimiter (`<<'EOF'`) otherwise makes it data; an unquoted one keeps only its
+`$( )` and backtick substitutions, which a shell would run. Text written about a delete or a push is never
+read as the act itself. `hook-journal.py` reads git verbs the same way.
 
 ### Hazardous shell — `hook-hazard.py`
 
