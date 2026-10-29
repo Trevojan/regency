@@ -1,7 +1,7 @@
 ---
 name: virtualpath
-description: "Regency virtual paths and work ledger. Query the code-to-norm lineage registry with scripts/vp.py (which norm slices govern a code file, which code a slice governs, which slices are STALE, whether everything still resolves) and read or reconcile the work ledger (.virtual/ongoing.json): what is ongoing versus backlogged, plus every trace of agent work in the repo. Use for /regency:virtualpath[:code|slice|stale|check|ongoing|trace|drafts], before editing governed code, and FIRST when returning to a repository: 'what is ongoing', 'what did the agents leave', 'resume'."
-argument-hint: "<code|slice|stale|check|ongoing|trace|drafts> [argument]"
+description: "Regency virtual paths and work ledger. Query the code-to-norm lineage registry with scripts/vp.py (which norm slices govern a code file, which code a slice governs, which slices are STALE, and read or reconcile the work ledger (.virtual/ongoing.json): what is ongoing versus backlogged, plus every trace of agent work in the repo. Use for /regency:virtualpath[:code|slice|stale|ongoing|trace|drafts], before editing governed code, and FIRST when returning to a repository: 'what is ongoing', 'what did the agents leave', 'resume'."
+argument-hint: "<code|slice|stale|ongoing|trace|drafts> [argument]"
 ---
 
 # virtualpath — the lineage between norms and code
@@ -21,7 +21,7 @@ to its files, without searching the repository.
 python <regency-root>/scripts/vp.py code  <code path>           # norms that govern this file
 python <regency-root>/scripts/vp.py slice <virtual_path> --show # code it governs, and the slice text
 python <regency-root>/scripts/vp.py stale                       # STALE warnings waiting for the Regent
-python <regency-root>/scripts/vp.py check                       # every slice and target resolves?
+python <regency-root>/scripts/vp.py check                       # every slice and target resolves? (/regency:health:shortcuts runs it)
 python <regency-root>/scripts/vp.py ongoing                     # the work ledger: ongoing / draft / review / blocked / backlog
 python <regency-root>/scripts/vp.py trace                       # every trace of agent work: git, guidelines, orders
 python <regency-root>/scripts/vp.py drafts                      # unverified speed-mode drafts; exit 1 while one remains
@@ -50,7 +50,7 @@ lives. Relink proposals from `check` are proposals: the manifest changes only wh
 | **Before editing** a code file in a project that has a manifest | `code <file>`, then read the slices it lists (`slice <path> --show`). They are norms the edit must respect. |
 | **After editing** | `code <file>` again: those slices may now be out of date. Report them; do not clear them. |
 | **Opening a session / planning** | `stale` for the list of norms waiting for a human check. |
-| **Before sharing** | `check`. Report problems; do not "fix" the manifest unasked. |
+| **Before sharing** | `/regency:health:shortcuts` (`vp.py check` and `idx.py check` in one report). Report problems; do not "fix" the manifest unasked. |
 
 ## The work ledger — first peek on returning (`ongoing`, `trace`)
 

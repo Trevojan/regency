@@ -1,6 +1,6 @@
 {
   "plugin": "regency",
-  "version": "2.10",
+  "version": "2.11",
   "_about": "Single source of truth for every /regency command. Edit here, then run: python scripts/build.py. Never edit commands/ or the generated dispatch tables by hand. Version is a.b (library/conventions.md section 13).",
   "commands": [
     {
@@ -195,7 +195,7 @@
       "id": "virtualpath",
       "skill": "virtualpath",
       "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
-      "args": "<code|slice|stale|check|ongoing|trace|drafts> [argument]",
+      "args": "<code|slice|stale|ongoing|trace|drafts> [argument]",
       "subs": [
         {
           "id": "code",
@@ -210,11 +210,6 @@
         {
           "id": "stale",
           "summary": "List slices marked STALE, waiting for the Regent's check.",
-          "args": ""
-        },
-        {
-          "id": "check",
-          "summary": "Check that every slice resolves to an anchor and every target file exists.",
           "args": ""
         },
         {
@@ -267,6 +262,70 @@
           "args": ""
         }
       ]
+    },
+    {
+      "id": "health",
+      "skill": "health",
+      "summary": "The Regent's checkup, one line per finding with its method: a summary of every check that applies here; the project's ratified check set; the harness checking itself; and single checks for shortcuts, release outputs, engines, hooks, queues, always-on context and the input-process-output pipeline. Read-only unless the Regent answers yes.",
+      "args": "[project | harness | doctor | shortcuts | distributable | engines | hooks | queues | context | pipeline]",
+      "subs": [
+        {
+          "id": "project",
+          "summary": "Run the project's ratified check set and, bound to a claude.ai Project, that Project's own checks (duplicate names, knowledge against its cap, never-uploaded files, dated queues).",
+          "args": ""
+        },
+        {
+          "id": "harness",
+          "summary": "Regency checks itself: every self-test, the wiring, portability (the same as /regency doctor).",
+          "args": ""
+        },
+        {
+          "id": "doctor",
+          "summary": "Assemble the project's caring topics - which checks each part needs, which input-process-output can be watched - as a proposal for the Regent to ratify. Checks nothing itself.",
+          "args": "[guidelines root]"
+        },
+        {
+          "id": "shortcuts",
+          "summary": "Virtual paths and the exact index in one report: unresolved slices, missing targets, drifted files.",
+          "args": ""
+        },
+        {
+          "id": "distributable",
+          "summary": "A project's release outputs: generated files edited by hand, dist/ output or archives in an uploaded set, machine paths inside a release.",
+          "args": "[--list FILE] [--release DIR]"
+        },
+        {
+          "id": "engines",
+          "summary": "Every engine copy (regency's base, the machine's, the account's) against the Regent's ratified record: AOK, STALE or UNCHECKED; ratify the current state, or deny it and get regency's base back; the layer in force for this repository.",
+          "args": "[ratify | restore] [KEY]"
+        },
+        {
+          "id": "hooks",
+          "summary": "Which wired hooks have fired on this machine (heartbeats) and in this project (the journal); a hook that never fires fails open.",
+          "args": ""
+        },
+        {
+          "id": "queues",
+          "summary": "Dated queues by age and the ledger's review count against its WIP limit.",
+          "args": "[--file F --section S --days N] [--wip N]"
+        },
+        {
+          "id": "context",
+          "summary": "The harness's always-on token cost (skill and command descriptions, the conventions import, the resume line) against a budget.",
+          "args": "[--budget N]"
+        },
+        {
+          "id": "pipeline",
+          "summary": "Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code.",
+          "args": "[--cases FILE] [--scan PATH ...]"
+        }
+      ]
+    },
+    {
+      "id": "serious-doctor-appointment",
+      "skill": "serious-doctor-appointment",
+      "summary": "Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor.",
+      "args": "[guidelines root]"
     }
   ]
 }

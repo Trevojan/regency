@@ -4,7 +4,7 @@
 Run from anywhere:  python scripts/doctor.py        (exit 0 = healthy, 1 = a FAIL was found)
 
 Checks
-  1. plugin manifest is valid JSON and names the plugin 'regency'
+  1. plugin manifest is valid JSON, names the plugin 'regency', and its description fits the account install's 500 characters
   2. registry <-> skills <-> generated commands are consistent (same as build.py --check)
   3. every skill has frontmatter: name == directory, description present and <= 1024 chars
   4. every repo-relative path written in backticks (library/..., scripts/..., skills/..., commands/...) resolves
@@ -29,7 +29,8 @@ Checks
      them, the template brief parses
  17. the engines behind the hooks and the playbooks prove themselves: gov.py (routing, keys, recur),
      returns.py (the return gate), idx.py (the exact index), vp.py (the ledger and its drafts) and speed.py
-     (fuel, ranges, waves, fuel packets) and migrate.py (gate, plan, apply, stamp) each pass their own
+     (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
+     queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
 
@@ -73,6 +74,7 @@ REQUIRED_WIRING = (
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
 )
 GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
+MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
 FORBIDDEN_EVENTS = {"Stop": "R4.5: no Stop hook; the next-step line lives in each playbook"}
 
 results = []
@@ -116,6 +118,10 @@ def check_manifest():
         rec("FAIL", f"plugin.json name is {d.get('name')!r}, expected 'regency'")
     else:
         rec("OK", f"plugin.json: name=regency version={d.get('version', '?')}")
+    desc = d.get("description", "")
+    if len(desc) > MANIFEST_DESCRIPTION_MAX:
+        rec("FAIL", f"plugin.json description is {len(desc)} characters; an account install refuses more than "
+                    f"{MANIFEST_DESCRIPTION_MAX} ('Plugin description must be at most 500 characters')")
 
 
 def check_build():
@@ -351,7 +357,7 @@ def check_ux():
 
 
 def check_engines():
-    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py", "migrate.py"):
+    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py", "migrate.py", "health.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
