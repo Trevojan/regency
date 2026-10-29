@@ -209,8 +209,20 @@ Every message of the Regent opens a pass. The hook:
 3. otherwise, for a message of 80 characters or fewer that opens with a verb, adds one line:
    `Regent verb 'prossiga' = work the whole queue -> /regency:proceed (conventions §9)`.
 
+The hook reads the Regent's own words only: `<system-reminder>` blocks some surfaces prepend to the prompt
+(a timezone line, context) are removed first (`hook_wire.regent_text`), so a verb behind them still opens
+the message and a command quoted inside them confirms nothing.
+
 Verbs come from the table in `library/conventions.md` §9, the only copy (`hook_wire.regent_verbs`).
 Slash commands are never routed. `--table` prints the verbs as parsed.
+
+### Heartbeats — every hook
+
+`hook_wire.serve` leaves one small file per (script, event) under the plugin's state folder
+(`<state>/heartbeats/<script>.<event>`), holding the last time the harness ran that hook. It never writes
+into a repository and a failure to write is ignored. `scripts/health.py hooks` reads them back against
+`hooks/hooks.json`: a wired hook with no heartbeat has not run on this machine, which is how a hook that
+fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 
 ## 4. Files the hooks touch
 
@@ -225,6 +237,7 @@ Slash commands are never routed. `--table` prints the verbs as parsed.
 | norm slices (one STALE line) | lineage | `vp.py stale`, the Regent | project |
 | `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
+| `<state>/heartbeats/<script>.<event>` | every hook (`hook_wire.serve`) | `health.py hooks` | machine, outside any repository |
 
 `<virtual>` is `<guidelines>/.shortcuts/.virtual/`. The two project files are tracked in git with the
 ledger (R5.3); the session files never leave the machine.

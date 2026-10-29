@@ -237,6 +237,16 @@ def regent_verbs():
         return []
 
 
+HARNESS_BLOCK = re.compile(r"<system-reminder>.*?</system-reminder>", re.S)
+
+
+def regent_text(prompt):
+    """The Regent's own words: some surfaces prepend <system-reminder> blocks (a timezone line, context) to
+    the prompt a hook receives. They are the harness's, never the Regent's, so a verb can open the message
+    behind them and a command quoted inside them confirms nothing."""
+    return HARNESS_BLOCK.sub("", prompt or "").strip()
+
+
 def opening_verb(prompt, table):
     """The (phrase, meaning, command) a short message opens with, or None. Slash commands never match."""
     p = re.sub(r"\s+", " ", (prompt or "").strip().lower())
@@ -275,6 +285,19 @@ def emit(answer):
         sys.stdout.flush()
 
 
+def heartbeat(event):
+    """Prove the harness called this hook: one small file per (script, event) beside the session state, holding
+    the last time it ran. scripts/health.py hooks reads them back (R11.11); a hook the surface never calls leaves
+    none. Machine state, never inside a repository; a failure to write is ignored."""
+    try:
+        ev = re.sub(r"[^A-Za-z0-9_-]", "_", str(event.get("hook_event_name") or "unknown"))
+        d = state_dir().parent / "heartbeats"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{Path(sys.argv[0]).name}.{ev}").write_text(now() + "\n", encoding="utf-8")
+    except OSError:  # health: allow-silent a heartbeat must never disturb the hook it proves
+        pass
+
+
 def serve(respond, guard=False):
     """Run one hook: read, respond, emit. Exit code is always 0 so the JSON decides.
 
@@ -283,6 +306,7 @@ def serve(respond, guard=False):
     guard=False (recorders): an internal error goes to stderr only; the session is never disturbed.
     """
     event = read_event()
+    heartbeat(event)
     try:
         emit(respond(event))
     except Exception as e:  # noqa: BLE001 - a hook must never crash the session

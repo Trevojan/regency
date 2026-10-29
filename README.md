@@ -1,6 +1,6 @@
 # Regency
 
-**Good practice for software development with AA** — the Regent's portable toolkit for Claude Code.
+**Good practice for software development with AA** — the Regent's harness, built on Claude Code.
 
 Welcome, Regent.
 
@@ -32,8 +32,8 @@ a machine, a user or a project. Copy it, mount it, clone it, or point any Claude
 
 1. **Load it** for one session: `claude --plugin-dir <path>`, where `<path>` is this folder. Every other
    way is [below](#use-it--pick-one-way).
-2. **Check it:** `/regency doctor`. It checks the folder and makes every hook prove itself on a real
-   event.
+2. **Check it:** `/regency doctor` (the same as `/regency:health:harness`). It checks the folder and makes
+   every hook prove itself on a real event. `/regency:health` is the whole checkup.
 3. **Try an engine** — no project needed: `/regency:engine:critical <a claim you would defend>`.
 4. **In a project:** `/regency:init` scaffolds the guidelines, `/regency:team <unit>` runs one pass and
    stops at the review packet, and `/regency:virtualpath:ongoing` is the first peek when you come back.
@@ -157,11 +157,10 @@ Every command, from `library/registry.json`:
 | `/regency:update` | Bring a project to the installed regency: from its stamp, plan every operation the newer version needs (replace untouched scaffold files, put the new text beside edited ones, create, rename, move, delete, rewrite what regency owns), apply the whole plan on one yes in a clean git tree, then check. Never touches the project's own prose, its acts or .scope/. | `[plan \| check]` | `skills/update/SKILL.md` |
 | `/regency:update:plan` | Dry run: the gate, then every operation the update would run, numbered, with its plan id. Applies nothing. | `` | same playbook, subcommand `plan` |
 | `/regency:update:check` | Does the project fit the installed regency? The stamp agrees and no operation is pending. | `` | same playbook, subcommand `check` |
-| `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|check\|ongoing\|trace\|drafts> [argument]` | `skills/virtualpath/SKILL.md` |
+| `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|ongoing\|trace\|drafts> [argument]` | `skills/virtualpath/SKILL.md` |
 | `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
 | `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |
 | `/regency:virtualpath:stale` | List slices marked STALE, waiting for the Regent's check. | `` | same playbook, subcommand `stale` |
-| `/regency:virtualpath:check` | Check that every slice resolves to an anchor and every target file exists. | `` | same playbook, subcommand `check` |
 | `/regency:virtualpath:ongoing` | Read the work ledger (.virtual/ongoing.json): what is ongoing, drafted, in review, blocked or only backlog. First peek on returning to a repo. | `` | same playbook, subcommand `ongoing` |
 | `/regency:virtualpath:trace` | Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger. | `` | same playbook, subcommand `trace` |
 | `/regency:virtualpath:drafts` | List every unverified speed-mode draft (ledger items and DRAFT commits no verifying commit closed); exits 1 while one remains, and nothing merges past plumbing until it is 0. | `` | same playbook, subcommand `drafts` |
@@ -171,6 +170,18 @@ Every command, from `library/registry.json`:
 | `/regency:station:gate` | Run the mechanical gate through mise, one verdict per check; refuses an untrusted station. | `[task]` | same playbook, subcommand `gate` |
 | `/regency:station:scaffold` | Propose a mise.toml from the repository's stack; writes only when none exists. | `[write]` | same playbook, subcommand `scaffold` |
 | `/regency:station:line` | The station as one slice line. | `` | same playbook, subcommand `line` |
+| `/regency:health` | The Regent's checkup, one line per finding with its method: a summary of every check that applies here; the project's ratified check set; the harness checking itself; and single checks for shortcuts, release outputs, engines, hooks, queues, always-on context and the input-process-output pipeline. Read-only unless the Regent answers yes. | `[project \| harness \| doctor \| shortcuts \| distributable \| engines \| hooks \| queues \| context \| pipeline]` | `skills/health/SKILL.md` |
+| `/regency:health:project` | Run the project's ratified check set and, bound to a claude.ai Project, that Project's own checks (duplicate names, knowledge against its cap, never-uploaded files, dated queues). | `` | same playbook, subcommand `project` |
+| `/regency:health:harness` | Regency checks itself: every self-test, the wiring, portability (the same as /regency doctor). | `` | same playbook, subcommand `harness` |
+| `/regency:health:doctor` | Assemble the project's caring topics - which checks each part needs, which input-process-output can be watched - as a proposal for the Regent to ratify. Checks nothing itself. | `[guidelines root]` | same playbook, subcommand `doctor` |
+| `/regency:health:shortcuts` | Virtual paths and the exact index in one report: unresolved slices, missing targets, drifted files. | `` | same playbook, subcommand `shortcuts` |
+| `/regency:health:distributable` | A project's release outputs: generated files edited by hand, dist/ output or archives in an uploaded set, machine paths inside a release. | `[--list FILE] [--release DIR]` | same playbook, subcommand `distributable` |
+| `/regency:health:engines` | Every engine copy (regency's base, the machine's, the account's) against the Regent's ratified record: AOK, STALE or UNCHECKED; ratify the current state, or deny it and get regency's base back; the layer in force for this repository. | `[ratify \| restore] [KEY]` | same playbook, subcommand `engines` |
+| `/regency:health:hooks` | Which wired hooks have fired on this machine (heartbeats) and in this project (the journal); a hook that never fires fails open. | `` | same playbook, subcommand `hooks` |
+| `/regency:health:queues` | Dated queues by age and the ledger's review count against its WIP limit. | `[--file F --section S --days N] [--wip N]` | same playbook, subcommand `queues` |
+| `/regency:health:context` | The harness's always-on token cost (skill and command descriptions, the conventions import, the resume line) against a budget. | `[--budget N]` | same playbook, subcommand `context` |
+| `/regency:health:pipeline` | Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code. | `[--cases FILE] [--scan PATH ...]` | same playbook, subcommand `pipeline` |
+| `/regency:serious-doctor-appointment` | Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor. | `[guidelines root]` | `skills/serious-doctor-appointment/SKILL.md` |
 <!-- regency:dispatch:end -->
 
 `/regency:<id>:<sub>` is the same playbook as `/regency:<id> <sub>`. With no plugin loaded, open the

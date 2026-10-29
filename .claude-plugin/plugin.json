@@ -1,7 +1,7 @@
 {
   "name": "regency",
-  "version": "2.10",
-  "description": "The Regent's portable toolkit: orchestrated team passes (PO/DV/QA/DA), proceed / commit-and-merge / measure-changes, five inference engines, the Scribe, Orders, three speed modes (order:lazy, team:extreme-go-horse, team:just-in-time), guidelines and frontend-documentation scaffolding (/regency:ux-init), code-to-norm lineage, guard and recorder hooks (push, hazard, acts, lineage, journal, resume), and a Tailwind frontend audit with a flex/grid/absolute layout knowledge base.",
+  "version": "2.11",
+  "description": "The Regent's harness, built on Claude Code: orchestrated team passes (PO/DV/QA/DA), proceed, commit-and-merge, measure-changes, five inference engines, the Scribe, Orders, three speed modes, the health checkup (/regency:health), guidelines and frontend-documentation scaffolding, code-to-norm lineage, guard and recorder hooks, and a Tailwind frontend audit.",
   "author": {
     "name": "Regent"
   },
@@ -12,6 +12,8 @@
     "guidelines",
     "orders",
     "inference-engines",
-    "hooks"
+    "hooks",
+    "health",
+    "harness"
   ]
 }

@@ -41,7 +41,7 @@ _spec.loader.exec_module(hazard)
 
 def respond(event, table=None):
     table = wire.regent_verbs() if table is None else table
-    prompt = event.get("prompt") or ""
+    prompt = wire.regent_text(event.get("prompt"))
     quoted = hazard.confirmations(prompt)
     if quoted:
         wire.save_state(event, "cloud", {"commands": quoted, "at": wire.now()})
@@ -102,6 +102,14 @@ def selftest():
         out = text(respond(ev("libere"), table))
         cases.append(("released" in out and wire.load_state(ev(""), "hazard") is None, "a release verb ends the watch"))
         cases.append((respond(ev("libere"), table) is None, "release with no watch on: silent"))
+        reminder = "<system-reminder>The user's timezone is America/Sao_Paulo (UTC-03:00). Message sent at 12:27 local time.</system-reminder>"
+        wire.save_state(ev(""), "hazard", {"label": "rm -rf build", "at": "t"})
+        out = text(respond(ev(reminder + "release"), table))
+        cases.append(("released" in out and wire.load_state(ev(""), "hazard") is None,
+                      "a release verb behind a harness <system-reminder> still ends the watch"))
+        respond(ev(reminder.replace("12:27 local time.", "`gcloud run deploy api --region us-east1`") + "ok"), table)
+        cases.append((wire.load_state(ev(""), "cloud") is None,
+                      "a command quoted inside a <system-reminder> confirms nothing"))
         long_msg = "pode seguir com o deploy, eu revisei tudo e confirmo: `gcloud run deploy api --region us-east1`"
         out = text(respond(ev(long_msg), table))
         st = wire.load_state(ev(""), "cloud")

@@ -32,6 +32,8 @@ None found → the project has no guidelines. Say so, continue with the library 
 | Attic (superseded docs) | `.history/` | — |
 | Code ↔ norm lineage | `.shortcuts/.virtual/manifesto.json` (or `manifest.json`) | — |
 | Work ledger (ongoing vs backlog) — the first peek on returning | `.shortcuts/.virtual/ongoing.json` | — |
+| Health check sets (one per part; `pipeline.json` for watched cases; written by the appointment, run once ratified — `library/health.md` §5) | `.shortcuts/.health/<part>.json` | `.shortcuts/.health/<part>.json` |
+| Engine orientation (the project's own engines; the Regent chooses whether they rule this repository — `library/health.md` §3) | `.sources/ENGINES.md` | `SOURCES/ENGINES.md` |
 | Regency stamp (the version the project fits; read by the version gate) | `.shortcuts/regency.json` | `.shortcuts/regency.json` |
 | Id grammar | project's own (D3/D2/D1; ADR-n; B-xxx) | `DC<n>`, `AR<n>`, `BR<n>`, `M<n>.F<k>.T<nn>` — see `library/team/ORBITAL_AGENTS.md` |
 
