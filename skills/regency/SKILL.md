@@ -16,7 +16,8 @@ argument-hint: "[help | doctor | <subcommand> … | <unit>]"
 Regency is a folder of playbooks, specifications and small scripts that makes any Claude Code
 instance work the way the Regent works. Loaded as a plugin it gives `/regency` and
 `/regency:<name>[:<sub>]`. Not loaded, it still works: every command is a playbook file
-(`skills/<name>/SKILL.md`) that any agent can read and follow. `README.md` explains both.
+(`skills/<name>/SKILL.md`) that any agent can read and follow. `README.md` installs it;
+`library/REFERENCE.md` is the long form.
 
 ## First, always
 

@@ -92,6 +92,8 @@ Precedence: the user's message → the project's own `CLAUDE.md` / `.guidelines/
 |---|---|
 | `skills/<id>/SKILL.md` | one playbook per command (the plugin's skills) |
 | `commands/<id>/<sub>.md` | generated aliases for `/regency:<id>:<sub>` — never edit |
+| `README.md` | the repository's homepage: install, quick start, architecture, API surface (badges and module map generated) |
+| `library/REFERENCE.md` | the long form: how it works, every command (generated table), the team, hooks, machine setup, portability, layout |
 | `library/conventions.md` | how the Regent works (defaults for everything) |
 | `library/health.md` | the checkup: the three layers (harness, project, surfaces), every check and its levels, engines (base, yours, the project's), the pipeline's cases, check sets, heartbeats |
 | `library/hooks.md` | the hooks: what each one guards or records, the files they touch, the market practices they follow |
