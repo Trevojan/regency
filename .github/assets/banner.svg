@@ -20,8 +20,25 @@
     .edge { stroke: var(--purple); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
     .packet rect { fill: var(--cyan); }
     .packet text { fill: var(--ground); font-size: 16px; font-weight: 700; text-anchor: middle; }
+    .crown { shape-rendering: crispEdges; }
+    .crown .gold { fill: #ffe434; }
+    .crown .gem { fill: #00d9ff; }
+    .crown .ruby { fill: #ff001e; }
   </style>
   <defs>
+    <g id="crown" class="crown">
+      <rect class="gold" x="2" y="0" width="2" height="2"/><rect class="gold" x="6" y="0" width="2" height="2"/>
+      <rect class="gold" x="10" y="0" width="2" height="2"/><rect class="gold" x="14" y="0" width="2" height="2"/>
+      <rect class="gem" x="2" y="2" width="2" height="2"/><rect class="gold" x="4" y="2" width="2" height="2"/>
+      <rect class="gem" x="6" y="2" width="2" height="2"/><rect class="gold" x="8" y="2" width="2" height="2"/>
+      <rect class="gem" x="10" y="2" width="2" height="2"/><rect class="gold" x="12" y="2" width="2" height="2"/>
+      <rect class="gem" x="14" y="2" width="2" height="2"/>
+      <rect class="gold" x="0" y="4" width="4" height="2"/><rect class="ruby" x="4" y="4" width="2" height="2"/>
+      <rect class="gold" x="6" y="4" width="2" height="2"/><rect class="ruby" x="8" y="4" width="2" height="2"/>
+      <rect class="gold" x="10" y="4" width="2" height="2"/><rect class="ruby" x="12" y="4" width="2" height="2"/>
+      <rect class="gold" x="14" y="4" width="4" height="2"/>
+      <rect class="gold" x="2" y="6" width="14" height="2"/>
+    </g>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#a66cff"/>
     </marker>
@@ -37,6 +54,7 @@
     <line x1="1120" y1="0" x2="1120" y2="360"/>
   </g>
 
+  <use href="#crown" transform="translate(61 18) scale(6)"/>
   <text class="mono title" x="64" y="150"><tspan class="slash">/</tspan>regency</text>
   <text class="mono tagline" x="70" y="198">the Regent's harness · built on Claude Code</text>
   <text class="mono prompt" x="70" y="262">› /regency:team <tspan class="unit">M03.S02.T04 [F1–F3]</tspan><tspan class="cursor" dx="6">█</tspan></text>

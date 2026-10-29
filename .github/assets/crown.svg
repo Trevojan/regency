@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 8" width="180" height="80" shape-rendering="crispEdges" role="img" aria-labelledby="t">
+  <title id="t">regency</title>
+  <style>
+    .gold { fill: #ffe434; }
+    .gem { fill: #00d9ff; }
+    .ruby { fill: #ff001e; }
+  </style>
+  <!-- points -->
+  <rect class="gold" x="2" y="0" width="2" height="2"/>
+  <rect class="gold" x="6" y="0" width="2" height="2"/>
+  <rect class="gold" x="10" y="0" width="2" height="2"/>
+  <rect class="gold" x="14" y="0" width="2" height="2"/>
+  <!-- gems -->
+  <rect class="gem" x="2" y="2" width="2" height="2"/>
+  <rect class="gold" x="4" y="2" width="2" height="2"/>
+  <rect class="gem" x="6" y="2" width="2" height="2"/>
+  <rect class="gold" x="8" y="2" width="2" height="2"/>
+  <rect class="gem" x="10" y="2" width="2" height="2"/>
+  <rect class="gold" x="12" y="2" width="2" height="2"/>
+  <rect class="gem" x="14" y="2" width="2" height="2"/>
+  <!-- band -->
+  <rect class="gold" x="0" y="4" width="4" height="2"/>
+  <rect class="ruby" x="4" y="4" width="2" height="2"/>
+  <rect class="gold" x="6" y="4" width="2" height="2"/>
+  <rect class="ruby" x="8" y="4" width="2" height="2"/>
+  <rect class="gold" x="10" y="4" width="2" height="2"/>
+  <rect class="ruby" x="12" y="4" width="2" height="2"/>
+  <rect class="gold" x="14" y="4" width="4" height="2"/>
+  <!-- base -->
+  <rect class="gold" x="2" y="6" width="14" height="2"/>
+</svg>
