@@ -1,0 +1,72 @@
+name: Defect
+description: A command, hook or script did something other than what its playbook says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Never paste tokens, API keys, session transcripts or private paths. A security problem goes to
+        [Report a vulnerability](https://github.com/Trevojan/regency/security/advisories/new), not here.
+  - type: input
+    id: version
+    attributes:
+      label: regency version
+      description: The `version` in `.claude-plugin/plugin.json`.
+      placeholder: "2.13"
+    validations:
+      required: true
+  - type: input
+    id: claude
+    attributes:
+      label: Claude Code version
+      description: The output of `claude --version`.
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install path
+      description: README → Installation lists the seven paths.
+      options:
+        - 1 · One session (--plugin-dir)
+        - 2 · Installed, user scope
+        - 3 · Skills directory
+        - 4 · Working directory
+        - 5 · Added to another project (--add-dir)
+        - 6 · Team settings
+        - 7 · Claude account (.plugin)
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command or hook
+      placeholder: "/regency:team M03.S02.T04, or hook-hazard on PreToolUse"
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+      description: The input and the output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: doctor output
+      description: Run `python scripts/doctor.py` in the regency folder and paste the last lines.
+      render: text
+  - type: checkboxes
+    id: clean
+    attributes:
+      label: Before you submit
+      options:
+        - label: Nothing above contains a token, a key, a session transcript or a private path.
+          required: true
