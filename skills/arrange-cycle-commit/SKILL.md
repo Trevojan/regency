@@ -23,6 +23,10 @@ Run `git status` and `git branch --show-current`. Stop and say so if this is not
 2. **Whose changes are these?** List every modified/untracked file. Group them into: (a) work done in
    this session, (b) everything else. Stage only (a). Files in (b) belong to the Regent: leave them
    untouched and unstaged, and name them in the report. If a file mixes both, ask.
+3. **Commit as Claude** (`library/conventions.md` §4). `git config user.email` must read
+   `noreply@anthropic.com`; if it does not, set `git config user.name Claude` and
+   `git config user.email noreply@anthropic.com` for this repository only, never `--global`, and say so
+   in the report. Never commit under the Regent's name or address.
 
 ## 1. Split
 
