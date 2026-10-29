@@ -122,8 +122,11 @@ class Checker:
     def walk(self):
         for p in sorted(self.root.rglob("*")):
             parts = p.relative_to(self.root).parts
-            if not any(part in SKIP_DIRS for part in parts):
-                yield p
+            if any(part in SKIP_DIRS for part in parts):
+                continue
+            if len(parts) > 2 and parts[0] == "packs" and parts[2] == "upstream":
+                continue  # an adopted pack's source keeps its own project's conventions (library/packs.md)
+            yield p
 
     def check_version(self):
         reg_p = self.root / "library" / "registry.json"
@@ -388,6 +391,8 @@ def selftest():
             encoding="utf-8")
         (root / "scripts").mkdir()
         (root / "scripts" / "StringHelper.py").write_text("def parse_utils():\n    pass\n", encoding="utf-8")
+        (root / "packs" / "kit" / "upstream").mkdir(parents=True)
+        (root / "packs" / "kit" / "upstream" / "TextHelper.py").write_text("# não\n", encoding="utf-8")
         found = Checker(root).run()
         want = [("version", "is not a.b"), ("version", "versions differ"), ("legacy", "plan.md:1"),
                 ("banned", "StringHelper"), ("banned", "parse_utils"), ("canonical", "readme.md"),
@@ -403,6 +408,8 @@ def selftest():
         quiet = not any(c == "canonical" and "examples/" in m for _, c, m in found)
         cases.append((quiet, "canonical", "example files are exempt"))
         cases.append((not any(c == "steps" and "unit.md:1" in m for _, c, m in found), "steps", "an S## unit passes"))
+        cases.append((not any("upstream" in m for _, _, m in found), "packs",
+                      "an adopted pack's upstream source is not held to regency's conventions"))
         lang = [m for _, c, m in found if c == "language"]
         cases.append((not any("templates/README.md:5" in m for m in lang), "language", "quoted input is not source"))
         cases.append((not any("conventions.md:7" in m for m in lang), "language", "the Regent's verbs (§9) are input"))

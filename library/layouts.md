@@ -29,6 +29,7 @@ None found → the project has no guidelines. Say so, continue with the library 
 | Changelog | `.changelog/` | `SOURCES/CHANGELOG.md` |
 | Team role specs | `.team/` (`TEAM`, `PO`, `DV`, `QA`, `DA`) | `TEAM/` |
 | Frontend documentation | `.ux/` (index `.ux/README.md`, brief `.ux/BRIEF.md`; scaffolded by `/regency:ux-init`) | — |
+| Domain packs of this project, and which packs are active here | `.packs/<id>/` and `.packs/active.json` (`/regency:pack`, `library/packs.md`) | — |
 | Attic (superseded docs) | `.history/` | — |
 | Code ↔ norm lineage | `.shortcuts/.virtual/manifesto.json` (or `manifest.json`) | — |
 | Work ledger (ongoing vs backlog) — the first peek on returning | `.shortcuts/.virtual/ongoing.json` | — |

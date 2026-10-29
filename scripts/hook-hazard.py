@@ -7,6 +7,7 @@ PreToolUse   classify every command segment:
                              confirmed that exact command in this pass            (conventions §6, R5.1)
                destructive   deleting, discarding work, force / history rewrites  ask (conventions §5)
                layout, install                                                    ask
+               consent       packs.py ratify --yes: lets a pack's hooks run code  ask (the Regent's alone, T5)
 PostToolUse  when a destructive command actually ran inside the project, switch on the session's
              HAZARD WATCH: hook-acts-guard.py then refuses every write no permit covers, until the
              Regent says a release verb (conventions §9, R5.2). The agent may still look around (R4.4).
@@ -166,6 +167,11 @@ def classify_words(w):
         return "delete", f"{cmd}: destructive SQL"
     if cmd == "docker" and args[:2] in (["system", "prune"], ["volume", "rm"], ["volume", "prune"]):
         return "delete", "docker " + " ".join(args[:2])
+    script = next((i for i, a in enumerate(args) if name(a) == "packs.py"), None)
+    if cmd.startswith(("python", "py")) and script is not None:
+        rest = args[script + 1:]
+        if rest[:1] == ["ratify"] and "--yes" in rest:  # consent to run a pack's hooks: the Regent's alone (T5)
+            return "consent", "packs.py ratify --yes"
     return None
 
 
@@ -254,7 +260,7 @@ def grant(event):
                                        f"for this session ({found[-1][1]})")
 
 
-ORDER = {"cloud-write": 0, "history": 1, "discard": 2, "delete": 3, "layout": 4, "install": 5}
+ORDER = {"cloud-write": 0, "history": 1, "discard": 2, "delete": 3, "layout": 4, "install": 5, "consent": 6}
 DESTRUCTIVE = {"history", "discard", "delete"}
 
 
@@ -308,6 +314,9 @@ def respond(event):
                                            "Cloud belongs to its owner: reads run freely, a write runs only when the "
                                            "Regent quotes that exact command in a message (conventions §6)")
         local = sorted((f for f in found_all if f[0] in ORDER and f[0] != "cloud-write"), key=lambda f: ORDER[f[0]])
+        if local and local[0][0] == "consent":
+            return wire.permission("ask", "consent: ratifying lets a pack's hooks run code on this machine in this project. "
+                                          "Only the Regent approves it, after reading the review (packs.py ratify without --yes)")
         if local:
             return wire.permission("ask", f"{local[0][0]}: '{local[0][1]}' needs the Regent's yes (conventions §5)")
         return None
@@ -370,6 +379,10 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
     ("npm install", "allow"),
     ("docker system prune -af", "ask"),
     ("python scripts/doctor.py", "allow"),
+    ("python scripts/packs.py ratify kit hooks --yes", "ask"),
+    ("python3 /x/regency/scripts/packs.py ratify kit all --repo . --yes", "ask"),
+    ("python scripts/packs.py ratify kit hooks", "allow"),
+    ("python scripts/packs.py activate kit --yes", "allow"),
     # cloud reads run freely
     ("aws s3 ls s3://bucket", "allow"),
     ("aws ec2 describe-instances --region sa-east-1", "allow"),

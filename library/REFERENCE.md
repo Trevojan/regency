@@ -97,6 +97,9 @@ Every command and subcommand, from `library/registry.json`:
 | `/regency:update` | Bring a project to the installed regency: from its stamp, plan every operation the newer version needs (replace untouched scaffold files, put the new text beside edited ones, create, rename, move, delete, rewrite what regency owns), apply the whole plan on one yes in a clean git tree, then check. Never touches the project's own prose, its acts or .scope/. | `[plan \| check]` | `skills/update/SKILL.md` |
 | `/regency:update:plan` | Dry run: the gate, then every operation the update would run, numbered, with its plan id. Applies nothing. | `` | same playbook, subcommand `plan` |
 | `/regency:update:check` | Does the project fit the installed regency? The stamp agrees and no operation is pending. | `` | same playbook, subcommand `check` |
+| `/regency:pack` | Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks. | `<adopt \| run \| list \| check \| activate \| ratify \| show \| suggest \| deactivate \| mcp> ...` | `skills/pack/SKILL.md` |
+| `/regency:pack:adopt` | Take a Claude Code plugin or skill as it is: copied verbatim, every part mapped or listed with its reason, nothing running until ratified. | `<folder \| git url> --id <id> --layer public\|project` | same playbook, subcommand `adopt` |
+| `/regency:pack:run` | Run an active pack's playbook, command or agent: the file read as it is, its paths resolved to the pack. | `<id> <item> [arguments]` | same playbook, subcommand `run` |
 | `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|ongoing\|trace\|drafts> [argument]` | `skills/virtualpath/SKILL.md` |
 | `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
 | `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |
@@ -224,6 +227,7 @@ regency/
 ├── CONTRIBUTING.md        how a change is proposed and checked (not shipped in the .plugin)
 ├── LICENSE                MIT
 ├── hooks/hooks.json       triggers only: every hook runs a script in scripts/ (library/hooks.md)
+├── packs/<id>/            regency's public layer of domain packs (library/packs.md)
 ├── skills/<id>/SKILL.md   the playbooks, one per command
 ├── commands/<id>/<sub>.md generated aliases for /regency:<id>:<sub>
 ├── library/               REFERENCE (this file), conventions, ids, layouts, registry, hooks, health,

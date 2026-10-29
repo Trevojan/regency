@@ -38,6 +38,9 @@ Checks
      the auto-mode settings file) and its self-test detects every planted defect
  19. the auto-mode profile (library/automode.json) is valid and the installer's self-test passes; WARN if its
      entries are not installed (or are stale) in ~/.claude/settings.json
+ 20. the packs engine proves itself (scripts/packs.py --selftest: adopt, check, activate, ratify, stale, layers) and
+     every pack in regency's public layer passes packs.py check; an adopted source under packs/<id>/upstream/ is
+     exempt from the path, portability and parse checks above (it follows its own project's rules)
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -56,6 +59,7 @@ SKIP_DIRS = {"discard", ".git", "node_modules", "__pycache__"}
 # documents that describe OTHER projects' paths or are verbatim imports: not scanned for path/abs-path rules
 IMPORTED = ("library/team/_draft/", "library/templates/", "library/examples/", "library/team/ORBITAL_AGENTS.md",
             "library/engines/", "library/orders/")
+UPSTREAM = re.compile(r"^packs/[^/]+/upstream/")  # an adopted pack's source, kept verbatim: its own rules, not regency's
 ABS_PATTERNS = [re.compile(p) for p in (
     r"[A-Za-z]:\\+Users\\", r"[A-Za-z]:/Users/", r"/Users/[A-Za-z0-9_.-]+/", r"/home/[A-Za-z0-9_.-]+/", r"/mnt/(user|skills|data)",
     r"AppData[\\/]",
@@ -78,6 +82,9 @@ REQUIRED_WIRING = (
     ("PreCompact", "", "hook-journal.py"), ("SubagentStop", "", "hook-journal.py"),
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
     ("SessionEnd", "", "hook-shortcuts.py"),
+    ("PreToolUse", "Read", "hook-packs.py"), ("PostToolUse", "Read", "hook-packs.py"),
+    ("SessionStart", "startup", "hook-packs.py"), ("UserPromptSubmit", "", "hook-packs.py"),
+    ("PreCompact", "", "hook-packs.py"), ("SessionEnd", "", "hook-packs.py"),
 )
 GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
 MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
@@ -165,7 +172,7 @@ def check_paths():
     bad = 0
     for p in files():
         r = rel(p)
-        if p.suffix != ".md" or r.startswith(IMPORTED):
+        if p.suffix != ".md" or r.startswith(IMPORTED) or UPSTREAM.match(r):
             continue
         for tok in PATH_TOKEN.findall(p.read_text(encoding="utf-8-sig", errors="replace")):
             t = tok.rstrip(".,;:)")
@@ -190,7 +197,8 @@ def check_absolute_paths():
             m = pat.search(text)
             if m:
                 line = text[: m.start()].count("\n") + 1
-                lvl = "WARN" if r.startswith(("library/team/_draft/", "library/templates/", "library/examples/", "library/engines/")) else "FAIL"
+                lvl = "WARN" if r.startswith(("library/team/_draft/", "library/templates/", "library/examples/", "library/engines/")) \
+                    or UPSTREAM.match(r) else "FAIL"
                 rec(lvl, f"{r}:{line}: machine-specific path {m.group(0)!r}")
                 bad += 1
                 break
@@ -201,6 +209,8 @@ def check_absolute_paths():
 def check_parse():
     n = 0
     for p in files():
+        if UPSTREAM.match(rel(p)):
+            continue  # an adopted source parses by its own rules; packs.py check reads its manifest
         if p.suffix == ".json":
             try:
                 json.loads(p.read_text(encoding="utf-8-sig"))
@@ -306,6 +316,7 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
     "hook-gov.py": {"hook_event_name": "PostToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "suba-validator"},
                     "tool_response": "gov: order=G2 · mode=co · element=image · from=QA · to=RGN\nask: approve SPEC v3"},
+    "hook-packs.py": {"hook_event_name": "PreToolUse", "tool_name": "Read", "tool_input": {"file_path": "a.txt"}},
 }
 
 
@@ -505,6 +516,23 @@ def check_cli_validate():
         rec("OK", "claude plugin validate (components) passed")
 
 
+def check_packs():
+    s = ROOT / "scripts" / "packs.py"
+    if not s.is_file():
+        return rec("FAIL", "scripts/packs.py is missing")
+    t = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True, encoding="utf-8")
+    out = [l for l in t.stdout.strip().splitlines() if l.strip()]
+    if t.returncode != 0:
+        rec("FAIL", "packs selftest: " + " | ".join([l for l in out if l.startswith("MISS")][:3] or out[-1:]))
+    else:
+        rec("OK", f"packs: {out[-1] if out else 'selftest ok'}")
+    r = subprocess.run([sys.executable, str(s), "check"], capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
+    for line in (r.stdout + r.stderr).strip().splitlines():
+        parts = line.split(None, 1)
+        if len(parts) == 2 and parts[0] in ("OK", "WARN", "FAIL"):
+            rec(parts[0], "packs " + parts[1])
+
+
 def check_drafts():
     d = ROOT / "library" / "team" / "_draft"
     if d.is_dir():
@@ -515,7 +543,7 @@ def check_drafts():
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
           check_conventions, check_hook_scripts, check_ux, check_engines, check_history, check_headless,
-          check_automode)
+          check_automode, check_packs)
 
 
 def main(argv):
