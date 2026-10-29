@@ -13,11 +13,11 @@ The levels are named on a **Big-O** basis, `O4` the largest down to `O1` the sma
 |---|---|---|---|
 | **O4** | Solution | none | the whole solution. It gets **no nickname** and is not cited after the Briefing and the project's title |
 | **O3** | Module | `M##` | what holds the **features** of a solution, from scratch in the MVP up to the most valuable and resourceful deliverable. Modules are **decoupled** from one another |
-| **O2** | Step (*degrau*) of the development ladder | `D##` | holds the **concepts** needed to build one module. Steps are **dependent** on their sibling steps |
+| **O2** | Step (*degrau*) of the development ladder | `S##` | holds the **concepts** needed to build one module. Steps are **dependent** on their sibling steps |
 | **O1** | Task | `T##` | a task in the sense of a development team: **one code file** (`.py`, `.cs`, `.ts`, …), a coupled part of its step |
 
 Read downward: a task is a coupled part of a step, a step a dependent part of a module, a module a decoupled
-feature of the solution. Ids are derived from position and never typed: `M03.D02.T04 [F1–F3]`.
+feature of the solution. Ids are derived from position and never typed: `M03.S02.T04 [F1–F3]`.
 
 ## Seven phases, one pattern
 
@@ -44,5 +44,5 @@ the span it may touch, for example `[F1–F3]`, and stays inside it.
 ## Where this is used
 
 - `/regency:order:dispatch` classifies an order at O3, O2 or O1 (O4 is never a target).
-- `/regency:team` reads ids as `M##.D##.T##`, checks the declared span and refuses to count a step closed before its gate.
+- `/regency:team` reads ids as `M##.S##.T##`, checks the declared span and refuses to count a step closed before its gate.
 - `library/team/references/vocabulary-map.md` maps a project's own words onto these levels.

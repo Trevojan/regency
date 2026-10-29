@@ -231,8 +231,8 @@ def selftest():
         q = gov.read_queue(vdir)
         cases.append((len(q) == 3 and [e["gov.route"] for e in q] == ["ledger", "regent", "regent"],
                       f"queue holds 3 decisions: {[e['gov.route'] for e in q]}"))
-        build = "You are acting as DV on the project team.\nUnit:       M03.D02.T04\nStage:      build\n"
-        dv_ok = ("gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.D02.T04\nask: verify\n"
+        build = "You are acting as DV on the project team.\nUnit:       M03.S02.T04\nStage:      build\n"
+        dv_ok = ("gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.S02.T04\nask: verify\n"
                  "change_notes:\n  touched_paths: [src/a.py]\n  touched_phases: [F2]\n  surface_changed: false\n"
                  "  rollback: revert 1a2b\n  new_tests: [test_split]\nSUCCESS built and handed to QA")
         a = ctx(post("dv", dv_ok, prompt=build))
@@ -252,12 +252,12 @@ def selftest():
 
         # suba envelopes at the boundary
         (vdir / "ongoing.json").write_text(json.dumps({"schema": 1, "items": [
-            {"id": "M01.D01.T01", "title": "a", "state": "ongoing", "where": ["src/a.py"]}]}), encoding="utf-8")
+            {"id": "M01.S01.T01", "title": "a", "state": "ongoing", "where": ["src/a.py"]}]}), encoding="utf-8")
         imp = returns.template("suba-implementer", mode="filled")
-        imp.update(unit="M01.D01.T01")
+        imp.update(unit="M01.S01.T01")
         imp["ledger"].update(state="review")
         imp["body"]["for_dv"]["limitations"] = ["the gate log escalates nothing, by convention"]
-        head = "gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M01.D01.T01\nask: verify\n"
+        head = "gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M01.S01.T01\nask: verify\n"
 
         def wrapped(env):
             return head + "```json\n" + json.dumps(env) + "\n```\nSUCCESS built and handed to QA"
@@ -266,7 +266,7 @@ def selftest():
         log = returns.read_log(vdir)
         cases.append(("subas: suba-implementer ok" in a and log and log[-1]["regency.valid"],
                       f"a sound envelope: checked and logged ({a[-120:]})"))
-        cases.append(("ledger says M01.D01.T01 ongoing, the return says review" in a, "a ledger disagreement is named"))
+        cases.append(("ledger says M01.S01.T01 ongoing, the return says review" in a, "a ledger disagreement is named"))
         cases.append(("route ledger" in a, "words inside an envelope never raise the role's order"))
         keys = gov.read_keys(vdir)["keys"]
         cases.append(("contract-nullable" in keys, "envelope keys reach recur"))

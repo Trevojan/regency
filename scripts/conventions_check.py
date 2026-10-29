@@ -8,6 +8,8 @@ Checks (library/conventions.md section 0, 11, 12, 13; library/ids.md)
   version   registry.json and .claude-plugin/plugin.json carry the same a.b version
   ids       library/ids.md machine grammar parses, every pattern compiles, every example matches
   legacy    WARN for D1-D4 used as level names (renamed O1-O4)
+  steps     FAIL for a step id written D## (M##.D##, `D##`): the unit grammar is M##.S##.T##, no else
+            (the Regent, 2026-10-29); library/ids.md is the only grammar
   banned    FAIL for S3 banned name tokens in paths and in Python def/class names
   canonical FAIL for a canonical document name not in UPPER_CASE (N5)
   suba      FAIL for suba-/-vendor folders outside library/subagents and library/vendors (N1, N2)
@@ -36,6 +38,8 @@ CANONICAL = {"agents", "claude", "protocol", "team", "team-orchestration", "orch
              "readme", "changelog", "briefing"}
 LEGACY_LEVEL = re.compile(r"(?<![\w.-])D[1-4](?![\w])")
 LEGACY_EXEMPT = ("library/ids.md", "library/examples/", "discard/")
+OLD_STEP = re.compile(r"\bM(?:\d{2}|##)\.D(?:\d{2}|##)|`D##`")
+STEP_SUFFIXES = {".md", ".xml", ".py", ".json", ".pgml", ".html", ".toml"}
 CANONICAL_EXEMPT = ("library/examples/", "discard/")  # samples are named after what they show
 JSON_BLOCK = re.compile(r"```json\n(.*?)\n```", re.S)
 VERSION = re.compile(r"^\d+\.\d+$")
@@ -173,6 +177,20 @@ class Checker:
         if not hits:
             self.rec("OK", "legacy", "no D1-D4 level names left")
 
+    def check_steps(self):
+        hits = 0
+        for p in self.walk():
+            r = self.rel(p)
+            if not p.is_file() or p.suffix not in STEP_SUFFIXES or r.startswith(("discard/", "scripts/conventions_check.py")):
+                continue
+            for i, line in enumerate(p.read_text(encoding="utf-8-sig", errors="replace").splitlines(), 1):
+                m = OLD_STEP.search(line)
+                if m:
+                    hits += 1
+                    self.rec("FAIL", "steps", f"{r}:{i}: step id written {m.group(0)!r}; the grammar is M##.S##.T## (library/ids.md)")
+        if not hits:
+            self.rec("OK", "steps", "every step id is S## (M##.S##.T##)")
+
     def check_language(self):
         hits = 0
         for p in self.walk():
@@ -309,7 +327,7 @@ class Checker:
             self.rec("OK", "subagent", f"{len(present)} subagent(s) aligned with their owners")
 
     def run(self):
-        for fn in (self.check_version, self.check_ids, self.check_legacy, self.check_language,
+        for fn in (self.check_version, self.check_ids, self.check_legacy, self.check_steps, self.check_language,
                    self.check_banned, self.check_canonical, self.check_suba, self.check_subagent):
             fn()
         return self.out
@@ -332,6 +350,7 @@ def selftest():
         (root / "library" / "examples").mkdir()
         (root / "library" / "examples" / "ladder-plan.example.md").write_text("x\n", encoding="utf-8")
         (root / "library" / "plan.md").write_text("classify at D3 or D2\n", encoding="utf-8")
+        (root / "library" / "unit.md").write_text("the unit M03.S02.T04 holds\nthe unit M03.D02.T04 is old\n", encoding="utf-8")
         (root / "library" / "templates").mkdir()
         (root / "library" / "templates" / "README.md").write_text(
             "# Start\n\nPonto de partida para um projeto novo.\nAções do pedido\n"
@@ -346,7 +365,7 @@ def selftest():
                 ("banned", "StringHelper"), ("banned", "parse_utils"), ("canonical", "readme.md"),
                 ("suba", "must start with suba-"), ("suba", "must end with -vendor"),
                 ("suba", "outside library/subagents"), ("language", "templates/README.md:3"),
-                ("language", "templates/README.md:4"), ("language", "conventions.md:3")]
+                ("language", "templates/README.md:4"), ("language", "conventions.md:3"), ("steps", "unit.md:2")]
         for check, needle in want:
             hit = any(c == check and needle in m and lvl in ("FAIL", "WARN") for lvl, c, m in found)
             cases.append((hit, check, needle))
@@ -354,6 +373,7 @@ def selftest():
         cases.append((ok_ids, "ids", "real grammar passes"))
         quiet = not any(c == "canonical" and "examples/" in m for _, c, m in found)
         cases.append((quiet, "canonical", "example files are exempt"))
+        cases.append((not any(c == "steps" and "unit.md:1" in m for _, c, m in found), "steps", "an S## unit passes"))
         lang = [m for _, c, m in found if c == "language"]
         cases.append((not any("templates/README.md:5" in m for m in lang), "language", "quoted input is not source"))
         cases.append((not any("conventions.md:7" in m for m in lang), "language", "the Regent's verbs (§9) are input"))

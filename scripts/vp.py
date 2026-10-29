@@ -411,8 +411,8 @@ def selftest():
                                                encoding="utf-8")
             return run(cmd_ongoing, vdir, repo)
 
-        good = {"id": "M01.D01.T01", "title": "a", "state": "draft", "who": "DV",
-                "where": ["branch:plumbing", "src/a.py"], "next": "verify: /regency:team M01.D01.T01"}
+        good = {"id": "M01.S01.T01", "title": "a", "state": "draft", "who": "DV",
+                "where": ["branch:plumbing", "src/a.py"], "next": "verify: /regency:team M01.S01.T01"}
         code, out = ledger(good)
         cases.append((code == 0 and "DRAFT (1)" in out, "a draft with branch and files holds"))
         code, out = ledger(dict(good, where=["src/a.py"]))
@@ -438,16 +438,16 @@ def selftest():
             g("checkout", "-qb", "plumbing")
             (repo / "src" / "b.py").write_text("y = 2\n", encoding="utf-8")
             g("add", "-A")
-            g("commit", "-qm", "draft(M01.D01.T02): b\n\nDraft: UNVERIFIED\nUnit: M01.D01.T02\nSpeed-Mode: just-in-time")
-            ledger(dict(good, id="M01.D01.T02"))
+            g("commit", "-qm", "draft(M01.S01.T02): b\n\nDraft: UNVERIFIED\nUnit: M01.S01.T02\nSpeed-Mode: just-in-time")
+            ledger(dict(good, id="M01.S01.T02"))
             code, out = run(cmd_drafts, vdir, repo)
-            cases.append((code == 1 and "M01.D01.T02" in out and "1 unit(s)" in out, f"an unverified draft commit is listed: {out[-90:]!r}"))
-            ledger(dict(good, id="M01.D01.T02", state="review"))
+            cases.append((code == 1 and "M01.S01.T02" in out and "1 unit(s)" in out, f"an unverified draft commit is listed: {out[-90:]!r}"))
+            ledger(dict(good, id="M01.S01.T02", state="review"))
             code, out = run(cmd_drafts, vdir, repo)
             cases.append((code == 1 and "not yet verified: 1" in out, "a ledger moved by hand does not verify the commit"))
             (repo / "src" / "b.py").write_text("y = 2  # verified\n", encoding="utf-8")
             g("add", "-A")
-            g("commit", "-qm", "feat(M01.D01.T02): b, verified\n\nVerified-Draft: M01.D01.T02")
+            g("commit", "-qm", "feat(M01.S01.T02): b, verified\n\nVerified-Draft: M01.S01.T02")
             code, out = run(cmd_drafts, vdir, repo)
             cases.append((code == 0 and "0 unverified" in out, f"a Verified-Draft commit closes it: {out[-60:]!r}"))
             g("commit", "-q", "--allow-empty", "-m", "draft: no unit\n\nDraft: UNVERIFIED")

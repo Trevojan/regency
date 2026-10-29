@@ -1433,7 +1433,7 @@ def selftest():
             led = vd / "ongoing.json"
             keep_led = led.read_text(encoding="utf-8")
             data = json.loads(keep_led)
-            data["items"].append({"id": "M09.D01.T01", "title": "x", "state": "draft", "where": ["branch:plumbing"]})
+            data["items"].append({"id": "M09.S01.T01", "title": "x", "state": "draft", "where": ["branch:plumbing"]})
             led.write_text(json.dumps(data), encoding="utf-8")
             rep = Report()
             version(rep, repo)

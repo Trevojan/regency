@@ -154,9 +154,9 @@ is already on disk, so only the pass in flight is lost.
 
 ```text
 kraken-2026-10-28-1 · pass 2 · fuel 2/3 used
-Tasks     A 6 built (M01.D01.T01–M01.D02.T02) · B 5 built (M02.D01.T01–M02.D01.T05)
+Tasks     A 6 built (M01.S01.T01–M01.S02.T02) · B 5 built (M02.S01.T01–M02.S01.T05)
 Verdicts  9 pass · 2 return · 0 not reviewed
-Returns   2 carried (attempts 1, 2) · Escalated 1 (M02.D01.T03, third failure) -> RGN
+Returns   2 carried (attempts 1, 2) · Escalated 1 (M02.S01.T03, third failure) -> RGN
 Seam      1 finding
 Models    DV sonnet · QA opus · PO, DA session
 Packet    .shortcuts/.virtual/speed/kraken-2026-10-28-1/PASS-02.json
@@ -164,7 +164,7 @@ Packet    .shortcuts/.virtual/speed/kraken-2026-10-28-1/PASS-02.json
 
 ## 5. `/regency:team:just-in-time <from> <to>` — draft everything, verify later
 
-For example `M01.D01.T01 M03.D06.T09`: every task from one unit to the other, drafted fast so the whole
+For example `M01.S01.T01 M03.S06.T09`: every task from one unit to the other, drafted fast so the whole
 range exists, verified later.
 
 1. **Seed** — one QA on `opus` (`Stage: seed`) reads the range and writes the interface contract (shared
@@ -192,11 +192,11 @@ Next wave until the range is drafted. The last wave's fix notes go into the repo
 **Report:**
 
 ```text
-jit-2026-10-28-1 · M01.D01.T01 -> M03.D02.T02 · 12/12 drafted (100%) · 4 waves
+jit-2026-10-28-1 · M01.S01.T01 -> M03.S02.T02 · 12/12 drafted (100%) · 4 waves
 Waves     1: 3 · 2: 3 · 3: 3 · 4: 3 (three modules, one DV each per wave)
 Gate      wave 2: builds, runs, 2 contract mismatches -> FX-2-1, FX-2-2 (applied in wave 3)
-Assumed   M02.D01.T03: date format -> ISO 8601 (review)
-Verify    /regency:team M01.D01.T01 … — every unit is DRAFT/UNVERIFIED on plumbing
+Assumed   M02.S01.T03: date format -> ISO 8601 (review)
+Verify    /regency:team M01.S01.T01 … — every unit is DRAFT/UNVERIFIED on plumbing
 ```
 
 ## 6. Drafts: how they are marked, and how they stop being drafts
@@ -206,7 +206,7 @@ ledger (`library/virtualpath.md` §3):
 
 ```text
 Draft: UNVERIFIED
-Unit: M01.D01.T01
+Unit: M01.S01.T01
 Speed-Mode: just-in-time
 ```
 
@@ -240,20 +240,20 @@ the previous one. `python scripts/speed.py packet <file> [previous]` checks it.
   "run": "kraken-2026-10-28-1",
   "pass": 2,
   "fuel": {"declared": "3", "used": 2},
-  "range": {"from": "M01.D01.T01", "to": "M02.D03.T04"},
+  "range": {"from": "M01.S01.T01", "to": "M02.S03.T04"},
   "teams": {
-    "A": {"span": ["M01"], "stopped_at": "M01.D02.T02", "models": {"dv": "sonnet", "qa": "opus"}},
-    "B": {"span": ["M02"], "stopped_at": "M02.D01.T05", "models": {"dv": "sonnet", "qa": "opus"}}
+    "A": {"span": ["M01"], "stopped_at": "M01.S02.T02", "models": {"dv": "sonnet", "qa": "opus"}},
+    "B": {"span": ["M02"], "stopped_at": "M02.S01.T05", "models": {"dv": "sonnet", "qa": "opus"}}
   },
   "tasks": [
-    {"unit": "M01.D01.T01", "team": "A", "gate": "green", "verdict": "pass", "ledger": "review"}
+    {"unit": "M01.S01.T01", "team": "A", "gate": "green", "verdict": "pass", "ledger": "review"}
   ],
   "returns": [
-    {"unit": "M02.D01.T02", "team": "B", "from": "QA", "key": "defect-null-total", "attempts": 1,
-     "artefact": ".shortcuts/.virtual/speed/kraken-2026-10-28-1/returns/M02.D01.T02-1.md"}
+    {"unit": "M02.S01.T02", "team": "B", "from": "QA", "key": "defect-null-total", "attempts": 1,
+     "artefact": ".shortcuts/.virtual/speed/kraken-2026-10-28-1/returns/M02.S01.T02-1.md"}
   ],
   "escalations": [
-    {"unit": "M02.D01.T03", "key": "defect-rounding", "attempts": 3, "to": "RGN"}
+    {"unit": "M02.S01.T03", "key": "defect-rounding", "attempts": 3, "to": "RGN"}
   ],
   "seam": {"findings": ["M01 exports Money as float; M02 imports it as decimal"]}
 }

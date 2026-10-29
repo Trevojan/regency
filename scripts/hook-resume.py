@@ -4,7 +4,7 @@
 Decision record R4.2. On startup, resume, clear and compact, for a project that has guidelines:
 
   regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1 · latest Order ORD-0001
-  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.D01.T01) · shortcuts check 0 · drift 0 · first peek: shortcuts.py peek, vp.py trace
+  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.S01.T01) · shortcuts check 0 · drift 0 · first peek: shortcuts.py peek, vp.py trace
 
 A project without guidelines gets nothing (the plugin is silent outside the Regent's projects).
 SessionStart plain output becomes context; this script answers with additionalContext JSON instead,
@@ -139,7 +139,7 @@ def selftest():
         cases.append(("draft" not in out, "no draft item, no draft count"))
         led = root / ".guidelines/.shortcuts/.virtual/ongoing.json"
         data = json.loads(led.read_text(encoding="utf-8"))
-        data["items"].append({"id": "M04.D01.T01", "title": "f", "state": "draft", "where": ["branch:plumbing"]})
+        data["items"].append({"id": "M04.S01.T01", "title": "f", "state": "draft", "where": ["branch:plumbing"]})
         led.write_text(json.dumps(data), encoding="utf-8")
         out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
         cases.append(("2 backlog / 1 draft UNVERIFIED" in out, f"drafts counted apart, marked unverified ({out[:90]})"))

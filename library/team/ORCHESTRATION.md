@@ -54,8 +54,8 @@ F0–F6      Phase, the layer the task is allowed to touch
 Example of reading the full tree:
 
 > A commissions system has the Computation module, `M03`. Inside it, a step
-> handles the apportionment calculation, `M03.D02`. Inside the step, a task
-> implements the rule for dividing by revenue center, `M03.D02.T04`, and declares
+> handles the apportionment calculation, `M03.S02`. Inside the step, a task
+> implements the rule for dividing by revenue center, `M03.S02.T04`, and declares
 > that it will touch only from contract to exposure, `[F1–F3]`. Requiring a change
 > to the interface, `F5`, stops the task and returns it to whoever defined it. It
 > does not widen itself.
@@ -151,7 +151,7 @@ the next. They are layers of depth of the system, each with an owner:
 | **F6** | Closure | PO decides, DV+QA+DA supply | — | An agent accepting itself |
 
 A task declares a **span**, the range of phases it is allowed to touch.
-`M03.D02.T04 [F1–F3]` may only work from contract to exposure. The span
+`M03.S02.T04 [F1–F3]` may only work from contract to exposure. The span
 determines which roles take part in that task.
 
 There is no progress from F0 to F6. A task does not advance from phase to phase;
@@ -172,9 +172,9 @@ The code of any object comes from its position in the tree:
 
 ```
 M04                  module 4
-M04.D02              second step of module 4
-M04.D02.T03          third task of that step
-M04.D02.T03 [F1–F3]  the same task, with the declared span
+M04.S02              second step of module 4
+M04.S02.T03          third task of that step
+M04.S02.T03 [F1–F3]  the same task, with the declared span
 ```
 
 Identifiers are derived, never typed. If the position changes, the code changes.
@@ -185,7 +185,7 @@ describing the repository.
 
 The tree says what belongs to what. It does not say what to do first.
 
-If module `M01` is only ready once step `D03` of `M04` is resolved, `M04.D03.T*`
+If module `M01` is only ready once step `S03` of `M04` is resolved, `M04.S03.T*`
 is handled so as to deliver `M01` as early as possible. Every task may declare
 which module it unblocks, and the path to a delivery is assembled from those
 declarations, not from the numbering.
@@ -273,7 +273,7 @@ the gate is good and cheap, and indicates that the gate works.
        ┌───────────────┼───────────────┐
       M01             M02             M03      ← parallel, isolated workspaces
        │
-   D01 D02 …                                   ← serial within the module
+   S01 S02 …                                   ← serial within the module
        │
    ┌───┴───┐
    │  T##  │                                   ← one task, one session, one or more commits
@@ -288,9 +288,9 @@ the gate is good and cheap, and indicates that the gate works.
        │
   the commit(s)
        │
-  the step closes when the gate of D## passes
+  the step closes when the gate of S## passes
        │
-  the module is completed when all D## close → feature in production
+  the module is completed when all S## close → feature in production
 ```
 
 **1 · Frame (PO).** Issues the story: problem, acceptance criteria, what is out of

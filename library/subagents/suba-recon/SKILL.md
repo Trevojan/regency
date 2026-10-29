@@ -68,7 +68,7 @@ missing field and any field the contract does not name.
   "envelope": 1,
   "suba": "suba-recon",
   "via": "owner",
-  "unit": "<unit, e.g. M03.D02.T04 [F1–F3]>",
+  "unit": "<unit, e.g. M03.S02.T04 [F1–F3]>",
   "gov": {
     "order": "<G1 | G2 | G3>",
     "mode": "self",

@@ -1,6 +1,6 @@
 ---
 name: order
-description: "Regency Orders. Fill and emit one of the four standard Orders from its template: germinate (grow the path to a goal as a tree), handoff (close a stretch of work and hand its state over), dispatch (hear an order over the D3/D2/D1 hierarchy, classify it, emit the dispatch manifest) and resume (reopen a project mid-work from its shortcuts index only); or lazy (run an Emission's Orders, skipping those that need the Regent). Use for /regency:order[:germinate|handoff|dispatch|resume|lazy], 'prepare a handoff', 'retomada', 'resume the project', 'grow the plan', 'classify this order', 'run EMS-011'."
+description: "Regency Orders. Fill and emit one of the four standard Orders from its template: germinate (grow the path to a goal as a tree), handoff (close a stretch of work and hand its state over), dispatch (hear an order over the O3/O2/O1 hierarchy, classify it, emit the dispatch manifest) and resume (reopen a project mid-work from its shortcuts index only); or lazy (run an Emission's Orders, skipping those that need the Regent). Use for /regency:order[:germinate|handoff|dispatch|resume|lazy], 'prepare a handoff', 'retomada', 'resume the project', 'grow the plan', 'classify this order', 'run EMS-011'."
 argument-hint: "<germinate|handoff|dispatch|resume> [material] | lazy [EMS-id]"
 ---
 
@@ -66,20 +66,20 @@ has no block yet) and run `python scripts/shortcuts.py check`: 0 problems before
 
 ### dispatch — hear, classify, emit
 
-Hierarchy (`library/task-granulation.md`): **D4** = the whole solution (no id, never a target);
-**D3** = module, what holds the features (`M##`, fragments into D2, never worked directly); **D2** = step,
-the *degrau* of the development ladder (`D##`; holds the concepts that build one D3; owns its file; acts as
-checkpoint); **D1** = task (`T##`, atomic, one code file; the unit of work and of resume). Read where the breakdown already lives and **never re-derive or
+Hierarchy (`library/task-granulation.md`): **O4** = the whole solution (no id, never a target);
+**O3** = module, what holds the features (`M##`, fragments into O2, never worked directly); **O2** = step,
+the *degrau* of the development ladder (`S##`; holds the concepts that build one O3; owns its file; acts as
+checkpoint); **O1** = task (`T##`, atomic, one code file; the unit of work and of resume). Read where the breakdown already lives and **never re-derive or
 re-fragment it**. Classify the order's level, then emit the manifest:
 
 ```yaml
 order: ORD-#### | ad-hoc
-level: D3 | D2 | D1
+level: O3 | O2 | O1
 d3: <the problem it closes, as a problem>
 d2: [ <concepts in dependency order, one line each> ]
 d1: [ { id: <id>, file: <path>, state: done|open } ]    # existing tasks named by id and file
 route: { pass: "/regency:team <unit>" }                  # or { role: po|dv|qa|da }
-resume_from: <last completed D1>                         # never from the top of the tree
+resume_from: <last completed O1>                         # never from the top of the tree
 open_questions: [ ]
 ```
 
@@ -96,7 +96,7 @@ shortcut. If an expected path does not exist: name every missing path and ask pe
 exactly those — create nothing beyond them, and never route a fact elsewhere because its path is
 missing. Output: **ongoing / backlog** (from the ledger, reconciled with the traces), **version**,
 **suite** (the command, and whether it is green — run it only if cheap and read-only), **last
-milestone** (the last completed D1), **next** — filled, never inferred — then offer `/regency:proceed`.
+milestone** (the last completed O1), **next** — filled, never inferred — then offer `/regency:proceed`.
 
 ### lazy — run an Emission, skip what needs the Regent
 

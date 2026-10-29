@@ -73,7 +73,7 @@ missing field and any field the contract does not name.
   "envelope": 1,
   "suba": "suba-strategy",
   "via": "owner",
-  "unit": "<unit, e.g. M03.D02.T04 [F1–F3]>",
+  "unit": "<unit, e.g. M03.S02.T04 [F1–F3]>",
   "gov": {
     "order": "<G1 | G2 | G3>",
     "mode": "self",
@@ -91,7 +91,7 @@ missing field and any field the contract does not name.
     },
     "options": {
       "cuts": [{"cut": "<a scope cut keeping MINIMUM < GRAND>", "loses": "<what it gives up>"}],
-      "order": [{"module": "<a module, e.g. M03.D02.T04 [F1–F3]>", "unblocks": ["<what it unblocks>"]}],
+      "order": [{"module": "<a module, e.g. M03.S02.T04 [F1–F3]>", "unblocks": ["<what it unblocks>"]}],
       "rungs": [{"rule": "<a rule>", "rung": "<the smallest scale that satisfies it>"}],
       "trade_offs": [{"axis": "<scope | deadline | debt | residual-risk>", "cost": "<its cost>"}]
     },

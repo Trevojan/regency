@@ -34,7 +34,7 @@ WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
 SHELL_TOOLS = ("Bash", "PowerShell")
 STALE_MARK = "warn'STALE"
 MAX_LINE = 600            # one slice line; Claude Code caps any hook string at 10 000 characters
-UNIT = re.compile(r"\bM\d{2}(?:\.D\d{2}(?:\.T\d{2})?)?\b")
+UNIT = re.compile(r"\bM\d{2}(?:\.S\d{2}(?:\.T\d{2})?)?\b")
 SKIP_PARTS = {".git", "node_modules", ".venv", "__pycache__", ".history", "discard", ".obsidian"}
 
 
@@ -328,9 +328,9 @@ FIXTURE = {
         {"virtual_path": ".plan/BACKLOG.md#ledger-x", "refers_to": ["src/Ledger.cs"],
          "selector_type": "ledger_row", "on_mutation": "mark_stale"}]}),
     ".guidelines/.shortcuts/.virtual/ongoing.json": json.dumps({"schema": 1, "updated": "2026-10-09", "items": [
-        {"id": "M01.D01.T01", "title": "a", "state": "ongoing", "where": ["src/Page.razor"]},
-        {"id": "M01.D01.T02", "title": "b", "state": "review"},
-        {"id": "M01.D02.T01", "title": "c", "state": "blocked", "blocked_by": "RGN"},
+        {"id": "M01.S01.T01", "title": "a", "state": "ongoing", "where": ["src/Page.razor"]},
+        {"id": "M01.S01.T02", "title": "b", "state": "review"},
+        {"id": "M01.S02.T01", "title": "c", "state": "blocked", "blocked_by": "RGN"},
         {"id": "M02", "title": "d", "state": "backlog"},
         {"id": "M03", "title": "e", "state": "backlog"}]}),
     ".guidelines/.decisions/ARCHITECTURE.md": "# Architecture\n\n## §layout-stable — layout\n\nRule text.\n\n## Other\n\nx\n",

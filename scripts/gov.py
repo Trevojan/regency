@@ -19,7 +19,7 @@ each one checkable:
 
 The packet contract (tags G1/G2/G3, never O#, which regency already uses for its levels):
 
-    gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.D02.T04 · key=criterion-untestable
+    gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.S02.T04 · key=criterion-untestable
     ask: approve SPEC v3 (criterion C-04 untestable)
 
 Routing: G1 stays in the ledger; G2 and G3 reach the Regent. A missing, malformed or under-declared
@@ -438,7 +438,7 @@ def cli(argv):
 # ---------- self-test ----------------------------------------------------------------------------
 
 def selftest():
-    G1 = "gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.D02.T04\nask: re-run the named test"
+    G1 = "gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.S02.T04\nask: re-run the named test"
     cases = []
 
     def r(text, sender=None):
@@ -446,7 +446,7 @@ def selftest():
 
     d = r(G1)
     cases.append((d["route"] == "ledger" and not d["flags"], f"sound G1 stays in the ledger: {d['route']} {d['flags']}"))
-    cases.append((d["unit"] == "M03.D02.T04" and d["ask"] == "re-run the named test", "unit and ask are read"))
+    cases.append((d["unit"] == "M03.S02.T04" and d["ask"] == "re-run the named test", "unit and ask are read"))
     d = r("**gov: order=g2 · mode=co · element=image · from=qa · to=regent**\nask: approve SPEC v3")
     cases.append((d["order"] == "G2" and d["route"] == "regent" and d["to"] == "RGN" and not d["flags"],
                   "markdown-wrapped, lower-case header parses; Regent alias resolves"))
@@ -501,11 +501,11 @@ def selftest():
     cases.append((fit([])["packets"] == 0, "fit with no packets"))
 
     # ---- keys: the flywheel's sensor
-    d = r(G1.replace("unit=M03.D02.T04", "unit=M03.D02.T04 · key=contract-nullable"))
+    d = r(G1.replace("unit=M03.S02.T04", "unit=M03.S02.T04 · key=contract-nullable"))
     cases.append((d["key"] == "contract-nullable" and not d["problems"], "key= is read and is no problem"))
-    d = r(G1.replace("unit=M03.D02.T04", "unit=M03.D02.T04 · key=Contract-Nullable"))
+    d = r(G1.replace("unit=M03.S02.T04", "unit=M03.S02.T04 · key=Contract-Nullable"))
     cases.append((d["key"] == "contract-nullable", "key= is lower-cased"))
-    d = r(G1.replace("unit=M03.D02.T04", "unit=M03.D02.T04 · key=null_check!"))
+    d = r(G1.replace("unit=M03.S02.T04", "unit=M03.S02.T04 · key=null_check!"))
     cases.append((d["key"] is None and "invalid" in d["flags"] and d["route"] == "regent",
                   "a key that is not a slug is a problem, routed up, and never counted"))
     cases.append((r(G1)["key"] is None and not r(G1)["problems"], "key= stays optional"))
@@ -521,14 +521,14 @@ def selftest():
     with tempfile.TemporaryDirectory() as tmp:
         # one unit repeating is one problem, not a recurrence
         for _ in range(4):
-            record(tmp, route(pkt("M01.D01.T01", "same-unit")), session="p1")
+            record(tmp, route(pkt("M01.S01.T01", "same-unit")), session="p1")
         rep = recur(read_keys(tmp))
         cases.append((not rep["candidates"] and [w["key"] for w in rep["watching"]] == ["same-unit"],
                       "4 hits in ONE unit stay watching, not a candidate"))
         # three hits across two units: a candidate
-        record(tmp, route(pkt("M01.D01.T02", "contract-nullable")), session="p2")
-        record(tmp, route(pkt("M02.D01.T01", "contract-nullable", "G2")), session="p2")
-        record(tmp, route(pkt("M02.D01.T03", "contract-nullable")), session="p3")
+        record(tmp, route(pkt("M01.S01.T02", "contract-nullable")), session="p2")
+        record(tmp, route(pkt("M02.S01.T01", "contract-nullable", "G2")), session="p2")
+        record(tmp, route(pkt("M02.S01.T03", "contract-nullable")), session="p3")
         rep = recur(read_keys(tmp))
         c = rep["candidates"][0] if rep["candidates"] else {}
         cases.append((c.get("key") == "contract-nullable" and c.get("hits") == 3 and c.get("units") == 3
@@ -550,14 +550,14 @@ def selftest():
                       "a wider window brings them back (thresholds are parameters, not law)"))
         # an unreadable aggregate is never overwritten
         (Path(tmp) / KEYS).write_text("{not json", encoding="utf-8")
-        record(tmp, route(pkt("M09.D01.T01", "contract-nullable")), session="p9")
+        record(tmp, route(pkt("M09.S01.T01", "contract-nullable")), session="p9")
         cases.append(((Path(tmp) / KEYS).read_text(encoding="utf-8") == "{not json" and read_keys(tmp) is None,
                       "an unreadable gov-keys.json is left untouched (no data loss)"))
     cases.append((recur(None)["candidates"] == [] and recur({"passes": [], "keys": {}})["packets"] == 0,
                   "recur on an empty or missing aggregate"))
     with tempfile.TemporaryDirectory() as tmp:
         record(tmp, route(G1), session="n1")
-        for unit in ("M01.D01.T01", "M02.D01.T01", "M03.D01.T01"):
+        for unit in ("M01.S01.T01", "M02.S01.T01", "M03.S01.T01"):
             note(tmp, "return-build-change-notes-rollback", unit=unit, session="n1")
         note(tmp, "Not A Slug", session="n1")
         rep = recur(read_keys(tmp))
