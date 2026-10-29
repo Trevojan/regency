@@ -1,6 +1,6 @@
 ---
 name: regency
-description: "Regency, the Regent's harness built on Claude Code, and the entry point for /regency and every /regency:* command: orchestrated team passes (PO/DV/QA/DA), proceed, commit-and-merge, measure-changes, the five inference engines (critical, causal, decision, control, clean), the Scribe sub-agent, Orders (germinate, handoff, dispatch, resume), the health checkup, guidelines and frontend-documentation scaffolding, and code-to-norm lineage. Use when the user types /regency, asks 'call the team', 'run a pass', 'hand off', 'resume the project', or asks what regency can do."
+description: "Regency, the Regent's harness built on Claude Code, and the entry point for /regency and every /regency:* command. AA works as a PO/DV/QA/DA team and the Regent decides at the review packet; the rules travel as files and scripts: five inference engines, the Scribe, Orders and speed modes, the health checkup, code-to-norm lineage with a shortcuts index, guard and recorder hooks, a version gate with updates, auto-mode and headless profiles. Use when the user types /regency, asks 'call the team', 'run a pass', 'hand off', 'resume the project', or asks what regency can do."
 argument-hint: "[help | doctor | <subcommand> … | <unit>]"
 ---
 
