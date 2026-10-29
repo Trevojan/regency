@@ -95,6 +95,11 @@ from its brief; a UI rule changes there first, then in code.
   Regent's name and address are never borrowed: an agent's commit under them shows as *Unverified* on the
   host and hides whose work it is. A published commit with the wrong author stays as it is (no history
   rewrite); the next one is right.
+- **Merging: update, never retrocede** (the Regent, 2026-10-29). When two lines of work meet, the better
+  resource stays, whichever side it came from; newer by date is not better by itself. Keep what improves
+  performance, efficiency or a bottleneck; drop what is useless, already made by existing means, or
+  underused (§15.1). A branch whose content another already holds retires as a tag `archive/<branch>`.
+  Destructive steps are left to the hooks to judge (`scripts/hook-hazard.py`, §9 release words).
 - Stage only the files that belong to the work. Other uncommitted changes in the tree are the
   Regent's: leave them untouched and unstaged.
 - One step per commit, verification green at each step. Format-only differences (spaces,

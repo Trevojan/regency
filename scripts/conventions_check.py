@@ -16,6 +16,9 @@ Checks (library/conventions.md section 0, 11, 12, 13; library/ids.md)
   language  FAIL for Portuguese in the app's own sources (conventions §2): templates, playbooks, scripts and
             samples are English; an input is quoted in backticks or double quotes, and the Regent's verbs
             (conventions §9) are input
+  changelog FAIL when .changelog/ (the record a model with no context reads: README, HISTORY, CHECKPOINT)
+            does not name the version in force: a README row **a.b**, a HISTORY heading "## a.b", the
+            CHECKPOINT title (the Regent, 2026-10-29)
   subagent  each library/subagents/suba-*: SKILL.md present, name == folder, metadata.owner agrees with
             gov.py OWNER (FAIL); every spine link into references/ resolves (FAIL); a contract.json returns.py
             accepts and a generated return block in the spine (FAIL); the alignment stamp still matches the owner's role
@@ -177,6 +180,31 @@ class Checker:
         if not hits:
             self.rec("OK", "legacy", "no D1-D4 level names left")
 
+    def check_changelog(self):
+        reg_p = self.root / "library" / "registry.json"
+        if not reg_p.is_file():
+            return
+        v = str(json.loads(reg_p.read_text(encoding="utf-8-sig")).get("version", ""))
+        d = self.root / ".changelog"
+        if not d.is_dir():
+            return self.rec("FAIL", "changelog", ".changelog/ is missing: the history, roadmap and checkpoint a model"
+                                                 " with no context reads")
+        ver = re.escape(v)
+        wants = (("README.md", rf"^\|\s*\*\*{ver}\*\*\s*\|", f"a row **{v}**"),
+                 ("HISTORY.md", rf"^## {ver}\s*$", f"a heading '## {v}'"),
+                 ("CHECKPOINT.md", rf"\A# Checkpoint\b.*\b{ver}\b", f"its title naming {v}"))
+        misses = 0
+        for name, pattern, what in wants:
+            p = d / name
+            if not p.is_file():
+                misses += 1
+                self.rec("FAIL", "changelog", f".changelog/{name} is missing")
+            elif not re.search(pattern, p.read_text(encoding="utf-8-sig"), re.M):
+                misses += 1
+                self.rec("FAIL", "changelog", f".changelog/{name} lacks {what}: write the entry when the version moves")
+        if not misses:
+            self.rec("OK", "changelog", f".changelog names {v} in README, HISTORY and CHECKPOINT")
+
     def check_steps(self):
         hits = 0
         for p in self.walk():
@@ -327,8 +355,8 @@ class Checker:
             self.rec("OK", "subagent", f"{len(present)} subagent(s) aligned with their owners")
 
     def run(self):
-        for fn in (self.check_version, self.check_ids, self.check_legacy, self.check_steps, self.check_language,
-                   self.check_banned, self.check_canonical, self.check_suba, self.check_subagent):
+        for fn in (self.check_version, self.check_ids, self.check_legacy, self.check_steps, self.check_changelog,
+                   self.check_language, self.check_banned, self.check_canonical, self.check_suba, self.check_subagent):
             fn()
         return self.out
 
@@ -365,7 +393,8 @@ def selftest():
                 ("banned", "StringHelper"), ("banned", "parse_utils"), ("canonical", "readme.md"),
                 ("suba", "must start with suba-"), ("suba", "must end with -vendor"),
                 ("suba", "outside library/subagents"), ("language", "templates/README.md:3"),
-                ("language", "templates/README.md:4"), ("language", "conventions.md:3"), ("steps", "unit.md:2")]
+                ("language", "templates/README.md:4"), ("language", "conventions.md:3"), ("steps", "unit.md:2"),
+                ("changelog", ".changelog/ is missing")]
         for check, needle in want:
             hit = any(c == check and needle in m and lvl in ("FAIL", "WARN") for lvl, c, m in found)
             cases.append((hit, check, needle))
@@ -378,6 +407,26 @@ def selftest():
         cases.append((not any("templates/README.md:5" in m for m in lang), "language", "quoted input is not source"))
         cases.append((not any("conventions.md:7" in m for m in lang), "language", "the Regent's verbs (§9) are input"))
         cases.append((not any("conventions.md:11" in m or "plan.md" in m for m in lang), "language", "English raises nothing"))
+    with tempfile.TemporaryDirectory() as tmp:  # changelog: a record that names the version, then one behind it
+        root = Path(tmp)
+        (root / "library").mkdir()
+        (root / "library" / "registry.json").write_text('{"version": "2.13"}', encoding="utf-8")
+        log = root / ".changelog"
+        log.mkdir()
+        (log / "README.md").write_text("| version | decided |\n|---|---|\n| **2.13** | x |\n", encoding="utf-8")
+        (log / "HISTORY.md").write_text("# History\n\n## 2.13\n\nx\n", encoding="utf-8")
+        (log / "CHECKPOINT.md").write_text("# Checkpoint · regency 2.13 · 2026-10-29\n", encoding="utf-8")
+        ck = Checker(root)
+        ck.check_changelog()
+        cases.append((any(l == "OK" and c == "changelog" for l, c, _ in ck.out), "changelog", "a record naming 2.13 passes"))
+        (log / "HISTORY.md").write_text("# History\n\n## 2.12\n\nx, see 2.13 later\n", encoding="utf-8")
+        (log / "CHECKPOINT.md").write_text("# Checkpoint · regency 2.12\n\nnext: 2.13\n", encoding="utf-8")
+        ck = Checker(root)
+        ck.check_changelog()
+        cases.append((any(c == "changelog" and "HISTORY.md lacks" in m for _, c, m in ck.out), "changelog",
+                      "a history behind the version fails"))
+        cases.append((any(c == "changelog" and "CHECKPOINT.md lacks" in m for _, c, m in ck.out), "changelog",
+                      "a checkpoint that names the version only in its body fails"))
     with tempfile.TemporaryDirectory() as tmp:  # subagent: one clean suba and one planted defect per rule
         root = Path(tmp)
         team = root / "library" / "team"
