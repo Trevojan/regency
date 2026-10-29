@@ -79,9 +79,24 @@ claude plugin marketplace add ./regency
 claude plugin install regency@regency
 ```
 
+From GitHub, pinned to a release:
+
+```bash
+claude plugin marketplace add Trevojan/regency#v2.13
+claude plugin install regency@regency
+gh release verify v2.13        # the release is immutable and attested
+```
+
+> [!IMPORTANT]
+> Pin a release tag. A pinned install never moves with `main`. Auto-update stays off until you turn it on
+> (`/plugin` → Marketplaces), and an installed copy changes only when `.claude-plugin/plugin.json` changes
+> its `version`. The only official source is `Trevojan/regency`.
+
 > [!NOTE]
-> Cloud sessions do not load local plugins. Build the archive with `python scripts/package.py` and install
-> `dist/regency-<version>.plugin` on the Claude account.
+> Cloud sessions do not load local plugins. Download `regency-<version>.plugin` from
+> [Releases](https://github.com/Trevojan/regency/releases) and check it with
+> `gh release verify-asset v<version> regency-<version>.plugin`, or build it with `python scripts/package.py`.
+> Then install it on the Claude account.
 
 <details>
 <summary><b>All seven install paths</b></summary>
@@ -278,7 +293,15 @@ tables between `regency:` markers, the README blocks) are never edited by hand.
 ## Contributing
 
 Proposals carry evidence: a rule that failed on real work, a doubt that kept coming back, an instruction AA
-needed twice. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request.
+needed twice. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. Questions go to
+[Discussions](https://github.com/Trevojan/regency/discussions); [`SUPPORT.md`](.github/SUPPORT.md) says
+where everything else goes.
+
+## Security
+
+Hooks run on your machine, so a vulnerability is reported in private:
+[Report a vulnerability](https://github.com/Trevojan/regency/security/advisories/new). Scope and what to
+expect: [`SECURITY.md`](.github/SECURITY.md).
 
 ## License
 
