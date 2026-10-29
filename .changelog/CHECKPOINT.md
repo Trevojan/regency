@@ -8,7 +8,8 @@ Rewritten in place each time the version moves or the state below changes. The r
 | Where | Version | Note |
 |---|---|---|
 | `library/registry.json`, `.claude-plugin/plugin.json` | 2.13 | doctor fails when they differ |
-| GitHub `Trevojan/regency`, branches `plumbing`, `testing`, `main` | 2.13 | one line of history since 2.13 (the two old roots joined) |
+| GitHub `Trevojan/regency`, branches `plumbing`, `testing` | 2.13 | one line of history since 2.13 (the two old roots joined) |
+| GitHub `main` | 2.13 on the Regent's merge | `main` takes `testing` by the Regent's push or merge; `guard-push.py` keeps agents off it. When this was written it still held 2.3 |
 | a release tag | none yet | `v2.13` is the next act; the README's pinned install points at it |
 | the Claude account | last seen 2.12 | a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
 
@@ -18,13 +19,15 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 `testing` the last validated pass, `main` the docs and the reviewed merge. Agents push `plumbing` and
 `testing`; `scripts/guard-push.py` denies an agent's push to `main`.
 
-Retired as tags, every commit still reachable from `main`:
+Superseded, every commit already in `plumbing`'s history. Each retires as the tag `archive/<branch>` at its
+tip, then the branch goes (conventions §4). Both acts are the Regent's: a cloud session's network refuses tag
+pushes, and branch deletion needs the Regent's permission.
 
-| Tag | Was | Tip |
-|---|---|---|
-| `archive/regency-2.10` | 2.8 → 2.10 | `b739d36` |
-| `archive/plumbing-2.12` | 2.11 baseline → 2.12 | `2ef7667` |
-| `archive/plumbing-2.13` | 2.13 before the merge | `83b803f` |
+| Branch | Was | Tip | Retires as |
+|---|---|---|---|
+| `regency-2.10` | 2.8 → 2.10 | `b739d36` | `archive/regency-2.10` |
+| `plumbing-2.12` | 2.11 baseline → 2.12 | `2ef7667` | `archive/plumbing-2.12` |
+| `plumbing-2.13` | 2.13 before the merge | `83b803f` | `archive/plumbing-2.13` |
 
 ## Health
 
@@ -40,9 +43,11 @@ Retired as tags, every commit still reachable from `main`:
 
 ## Next, in order
 
-1. Tag `v2.13` on `main` and publish its release with `regency-2.13.plugin` attached (draft, attach, publish).
-2. Add `doctor` as a required status check on `main` once the workflow has run there.
-3. Pick the next version's scope from [`ROADMAP.md`](ROADMAP.md): the book's queue (C-07, C-09, C-10, C-12,
+1. The Regent brings `main` to `testing`, pushes the three `archive/` tags and deletes the three superseded
+   branches (the table above).
+2. Tag `v2.13` on `main` and publish its release with `regency-2.13.plugin` attached (draft, attach, publish).
+3. Add `doctor` as a required status check on `main` once the workflow has run there.
+4. Pick the next version's scope from [`ROADMAP.md`](ROADMAP.md): the book's queue (C-07, C-09, C-10, C-12,
    C-13 and the 2026-10-13 notes), the old level names, the open doubts N1–N14.
 
 ## How to resume here
