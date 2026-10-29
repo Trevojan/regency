@@ -28,8 +28,10 @@ The whole cycle the harness aims to run, step by step, each pausing where the Re
 | 11 | Run the whole chain end to end | `/regency:solution:end-to-end` | open |
 | 12 | Bind each mechanism to its chapter of the Manual | `/regency:manual` and a manual map in `library/`, neither created yet (R1.4) | open |
 | 13 | Specialise the harness for a domain: adopt any plugin or skill, per project | `/regency:pack`, `library/packs.md` (3.0) | built |
+| 14 | Standing permissions: where and how an act may run without asking, granted only by the Regent | `/regency:judge`, `library/judge.md` (4.0) | built |
+| 15 | The Judge leads a session for an autonomous developer (RGN-DV), inside a charter the Regent ratified | the RGN-DV charter | open |
 
-The MIN that runs today: steps 1–3, 6–9 and 13, plus the engines, roles, Orders, the Scribe, `ux-init`,
+The MIN that runs today: steps 1–3, 6–9, 13 and 14, plus the engines, roles, Orders, the Scribe, `ux-init`,
 `tailwind-audit` and `station`.
 
 ## Packs: the next limits to break
@@ -47,6 +49,16 @@ decision.
 | Packs not in health or the resume line | `packs.py check` only | `/regency:health` and the resume line report active, waiting and STALE packs |
 | Frontend still built in | `ux-init`, `tailwind-audit` | moved into `packs/frontend` as the first public pack |
 
+## The Judge: the next limits
+
+| Limit | Today | Way past it |
+|---|---|---|
+| The pop-up's answers at `PostToolUse` | read from three shapes, not yet seen live | confirm on the first live grant; drop the shapes no surface uses |
+| A grant on cloud | the repository's `JD.md`, ratified once per fresh machine; `REGENCY_JD` | a private grant file packed into the account's build of the plugin |
+| `edit` and `move` | not kinds: regency asks before neither | the Judge writes Claude Code permission rules (`Edit(path)`) on the Regent's answer, so Claude Code stops asking too |
+| A machine grant for every repository | `*` in the `repo` column, by a ratified hand edit | a `for machine *` scope word |
+| The Judge as a session's lead | grants only | the RGN-DV charter: projects, units, fuel; the Judge may deny or stop, never approve its own way past a grant; the work ends at the review packet |
+
 ## Milestones walked
 
 | Version | Capability gained |
@@ -63,6 +75,7 @@ decision.
 | 2.12 | one line of work, one store |
 | 2.13 | the public repository: homepage, community, CI, this changelog |
 | 3.0 | domain packs: any plugin adopted as it is, per project, hooks on the Regent's consent |
+| 4.0 | the Judge: the Regent's grants replace the hazard watch |
 
 ## Queued from the book
 
@@ -94,12 +107,12 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
 | N11 | a second account install (`regency~g2`, 2.10) | remove it, or keep it on purpose |
-| N13 | the Regent's local folder still holds work on 2.4 | switch it to `plumbing` after discarding, or keep until accepted |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
-Closed with 2.13: N12 (the old branches merged into one line; their retirement is the Regent's act,
+Closed with 4.0: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, kept in a stash) and
+N16 (`main` took `testing`). Closed with 2.13: N12 (the old branches merged into one line; their retirement is the Regent's act,
 `CHECKPOINT.md`), N15 (where 2.13 landed), N17 (community files). N16 (`main` shows the homepage) closes with
-the Regent's merge of `testing` into `main`.
+the Regent's merge of `testing` into `main` (done 2026-10-29).
 
 ## Candidates seen while building
 
@@ -107,4 +120,5 @@ the Regent's merge of `testing` into `main`.
   the original build plan renames them; doctor warns on each.
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
 - The required status check `doctor` on `main`, once the workflow has run there.
-- A release `v3.0` with the `.plugin` attached; the README's pinned install points at it.
+- A release for the version `main` holds, with the `.plugin` attached: `v3.0` now, `v4.0` once `main` takes it;
+  the README's pinned install points at `v4.0` on `plumbing`.

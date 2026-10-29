@@ -1,6 +1,6 @@
 {
   "plugin": "regency",
-  "version": "3.0",
+  "version": "4.0",
   "_about": "Single source of truth for every /regency command. Edit here, then run: python scripts/build.py. Never edit commands/ or the generated dispatch tables by hand. Version is a.b (library/conventions.md section 13).",
   "commands": [
     {

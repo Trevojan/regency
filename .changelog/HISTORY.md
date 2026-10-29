@@ -6,6 +6,52 @@ one, the section says which.
 
 ---
 
+## 4.0
+
+2026-10-29 · branch `plumbing` · record R15 · `+a`: a major rule reinterpreted (R5.2's hazard watch)
+
+The Regent: "we need to get rid of the hazard watch. it is actually weighting as a headache"; "management of
+connectors and permissions became also part of Regent's work. what if automatizing it too?"; a Judge, "JD.md",
+that "would check the designed 'wheres' and 'hows' and affirm the session may do it or not". Answers (pop-up): grant
+checks replace the watch; an act outside every grant asks the Regent; permanent grants go "where the Regent says"
+(`~/.claude`, and on cloud if possible); grants first, the RGN-DV charter next.
+
+**Added**
+
+- **Grants** (`library/judge.md`, `scripts/judge.py`): how (`delete`, `discard`, `history`, `layout`), where
+  (globs, `X/**` covering `X` itself, `**` the whole repository), scope (`session`, `repo` in `<guidelines>/JD.md`,
+  `machine` in `~/.claude/regency/JD.md`, a `.md` path the Regent names) and why. Ids `JD-S##`, `JD-R##`, `JD-M##`,
+  `JD-P##` (`library/ids.md`).
+- **`hook-hazard.py`** judges each act when it happens: covered by one grant for every path it names, it runs
+  without regency's ask; otherwise the ask carries the Judge's proposed `grant:` line. A `cd` earlier in the chain
+  now moves where paths resolve, which ends the false alarm of 2026-10-29 (`cd /tmp && rm -rf rg` read as inside
+  the project). Installs, destructive SQL, docker prunes, disk tools, cloud writes and consent are never granted. A
+  shell write to a grant store is denied; `judge.py ratify --yes` is consent.
+- **Only the Regent grants**: a `grant:` line in a message (`hook-verbs.py`), or an answer to the Judge's pop-up
+  (`hook-judge.py`, which also denies a Judge question that arrives with its answers filled in).
+- **STALE and ratification**: every file store's table is fingerprinted in `~/.claude/regency/judge.json` when a
+  hook writes into it; changed any other way, it grants nothing until the Regent says `ratify grants`
+  (conventions §9) or approves `judge.py ratify --yes`.
+- **`hook-acts-guard.py`** denies a tool write to any `JD.md`, `judge.json` or named grant file.
+- **`/regency:judge`**: lists grants, maps a place the Regent names, puts the narrowest grants to the Regent in one
+  pop-up, revokes, reviews STALE stores.
+
+**Retired**: the hazard watch (R5.2) and its release verbs (`libere`, `release`), `hook-hazard.py --clear`, its
+`PostToolUse` handlers on `Bash|PowerShell` and `Agent|Task`, and the PO/QA write permits (2.3). The `po` and `qa`
+contracts lose their permit lines; seven suba spines re-stamped against them (no suba relied on permits).
+
+**Limits met.** The hooks reference does not say where a surface puts `AskUserQuestion` answers at `PostToolUse`;
+`hook-judge.py` reads three shapes and names the typed line when none arrives (not yet seen live). A cloud session's
+`~/.claude` ends with it, so a repository's `JD.md` reads STALE on each fresh machine until the Regent ratifies it
+once. A grant removes regency's ask only: Claude Code's permission rules and the auto-mode classifier still decide.
+
+**Proof.** judge 38/38, hook-hazard 97/97, hook-verbs 23/23, hook-acts-guard 27/27, hook-judge 10/10; 15 of 15
+planted mutants caught (three survived a first round: one weak test strengthened, two dead lines removed);
+conventions green but for the two proposal subas; built and tested on the Regent's machine through the device
+bridge, where `claude plugin validate` cannot run (its binary there accepts only `-p`).
+
+---
+
 ## 3.0
 
 2026-10-29 · branch `plumbing` · record R14 · `+a`: a major rule invented
