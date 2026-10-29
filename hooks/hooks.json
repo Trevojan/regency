@@ -1,5 +1,5 @@
 {
-  "description": "regency hooks: triggers only, every one runs a stdlib script in scripts/ (library/hooks.md). Guards: push to main, hazardous shell, acts/.scope/lock/banned names. Recorders: lineage (fingerprint + STALE), checkpoint journal, resume slice, Regent verbs, governance routing (gov.py), shortcuts state block (shortcuts.py), pack dispatcher (the hooks of the packs active in a project, once the Regent ratified them: packs.py).",
+  "description": "regency hooks: triggers only, every one runs a stdlib script in scripts/ (library/hooks.md). Guards: push to main, hazardous shell (asks unless a grant of the Regent's covers it: judge.py), acts/.scope/lock/banned names/grant stores, the Judge's pop-up. Recorders: lineage (fingerprint + STALE), checkpoint journal, resume slice, Regent verbs, governance routing (gov.py), shortcuts state block (shortcuts.py), pack dispatcher (the hooks of the packs active in a project, once the Regent ratified them: packs.py).",
   "hooks": {
     "SessionStart": [
       {
@@ -40,6 +40,12 @@
         ]
       },
       {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-judge.py\"", "timeout": 10, "onFailure": "block"}
+        ]
+      },
+      {
         "matcher": "*",
         "hooks": [
           {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-packs.py\"", "timeout": 120}
@@ -57,15 +63,19 @@
       {
         "matcher": "Agent|Task",
         "hooks": [
-          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-gov.py\"", "timeout": 10},
-          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-hazard.py\"", "timeout": 10}
+          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-gov.py\"", "timeout": 10}
         ]
       },
       {
         "matcher": "Bash|PowerShell",
         "hooks": [
-          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-hazard.py\"", "timeout": 10},
           {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-journal.py\"", "async": true}
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {"type": "command", "command": "python \"${CLAUDE_PLUGIN_ROOT}/scripts/hook-judge.py\"", "timeout": 10}
         ]
       },
       {

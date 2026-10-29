@@ -62,7 +62,8 @@ packets queue up for the Regent's one review at the end. A packet older than the
 - **The ledger stays true** (`library/virtualpath.md` §3): the run writes itself as evidence
   (`pass:<run>`) on each unit it touches; `extreme-go-horse` ends a reviewed unit at `review`;
   `just-in-time` ends a drafted unit at `draft`.
-- **Hooks still bind**: the push guard, the hazard watch, the acts guard, the governance boundary.
+- **Hooks still bind**: the push guard, the hazard hook and the Regent's grants (`library/judge.md`), the acts guard,
+  the governance boundary.
 - **Fuel, waves and packets are computed, not inferred**: `python scripts/speed.py fuel|range|waves|packet`
   (§7). A playbook step that `speed.py` refuses does not run.
 

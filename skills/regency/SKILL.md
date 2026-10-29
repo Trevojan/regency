@@ -115,6 +115,7 @@ with a first argument (`/regency:engine critical`); both forms are equivalent.
 | `/regency:health:context` | The harness's always-on token cost (skill and command descriptions, the conventions import, the resume line) against a budget. | `[--budget N]` | same playbook, subcommand `context` |
 | `/regency:health:pipeline` | Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code. | `[--cases FILE] [--scan PATH ...]` | same playbook, subcommand `pipeline` |
 | `/regency:serious-doctor-appointment` | Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor. | `[guidelines root]` | `skills/serious-doctor-appointment/SKILL.md` |
+| `/regency:judge` | The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line. | `[list \| <folders or task> \| revoke <id> \| ratify]` | `skills/judge/SKILL.md` |
 <!-- regency:dispatch:end -->
 
 ## Maintaining regency itself

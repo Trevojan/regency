@@ -26,6 +26,7 @@ never typed: `M03.S02.T04 [F1–F3]`.
 | `ORD-####` | an Order (immutable once closed) | `ORD-0012` |
 | `EMS-###` | an Emission: the Orders that name it in their `position` slot, run in number order by `/regency:order:lazy`; read, never written | `EMS-011` |
 | `FX-<wave>-<n>` | a fix note a `just-in-time` gate writes for the next wave (`library/team/SPEED_MODES.md` §5) | `FX-4-2` |
+| `JD-<scope><nn>` | a grant of the Regent's; scope letter `S` session, `R` repo, `M` machine, `P` a named file; numbered per store (`library/judge.md` §2) | `JD-R01` |
 | `C-##` | a conflict between norms, open until resolved | `C-01` |
 | `a.b` | regency's own version: `+b` content change, `+a` major rule finished, reinterpreted or invented; no caps | `2.0`, `99.999` |
 
@@ -55,6 +56,7 @@ never typed: `M03.S02.T04 [F1–F3]`.
   "order":   {"pattern": "^ORD-\\d{4,}$",     "example": "ORD-0012"},
   "emission":{"pattern": "^EMS-\\d{3,}$",     "example": "EMS-011"},
   "fix-note":{"pattern": "^FX-\\d+-\\d+$",    "example": "FX-4-2"},
+  "grant":   {"pattern": "^JD-[SRMP]\\d{2,}$",  "example": "JD-R01"},
   "conflict":{"pattern": "^C-\\d{2,}$",       "example": "C-01"},
   "version": {"pattern": "^\\d+\\.\\d+$",     "example": "2.0"},
   "person":  {"pattern": "^RGN(-(PO|Client|DA|DV-\\d+))?$", "example": "RGN-DV-2"}

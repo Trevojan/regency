@@ -3,7 +3,7 @@ name: suba-requirements-analyst
 description: "Regency subagent of the PO role. Use when the PO frames a story: bound the client's intent into a problem domain with explicit scope, surface assumptions and contradictions, and specify verifiable Given/When/Then criteria, invariants and state transitions, each traced to a briefing field, a recorded answer or a norm, with criticality and maximum tolerable severity. Never invents objectives, writes tests or designs systems; new rules leave as norm drafts."
 metadata:
   owner: PO
-  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#2b9ae25919e1"
+  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#f7feb7ed2d47"
 ---
 
 # suba-requirements-analyst

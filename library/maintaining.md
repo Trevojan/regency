@@ -51,8 +51,10 @@ the self-tests. The consequences are in `library/hooks.md` §6.
 | `onFailure: "block"` exists from 2.1.295; older versions ignore the key | guards carry it; on 2.1.201 they still fail open, so doctor stays the safety net |
 | `async: true` hooks run in the background, unbounded, and cannot block | the journal is async except on `PreCompact` and `SessionEnd` |
 | `SessionEnd` hooks share a 1.5 s budget | the journal's `SessionEnd` entry has a 2 s timeout |
-| `CLAUDE_PLUGIN_DATA` is the plugin's persistent data folder | session state (the hazard watch) lives there, never in a repository |
-| `PostToolUse` on `Agent`/`Task` carries `tool_input.subagent_type` and the subagent's returned text in `tool_response` | `hook-gov.py` routes packets and `hook-hazard.py` records PO/QA permits from it; confirm on the first live permit |
+| `CLAUDE_PLUGIN_DATA` is the plugin's persistent data folder | session state (cloud confirmations, session grants) lives there, never in a repository |
+| `PostToolUse` on `Agent`/`Task` carries `tool_input.subagent_type` and the subagent's returned text in `tool_response` | `hook-gov.py` routes packets from it |
+| `AskUserQuestion` answers at `PostToolUse` — where a surface puts them is not documented | **not yet seen live**: `hook-judge.py` reads `tool_input.answers`, then `tool_response.answers`, then a `"question"="answer"` text, and names the typed `grant:` line when none arrives; confirm on the first live pop-up (`library/judge.md` §7) |
+| Hook types beyond `command` exist (`http`, `mcp_tool`, `prompt`, `agent` — the last experimental; docs read 2026-10-29) | regency's hooks stay `command` scripts (R4.1); a model-judged hook is a candidate for the RGN-DV charter, never for the grant check, which is a lookup |
 
 ## Traps met while testing
 
@@ -60,9 +62,8 @@ the self-tests. The consequences are in `library/hooks.md` §6.
   `git -C remote.git fetch ../work main:seed` instead of pushing.
 - Testing a plugin hook while the same guard is installed at user level: both deny, so the user-level one
   hides the result. Load a copy with a renamed plugin and a tagged deny reason, then look for the tag.
-- The hazard hook asks before `rm`. A live test that cleans up inside the project then sees every write
-  refused until a PO/QA permit or the Regent's `libere`; clean up in a temp folder instead, which starts
-  no watch. Release with `python scripts/hook-hazard.py --clear`.
+- The hazard hook asks before `rm`. A live test that cleans up its own scratch folder runs without asking
+  once the Regent granted it: `grant: delete <absolute scratch path>/** -- test clean-up` (`library/judge.md`).
 - Run `doctor.py` with `PYTHONUTF8=1` on Windows: under the cp1252 console the hook wire check and the
   `ux brief` check crash on `§` and `⟨` before they test anything.
 - Hook self-tests build their project with `hook_wire.build_fixture` in a temp folder and point session
@@ -77,9 +78,10 @@ the self-tests. The consequences are in `library/hooks.md` §6.
 | 2026-10-06 | the UI-text rule also loads for `.jsx`, `.tsx`, `.vue`, `.svelte` | yes |
 | 2026-10-06 | the push guard ships with the plugin (`hooks/hooks.json`); the user-level hook stays as a second guard until the plugin hook is confirmed live | yes |
 | 2026-10-06 | Glyph is outside regency's scope for now: the Order templates are read from `library/orders/README.md` alone; revisit when Glyph joins | yes |
-| 2026-10-09 | R5: cloud reads run, a cloud write needs the exact command quoted by the Regent in the pass; the hazard watch ends only on a release verb; checkpoint journal and fingerprints are tracked in git; guards fail closed | yes |
-| 2026-10-17 | the hazard watch interrupts nobody: it starts only when a destructive command reached the project, refuses the writes no permit covers, and a `po` or `qa` role agent grants the permits — a session list, when needed; the release verb still ends it | yes |
+| 2026-10-09 | R5: cloud reads run, a cloud write needs the exact command quoted by the Regent in the pass; the hazard watch ends only on a release verb; checkpoint journal and fingerprints are tracked in git; guards fail closed | cloud and guards yes; the watch: R15 |
+| 2026-10-17 | the hazard watch interrupts nobody: it starts only when a destructive command reached the project, refuses the writes no permit covers, and a `po` or `qa` role agent grants the permits — a session list, when needed; the release verb still ends it | no: R15 |
 | 2026-10-08 | R4: hooks are triggers, scripts are engines; SessionStart resume slice; PostToolUse fingerprint + STALE; PreToolUse acts and naming guard with the hazard watch; no Stop hook (`library/hooks.md`) | yes |
+| 2026-10-29 | R15: the Judge's grants replace the hazard watch — each hazardous act is judged when it happens against the Regent's grants (where, how, session / repo / machine / a named file); only the Regent grants, by a `grant:` line or the Judge's pop-up; a store changed outside the hooks is STALE until ratified; PO/QA permits and the release verbs retire (`library/judge.md`) | yes |
 | 2026-10-28 | R10: `/regency:update` fits a project to the installed regency on one yes, touching only what regency owns; every writing command runs the version gate first; migrations ship inside the plugin, and a project newer than the plugin means the plugin must be updated (`library/migrations/README.md`) | yes |
 | 2026-10-28 | R9: the app's own sources are English — templates, moulds, commands, playbooks, scripts, samples; only inputs vary, quoted as they are; `scripts/conventions_check.py` fails on Portuguese elsewhere | yes |
 | 2026-10-23 | speed modes `order:lazy`, `team:extreme-go-horse`, `team:just-in-time` (`library/team/SPEED_MODES.md` §9): speed trades verification depth, never T4, T5, infrastructure or a destructive-class action; drafts stay DRAFT/UNVERIFIED on plumbing until a team pass verifies them; models set at spawn, never in `library/agents/` | yes |
@@ -97,4 +99,5 @@ did not create (`--check`, `--uninstall`, `--force` keeps a `.bak`).
 | `autoMode` entries opening with `Regency ` in `~/.claude/settings.json` | `library/automode.json` | `scripts/install-automode.py` |
 | `~/.claude/CLAUDE.md` (one import) | `library/templates/user-CLAUDE.md` | by hand: copy it, replace `{{REGENCY_ROOT}}` with this folder's path |
 | push guard without the plugin | `scripts/guard-push.py --snippet` | by hand, into `~/.claude/settings.json` |
-| hazard watch state | written by `scripts/hook-hazard.py` | none: `$CLAUDE_PLUGIN_DATA/sessions/`, or the system temp folder |
+| session grants | written by `scripts/hook-verbs.py`, `scripts/hook-judge.py` | none: `$CLAUDE_PLUGIN_DATA/sessions/`, or the system temp folder |
+| `~/.claude/regency/JD.md`, `judge.json` | machine grants and every store's fingerprint (`library/judge.md` §3) | none: written by the hooks from the Regent's words; `judge.py ratify --yes` after a hand edit |

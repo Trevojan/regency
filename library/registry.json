@@ -354,6 +354,12 @@
       "skill": "serious-doctor-appointment",
       "summary": "Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor.",
       "args": "[guidelines root]"
+    },
+    {
+      "id": "judge",
+      "skill": "judge",
+      "summary": "The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line.",
+      "args": "[list | <folders or task> | revoke <id> | ratify]"
     }
   ]
 }

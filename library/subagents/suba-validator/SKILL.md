@@ -3,7 +3,7 @@ name: suba-validator
 description: "Regency subagent of the QA role. Use when evidence exists and needs meaning: judge it against each stated criterion (met, not met, partially met, not verifiable), measure risk when it is not yet known, and classify verified failures against the coherence matrix - regression or new, type, severity input, priority - each keyed by its class. Does not gather evidence, rewrite criteria, write the correction brief or issue the version verdict."
 metadata:
   owner: QA
-  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#226567051d2f"
+  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#d94b930acd92"
 ---
 
 # suba-validator
