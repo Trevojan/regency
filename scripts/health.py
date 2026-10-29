@@ -590,9 +590,10 @@ def wiring(plugin_root=ROOT):
     return sorted(pairs)
 
 
-def hooks(rep, repo, plugin_root=ROOT):
+def hooks(rep, repo, plugin_root=ROOT, bases=None):
+    """bases: where heartbeats live; the selftest passes its own, so the machine's real beats never leak in."""
     beats = {}
-    for base in state_bases():
+    for base in (state_bases() if bases is None else bases):
         d = base / "heartbeats"
         if d.is_dir():
             for f in d.iterdir():
@@ -1197,7 +1198,7 @@ def selftest():
             if beat.is_file():
                 beat.rename(tmp / "moved-beat")
             rep = Report()
-            hooks(rep, repo, plug)
+            hooks(rep, repo, plug, bases=[tmp / "state"])
             case(has(rep, "OK", "hook-verbs.py on UserPromptSubmit: last fired"), "hooks: a hook that fired has a heartbeat")
             case(has(rep, "WARN", "hook-resume.py on SessionStart: no heartbeat"), "hooks: a wired hook that never fired is a finding")
 
