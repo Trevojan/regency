@@ -89,6 +89,12 @@ from its brief; a UI rule changes there first, then in code.
   may push the *other* branches it touched (plain `git push -u origin <branch>`, no tags, no `--all`), and
   asks first when the project says pushing that branch triggers a pipeline or deploy. When `main` is ready,
   say so.
+- **Agents commit as Claude.** A commit an agent makes is authored `Claude <noreply@anthropic.com>`
+  (set for the repository only: `git config user.name Claude`, `git config user.email
+  noreply@anthropic.com`; never `--global`) and ends with the session's `Co-Authored-By:` trailer. The
+  Regent's name and address are never borrowed: an agent's commit under them shows as *Unverified* on the
+  host and hides whose work it is. A published commit with the wrong author stays as it is (no history
+  rewrite); the next one is right.
 - Stage only the files that belong to the work. Other uncommitted changes in the tree are the
   Regent's: leave them untouched and unstaged.
 - One step per commit, verification green at each step. Format-only differences (spaces,
