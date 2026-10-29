@@ -40,6 +40,7 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
 | `SessionEnd` | — | `hook-shortcuts.py` | recorder | none: rewrites the generated state block of `.shortcuts/README.md` when the state moved (R7.3) |
+| `SessionStart`, `UserPromptSubmit`, `PreToolUse` (`*`), `PostToolUse` (`*`), `PreCompact`, `SessionEnd` | as wired | `hook-packs.py` | dispatcher | the merged answer of the hooks of the packs active in this project and ratified by the Regent; none when no pack is active (`library/packs.md` §6) |
 
 ## 2. Guards
 
@@ -118,6 +119,20 @@ The release verbs are the rows of conventions §9 whose command is `hook-hazard.
 (`libere`, `release`); the ask shown on every write names them. Session-scoped, stored outside the
 repository (`$CLAUDE_PLUGIN_DATA`, else the system temp folder). Manual release:
 `python scripts/hook-hazard.py --clear`.
+
+**Consent** (3.0). `python scripts/packs.py ratify ... --yes` lets a pack's hooks run code on the machine in one
+project. `hook-hazard.py` classifies it as `consent` and asks: only the Regent approves it, after reading the review
+that the same command prints without `--yes` (T5; `library/packs.md` §5).
+
+### Pack dispatcher — `hook-packs.py`
+
+Runs the hooks of the packs active in the project (`<guidelines>/.packs/active.json`), each only when the Regent
+ratified it at the pack's current tree fingerprint, and merges their answers: deny beats ask; allow and a rewritten
+tool input are dropped, so a pack adds guards and never removes one; exit 2 blocks as Claude Code reads it; a crash or
+a timeout is one `systemMessage` line. No `onFailure: block`: a broken pack is reported, never a stop. Its fast path
+stats `active.json` and exits when no pack is active (+7.8 ms over a bare Python start, measured on Linux). Writes
+nothing in the repository; its fingerprint cache and each pack's data folder live in the plugin's state folder.
+Doctrine: `library/packs.md` §6.
 
 ## 3. Recorders
 
@@ -256,6 +271,9 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
 | `<state>/heartbeats/<script>.<event>` | every hook (`hook_wire.serve`) | `health.py hooks` | machine, outside any repository |
+| `<guidelines>/.packs/active.json` | `packs.py` (activate, ratify) — never a hook | `hook-packs.py`, `packs.py` | project |
+| `<state>/packs/tree-<key>.json` | `hook-packs.py` (fingerprint cache) | `hook-packs.py` | machine, outside any repository |
+| `<state>/packs/data/<pack>/` | a pack's own hooks (`${CLAUDE_PLUGIN_DATA}`) | the same pack | machine, outside any repository |
 
 `<virtual>` is `<guidelines>/.shortcuts/.virtual/`. `checkpoints.jsonl` and the governance files are tracked
 in git with the ledger (R5.3); `index.sqlite` is a gitignored cache any clone rebuilds with

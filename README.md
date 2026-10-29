@@ -10,8 +10,8 @@
 <p align="center">
 <!-- regency:badges:begin -->
   <a href="#versioning"><img alt="version: 2.13" src="https://img.shields.io/badge/regency-2.13-00D7FF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="commands: 60" src="https://img.shields.io/badge/commands-60-A66CFF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="skills: 17" src="https://img.shields.io/badge/skills-17-8FD3FF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="commands: 63" src="https://img.shields.io/badge/commands-63-A66CFF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="skills: 18" src="https://img.shields.io/badge/skills-18-8FD3FF?style=flat-square&labelColor=000000"></a>
 <!-- regency:badges:end -->
   <a href="#requirements"><img alt="Claude Code 2.1.201 or later" src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.201-00D7FF?style=flat-square&labelColor=000000&logo=claude&logoColor=00D7FF"></a>
   <a href="#requirements"><img alt="Python 3.8 or later, standard library only" src="https://img.shields.io/badge/python-3.8%2B%20%C2%B7%20stdlib-0B7A3E?style=flat-square&labelColor=000000&logo=python&logoColor=8FD3FF"></a>
@@ -64,6 +64,10 @@ reads it instead of inferring it.
   `UNCHECKED` and `AOK`, plus per-project check sets the Regent ratifies.
 - **Speed modes and automation.** Fuel-bounded team chains, `DRAFT/UNVERIFIED` drafts confined to
   `plumbing`, an auto-mode permission profile and headless routes.
+- **Domain packs.** `/regency:pack adopt` takes any Claude Code plugin or skill as it is (skills, commands,
+  agents, hooks, MCP servers) into regency's public `packs/` or a project's `.packs/`, switched on per
+  project. A pack's hooks run through one dispatcher, only after the Regent ratifies them at the pack's
+  fingerprint; a pack can add a guard, never remove one (`library/packs.md`).
 - **Zero dependencies.** Python 3.8+ standard library, relative paths only, a relocatable folder.
 
 ## Installation
@@ -203,6 +207,7 @@ Every command, generated from `library/registry.json`; each name links to its pl
 | [`/regency:init`](skills/init/SKILL.md) | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. | — |
 | [`/regency:ux-init`](skills/ux-init/SKILL.md) | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root. | — |
 | [`/regency:update`](skills/update/SKILL.md) | Bring a project to the installed regency. | `plan` `check` |
+| [`/regency:pack`](skills/pack/SKILL.md) | Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks. | `adopt` `run` |
 | [`/regency:virtualpath`](skills/virtualpath/SKILL.md) | Query the code-to-norm lineage registry and the work ledger. | `code` `slice` `stale` `ongoing` `trace` `drafts` |
 | [`/regency:tailwind-audit`](skills/tailwind-audit/SKILL.md) | Audit, fix or build a Tailwind frontend against a design-system norm. | — |
 | [`/regency:station`](skills/station/SKILL.md) | Mise-en-place before a pass. | `check` `gate` `scaffold` `line` |

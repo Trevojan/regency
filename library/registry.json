@@ -192,6 +192,24 @@
       ]
     },
     {
+      "id": "pack",
+      "skill": "pack",
+      "summary": "Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks.",
+      "args": "<adopt | run | list | check | activate | ratify | show | suggest | deactivate | mcp> ...",
+      "subs": [
+        {
+          "id": "adopt",
+          "summary": "Take a Claude Code plugin or skill as it is: copied verbatim, every part mapped or listed with its reason, nothing running until ratified.",
+          "args": "<folder | git url> --id <id> --layer public|project"
+        },
+        {
+          "id": "run",
+          "summary": "Run an active pack's playbook, command or agent: the file read as it is, its paths resolved to the pack.",
+          "args": "<id> <item> [arguments]"
+        }
+      ]
+    },
+    {
       "id": "virtualpath",
       "skill": "virtualpath",
       "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",

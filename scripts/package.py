@@ -28,8 +28,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / ".claude-plugin" / "plugin.json"
-SHIPPED = [".changelog", ".claude-plugin", "CLAUDE.md", "README.md", "LICENSE", "commands", "hooks", "library", "scripts",
-           "skills"]
+SHIPPED = [".changelog", ".claude-plugin", "CLAUDE.md", "README.md", "LICENSE", "commands", "hooks", "library", "packs",
+           "scripts", "skills"]
 REPO_ONLY = {"CONTRIBUTING.md"}  # the repository's own pages; a .plugin does not need them
 SKIP_DIRS = {"__pycache__", ".git", "node_modules"}
 SKIP_FILES = {".DS_Store", "Thumbs.db"}
