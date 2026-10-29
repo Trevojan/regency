@@ -27,9 +27,25 @@ The whole cycle the harness aims to run, step by step, each pausing where the Re
 | 10 | Adopt misplaced files into the layout | `/regency:normalise` (R5 · 2026-10-21, on the update engine, R10.2) | open |
 | 11 | Run the whole chain end to end | `/regency:solution:end-to-end` | open |
 | 12 | Bind each mechanism to its chapter of the Manual | `/regency:manual` and a manual map in `library/`, neither created yet (R1.4) | open |
+| 13 | Specialise the harness for a domain: adopt any plugin or skill, per project | `/regency:pack`, `library/packs.md` (3.0) | built |
 
-The MIN that runs today: steps 1–3 and 6–9, plus the engines, roles, Orders, the Scribe, `ux-init`,
+The MIN that runs today: steps 1–3, 6–9 and 13, plus the engines, roles, Orders, the Scribe, `ux-init`,
 `tailwind-audit` and `station`.
+
+## Packs: the next limits to break
+
+Studied with the Regent ("if there is a limit, we may study together to break it"). Each is a candidate, not a
+decision.
+
+| Limit | Today | Way past it |
+|---|---|---|
+| A pack is adopted once | `adopt` refuses an existing pack | re-adopt beside it with a diff; the better side stays (conventions §4) |
+| Six events dispatched | SubagentStart, Notification, TaskCreated and TaskCompleted hooks are listed, not run | wire the dispatcher on them; Stop and SubagentStop stay refused (R4.5) |
+| Native sockets | a pack brings playbooks, commands, agents, hooks and MCP servers | items for regency's own parts: health check sets, station gate tasks, suba lenses, phase checklists, vocabulary, id grammars, scaffolds |
+| LSP, output styles, monitors, themes, `bin/` on PATH | listed under `unsupported` | a per-project plugin generated from the active packs, installed with `--plugin-dir`; or left out |
+| Private packs for every project on one machine | not a chosen layer | a machine layer (`~/.claude/regency/packs/`), one more entry in `layer_dirs` |
+| Packs not in health or the resume line | `packs.py check` only | `/regency:health` and the resume line report active, waiting and STALE packs |
+| Frontend still built in | `ux-init`, `tailwind-audit` | moved into `packs/frontend` as the first public pack |
 
 ## Milestones walked
 
@@ -46,6 +62,7 @@ The MIN that runs today: steps 1–3 and 6–9, plus the engines, roles, Orders,
 | 2.11 | the checkup |
 | 2.12 | one line of work, one store |
 | 2.13 | the public repository: homepage, community, CI, this changelog |
+| 3.0 | domain packs: any plugin adopted as it is, per project, hooks on the Regent's consent |
 
 ## Queued from the book
 
@@ -90,4 +107,4 @@ the Regent's merge of `testing` into `main`.
   the original build plan renames them; doctor warns on each.
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
 - The required status check `doctor` on `main`, once the workflow has run there.
-- A release `v2.13` with the `.plugin` attached; the README's pinned install points at it.
+- A release `v3.0` with the `.plugin` attached; the README's pinned install points at it.

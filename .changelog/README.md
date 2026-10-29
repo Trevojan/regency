@@ -38,6 +38,7 @@ One line per version: the decision, not the file list. Detail in [`HISTORY.md`](
 
 | version | what it decided |
 |---|---|
+| **3.0** | domain packs: any Claude Code plugin or skill adopted as it is, switched on per project, its hooks run only once the Regent ratifies them; a pack adds guards, never removes one |
 | **2.13** | the public face: purpose description, the `S##` step, an SDK-style homepage, MIT, community files and CI, this folder; one line of history, old branches archived |
 | **2.12** | one line of work: four split copies consolidated; R7's shortcuts on idx's one store; health checks version and copies |
 | **2.11** | `/regency:health`: the Regent's checkup, a check per part, engines ratified or restored, heartbeats |

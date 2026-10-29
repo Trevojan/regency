@@ -1,4 +1,4 @@
-# Checkpoint · regency 2.13 · 2026-10-29
+# Checkpoint · regency 3.0 · 2026-10-29
 
 Rewritten in place each time the version moves or the state below changes. The road to here is in
 [`HISTORY.md`](HISTORY.md); the road ahead in [`ROADMAP.md`](ROADMAP.md).
@@ -7,11 +7,19 @@ Rewritten in place each time the version moves or the state below changes. The r
 
 | Where | Version | Note |
 |---|---|---|
-| `library/registry.json`, `.claude-plugin/plugin.json` | 2.13 | doctor fails when they differ |
-| GitHub `Trevojan/regency`, branches `plumbing`, `testing` | 2.13 | one line of history since 2.13 (the two old roots joined) |
-| GitHub `main` | 2.13 on the Regent's merge | `main` takes `testing` by the Regent's push or merge; `guard-push.py` keeps agents off it. When this was written it still held 2.3 |
-| a release tag | none yet | `v2.13` is the next act; the README's pinned install points at it |
+| `library/registry.json`, `.claude-plugin/plugin.json` | 3.0 | doctor fails when they differ |
+| GitHub `Trevojan/regency`, branches `plumbing`, `testing` | 3.0 | one line of history since 2.13 (the two old roots joined) |
+| GitHub `main` | 3.0 on the Regent's merge | `main` takes `testing` by the Regent's push or merge; `guard-push.py` keeps agents off it. When this was written it still held 2.3 |
+| a release tag | none yet | `v3.0` is the first release; the README's pinned install points at it |
 | the Claude account | last seen 2.12 | a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
+
+## What 3.0 added
+
+Domain packs (`library/packs.md`): any Claude Code plugin or skill adopted as it is into regency's public `packs/`
+(none shipped yet) or a project's `<guidelines>/.packs/`, switched on per project, its hooks run by
+`scripts/hook-packs.py` only once the Regent ratifies them at the pack's fingerprint. The first pack, `glyph`
+(the Regent's `glyph-markup` skill), belongs in Glyph Explorer's repository; it was built and proved on a stand-in
+and handed to the Regent as a folder.
 
 ## Branches
 
@@ -39,21 +47,23 @@ pushes, and branch deletion needs the Regent's permission.
 - The repository is public. Its hardening is the Regent's to apply in GitHub's settings: rulesets on `main`
   and the release tags, Actions approval for outside contributors and a read-only token, private
   vulnerability reporting, secret scanning, Discussions. The files that belong in the repository are in
-  `.github/`.
+  `.github/`. When this was written none of the settings was on yet.
 
 ## Next, in order
 
 1. The Regent brings `main` to `testing`, pushes the three `archive/` tags and deletes the three superseded
    branches (the table above).
-2. Tag `v2.13` on `main` and publish its release with `regency-2.13.plugin` attached (draft, attach, publish).
-3. Add `doctor` as a required status check on `main` once the workflow has run there.
-4. Pick the next version's scope from [`ROADMAP.md`](ROADMAP.md): the book's queue (C-07, C-09, C-10, C-12,
-   C-13 and the 2026-10-13 notes), the old level names, the open doubts N1–N14.
+2. Tag `v3.0` on `main` and publish its release with `regency-3.0.plugin` attached (draft, attach, publish).
+3. The `glyph` pack goes into Glyph Explorer's `<guidelines>/.packs/glyph/`, then `/regency:pack activate glyph`
+   there.
+4. Add `doctor` as a required status check on `main` once the workflow has run there.
+5. Pick the next version's scope from [`ROADMAP.md`](ROADMAP.md): the packs' next steps, the book's queue, the
+   old level names, the open doubts.
 
 ## How to resume here
 
 1. Read this file, then `../CLAUDE.md`.
 2. `python scripts/doctor.py` — the folder is intact when it says `0 fail`.
 3. `git log --oneline -15` on `plumbing` for the latest commits.
-4. In a project (not this folder), `/regency:virtualpath:ongoing` and the resume line give that project's own
-   state; this folder's state is only what this file says.
+4. In a project (not this folder), `/regency:virtualpath:ongoing`, `/regency:pack list` and the resume line give
+   that project's own state; this folder's state is only what this file says.
