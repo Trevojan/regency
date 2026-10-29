@@ -1,172 +1,311 @@
-# regency
+<p align="center">
+  <img src=".github/assets/banner.svg" alt="regency: the Regent's harness, built on Claude Code" width="100%">
+</p>
 
-The Regent's portable toolkit for Claude Code: orchestrated team passes (PO / DV / QA / DA), the
-verbs *proceed*, *commit-and-merge* and *measure-changes*, five inference engines, the Scribe
-sub-agent, the four standard Orders, a `.guidelines/` scaffold, a code-to-norm lineage tool, and the
-hooks that hold the conventions at the moment of every tool call.
+<p align="center">
+  <strong>An AI-first development harness for Claude Code.</strong><br>
+  Isolated model roles, machine-checked contracts, runtime guards, and a human decision at every review packet.
+</p>
 
-**Portable by construction.** The folder is self-contained and relocatable: every path in it is
-relative to the folder itself, the scripts use only the Python standard library, and nothing points at
-a machine, a user or a project. Copy it, mount it, clone it, or point any Claude Code instance at it.
+<p align="center">
+<!-- regency:badges:begin -->
+  <a href="#versioning"><img alt="version: 2.13" src="https://img.shields.io/badge/regency-2.13-00D7FF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="commands: 60" src="https://img.shields.io/badge/commands-60-A66CFF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="skills: 17" src="https://img.shields.io/badge/skills-17-8FD3FF?style=flat-square&labelColor=000000"></a>
+<!-- regency:badges:end -->
+  <a href="#requirements"><img alt="Claude Code 2.1.201 or later" src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.201-00D7FF?style=flat-square&labelColor=000000&logo=claude&logoColor=00D7FF"></a>
+  <a href="#requirements"><img alt="Python 3.8 or later, standard library only" src="https://img.shields.io/badge/python-3.8%2B%20%C2%B7%20stdlib-0B7A3E?style=flat-square&labelColor=000000&logo=python&logoColor=8FD3FF"></a>
+  <a href="#requirements"><img alt="runtime dependencies: 0" src="https://img.shields.io/badge/dependencies-0-0B7A3E?style=flat-square&labelColor=000000"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-A66CFF?style=flat-square&labelColor=000000"></a>
+</p>
 
-## Use it — pick one way
+<p align="center">
+  <a href="#installation"><img alt="Install" src="https://img.shields.io/badge/Install-00D7FF?style=for-the-badge"></a>
+  <a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick%20start-A66CFF?style=for-the-badge"></a>
+  <a href="#api-surface"><img alt="API surface" src="https://img.shields.io/badge/API%20surface-8FD3FF?style=for-the-badge"></a>
+  <a href="#architecture"><img alt="Architecture" src="https://img.shields.io/badge/Architecture-0B7A3E?style=for-the-badge"></a>
+  <a href="library/REFERENCE.md"><img alt="Reference" src="https://img.shields.io/badge/Reference-00D7FF?style=for-the-badge"></a>
+</p>
 
-Replace `<path>` with where this folder lives.
+---
 
-| # | Way | When | How |
-|---|---|---|---|
-| 1 | **One session** | try it, or a machine you do not own | `claude --plugin-dir <path>` |
-| 2 | **Installed** (user scope) | your own machine; terminal, desktop app local sessions and VS Code share it | `claude plugin marketplace add <path>` then `claude plugin install regency@regency` |
-| 3 | **Skills-directory plugin** | auto-loads every session, no marketplace | copy or link this folder to `~/.claude/skills/regency/` (a managed allowlist may need `{"source":"skills-dir"}`) |
-| 4 | **Opened as the working directory** | any agent, any version, no plugin loading | `cd <path> && claude`; `CLAUDE.md` orients the agent and the playbooks work as plain files |
-| 5 | **Added to another project** | work on project X with regency at hand | `claude --add-dir <path>` and say: *read `<path>/CLAUDE.md` first* |
-| 6 | **A team** | everyone gets it | push this folder to a git repo, then in the project's `.claude/settings.json`: `{"extraKnownMarketplaces":{"regency":{"source":{"source":"github","repo":"<org>/<repo>"}}},"enabledPlugins":{"regency@regency":true}}` |
-| 7 | **Claude account** (cloud sessions, Cowork) | sessions that cannot load a local plugin | `python scripts/package.py`, then install `dist/regency-<version>.plugin` on the account |
+**Reference**: [`library/REFERENCE.md`](library/REFERENCE.md) · **Method**: [`library/team/ORCHESTRATION.md`](library/team/ORCHESTRATION.md) · **Conventions**: [`library/conventions.md`](library/conventions.md) · **Id grammar**: [`library/ids.md`](library/ids.md)
 
-**Verified against this exact folder on Claude Code 2.1.201:** ways 1, 4 and 5 in live sessions
-(`/regency` help, `/regency doctor`, `/regency:engine:critical`, and a read-only
-`/regency:team:status` on a real project with a different layout); way 2 by `claude plugin validate`
-plus install in an isolated config; way 3 by loading it as a skills-directory plugin. Way 6 follows
-the documented settings shape and was not run. Way 7 is built and structurally checked, not yet run.
-Cloud sessions do not load local plugins: use way 7, or way 4 or 5.
+---
 
-**Permissions.** A session whose working directory is a project reads regency's files from outside
-that directory. In a headless run (`claude -p`) that read is denied unless you grant it: add
-`--add-dir <path>` (or a `Read(<path>/**)` rule). Interactively, Claude Code asks the first time.
+**regency** is a Claude Code plugin that runs software development as a governed loop. A human operator,
+the **Regent**, issues orders. The model, **AA** (*Advanced Algorithm*), executes them as four isolated
+roles (PO, DV, QA, DA) whose returns are validated against JSON contracts. Every unit of work ends in a
+review packet that the Regent accepts or refuses.
 
-First command, any way: **`/regency doctor`** (or `python scripts/doctor.py`).
+Rules ship as data (a command registry, templates, return contracts) and are enforced by Python
+standard-library scripts wired to Claude Code hooks. Design rule: *Mastery spares Synthesis*. Any decision
+that can be fixed in advance is encoded as a script, a template, a registry entry or a hook, so the model
+reads it instead of inferring it.
 
-## What you get
+## Key features
 
-<!-- regency:dispatch:begin -->
-| Command | What it does | Arguments | Playbook (no-plugin fallback) |
-|---|---|---|---|
-| `/regency` | Entry point: help, routing, doctor. A first token that names a subcommand is routed to it; a unit id such as M02.D03.T04 runs a team pass. | `[help \| doctor \| <subcommand> ... \| <unit>]` | `skills/regency/SKILL.md` |
-| `/regency:team` | One orchestrated pass over one unit of work: should the PO/DV/QA/DA team act, who does what, dispatch, and stop at the human review packet. | `[unit]` | `skills/team/SKILL.md` |
-| `/regency:team:declare` | Declare the pass only; dispatch nothing. | `[unit]` | same playbook, subcommand `declare` |
-| `/regency:team:status` | Report the review queue, regime, open returns and escalations. Starts no pass. | `` | same playbook, subcommand `status` |
-| `/regency:team:reopen` | Reopen a unit: new pass, fresh context, labelled as a reopening. | `<unit>` | same playbook, subcommand `reopen` |
-| `/regency:proceed` | Work the whole queue: keep taking tasks, queue doubts, stop only at a real blocker or an empty queue. Never commits, merges or pushes. | `[scope or queue pointer]` | `skills/proceed/SKILL.md` |
-| `/regency:arrange-cycle-commit` | Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. Never pushes main. | `[scope]` | `skills/arrange-cycle-commit/SKILL.md` |
-| `/regency:measure-changes` | Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing. | `<intended change \| 'tree'>` | `skills/measure-changes/SKILL.md` |
-| `/regency:engine` | Run one of the five inference engines on a claim, plan, decision, system or repository. | `<critical\|causal\|decision\|control\|clean> <material>` | `skills/engine/SKILL.md` |
-| `/regency:engine:critical` | Audit a claim, argument or design goal: validity, support, semantics, defeaters. | `<claim or material>` | same playbook, subcommand `critical` |
-| `/regency:engine:causal` | Turn goals, resources and constraints into a causal, testable architecture and the smallest sufficient roadmap. | `<brief>` | same playbook, subcommand `causal` |
-| `/regency:engine:decision` | Structure a choice under uncertainty: options, criteria, value of information, recommendation or deferral. | `<decision situation>` | same playbook, subcommand `decision` |
-| `/regency:engine:control` | Analyse or design a system that must regulate itself: feedback, delay, stability, observability. | `<system>` | same playbook, subcommand `control` |
-| `/regency:engine:clean` | Inspect, plan and (only with approval) clean a repository, workspace or agent context. | `<scope>` | same playbook, subcommand `clean` |
-| `/regency:role` | Act as exactly one team role under its own contract: PO, DV, QA or DA. | `<po\|dv\|qa\|da> <task>` | `skills/role/SKILL.md` |
-| `/regency:role:po` | Product Owner: frame the problem, order the ladder, accept or refuse. | `<task>` | same playbook, subcommand `po` |
-| `/regency:role:dv` | Developer: build inside the declared span, in revertible commits that each cite the task. | `<task>` | same playbook, subcommand `dv` |
-| `/regency:role:qa` | Quality Analyst: challenge criteria, verify from artefacts, write the risk opinion. | `<task>` | same playbook, subcommand `qa` |
-| `/regency:role:da` | Data Analyst: shape events and contracts, define metrics, supply the oracle. | `<task>` | same playbook, subcommand `da` |
-| `/regency:scribe` | Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines. | `<delegated material>` | `skills/scribe/SKILL.md` |
-| `/regency:order` | Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project. | `<germinate\|handoff\|dispatch\|resume> [material]` | `skills/order/SKILL.md` |
-| `/regency:order:germinate` | Grow the path to a goal as a tree: roots, trunk, branches, limits, locks, fruit, assumption. | `<goal>` | same playbook, subcommand `germinate` |
-| `/regency:order:handoff` | Close a stretch of work and hand its state to whoever opens the next one. | `` | same playbook, subcommand `handoff` |
-| `/regency:order:dispatch` | Hear an order over the O3/O2/O1 hierarchy, classify it and emit the dispatch manifest. | `<order>` | same playbook, subcommand `dispatch` |
-| `/regency:order:resume` | Reopen a project mid-work from its shortcuts index only, never from the whole repository. | `` | same playbook, subcommand `resume` |
-| `/regency:init` | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. Names every path before creating it; never overwrites. | `[target directory]` | `skills/init/SKILL.md` |
-| `/regency:ux-init` | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root (brief, foundations, tokens, patterns, views, components, accessibility, assets, samples, UX-UI rules, changelog; a README per folder), fill the brief with the Regent, then one folder per view and component. Never overwrites. | `[guidelines root]` | `skills/ux-init/SKILL.md` |
-| `/regency:virtualpath` | Query the code-to-norm lineage registry and the work ledger (what is ongoing vs backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository. | `<code\|slice\|stale\|check\|ongoing\|trace> [argument]` | `skills/virtualpath/SKILL.md` |
-| `/regency:virtualpath:code` | Which norm slices govern this code file? Read them before editing it. | `<code path>` | same playbook, subcommand `code` |
-| `/regency:virtualpath:slice` | Which code does this norm slice govern? | `<virtual path>` | same playbook, subcommand `slice` |
-| `/regency:virtualpath:stale` | List slices marked STALE, waiting for the Regent's check. | `` | same playbook, subcommand `stale` |
-| `/regency:virtualpath:check` | Check that every slice resolves to an anchor and every target file exists. | `` | same playbook, subcommand `check` |
-| `/regency:virtualpath:ongoing` | Read the work ledger (.virtual/ongoing.json): what is ongoing, in review, blocked or only backlog. First peek on returning to a repo. | `` | same playbook, subcommand `ongoing` |
-| `/regency:virtualpath:trace` | Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger. | `` | same playbook, subcommand `trace` |
-| `/regency:tailwind-audit` | Audit, fix or build a Tailwind frontend against a design-system norm: deterministic scan, manual passes, headless render at 360/768/1280 in light and dark, and a flex/grid/absolute layout knowledge base for confusing positions. | `[path \| 'layout' <symptom> \| 'render' <page>]` | `skills/tailwind-audit/SKILL.md` |
-| `/regency:station` | Mise-en-place before a pass: check the station is prepped (toolchain, trust, gate tasks, ledger, lineage), run the gate through mise, or propose a mise.toml. mise is optional. | `[check [unit] \| gate [task] \| scaffold [write] \| line]` | `skills/station/SKILL.md` |
-| `/regency:station:check` | The station gate: one line per item; red stops the pass. Read-only. | `[unit]` | same playbook, subcommand `check` |
-| `/regency:station:gate` | Run the mechanical gate through mise, one verdict per check; refuses an untrusted station. | `[task]` | same playbook, subcommand `gate` |
-| `/regency:station:scaffold` | Propose a mise.toml from the repository's stack; writes only when none exists. | `[write]` | same playbook, subcommand `scaffold` |
-| `/regency:station:line` | The station as one slice line. | `` | same playbook, subcommand `line` |
-<!-- regency:dispatch:end -->
+- **Orchestrated team passes.** `/regency:team <unit>` declares who acts, dispatches PO, DV, QA and DA as
+  subagents with isolated context, routes their returns, and stops at a review packet: declared span vs
+  touched span, gate result, manifest diff, QA's risk opinion, then the diff.
+- **Contracted returns.** Every subagent return is a JSON envelope checked by `scripts/returns.py`
+  against its contract, then routed by governance order (G1 to the ledger, G2 and G3 to the Regent) by
+  `scripts/gov.py`. A finding class that recurs is counted (`gov.py recur`).
+- **Inference engines.** Five fixed protocols (`critical`, `causal`, `decision`, `control`, `clean`),
+  invocable alone or inside a pass.
+- **Orders.** Numbered, immutable work contracts: `germinate`, `handoff`, `dispatch`, `resume`, `lazy`.
+- **Runtime guards.** Hooks deny pushes to `main`, unconfirmed cloud writes and rewrites of closed acts,
+  and hold file writes after a destructive command. Guards fail closed.
+- **Code-to-norm lineage.** Norm slices govern code paths. Every write re-fingerprints the file in a
+  SQLite index and marks the governing slices `STALE` until the Regent checks them.
+- **Version gate.** Each project carries a stamp. `/regency:update` migrates what regency owns on one
+  approval, in a clean git tree, and never touches the project's own text.
+- **Health checkup.** `/regency:health` runs 12 checks with the levels `FAIL`, `WARN`, `STALE`,
+  `UNCHECKED` and `AOK`, plus per-project check sets the Regent ratifies.
+- **Speed modes and automation.** Fuel-bounded team chains, `DRAFT/UNVERIFIED` drafts confined to
+  `plumbing`, an auto-mode permission profile and headless routes.
+- **Zero dependencies.** Python 3.8+ standard library, relative paths only, a relocatable folder.
 
-`/regency:<id>:<sub>` is the same playbook as `/regency:<id> <sub>`. With no plugin loaded, open the
-playbook named in the last column and follow it.
-
-## Hooks
-
-Shipped with the plugin in `hooks/hooks.json`; each one runs a script in `scripts/` and answers with one
-line at most. Full reference: `library/hooks.md`.
-
-| Hook | When | What it does |
-|---|---|---|
-| `guard-push.py` | before a git command | denies a push to `main`/`master` in any form |
-| `hook-hazard.py` | before / after a shell command | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs; after a destructive step, keeps writes waiting until the Regent says a release verb |
-| `hook-acts-guard.py` | before a file write | denies writes in `.scope/`, rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), changes under a `lock` slice, and new names with banned tokens |
-| `hook-lineage.py` | after a file write | refreshes the file's fingerprint and writes a STALE line under every norm slice that governs it |
-| `hook-journal.py` | after writes, git changes, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
-| `hook-resume.py` | session start, resume, clear, compaction | one resume line: ledger counts, STALE lines, latest Order, last checkpoint |
-| `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands, ends the hazard watch on a release verb, names the command for a Regent verb (conventions §9) |
-
-Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
-the hooks are silent. A hook whose script is missing **fails open**, so `scripts/doctor.py` runs every
-hook's self-test and feeds each one a real event. Without the plugin (ways 4 and 5),
-`python scripts/guard-push.py --snippet` prints the push guard's settings block for this machine.
-
-## Frontend documentation for a project
-
-`/regency:ux-init` scaffolds a project's complete frontend documentation into `<guidelines>/.ux/` from
-`library/templates/ux/`: an index, the brief, foundations, role-named tokens with a generated
-stylesheet, patterns and state models, view archetypes, a component catalogue with ready CSS,
-accessibility, assets, a rendered sample, `UX-UI-##` rules and a changelog, with a README in every
-folder. It fills the brief with the Regent, then creates one folder per view and component.
-`python scripts/ux.py plan|scaffold|brief|expand|check|build` is the engine (computed contrast, role
-names, brief holes as asks; never overwrites).
-
-## Optional: set up the machine you work on
-
-Pieces that live outside this folder and make regency's conventions hold in **every** project. Each has
-its source inside this folder (`library/maintaining.md` lists them); none is required; each is small and
-reversible. The installers never overwrite a file they did not create.
-
-| Piece | Where | What it does |
-|---|---|---|
-| **User `CLAUDE.md`** | `~/.claude/CLAUDE.md` | from `library/templates/user-CLAUDE.md` (replace `{{REGENCY_ROOT}}`): one `@` import of `library/conventions.md`, so your labels, language rule, "proceed" and git verbs apply even where the plugin is not loaded (about 2k tokens per session) |
-| **Role agents** | `~/.claude/agents/{po,dv,qa,da}.md` | the four roles as real subagents with their tool limits (QA has no edit tools, PO has no shell). Source of truth is `library/agents/`; `python scripts/install-agents.py` writes the files with this machine's path and never overwrites one it did not create (`--check`, `--uninstall`) |
-| **Path-scoped rules** | `~/.claude/rules/*.md` with `paths:` frontmatter | conventions that load only when a matching file is touched: UI text in markup, writing in `.guidelines/`. Source of truth is `library/rules/`; `python scripts/install-rules.py` installs them (`--check`, `--uninstall`) |
-
-## How it stays portable
-
-- **Relative paths only.** A skill finds the root two directories above its `SKILL.md`; a library file
-  names others as `library/…`. `scripts/doctor.py` fails on any drive letter, home directory or
-  `/mnt/…` path.
-- **No assumed layout.** Commands locate a project's documents through `library/layouts.md`
-  (dotted `.guidelines/` or classic Orbital), prefer the project's own role specs over the bundled
-  ones, and report a missing document instead of improvising.
-- **One source of truth.** `library/registry.json` defines the commands; `scripts/build.py` generates
-  the nested aliases and the tables above. `scripts/doctor.py` proves the folder is consistent.
-- **Heavy material on demand.** The always-on cost of the whole plugin is the twelve skill descriptions
-  (measure with `claude plugin details regency`) plus one resume line per session; engines, role specs
-  and templates load only when a command needs them.
-- **The Regent's way of working travels with it** in `library/conventions.md`, so a fresh instance
-  needs no prior conversation to behave correctly.
-
-## Layout
-
-```text
-regency/
-├── .claude-plugin/        plugin.json, marketplace.json (the folder is its own marketplace)
-├── CLAUDE.md              read by Claude Code when opened here
-├── README.md
-├── hooks/hooks.json       triggers only: every hook runs a script in scripts/ (library/hooks.md)
-├── skills/<id>/SKILL.md   the playbooks (12)
-├── commands/<id>/<sub>.md generated aliases for /regency:<id>:<sub>
-├── library/               conventions, hooks, rules/, layouts, registry, maintaining, team/, agents/, engines/, orders/, templates/, examples/
-├── scripts/               build · doctor · package · vp · conventions_check · ux · install-agents · install-rules · guard-push · hook_wire · hook-*
-├── dist/                  generated .plugin archives (package.py); never edit, never commit
-└── discard/               superseded material (see discard/INDEX.md); safe to omit when sharing
-```
-
-## Maintain
+## Installation
 
 ```bash
-python scripts/build.py     # after editing library/registry.json
-python scripts/doctor.py    # before sharing; exit code 1 means something is broken
-python scripts/package.py   # after a version bump: dist/<name>-<version>.plugin for way 7
+git clone https://github.com/Trevojan/regency.git
+
+# one session
+claude --plugin-dir ./regency
+
+# user scope: the terminal, desktop local sessions and VS Code share it
+claude plugin marketplace add ./regency
+claude plugin install regency@regency
 ```
 
-Requirements: Python 3.8+ on the PATH as `python` (scripts and hooks, standard library only) and a
-Claude Code version that supports plugins. Verified on Claude Code 2.1.201.
+From GitHub, pinned to a release:
+
+```bash
+claude plugin marketplace add Trevojan/regency#v2.13
+claude plugin install regency@regency
+gh release verify v2.13        # the release is immutable and attested
+```
+
+> [!IMPORTANT]
+> Pin a release tag. A pinned install never moves with `main`. Auto-update stays off until you turn it on
+> (`/plugin` → Marketplaces), and an installed copy changes only when `.claude-plugin/plugin.json` changes
+> its `version`. The only official source is `Trevojan/regency`.
+
+> [!NOTE]
+> Cloud sessions do not load local plugins. Download `regency-<version>.plugin` from
+> [Releases](https://github.com/Trevojan/regency/releases) and check it with
+> `gh release verify-asset v<version> regency-<version>.plugin`, or build it with `python scripts/package.py`.
+> Then install it on the Claude account.
+
+<details>
+<summary><b>All seven install paths</b></summary>
+
+<br>
+
+| # | Path | Use when | Command |
+|---|---|---|---|
+| 1 | One session | trying it, or a machine you do not own | `claude --plugin-dir <path>` |
+| 2 | Installed (user scope) | your own machine | `claude plugin marketplace add <path>` then `claude plugin install regency@regency` |
+| 3 | Skills-directory plugin | auto-load in every session, no marketplace | copy or link the folder to `~/.claude/skills/regency/` (a managed allowlist may need `{"source":"skills-dir"}`) |
+| 4 | Working directory | any agent, any version, no plugin loading | `cd <path> && claude`; `CLAUDE.md` orients the agent and the playbooks work as plain files |
+| 5 | Added to another project | work on project X with regency at hand | `claude --add-dir <path>`, then: *read `<path>/CLAUDE.md` first* |
+| 6 | A team | everyone on a repository gets it | in the project's `.claude/settings.json`: `{"extraKnownMarketplaces":{"regency":{"source":{"source":"github","repo":"Trevojan/regency"}}},"enabledPlugins":{"regency@regency":true}}` |
+| 7 | Claude account | cloud sessions | `python scripts/package.py`, then install `dist/regency-<version>.plugin` on the account |
+
+**Verified.** Claude Code 2.1.201: paths 1, 4 and 5 in live sessions, path 2 by `claude plugin validate`
+plus an install in an isolated config, path 3 as a skills-directory plugin. Path 7 runs in Claude's cloud
+sessions. Path 6 follows the documented settings shape and has not been run.
+
+**Permissions.** A session whose working directory is a project reads regency's files from outside that
+directory. In a headless run (`claude -p`) that read is denied unless granted: add `--add-dir <path>` or a
+`Read(<path>/**)` rule. Interactively, Claude Code asks the first time.
+
+</details>
+
+## Quick start
+
+```text
+/regency doctor                       # the harness checks itself: every self-test, the wiring, portability
+/regency:engine:critical "<claim>"    # run an inference engine; no project needed
+/regency:init                         # scaffold .guidelines/ in the current repository
+/regency:team M03.S02.T04             # one orchestrated pass over one task; stops at the review packet
+/regency:health                       # every health check that applies here
+```
+
+A unit id is positional, never typed by hand: `M03.S02.T04 [F1–F3]` is module 3, step 2, task 4, with a
+declared span over phases F1 to F3. A task is one code file. The grammar is machine-checked
+(`library/ids.md`).
+
+> [!TIP]
+> Returning to a repository, `/regency:virtualpath:ongoing` reads the work ledger first: what is ongoing,
+> drafted, in review, blocked or only backlog.
+
+## Architecture
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-monospace, monospace", "fontSize": "14px", "primaryColor": "#000000", "primaryTextColor": "#00d7ff", "primaryBorderColor": "#a66cff", "lineColor": "#a66cff", "secondaryColor": "#000000", "tertiaryColor": "#000000", "clusterBkg": "#000000", "clusterBorder": "#2ea043", "titleColor": "#8fd3ff", "textColor": "#8fd3ff", "edgeLabelBackground": "#000000"}}}%%
+flowchart TB
+    R(["Regent"]) -- "order" --> T["/regency:team M03.S02.T04"]
+    T --> frame
+    subgraph frame ["frame · isolated context per role"]
+        direction LR
+        PO["PO · frame the unit"] --> QA1["QA · challenge criteria"] --> DA["DA · data contract"]
+    end
+    frame -- "artefacts only" --> deliver
+    subgraph deliver ["deliver · artefacts only"]
+        direction LR
+        DV["DV · build in span"] --> G{"gate"} --> QA2["QA · verify"] --> W["PO · weigh risk"]
+    end
+    deliver --> K[["review packet · the Regent accepts or refuses"]]
+```
+
+Roles exchange artefacts, never reasoning: QA never reads DV's explanation of why the code is right. DA
+joins when the work touches data. A task that needs a phase outside its declared span stops and returns.
+
+| Layer | Path | Role |
+|---|---|---|
+| Manifest | `.claude-plugin/` | `plugin.json`, `marketplace.json`; the folder is its own marketplace |
+| Playbooks | `skills/<id>/SKILL.md` | one skill per command |
+| Aliases | `commands/<id>/<sub>.md` | generated for `/regency:<id>:<sub>`; never edited |
+| Doctrine and data | `library/` | registry, conventions, id grammar, role specs, return contracts, engines, Orders, templates, migrations |
+| Engines | `scripts/` | standard-library Python: build, doctor, package, health, migrate, vp, idx, shortcuts, gov, returns, speed, station, ux, headless |
+| Triggers | `hooks/hooks.json` | each hook runs one script in `scripts/`; no logic in the trigger |
+
+Project-side state, under the project's guidelines root (`library/layouts.md`):
+
+| Path | Holds | Tracked |
+|---|---|---|
+| `.shortcuts/.virtual/ongoing.json` | the work ledger: ongoing, draft, review, blocked, backlog | yes |
+| `.shortcuts/.virtual/manifesto.json` | code-to-norm lineage slices | yes |
+| `.shortcuts/.virtual/checkpoints.jsonl` | the checkpoint journal, OpenTelemetry GenAI keys | yes |
+| `.shortcuts/.virtual/index.sqlite` | the exact index: nodes, fingerprints, edges | no (cache, rebuilt by `idx.py build`) |
+| `.shortcuts/regency.json` | the version stamp read by the version gate | yes |
+| `.shortcuts/.health/<part>.json` | ratified health check sets | yes |
+
+## API surface
+
+Every command, generated from `library/registry.json`; each name links to its playbook. Arguments and subcommand details:
+[`library/REFERENCE.md`](library/REFERENCE.md#commands).
+
+<!-- regency:modules:begin -->
+| Command | Does | Subcommands |
+|---|---|---|
+| [`/regency`](skills/regency/SKILL.md) | Entry point: help, routing, doctor. | — |
+| [`/regency:team`](skills/team/SKILL.md) | One orchestrated pass over one unit of work. | `declare` `status` `reopen` `extreme-go-horse` `just-in-time` |
+| [`/regency:proceed`](skills/proceed/SKILL.md) | Work the whole queue. | — |
+| [`/regency:arrange-cycle-commit`](skills/arrange-cycle-commit/SKILL.md) | Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. | — |
+| [`/regency:measure-changes`](skills/measure-changes/SKILL.md) | Read-only: say what would change. | — |
+| [`/regency:engine`](skills/engine/SKILL.md) | Run one of the five inference engines on a claim, plan, decision, system or repository. | `critical` `causal` `decision` `control` `clean` |
+| [`/regency:role`](skills/role/SKILL.md) | Act as exactly one team role under its own contract. | `po` `dv` `qa` `da` |
+| [`/regency:scribe`](skills/scribe/SKILL.md) | Call suba-scribe to write a text for the caller. | — |
+| [`/regency:order`](skills/order/SKILL.md) | Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project. | `germinate` `handoff` `dispatch` `resume` `lazy` |
+| [`/regency:init`](skills/init/SKILL.md) | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. | — |
+| [`/regency:ux-init`](skills/ux-init/SKILL.md) | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root. | — |
+| [`/regency:update`](skills/update/SKILL.md) | Bring a project to the installed regency. | `plan` `check` |
+| [`/regency:virtualpath`](skills/virtualpath/SKILL.md) | Query the code-to-norm lineage registry and the work ledger. | `code` `slice` `stale` `ongoing` `trace` `drafts` |
+| [`/regency:tailwind-audit`](skills/tailwind-audit/SKILL.md) | Audit, fix or build a Tailwind frontend against a design-system norm. | — |
+| [`/regency:station`](skills/station/SKILL.md) | Mise-en-place before a pass. | `check` `gate` `scaffold` `line` |
+| [`/regency:health`](skills/health/SKILL.md) | The Regent's checkup, one line per finding with its method. | `project` `harness` `doctor` `shortcuts` `version` `copies` `distributable` `engines` `hooks` `queues` `context` `pipeline` |
+| [`/regency:serious-doctor-appointment`](skills/serious-doctor-appointment/SKILL.md) | Assemble the caring topics of a project. | — |
+<!-- regency:modules:end -->
+
+`/regency:<id>:<sub>` and `/regency:<id> <sub>` run the same playbook. Without the plugin loaded, open
+the playbook and follow it as a plain file.
+
+## Runtime guarantees
+
+| Guarantee | Enforced by |
+|---|---|
+| A push to `main` or `master` is denied in any form | `scripts/guard-push.py` |
+| A cloud CLI write runs only if the Regent quoted that exact command in the current turn; reads pass | `scripts/hook-hazard.py`, `scripts/hook-verbs.py` |
+| After a destructive command, file writes wait for a PO or QA permit or the Regent's release verb | `scripts/hook-hazard.py`, `scripts/hook-acts-guard.py` |
+| Closed acts (Orders, gate sheets, ladder plans, dated handoffs) are never rewritten; `.scope/` is read-only | `scripts/hook-acts-guard.py` |
+| Every write re-fingerprints the file and marks governing norm slices `STALE` | `scripts/hook-lineage.py` |
+| Every subagent return is validated against its contract before it is routed | `scripts/hook-gov.py`, `scripts/returns.py` |
+| A command that writes into a project first runs the version gate | `scripts/migrate.py` (`gate`) |
+| Guards fail closed (`onFailure: block`); every hook self-tests under doctor and leaves a heartbeat | `scripts/doctor.py`, `/regency:health:hooks` |
+
+Full hook reference: [`library/hooks.md`](library/hooks.md).
+
+## Requirements
+
+| Component | Version | Used for |
+|---|---|---|
+| Claude Code | 2.1.201 or later; 2.1.295 or later for guards that fail closed | plugins, skills, hooks |
+| Python | 3.8 or later, on the PATH as `python` | every script and hook; standard library only |
+| git | any recent | version gate, lineage, commits, the `copies` check |
+| mise | optional | gate tasks for `/regency:station` |
+
+Verified on Linux and Windows. On a Windows console, run doctor with `PYTHONUTF8=1`
+(`library/maintaining.md`).
+
+## Versioning
+
+regency is versioned `a.b`: `+b` for a content change, `+a` for a major rule finished, reinterpreted or
+invented, with no cap on either part. `library/registry.json` and `.claude-plugin/plugin.json` carry the
+same value; doctor fails when they differ. A project behind the installed version is updated before
+anything writes into it; a project ahead of it stops the session until the plugin is updated
+(`library/migrations/README.md`).
+
+## Development
+
+```bash
+python scripts/build.py            # regenerate aliases, command tables, README blocks and return templates
+python scripts/doctor.py           # every self-test, the wiring, portability; exit 1 on any FAIL
+python scripts/migrate.py record   # after a version bump that changed a template
+python scripts/package.py          # dist/regency-<version>.plugin: allowlisted, deterministic
+python scripts/install-automode.py # the auto-mode profile into ~/.claude/settings.json
+python scripts/headless.py         # the headless routes (library/automation.md)
+```
+
+`library/registry.json` is the single source of truth for commands. Generated files (`commands/`, the
+tables between `regency:` markers, the README blocks) are never edited by hand.
+
+<details>
+<summary><b>Terms</b></summary>
+
+<br>
+
+| Term | Meaning |
+|---|---|
+| Regent (`RGN`) | the human who decides; other humans carry a prefix (`RGN-PO`, `RGN-Client`) |
+| AA | *Advanced Algorithm*: the model side of the work |
+| PO · DV · QA · DA | agent roles: Product Owner, Developer, Quality Analyst, Data Analyst |
+| Unit | `M##.S##.T##`: module, step, task; a task is one code file |
+| Span | the phases a task may touch, `[F1–F3]` out of F0 to F6 |
+| Gate | the mechanical check a change passes before any human reads it |
+| Review packet | what a pass hands the Regent: span, gate, manifest diff, risk opinion, diff |
+| Act | an immutable record: an Order, a gate sheet, a ladder plan, a dated handoff |
+| Slice | a norm anchor that governs code paths (`manifesto.json`) |
+| Ledger | `ongoing.json`: the state of every unit |
+| Stamp | `.shortcuts/regency.json`: the regency version a project fits |
+
+</details>
+
+## Background
+
+> [!NOTE]
+> regency is the executable companion of *Hackiavelli — The Manual of Good Regency*, a manual in progress.
+> A practice enters as a proposal and becomes a rule only after first-hand proof on the manual's own
+> repository and the Regent's ratification.
+
+## Contributing
+
+Proposals carry evidence: a rule that failed on real work, a doubt that kept coming back, an instruction AA
+needed twice. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. Questions go to
+[Discussions](https://github.com/Trevojan/regency/discussions); [`SUPPORT.md`](.github/SUPPORT.md) says
+where everything else goes.
+
+## Security
+
+Hooks run on your machine, so a vulnerability is reported in private:
+[Report a vulnerability](https://github.com/Trevojan/regency/security/advisories/new). Scope and what to
+expect: [`SECURITY.md`](.github/SECURITY.md).
+
+## License
+
+[MIT](LICENSE) © 2026 Trevojan.
+
+regency is an independent project, not affiliated with or endorsed by Anthropic. Claude and Claude Code are
+products of Anthropic.

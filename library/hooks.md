@@ -33,19 +33,25 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write; `ask` destructive, layout, install |
 | `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, a hand edit of the shortcuts state block (R7), lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
-| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the shortcuts store; STALE under governing slices (R4.3, R7) |
+| `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the one store (`shortcuts.record`); re-index the file (`scripts/idx.py`); STALE under the slices whose governed nodes changed (R4.3, R12) |
 | `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command that reached the project |
 | `PostToolUse` | `Agent\|Task` | `hook-hazard.py` | recorder | records the write permits a `po` or `qa` role agent returned |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
-| `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; one context line |
+| `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
 | `SessionEnd` | — | `hook-shortcuts.py` | recorder | none: rewrites the generated state block of `.shortcuts/README.md` when the state moved (R7.3) |
 
 ## 2. Guards
 
 ### Push to main — `guard-push.py`
 
-Unchanged: the Regent pushes `main` (conventions §4). 38-case table.
+Unchanged: the Regent pushes `main` (conventions §4). 45-case table.
+
+**What a guard reads.** Both shell guards scan the command a shell would run: `guard_push.data_only` takes
+out heredoc bodies that are only data before splitting. A body stays when a shell reads it (`bash <<'EOF'`,
+`cat <<EOF | sh`); a quoted delimiter (`<<'EOF'`) otherwise makes it data; an unquoted one keeps only its
+`$( )` and backtick substitutions, which a shell would run. Text written about a delete or a push is never
+read as the act itself. `hook-journal.py` reads git verbs the same way.
 
 ### Hazardous shell — `hook-hazard.py`
 
@@ -119,15 +125,21 @@ repository (`$CLAUDE_PLUGIN_DATA`, else the system temp folder). Manual release:
 
 After a file write in an adopted project:
 
-- `shortcuts.record()` → `<virtual>/shortcuts.db`: the file's row (sha256, bytes, mtime, the hash it replaced,
-  when, session) and, for a guideline doc, its nodes (`library/shortcuts.md` §3); a norm doc the hook writes a
-  STALE line into is recorded too, so the hook's own write never reads as drift
-- each `mark_stale` slice citing the file gets, once per changed file, right under its anchor:
-  `[warn'STALE' on='YYYY-MM-DD' changed='<rel>' by='hook-lineage'] check this slice against the code; only a human removes this line`
+- `shortcuts.record()` → the `prints` table of `<virtual>/index.sqlite`: the file's sha256, bytes, mtime, the
+  hash it replaced, when, which session (`library/shortcuts.md` §3)
+- with a built index (`scripts/idx.py build` set `meta.built`): the file is re-indexed and its nodes
+  diffed against the index's last record — modified, added, removed, or only reformatted
+- each `mark_stale` slice governing the file — by `refers_to` (the whole file, or a `#n:<id>` node) or
+  because a changed node cites its anchor — gets, once per changed file, right under its anchor:
+  `[warn'STALE' on='YYYY-MM-DD' changed='<rel>' nodes='<ids>' by='hook-lineage'] check this slice against the code; only a human removes this line`
+  only when a governed node changed beyond whitespace; with no index, or a file the index never saw,
+  every write counts (virtualpath §2)
 - a `ledger_row` slice is never written inside its table: the context line names it instead
 - one context line lists the slices now out of date
 
-The slice resolver is `scripts/vp.py` (`resolve`); `vp.py stale` lists what the hook wrote.
+The slice resolver is `scripts/vp.py` (`resolve`); `vp.py stale` lists what the hook wrote. After writing
+a STALE line the hook re-indexes that norm file and records its print (`source = lineage`), so the index
+stays exact and the hook's own write never reads as drift.
 
 ### Journal — `hook-journal.py`
 
@@ -139,7 +151,7 @@ session end. Harmless shell commands and reads are not recorded.
 {"ts": "2026-10-09T20:28:20-03:00", "regency.event": "PostToolUse",
  "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "Edit", "gen_ai.tool.call.id": "toolu_…",
  "gen_ai.conversation.id": "<session>", "gen_ai.agent.name": "main",
- "regency.target": "src/Page.razor", "regency.unit": "M03.D02.T04"}
+ "regency.target": "src/Page.razor", "regency.unit": "M03.S02.T04"}
 ```
 
 Keys follow the OpenTelemetry GenAI semantic conventions so the file can be shipped to an OTel backend
@@ -151,7 +163,7 @@ After Jan Kooiman (*Modern Governance*, 1993, ed.; *Governing as Governance*, 20
 `suba-` returns opens with two lines:
 
 ```text
-gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.D02.T04
+gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.S02.T04
 ask: approve SPEC v3 (criterion C-04 untestable)
 ```
 
@@ -166,6 +178,25 @@ a G1 whose text names a spec version or escalation climbs to G2, one that names 
 `hier` upward, `co` from an operator, G3 to anyone but the Regent and G2 to an operator are refused.
 Tags are G1/G2/G3, never O#: regency's levels already use O4–O1.
 
+`key=<slug>` (optional) names a finding's class; `gov.py recur` counts keys across passes and prints
+the ones that keep coming back (the flywheel's sensor; aggregate in `<virtual>/gov-keys.json`).
+
+**Return gate** (engine: `scripts/returns.py`). When a role agent was dispatched with the prompt
+skeleton's `Stage:` line (`library/team/references/packets.md` §1) and that stage has a fixed shape
+(§4 there), the returned packet is checked for presence and shape — never truth. The context line ends
+`shape <role>.<stage> holds`, or names the misses and says `RETURN to <role>`; each miss is counted as
+`key=return-<stage>-<field>` without counting a packet, so `recur` shows which field keeps going
+missing.
+
+**Suba envelopes.** Every JSON envelope in the returned message — one per suba the role wore
+(`library/subagents/ALIGNMENT.md` §4) — is checked against `envelope.schema.json` and its suba's
+`contract.json`. Each is logged to `<virtual>/returns.jsonl` (metadata — suba, unit, terminal, ask,
+keys, misses — never the body); its keys are counted for `recur`, each miss as
+`key=return-<suba>-<field>`. A suba returned by a role that does not own it is a miss, and a ledger
+line that disagrees with `ongoing.json` is named, never written. Routing reads the message without
+its envelopes, so a suba's hand-up never raises the role's own order. The context line adds
+`subas: <name> ok` or the misses and `RETURN to <role>`.
+
 ### Resume — `hook-resume.py`
 
 ```text
@@ -174,15 +205,9 @@ regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1
 · first peek: shortcuts.py peek, vp.py trace
 ```
 
-`shortcuts check N · drift N` comes from `shortcuts.summary_part()` (R7). After compaction it reads
-`regency resume after compact`. `--print` shows the line for the current folder.
-
-### Shortcuts — `hook-shortcuts.py`
-
-At `SessionEnd`, `shortcuts.refresh()`: the block between the `shortcuts:state` markers of
-`.shortcuts/README.md` is rewritten when the state moved and left alone when it did not; no markers, no
-write. No hashing, so it fits the shared 1.5 s `SessionEnd` budget. The engine is `scripts/shortcuts.py`
-(`library/shortcuts.md`).
+`shortcuts check N · drift N` comes from `shortcuts.summary_part()` (R7). After compaction it reads `regency resume after compact`. When the project's stamp disagrees with the
+installed regency, the line opens with `VERSION: …` — the version gate's own words
+(`library/migrations/README.md` §2). `--print` shows the line for the current folder.
 
 ### Verbs — `hook-verbs.py`
 
@@ -201,21 +226,41 @@ the message and a command quoted inside them confirms nothing.
 Verbs come from the table in `library/conventions.md` §9, the only copy (`hook_wire.regent_verbs`).
 Slash commands are never routed. `--table` prints the verbs as parsed.
 
+### Shortcuts — `hook-shortcuts.py`
+
+At `SessionEnd`, `shortcuts.refresh()`: the block between the `shortcuts:state` markers of
+`.shortcuts/README.md` is rewritten when the state moved and left alone when it did not; no markers, no
+write. No scan, so it fits the shared 1.5 s `SessionEnd` budget. The engine is `scripts/shortcuts.py`
+(`library/shortcuts.md`).
+
+### Heartbeats — every hook
+
+`hook_wire.serve` leaves one small file per (script, event) under the plugin's state folder
+(`<state>/heartbeats/<script>.<event>`), holding the last time the harness ran that hook. It never writes
+into a repository and a failure to write is ignored. `scripts/health.py hooks` reads them back against
+`hooks/hooks.json`: a wired hook with no heartbeat has not run on this machine, which is how a hook that
+fails open on a surface becomes visible (R11.11; `library/health.md` §6).
+
 ## 4. Files the hooks touch
 
 | File | Written by | Read by | Where |
 |---|---|---|---|
-| `<virtual>/shortcuts.db` | lineage, shortcuts, `shortcuts.py index` | `shortcuts.py drift`, `check`, `peek`; resume | project, gitignored (`<virtual>/.gitignore`) |
-| `.shortcuts/README.md` state block | shortcuts | every returning agent | project |
+| `<virtual>/index.sqlite` — nodes | lineage (one file per write, once built), `idx.py build`, `shortcuts.py index` | `idx.py`, lineage, resume, `shortcuts.py drift` | project — a cache, gitignored by `<virtual>/.gitignore` |
+| `<virtual>/index.sqlite` — prints | lineage, `shortcuts.py` (`record`, `index`, `refresh`) | `shortcuts.py drift`, `check`, `peek`; resume | the same file (R12: one store) |
+| `.shortcuts/README.md` state block | shortcuts (`SessionEnd`, handoff) | every returning agent | project |
 | `<virtual>/checkpoints.jsonl` | journal | resume, handoff | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |
+| `<virtual>/gov-keys.json` | gov (per-key aggregate, not trimmed with the queue) | `gov.py recur`, the Regent | project |
+| `<virtual>/returns.jsonl` | gov (one line per suba envelope, metadata only, trimmed to 500) | `returns.py show`, the Regent | project |
 | norm slices (one STALE line) | lineage | `vp.py stale`, the Regent | project |
 | `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
+| `<state>/heartbeats/<script>.<event>` | every hook (`hook_wire.serve`) | `health.py hooks` | machine, outside any repository |
 
-`<virtual>` is `<guidelines>/.shortcuts/.virtual/`. `checkpoints.jsonl` and `gov-queue.jsonl` are tracked in git
-with the ledger (R5.3); `shortcuts.db` is a gitignored cache any clone rebuilds with `shortcuts.py index` (R7.2,
-which replaces the tracked `fingerprints.json`); the session files never leave the machine.
+`<virtual>` is `<guidelines>/.shortcuts/.virtual/`. `checkpoints.jsonl` and the governance files are tracked
+in git with the ledger (R5.3); `index.sqlite` is a gitignored cache any clone rebuilds with
+`shortcuts.py index` (R7.2, R12 — it replaces the tracked `fingerprints.json`, which `/regency:update` to 2.12
+imports and then retires); the session files never leave the machine.
 
 ## 5. Market standards and where regency meets them
 
@@ -240,6 +285,7 @@ A2A task state → ledger state:
 |---|---|---|
 | `submitted` | `backlog` | decided, not started |
 | `working` | `ongoing` | needs evidence in `where` |
+| `completed`, by a speed mode | `draft` | DRAFT/UNVERIFIED on plumbing until a `/regency:team` pass verifies it (`library/team/SPEED_MODES.md` §6) |
 | `input-required`, `auth-required` | `blocked` | `blocked_by` names who decides |
 | `completed` | `review` → `done` | an agent never writes `done` on its own work (T5) |
 | `canceled`, `rejected`, `failed` | removed | version control and the handoff are the record |

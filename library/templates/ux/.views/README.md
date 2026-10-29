@@ -67,7 +67,7 @@ checks it and issues it.
 ### 4. Run — one pass of work, who does what, the gate, the commit
 
 A run is one pass of the project's orchestration over one unit (with regency: one `/regency:team` pass
-over `M##.D##.T##`). It issues one packet per active agent stage.
+over `M##.S##.T##`). It issues one packet per active agent stage.
 
 ```text
 ┌ nav-w ──────────┬ flexible ──────────────────────────────────────────────┐

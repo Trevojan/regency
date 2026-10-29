@@ -23,6 +23,10 @@ Run `git status` and `git branch --show-current`. Stop and say so if this is not
 2. **Whose changes are these?** List every modified/untracked file. Group them into: (a) work done in
    this session, (b) everything else. Stage only (a). Files in (b) belong to the Regent: leave them
    untouched and unstaged, and name them in the report. If a file mixes both, ask.
+3. **Commit as Claude** (`library/conventions.md` §4). `git config user.email` must read
+   `noreply@anthropic.com`; if it does not, set `git config user.name Claude` and
+   `git config user.email noreply@anthropic.com` for this repository only, never `--global`, and say so
+   in the report. Never commit under the Regent's name or address.
 
 ## 1. Split
 
@@ -51,6 +55,11 @@ Never use `--no-verify`, never amend a commit that is not yours from this run, n
 history, never create a worktree.
 
 ## 3. Merge up to main
+
+**Drafts hold the merge.** Before any merge past `plumbing`, run `python scripts/vp.py drafts`. Exit 1
+means a speed mode's DRAFT/UNVERIFIED work is still on `plumbing` (`library/team/SPEED_MODES.md` §6):
+merge nothing past `plumbing`, list the drafts in the report, and name the `/regency:team` passes that
+would verify them.
 
 Follow the contract from §0, branch by branch, in the documented direction. Prefer the project's
 stated method (fast-forward vs merge commit). After each merge run the verification command.
@@ -81,6 +90,7 @@ After the commits and merges, push **the branches this run touched, except `main
 ```text
 Commits   <n>   – <hash> <subject> (one line each)
 Merged    <branch> → <branch> … (or "none: <why>")
+Held      <n> unverified draft(s) on plumbing: <units> (or omit the line when vp.py drafts exits 0)
 Verified  <command> → green | red <where>
 Pushed    <branch> → origin (or "none: <why>"; branches held back for a pipeline: <list>)
 Untouched your uncommitted files: <list> (not staged)

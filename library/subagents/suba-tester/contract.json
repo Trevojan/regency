@@ -1,0 +1,194 @@
+{
+  "description": "The return contract of suba-tester: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "strategy",
+      "evidence"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "strategy": {
+        "type": "object",
+        "required": [
+          "surfaces",
+          "invariants",
+          "coherence",
+          "deferred"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "surfaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "surface",
+                "technique",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "surface": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a surface"
+                },
+                "technique": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its technique"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "why that technique"
+                }
+              }
+            }
+          },
+          "invariants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "invariant",
+                "criterion"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "invariant": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "an invariant worth defending"
+                },
+                "criterion": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the criterion it defends"
+                }
+              }
+            }
+          },
+          "coherence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "step",
+                "case"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "step": {
+                  "$ref": "ids:unit",
+                  "description": "a delivered step"
+                },
+                "case": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the live case it keeps"
+                }
+              }
+            }
+          },
+          "deferred": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "what",
+                "why"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "what": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "not covered"
+                },
+                "why": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "why it was deferred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "evidence": {
+        "type": "object",
+        "required": [
+          "executed",
+          "authored",
+          "named_test"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "executed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "test",
+                "command",
+                "result"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "test": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "test"
+                },
+                "command": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the command that ran it"
+                },
+                "result": {
+                  "enum": [
+                    "red",
+                    "green"
+                  ],
+                  "description": "result"
+                }
+              }
+            }
+          },
+          "authored": {
+            "type": "array",
+            "items": {
+              "$ref": "envelope#/$defs/artefact",
+              "description": "a test returned as an artefact, not yet stored or run"
+            }
+          },
+          "named_test": {
+            "type": "object",
+            "required": [
+              "status",
+              "how"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "fails-when-removed",
+                  "does-not-fail",
+                  "not-checked"
+                ],
+                "description": "named test"
+              },
+              "how": {
+                "type": "string",
+                "minLength": 1,
+                "description": "the mutation used, or why it was not checked"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

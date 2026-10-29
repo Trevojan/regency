@@ -1,0 +1,68 @@
+{
+  "_about": "Single source of truth for headless runs. One route = one entry here; scripts/headless.py is the only consumer and the only runner. A 'script' route runs a regency script with no model; a 'command' route runs one /regency command through claude -p under a profile; a 'prompt' route takes the Regent's own text. 'refused' records what stays interactive and why (conventions section 15.2). Add a route here, never a new script. Rules: library/automation.md section 2.",
+  "profiles": {
+    "read": {
+      "summary": "reads, searches, Claude Code's built-in read-only commands and regency's read-only scripts; every other call is denied, never asked",
+      "mode": "dontAsk",
+      "tools": ["Read", "Grep", "Glob", "Skill"],
+      "scripts": ["vp.py", "station.py check", "station.py line", "gov.py queue", "gov.py fit", "hook-journal.py --tail",
+                  "hook-resume.py --print", "doctor.py", "conventions_check.py", "build.py --check"]
+    },
+    "work": {
+      "summary": "auto mode under library/automode.json; whatever would need a person is denied and reported",
+      "mode": "auto",
+      "prompts": "none",
+      "settings": "library/automode.json"
+    }
+  },
+  "preamble": [
+    "This is a headless regency run: the Regent drives from a shell and reads only your final text. Nobody can answer a question or a permission prompt.",
+    "The regency toolkit is at {root}. Read {root}/library/conventions.md once; it binds this run. Find the project's documents with {root}/library/layouts.md.",
+    "Run regency scripts exactly as: python {root}/scripts/<name>.py <arguments>.",
+    "Route: {route}. Profile: {profile} ({profile_summary}). Stay inside what the route names.",
+    "A doubt that does not block goes under 'Doubts' in the reply (conventions section 3); a blocker or a denied action ends the work and is named with what would release it. Never retry a denied action another way.",
+    "Never commit, merge or push in a headless run: the Regent reviews the tree and commits interactively.",
+    "Reply as plain text for a terminal, no tables wider than 100 columns. First line: '{route} · <verdict> · <one-line summary>'. Then done / left / blocked with percentage and fraction where they apply, then Doubts, then the files you changed, then the assumption line only if something was assumed (conventions section 8)."
+  ],
+  "routes": [
+    {"id": "doctor", "summary": "is this regency folder intact", "script": "doctor.py"},
+    {"id": "build", "summary": "are the generated aliases and tables up to date", "script": "build.py", "args": ["--check"]},
+    {"id": "conventions", "summary": "do regency's files follow the conventions", "script": "conventions_check.py"},
+    {"id": "ongoing", "summary": "the work ledger: ongoing, review, blocked, backlog", "script": "vp.py", "args": ["ongoing"]},
+    {"id": "trace", "summary": "every trace of agent work, to reconcile the ledger", "script": "vp.py", "args": ["trace"]},
+    {"id": "stale", "summary": "norm slices waiting for the Regent's check", "script": "vp.py", "args": ["stale"]},
+    {"id": "code", "summary": "norm slices that govern a code file", "script": "vp.py", "args": ["code"], "hint": "<code path>"},
+    {"id": "slice", "summary": "code governed by a norm slice", "script": "vp.py", "args": ["slice"], "hint": "<virtual path> [--show]"},
+    {"id": "lineage", "summary": "every slice resolves and every target exists", "script": "vp.py", "args": ["check"]},
+    {"id": "station", "summary": "is the station prepped for a pass", "script": "station.py", "args": ["check"], "hint": "[--unit <unit>]"},
+    {"id": "gate", "summary": "run the mechanical gate through mise", "script": "station.py", "args": ["gate"], "hint": "[--task <task>] [--log <new file>]"},
+    {"id": "journal", "summary": "the last checkpoints of agent work", "script": "hook-journal.py", "args": ["--tail"], "hint": "[n]", "default": ["20"]},
+    {"id": "resume-line", "summary": "the one-line resume slice for this folder", "script": "hook-resume.py", "args": ["--print"]},
+    {"id": "queue", "summary": "packets routed to the Regent", "script": "gov.py", "args": ["queue"]},
+
+    {"id": "ask", "summary": "a free question about the repository; reads only", "prompt": true, "profile": "read", "hint": "<question>"},
+    {"id": "measure", "summary": "what a change would touch, or what the tree already changed", "command": "measure-changes", "profile": "read", "hint": "<intended change | tree>", "default": ["tree"]},
+    {"id": "status", "summary": "review queue, regime, open returns and escalations", "command": "team:status", "profile": "read"},
+    {"id": "critical", "summary": "audit a claim, argument or design goal", "command": "engine:critical", "profile": "read", "hint": "<claim>"},
+    {"id": "causal", "summary": "goals and constraints into an architecture and a roadmap", "command": "engine:causal", "profile": "read", "hint": "<brief>"},
+    {"id": "decision", "summary": "structure a choice under uncertainty", "command": "engine:decision", "profile": "read", "hint": "<decision>"},
+    {"id": "control", "summary": "analyse a system that must regulate itself", "command": "engine:control", "profile": "read", "hint": "<system>"},
+    {"id": "clean", "summary": "inspect and plan a clean-up; applies nothing headless", "command": "engine:clean", "profile": "read", "hint": "<scope>"},
+
+    {"id": "do", "summary": "a free order under the work profile", "prompt": true, "profile": "work", "hint": "<order>"},
+    {"id": "proceed", "summary": "work the whole queue until a blocker or an empty queue", "command": "proceed", "profile": "work", "hint": "[scope]"},
+    {"id": "pass", "summary": "one orchestrated team pass over a unit", "command": "team", "profile": "work", "hint": "<unit>"},
+    {"id": "declare", "summary": "declare a pass; dispatch nothing", "command": "team:declare", "profile": "work", "hint": "[unit]"},
+    {"id": "reopen", "summary": "reopen a unit with a fresh pass", "command": "team:reopen", "profile": "work", "hint": "<unit>"},
+    {"id": "handoff", "summary": "close the stretch and hand the state over", "command": "order:handoff", "profile": "work"},
+    {"id": "resume", "summary": "reopen the project from its shortcuts index only", "command": "order:resume", "profile": "work"},
+    {"id": "germinate", "summary": "grow the path to a goal as a tree", "command": "order:germinate", "profile": "work", "hint": "<goal>"},
+    {"id": "dispatch", "summary": "classify an order and emit the dispatch manifest", "command": "order:dispatch", "profile": "work", "hint": "<order>"}
+  ],
+  "refused": [
+    {"id": "commit", "command": "arrange-cycle-commit", "reason": "merges and pushes reach outside the machine; the Regent watches each step interactively"},
+    {"id": "init", "command": "init", "reason": "names every path before creating it and waits for the Regent's yes; run it interactively"},
+    {"id": "ux-init", "command": "ux-init", "reason": "fills the brief with the Regent through questions; run it interactively"},
+    {"id": "release", "command": null, "reason": "the release verb is the Regent's own, and a headless run's hazard watch ends with its session; run python scripts/hook-hazard.py --clear yourself if needed"}
+  ]
+}

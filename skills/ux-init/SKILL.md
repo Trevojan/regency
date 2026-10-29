@@ -17,13 +17,16 @@ script copies, checks and generates.
 ## Procedure
 
 1. **Target.** The argument, else the project's guidelines root found with `library/layouts.md` §1.
-   No guidelines root: offer `/regency:init` first and stop; `.ux/` lives beside the other axes.
+   No guidelines root: offer `/regency:init` first and stop; `.ux/` lives beside the other axes. With one,
+   run `python scripts/migrate.py gate`: exit 1 offers `/regency:update` first, exit 2 stops.
 2. **Look before creating.** If `<root>/.ux/` exists, report what is there; offer to fill gaps only.
 3. **Name every path.** `python scripts/ux.py plan <root>` lists each file it would create and each that
    already exists. Show the list and ask for a yes in one pop-up. The template's folders are fixed;
    do not add or drop one at scaffold time.
 4. **Scaffold.** `python scripts/ux.py scaffold <root> --yes`. It never overwrites: a file already
-   there gets `<name>.template` beside it; an identical one is skipped. Report every `.template`.
+   there gets `<name>.template` beside it; an identical one is skipped. Report every `.template`. Then
+   `python scripts/migrate.py stamp`: it records the version and the files just written, so a later
+   `/regency:update` knows which ones the project has not touched.
 5. **The brief, with the Regent.** Open `.ux/BRIEF.md`. Fill the holes the repository answers as fact
    (name, stack, paths, the engine and its levels) and cite each source. Ask the rest in pop-up waves,
    one section per wave, in the brief's order: Product → The artefact → The engine → Actors → The commit

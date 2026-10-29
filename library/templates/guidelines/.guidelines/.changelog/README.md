@@ -1,34 +1,33 @@
-# Changelog — como o número se move
+# Changelog — how the number moves
 
-> O registro em si é o [`CHANGELOG.md`](../../CHANGELOG.md) na raiz, e continua
-> sendo. Este arquivo é o **atalho**: a regra da versão, e o que cada release
-> decidiu, para não ser preciso reler tudo.
+> The record itself is the [`CHANGELOG.md`](../../CHANGELOG.md) at the root, and stays there. This file is
+> the **shortcut**: the version rule, and what each release decided, so nobody has to reread everything.
 
-## O esquema
+## The scheme
 
 ```
-⟨dígito⟩ . ⟨dígito⟩ . ⟨dígito⟩ . ⟨dígito⟩
+⟨digit⟩ . ⟨digit⟩ . ⟨digit⟩ . ⟨digit⟩
 ```
 
-| dígito | move quando |
+| digit | moves when |
 |---|---|
-| **⟨nome⟩** | ⟨o que tem de acontecer para ele mexer⟩ |
+| **⟨name⟩** | ⟨what has to happen for it to move⟩ |
 
-**Nenhum dígito zera outro.** Digitos movem-se independentemente e mantêm o seu
-lugar: mexer só na interface não pode descartar o número que o núcleo conquistou.
+**No digit resets another.** Digits move independently and keep their place: touching only the interface
+cannot throw away the number the core earned.
 
-## O que cada release decidiu
+## What each release decided
 
-> Uma linha por release, e só o que **moveu o dígito maior**. O detalhe está no
-> `CHANGELOG.md`; aqui fica o que se lembra.
+> One line per release, and only what **moved the highest digit**. The detail is in `CHANGELOG.md`; this
+> is what is remembered.
 
-| versão | o que moveu o dígito maior |
+| version | what moved the highest digit |
 |---|---|
-| **⟨x.y.z.w⟩** | ⟨a decisão, não a lista de arquivos⟩ |
+| **⟨x.y.z.w⟩** | ⟨the decision, not the list of files⟩ |
 
-## A regra que se aprende relendo
+## The rule learnt by rereading
 
-**A causa-raiz que mais se repete em qualquer repositório é uma só:** *uma
-decisão tomada num lugar e nunca levada aos outros.*
+**The root cause that repeats most in any repository is a single one:** *a decision taken in one place
+and never carried to the others.*
 
-Ao fechar qualquer mudança, a pergunta é: **onde mais isto estava escrito?**
+When closing any change, the question is: **where else was this written?**

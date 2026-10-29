@@ -1,13 +1,13 @@
 {
   "plugin": "regency",
-  "version": "2.4",
+  "version": "2.13",
   "_about": "Single source of truth for every /regency command. Edit here, then run: python scripts/build.py. Never edit commands/ or the generated dispatch tables by hand. Version is a.b (library/conventions.md section 13).",
   "commands": [
     {
       "id": "regency",
       "skill": "regency",
       "bare": true,
-      "summary": "Entry point: help, routing, doctor. A first token that names a subcommand is routed to it; a unit id such as M02.D03.T04 runs a team pass.",
+      "summary": "Entry point: help, routing, doctor. A first token that names a subcommand is routed to it; a unit id such as M02.S03.T04 runs a team pass.",
       "args": "[help | doctor | <subcommand> ... | <unit>]"
     },
     {
@@ -30,6 +30,16 @@
           "id": "reopen",
           "summary": "Reopen a unit: new pass, fresh context, labelled as a reopening.",
           "args": "<unit>"
+        },
+        {
+          "id": "extreme-go-horse",
+          "summary": "Speed mode, 'Release the Kraken!': two full teams on disjoint spans (DV on Sonnet, QA on Opus), each pass built straight through and reviewed at its end, chained until the fuel the Regent declared runs out; one packet per pass. Refuses without fuel.",
+          "args": "[range] fuel=<n>|fuel=all"
+        },
+        {
+          "id": "just-in-time",
+          "summary": "Speed mode: an Opus QA seeds the contract and task cards, Haiku DVs draft every task of the range in dependency waves, the QA gates each wave and accepts nothing; all DRAFT/UNVERIFIED on plumbing until a normal pass verifies it.",
+          "args": "<from> <to>"
         }
       ]
     },
@@ -115,14 +125,14 @@
     {
       "id": "scribe",
       "skill": "scribe",
-      "summary": "Scribe sub-agent: turn a concept, requirement or development problem into a clean, causally structured development artifact using the engines.",
-      "args": "<delegated material>"
+      "summary": "Call suba-scribe to write a text for the caller - a document, spec, essay or chapter - in increments the caller reviews; the same subagent DV wears for development artefacts, here with none of DV's authority.",
+      "args": "<what to write, and the material>"
     },
     {
       "id": "order",
       "skill": "order",
-      "summary": "Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project.",
-      "args": "<germinate|handoff|dispatch|resume> [material]",
+      "summary": "Fill and emit one of the four standard Orders from its template, as a numbered, immutable contract in the project; or run an open Emission's Orders lazily.",
+      "args": "<germinate|handoff|dispatch|resume> [material] | lazy [EMS-id]",
       "subs": [
         {
           "id": "germinate",
@@ -143,6 +153,11 @@
           "id": "resume",
           "summary": "Reopen a project mid-work from its shortcuts index only, never from the whole repository.",
           "args": ""
+        },
+        {
+          "id": "lazy",
+          "summary": "Speed mode: execute the open (or named) Emission's Orders in sequence, deciding where the conventions settle it; an Order that needs the Regent is skipped and logged with two candidate answers. One report: done, skipped, blocked chain.",
+          "args": "[EMS-id]"
         }
       ]
     },
@@ -159,10 +174,28 @@
       "args": "[guidelines root]"
     },
     {
+      "id": "update",
+      "skill": "update",
+      "summary": "Bring a project to the installed regency: from its stamp, plan every operation the newer version needs (replace untouched scaffold files, put the new text beside edited ones, create, rename, move, delete, rewrite what regency owns), apply the whole plan on one yes in a clean git tree, then check. Never touches the project's own prose, its acts or .scope/.",
+      "args": "[plan | check]",
+      "subs": [
+        {
+          "id": "plan",
+          "summary": "Dry run: the gate, then every operation the update would run, numbered, with its plan id. Applies nothing.",
+          "args": ""
+        },
+        {
+          "id": "check",
+          "summary": "Does the project fit the installed regency? The stamp agrees and no operation is pending.",
+          "args": ""
+        }
+      ]
+    },
+    {
       "id": "virtualpath",
       "skill": "virtualpath",
-      "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing vs backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
-      "args": "<code|slice|stale|check|ongoing|trace> [argument]",
+      "summary": "Query the code-to-norm lineage registry and the work ledger (what is ongoing, drafted, in review or backlogged, plus every trace of agent work) with scripts/vp.py. The first peek when returning to a repository.",
+      "args": "<code|slice|stale|ongoing|trace|drafts> [argument]",
       "subs": [
         {
           "id": "code",
@@ -180,18 +213,18 @@
           "args": ""
         },
         {
-          "id": "check",
-          "summary": "Check that every slice resolves to an anchor and every target file exists.",
-          "args": ""
-        },
-        {
           "id": "ongoing",
-          "summary": "Read the work ledger (.virtual/ongoing.json): what is ongoing, in review, blocked or only backlog. First peek on returning to a repo.",
+          "summary": "Read the work ledger (.virtual/ongoing.json): what is ongoing, drafted, in review, blocked or only backlog. First peek on returning to a repo.",
           "args": ""
         },
         {
           "id": "trace",
           "summary": "Gather every trace of agent work (uncommitted files, unmerged branches, stashes, recent commits, touched guidelines, STALE lines, Orders) to reconcile the ledger.",
+          "args": ""
+        },
+        {
+          "id": "drafts",
+          "summary": "List every unverified speed-mode draft (ledger items and DRAFT commits no verifying commit closed); exits 1 while one remains, and nothing merges past plumbing until it is 0.",
           "args": ""
         }
       ]
@@ -229,6 +262,80 @@
           "args": ""
         }
       ]
+    },
+    {
+      "id": "health",
+      "skill": "health",
+      "summary": "The Regent's checkup, one line per finding with its method: a summary of every check that applies here; the project's ratified check set; the harness checking itself; and single checks for shortcuts, the project's regency version, split copies of regency, release outputs, engines, hooks, queues, always-on context and the input-process-output pipeline. Read-only unless the Regent answers yes.",
+      "args": "[project | harness | doctor | shortcuts | version | copies | distributable | engines | hooks | queues | context | pipeline]",
+      "subs": [
+        {
+          "id": "project",
+          "summary": "Run the project's ratified check set and, bound to a claude.ai Project, that Project's own checks (duplicate names, knowledge against its cap, never-uploaded files, dated queues).",
+          "args": ""
+        },
+        {
+          "id": "harness",
+          "summary": "Regency checks itself: every self-test, the wiring, portability (the same as /regency doctor).",
+          "args": ""
+        },
+        {
+          "id": "doctor",
+          "summary": "Assemble the project's caring topics - which checks each part needs, which input-process-output can be watched - as a proposal for the Regent to ratify. Checks nothing itself.",
+          "args": "[guidelines root]"
+        },
+        {
+          "id": "shortcuts",
+          "summary": "Virtual paths, the entry index and its drift, and the exact index in one report: unresolved slices, missing targets, dead pointers, a stale state block, drifted files.",
+          "args": ""
+        },
+        {
+          "id": "version",
+          "summary": "The project against the installed regency: the version gate, update operations still owed, unverified speed-mode drafts.",
+          "args": ""
+        },
+        {
+          "id": "copies",
+          "summary": "Split copies of regency: this folder, every installed copy on the machine and every git branch - lines of work that split, a version naming two contents, a version only an install holds, uncommitted work.",
+          "args": "[--root DIR]"
+        },
+        {
+          "id": "distributable",
+          "summary": "A project's release outputs: generated files edited by hand, dist/ output or archives in an uploaded set, machine paths inside a release.",
+          "args": "[--list FILE] [--release DIR]"
+        },
+        {
+          "id": "engines",
+          "summary": "Every engine copy (regency's base, the machine's, the account's) against the Regent's ratified record: AOK, STALE or UNCHECKED; ratify the current state, or deny it and get regency's base back; the layer in force for this repository.",
+          "args": "[ratify | restore] [KEY]"
+        },
+        {
+          "id": "hooks",
+          "summary": "Which wired hooks have fired on this machine (heartbeats) and in this project (the journal); a hook that never fires fails open.",
+          "args": ""
+        },
+        {
+          "id": "queues",
+          "summary": "Dated queues by age and the ledger's review count against its WIP limit.",
+          "args": "[--file F --section S --days N] [--wip N]"
+        },
+        {
+          "id": "context",
+          "summary": "The harness's always-on token cost (skill and command descriptions, the conventions import, the resume line) against a budget.",
+          "args": "[--budget N]"
+        },
+        {
+          "id": "pipeline",
+          "summary": "Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code.",
+          "args": "[--cases FILE] [--scan PATH ...]"
+        }
+      ]
+    },
+    {
+      "id": "serious-doctor-appointment",
+      "skill": "serious-doctor-appointment",
+      "summary": "Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor.",
+      "args": "[guidelines root]"
     }
   ]
 }

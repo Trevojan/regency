@@ -583,7 +583,7 @@ def selftest():
             def calls():
                 return [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines()] if log.is_file() else []
 
-            unit = "M01.D01.T01"
+            unit = "M01.S01.T01"
             os.environ["REGENCY_MISE"] = "none"
             absent = check_station(root, unit)
             cases = [(levels(absent).get("mise") == "SKIP" and verdict(absent) == "green", "mise absent: SKIP, regency items still run, green")]
@@ -600,9 +600,9 @@ def selftest():
             cases.append((verdict(green) == "green" and captured(cmd_check, root, unit, False)[0] == 0,
                           "prepped station: green, exit 0"))
             cases.append((levels(green).get("gate-task") == "OK" and levels(green).get("lineage") == "OK", "gate task and lineage read"))
-            cases.append((levels(check_station(root, "M02.D01.T03")).get("ledger") == "OK", "unit covered by its module's ledger item"))
-            cases.append((levels(check_station(root, "M09.D01.T01")).get("ledger") == "FAIL", "unit with no ledger entry: FAIL"))
-            cases.append((levels(check_station(root, "M01.D02.T01")).get("ledger") == "WARN", "blocked unit: WARN, team check 2 decides"))
+            cases.append((levels(check_station(root, "M02.S01.T03")).get("ledger") == "OK", "unit covered by its module's ledger item"))
+            cases.append((levels(check_station(root, "M09.S01.T01")).get("ledger") == "FAIL", "unit with no ledger entry: FAIL"))
+            cases.append((levels(check_station(root, "M01.S02.T01")).get("ledger") == "WARN", "blocked unit: WARN, team check 2 decides"))
             cases.append((not any(c["args"][:1] == ["run"] or c["args"] == ["trust"] for c in calls()),
                           "check is read-only: no run, no trust"))
 

@@ -8,37 +8,37 @@
        the 1-column grid gets 7 implicit auto columns from col-span-8 and the row overflows. Render at 360px. -->
   <div data-pattern="G01" data-case="broken">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-      <div class="demo col-span-8 h-24 p-2">Receita mensal</div>
-      <div class="demo col-span-4 h-24 p-2">Canais</div>
+      <div class="demo col-span-8 h-24 p-2">Monthly revenue</div>
+      <div class="demo col-span-4 h-24 p-2">Channels</div>
     </div>
   </div>
   <div data-pattern="G01" data-case="fixed">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-      <div class="demo h-24 p-2 lg:col-span-8">Receita mensal</div>
-      <div class="demo h-24 p-2 lg:col-span-4">Canais</div>
-      <div class="demo h-24 p-2 lg:col-span-6">Pedidos por dia</div>
-      <div class="demo h-24 p-2 lg:col-span-6">Ticket médio</div>
+      <div class="demo h-24 p-2 lg:col-span-8">Monthly revenue</div>
+      <div class="demo h-24 p-2 lg:col-span-4">Channels</div>
+      <div class="demo h-24 p-2 lg:col-span-6">Orders per day</div>
+      <div class="demo h-24 p-2 lg:col-span-6">Average order</div>
     </div>
   </div>
 
   <!-- G02 Responsive count: 1 → 2 (sm) → 4 (xl). Four items, so no hole at any width. -->
   <div data-pattern="G02" data-case="sample">
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-      <div class="demo h-20 p-2">Receita total</div>
-      <div class="demo h-20 p-2">Pedidos</div>
-      <div class="demo h-20 p-2">Ticket médio</div>
-      <div class="demo h-20 p-2">Clientes ativos</div>
+      <div class="demo h-20 p-2">Total revenue</div>
+      <div class="demo h-20 p-2">Orders</div>
+      <div class="demo h-20 p-2">Average order</div>
+      <div class="demo h-20 p-2">Active customers</div>
     </div>
   </div>
 
   <!-- G03 Reflowing gallery: as many 16rem+ columns as fit; no breakpoints. -->
   <div data-pattern="G03" data-case="sample">
     <div class="grid grid-gallery gap-6">
-      <div class="demo h-20 p-2">Campinas</div>
-      <div class="demo h-20 p-2">Santos</div>
-      <div class="demo h-20 p-2">Ribeirão Preto</div>
-      <div class="demo h-20 p-2">Sorocaba</div>
-      <div class="demo h-20 p-2">São José dos Campos</div>
+      <div class="demo h-20 p-2">Bristol</div>
+      <div class="demo h-20 p-2">Bath</div>
+      <div class="demo h-20 p-2">Milton Keynes</div>
+      <div class="demo h-20 p-2">Swindon</div>
+      <div class="demo h-20 p-2">Stratford-upon-Avon</div>
     </div>
   </div>
 
@@ -46,29 +46,29 @@
        h-64 here only to keep the sample short; a real shell uses min-h-dvh. -->
   <div data-pattern="G04" data-case="sample">
     <div class="grid h-64 grid-cols-1 lg:grid-shell">
-      <nav class="demo hidden p-2 lg:block" aria-label="Seções">Visão geral · Pedidos · Clientes · Relatórios</nav>
-      <div class="demo min-w-0 p-2">Conteúdo da página</div>
+      <nav class="demo hidden p-2 lg:block" aria-label="Sections">Overview · Orders · Customers · Reports</nav>
+      <div class="demo min-w-0 p-2">Page content</div>
     </div>
   </div>
 
   <!-- G05 Form: one column until md; short related fields pair up; long field spans both. -->
   <div data-pattern="G05" data-case="sample">
     <form class="grid max-w-2xl gap-4 md:grid-cols-2">
-      <div class="demo p-2">Nome</div>
-      <div class="demo p-2">Sobrenome</div>
-      <div class="demo p-2 md:col-span-2">E-mail</div>
-      <div class="demo p-2">Cidade</div>
-      <div class="demo p-2">UF</div>
+      <div class="demo p-2">First name</div>
+      <div class="demo p-2">Surname</div>
+      <div class="demo p-2 md:col-span-2">Email</div>
+      <div class="demo p-2">City</div>
+      <div class="demo p-2">Nation</div>
     </form>
   </div>
 
   <!-- G06 Label / value list: labels take the widest label's width, values take the rest and may truncate. -->
   <div data-pattern="G06" data-case="sample">
     <dl class="demo grid max-w-md grid-dl gap-x-4 gap-y-2 p-2">
-      <dt>Cliente</dt><dd class="truncate">Ana Souza Albuquerque de Oliveira</dd>
-      <dt>Pedido</dt><dd>1042</dd>
-      <dt>Forma de pagamento</dt><dd>Pix</dd>
-      <dt>Endereço</dt><dd class="truncate">Rua Barão de Jaguara, 1481, sala 32 — Centro, Campinas</dd>
+      <dt>Customer</dt><dd class="truncate">Anna Southwood-Albright of Oldfield</dd>
+      <dt>Order</dt><dd>1042</dd>
+      <dt>Payment method</dt><dd>Card</dd>
+      <dt>Address</dt><dd class="truncate">Suite 32, 1481 Queen's Road — City Centre, Bristol</dd>
     </dl>
   </div>
 
@@ -76,8 +76,8 @@
        label is placed with self-end / justify-self-start. -->
   <div data-pattern="G07" data-case="sample">
     <div class="grid max-w-sm">
-      <div class="demo col-start-1 row-start-1 h-40 p-2">Imagem do produto</div>
-      <p class="demo col-start-1 row-start-1 m-2 self-end justify-self-start p-2">Mais vendido</p>
+      <div class="demo col-start-1 row-start-1 h-40 p-2">Product image</div>
+      <p class="demo col-start-1 row-start-1 m-2 self-end justify-self-start p-2">Best seller</p>
     </div>
   </div>
 
@@ -85,35 +85,35 @@
        wraps. Fixed: card spans 3 parent rows and uses them (grid-rows-subgrid). -->
   <div data-pattern="G08" data-case="broken">
     <div class="grid gap-6 md:grid-cols-3">
-      <article class="demo grid gap-2 p-2"><h3>Plano básico</h3><p>R$ 49/mês</p><p>Assinar</p></article>
-      <article class="demo grid gap-2 p-2"><h3>Plano profissional com relatórios avançados</h3><p>R$ 129/mês</p><p>Assinar</p></article>
-      <article class="demo grid gap-2 p-2"><h3>Plano empresa</h3><p>Sob consulta</p><p>Falar com vendas</p></article>
+      <article class="demo grid gap-2 p-2"><h3>Basic plan</h3><p>£49/month</p><p>Subscribe</p></article>
+      <article class="demo grid gap-2 p-2"><h3>Professional plan with advanced reports</h3><p>£129/month</p><p>Subscribe</p></article>
+      <article class="demo grid gap-2 p-2"><h3>Business plan</h3><p>On request</p><p>Talk to sales</p></article>
     </div>
   </div>
   <div data-pattern="G08" data-case="fixed">
     <div class="grid gap-6 md:grid-cols-3">
-      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano básico</h3><p>R$ 49/mês</p><p>Assinar</p></article>
-      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano profissional com relatórios avançados</h3><p>R$ 129/mês</p><p>Assinar</p></article>
-      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Plano empresa</h3><p>Sob consulta</p><p>Falar com vendas</p></article>
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Basic plan</h3><p>£49/month</p><p>Subscribe</p></article>
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Professional plan with advanced reports</h3><p>£129/month</p><p>Subscribe</p></article>
+      <article class="demo row-span-3 grid grid-rows-subgrid gap-2 p-2"><h3>Business plan</h3><p>On request</p><p>Talk to sales</p></article>
     </div>
   </div>
 
   <!-- G09 Equal-height rows across the whole grid (uniform tiles only). -->
   <div data-pattern="G09" data-case="sample">
     <div class="grid auto-rows-fr grid-cols-2 gap-4 md:grid-cols-4">
-      <div class="demo p-2">Pix</div>
-      <div class="demo p-2">Cartão de crédito em até 12 vezes sem juros</div>
-      <div class="demo p-2">Boleto</div>
-      <div class="demo p-2">Transferência</div>
-      <div class="demo p-2">Débito</div>
-      <div class="demo p-2">Crédito</div>
+      <div class="demo p-2">Card</div>
+      <div class="demo p-2">Credit card in up to 12 interest-free instalments</div>
+      <div class="demo p-2">Invoice</div>
+      <div class="demo p-2">Transfer</div>
+      <div class="demo p-2">Debit</div>
+      <div class="demo p-2">Credit</div>
     </div>
   </div>
 
   <!-- G10 Centre one child on both axes. -->
   <div data-pattern="G10" data-case="sample">
     <div class="demo grid h-32 place-items-center">
-      <p class="demo p-2">Carregando relatório</p>
+      <p class="demo p-2">Loading report</p>
     </div>
   </div>
 
@@ -122,14 +122,14 @@
        Fixed: grid-cols-2 (= minmax(0,1fr)) and the value breaks inside its column. -->
   <div data-pattern="G11" data-case="broken">
     <div class="demo grid w-80 gap-4 p-2" style="grid-template-columns: 1fr 1fr">
-      <div class="demo p-2">https://loja.exemplo.com.br/pedidos/1042/comprovante-de-pagamento.pdf</div>
-      <div class="demo p-2">Comprovante</div>
+      <div class="demo p-2">https://shop.example.co.uk/orders/1042/proof-of-payment-receipt.pdf</div>
+      <div class="demo p-2">Receipt</div>
     </div>
   </div>
   <div data-pattern="G11" data-case="fixed">
     <div class="demo grid w-80 grid-cols-2 gap-4 p-2">
-      <div class="demo p-2 break-all">https://loja.exemplo.com.br/pedidos/1042/comprovante-de-pagamento.pdf</div>
-      <div class="demo p-2">Comprovante</div>
+      <div class="demo p-2 break-all">https://shop.example.co.uk/orders/1042/proof-of-payment-receipt.pdf</div>
+      <div class="demo p-2">Receipt</div>
     </div>
   </div>
 

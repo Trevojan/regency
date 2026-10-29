@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """hook-shortcuts.py - SessionEnd: rewrite the generated state block of the entry index.
 
-Decision record R7.3. At the end of a session in an adopted project (one with .shortcuts/.virtual/),
-runs shortcuts.refresh(): the block between the shortcuts:state markers in .shortcuts/README.md is
-rewritten when the state moved, and left alone when it did not. Without markers nothing is written
-(shortcuts.py refresh --init appends them once). No hashing here: SessionEnd hooks share a 1.5 s budget.
+Decision records R7.3 and R12 (library/shortcuts.md §5). At the end of a session in an adopted project (one
+with .shortcuts/.virtual/), runs shortcuts.refresh(): the block between the shortcuts:state markers in
+.shortcuts/README.md is rewritten when the state moved, and left alone when it did not. Without markers nothing
+is written (shortcuts.py refresh --init appends them once). No scan here: SessionEnd hooks share a 1.5 s budget,
+so only the index file itself is hashed, and only when the block was rewritten.
 
 A recorder: never blocks, never answers, errors go to stderr only (hook_wire.serve).
 

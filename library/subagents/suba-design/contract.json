@@ -1,0 +1,219 @@
+{
+  "description": "The return contract of suba-design: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "experience",
+      "language",
+      "handoff"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "experience": {
+        "type": "object",
+        "required": [
+          "goal",
+          "surfaces",
+          "flow",
+          "states",
+          "affordances"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "goal": {
+            "type": "object",
+            "required": [
+              "goal",
+              "source"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "goal": {
+                "type": "string",
+                "minLength": 1,
+                "description": "the user goal"
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "its source"
+              }
+            }
+          },
+          "surfaces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a surface"
+            }
+          },
+          "flow": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a step of the flow"
+            }
+          },
+          "states": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "state",
+                "transitions"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a reachable state"
+                },
+                "transitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "to",
+                      "trigger"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "to": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "next state"
+                      },
+                      "trigger": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "trigger"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "affordances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "affordance",
+                "feedback",
+                "reversible"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "affordance": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "an affordance"
+                },
+                "feedback": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its feedback"
+                },
+                "reversible": {
+                  "type": "boolean",
+                  "description": "can the user undo it"
+                }
+              }
+            }
+          }
+        }
+      },
+      "language": {
+        "type": "object",
+        "required": [
+          "governing",
+          "rule_drafts"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "governing": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the .ux/ version in force, from its changelog"
+          },
+          "rule_drafts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "text"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "ids:ui-rule"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the proposed rule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "handoff": {
+        "type": "object",
+        "required": [
+          "resolved",
+          "conditions",
+          "accessibility",
+          "preferences",
+          "open"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "resolved": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a case resolved"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a condition QA can check"
+            }
+          },
+          "accessibility": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an accessibility condition"
+            }
+          },
+          "preferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a preference: marked, never an obligation"
+            }
+          },
+          "open": {
+            "type": "array",
+            "items": {
+              "$ref": "envelope#/$defs/question"
+            }
+          }
+        }
+      }
+    }
+  }
+}

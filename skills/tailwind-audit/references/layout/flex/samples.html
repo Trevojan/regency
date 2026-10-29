@@ -6,10 +6,10 @@
   <!-- F01 Bar: start / end. Start side may truncate (min-w-0); end side never shrinks (shrink-0). -->
   <div data-pattern="F01" data-case="sample">
     <div class="demo flex items-center justify-between gap-4 p-2">
-      <div class="demo min-w-0 p-2"><p class="truncate">Painel de vendas — Região Sudeste e Centro-Oeste consolidadas</p></div>
+      <div class="demo min-w-0 p-2"><p class="truncate">Sales dashboard — South East and Midlands regions combined</p></div>
       <div class="demo flex shrink-0 items-center gap-2 p-2">
-        <span class="demo px-3 py-1">Exportar</span>
-        <span class="demo px-3 py-1">Novo</span>
+        <span class="demo px-3 py-1">Export</span>
+        <span class="demo px-3 py-1">New</span>
       </div>
     </div>
   </div>
@@ -23,10 +23,10 @@
       <div class="flex items-center gap-2 p-2">
         <span class="demo size-4 shrink-0" aria-hidden="true"></span>
         <div class="demo flex-1">
-          <p class="truncate">relatorio-financeiro-consolidado-2026-setembro.xlsx</p>
-          <p class="truncate">Enviado por Ana Souza</p>
+          <p class="truncate">consolidated-financial-report-2026-september.xlsx</p>
+          <p class="truncate">Sent by Anna Southwood</p>
         </div>
-        <span class="demo shrink-0">2,4 MB</span>
+        <span class="demo shrink-0">2.4 MB</span>
       </div>
     </div>
   </div>
@@ -35,10 +35,10 @@
       <div class="flex items-center gap-2 p-2">
         <span class="demo size-4 shrink-0" aria-hidden="true"></span>
         <div class="demo min-w-0 flex-1">
-          <p class="truncate">relatorio-financeiro-consolidado-2026-setembro.xlsx</p>
-          <p class="truncate">Enviado por Ana Souza</p>
+          <p class="truncate">consolidated-financial-report-2026-september.xlsx</p>
+          <p class="truncate">Sent by Anna Southwood</p>
         </div>
-        <span class="demo shrink-0">2,4 MB</span>
+        <span class="demo shrink-0">2.4 MB</span>
       </div>
     </div>
   </div>
@@ -46,9 +46,9 @@
   <!-- F03 Push to the edge: ms-auto on the first item that should go to the end. -->
   <div data-pattern="F03" data-case="sample">
     <div class="demo flex items-center gap-2 p-2">
-      <span class="demo px-3 py-1">Filtrar</span>
-      <span class="demo px-3 py-1">Ordenar</span>
-      <span class="demo ms-auto px-3 py-1">Limpar</span>
+      <span class="demo px-3 py-1">Filter</span>
+      <span class="demo px-3 py-1">Sort</span>
+      <span class="demo ms-auto px-3 py-1">Clear</span>
     </div>
   </div>
 
@@ -57,28 +57,28 @@
   <div data-pattern="F04" data-case="broken">
     <div class="grid grid-cols-2 gap-4">
       <article class="demo flex flex-col">
-        <div class="p-3">Receita mensal</div>
-        <div class="p-3">Uma linha.</div>
-        <div class="demo p-3">Atualizado há 5 min</div>
+        <div class="p-3">Monthly revenue</div>
+        <div class="p-3">One line.</div>
+        <div class="demo p-3">Updated 5 min ago</div>
       </article>
       <article class="demo flex flex-col">
-        <div class="p-3">Pedidos</div>
-        <div class="p-3">Conteúdo mais longo que ocupa várias linhas e estica este card além do vizinho.</div>
-        <div class="demo p-3">Atualizado há 5 min</div>
+        <div class="p-3">Orders</div>
+        <div class="p-3">Longer content that takes several lines and stretches this card past its neighbour.</div>
+        <div class="demo p-3">Updated 5 min ago</div>
       </article>
     </div>
   </div>
   <div data-pattern="F04" data-case="fixed">
     <div class="grid grid-cols-2 gap-4">
       <article class="demo flex flex-col">
-        <div class="p-3">Receita mensal</div>
-        <div class="flex-1 p-3">Uma linha.</div>
-        <div class="demo p-3">Atualizado há 5 min</div>
+        <div class="p-3">Monthly revenue</div>
+        <div class="flex-1 p-3">One line.</div>
+        <div class="demo p-3">Updated 5 min ago</div>
       </article>
       <article class="demo flex flex-col">
-        <div class="p-3">Pedidos</div>
-        <div class="flex-1 p-3">Conteúdo mais longo que ocupa várias linhas e estica este card além do vizinho.</div>
-        <div class="demo p-3">Atualizado há 5 min</div>
+        <div class="p-3">Orders</div>
+        <div class="flex-1 p-3">Longer content that takes several lines and stretches this card past its neighbour.</div>
+        <div class="demo p-3">Updated 5 min ago</div>
       </article>
     </div>
   </div>
@@ -90,39 +90,39 @@
        flex-1 ancestor between the fixed height and the scroller.) -->
   <div data-pattern="F05" data-case="broken" data-room="below">
     <div class="demo flex h-48 w-64 flex-col">
-      <div class="demo p-2">Notificações</div>
+      <div class="demo p-2">Notifications</div>
       <div class="demo flex flex-1 flex-col">
-        <div class="p-2">Buscar</div>
+        <div class="p-2">Search</div>
         <ul class="flex-1 overflow-y-auto p-2">
-          <li>Pedido 1042 pago</li><li>Pedido 1043 pago</li><li>Pedido 1044 enviado</li><li>Pedido 1045 pago</li>
-          <li>Pedido 1046 cancelado</li><li>Pedido 1047 pago</li><li>Pedido 1048 enviado</li><li>Pedido 1049 pago</li>
+          <li>Order 1042 paid</li><li>Order 1043 paid</li><li>Order 1044 shipped</li><li>Order 1045 paid</li>
+          <li>Order 1046 cancelled</li><li>Order 1047 paid</li><li>Order 1048 shipped</li><li>Order 1049 paid</li>
         </ul>
       </div>
-      <div class="demo p-2">Ver todas</div>
+      <div class="demo p-2">View all</div>
     </div>
   </div>
   <div data-pattern="F05" data-case="fixed">
     <div class="demo flex h-48 w-64 flex-col">
-      <div class="demo p-2">Notificações</div>
+      <div class="demo p-2">Notifications</div>
       <div class="demo flex min-h-0 flex-1 flex-col">
-        <div class="p-2">Buscar</div>
+        <div class="p-2">Search</div>
         <ul class="flex-1 overflow-y-auto p-2">
-          <li>Pedido 1042 pago</li><li>Pedido 1043 pago</li><li>Pedido 1044 enviado</li><li>Pedido 1045 pago</li>
-          <li>Pedido 1046 cancelado</li><li>Pedido 1047 pago</li><li>Pedido 1048 enviado</li><li>Pedido 1049 pago</li>
+          <li>Order 1042 paid</li><li>Order 1043 paid</li><li>Order 1044 shipped</li><li>Order 1045 paid</li>
+          <li>Order 1046 cancelled</li><li>Order 1047 paid</li><li>Order 1048 shipped</li><li>Order 1049 paid</li>
         </ul>
       </div>
-      <div class="demo p-2">Ver todas</div>
+      <div class="demo p-2">View all</div>
     </div>
   </div>
 
   <!-- F06 Wrapping toolbar: gap works on both axes after wrapping. -->
   <div data-pattern="F06" data-case="sample">
     <div class="demo flex max-w-sm flex-wrap items-center gap-2 p-2">
-      <span class="demo px-3 py-1">Últimos 30 dias</span>
-      <span class="demo px-3 py-1">Todas as regiões</span>
-      <span class="demo px-3 py-1">Canal: online</span>
-      <span class="demo px-3 py-1">Status: pago</span>
-      <span class="demo px-3 py-1">Limpar</span>
+      <span class="demo px-3 py-1">Last 30 days</span>
+      <span class="demo px-3 py-1">All regions</span>
+      <span class="demo px-3 py-1">Channel: online</span>
+      <span class="demo px-3 py-1">Status: paid</span>
+      <span class="demo px-3 py-1">Clear</span>
     </div>
   </div>
 
@@ -130,35 +130,35 @@
   <div data-pattern="F07" data-case="sample">
     <section class="demo flex flex-col gap-4 p-2 sm:flex-row sm:items-end sm:justify-between">
       <div class="demo min-w-0 p-2">
-        <p class="truncate text-2xl">Visão geral</p>
-        <p>Indicadores dos últimos 30 dias</p>
+        <p class="truncate text-2xl">Overview</p>
+        <p>Indicators for the last 30 days</p>
       </div>
       <div class="demo flex flex-wrap items-center gap-2 p-2">
-        <span class="demo px-3 py-1">Período</span>
-        <span class="demo px-3 py-1">Exportar</span>
-        <span class="demo px-3 py-1">Novo relatório</span>
+        <span class="demo px-3 py-1">Period</span>
+        <span class="demo px-3 py-1">Export</span>
+        <span class="demo px-3 py-1">New report</span>
       </div>
     </section>
   </div>
 
   <!-- F08 Baseline: different font sizes share one text baseline. -->
   <div data-pattern="F08" data-case="sample">
-    <p class="demo flex items-baseline gap-1 p-2"><span class="text-3xl">487,3</span><span class="text-sm">mil</span></p>
+    <p class="demo flex items-baseline gap-1 p-2"><span class="text-3xl">487.3</span><span class="text-sm">k</span></p>
   </div>
 
   <!-- F09 Control content: inline-flex keeps the control inline, centres icon + label, never wraps. -->
   <div data-pattern="F09" data-case="sample">
     <span class="demo inline-flex h-9 items-center justify-center gap-2 px-4 whitespace-nowrap">
-      <span class="demo size-4 shrink-0" aria-hidden="true"></span>Exportar CSV
+      <span class="demo size-4 shrink-0" aria-hidden="true"></span>Export CSV
     </span>
   </div>
 
   <!-- F10 Equal segments: flex-1 = basis 0, so label length does not change segment width. -->
   <div data-pattern="F10" data-case="sample">
     <div class="demo flex w-72 p-0.5">
-      <span class="demo flex-1 py-1 text-center">Dia</span>
-      <span class="demo flex-1 py-1 text-center">Semana</span>
-      <span class="demo flex-1 py-1 text-center">Mês</span>
+      <span class="demo flex-1 py-1 text-center">Day</span>
+      <span class="demo flex-1 py-1 text-center">Week</span>
+      <span class="demo flex-1 py-1 text-center">Month</span>
     </div>
   </div>
 
@@ -166,8 +166,8 @@
   <div data-pattern="F11" data-case="sample">
     <div class="demo flex h-48 flex-col items-center justify-center gap-2 p-4 text-center">
       <span class="demo size-8" aria-hidden="true"></span>
-      <p>Nenhuma venda neste período</p>
-      <p>Amplie o intervalo de datas.</p>
+      <p>No sales in this period</p>
+      <p>Widen the date range.</p>
     </div>
   </div>
 
@@ -176,8 +176,8 @@
     <div class="demo flex max-w-sm items-start gap-3 p-2">
       <span class="demo size-10 shrink-0" aria-hidden="true"></span>
       <div class="min-w-0">
-        <p class="truncate">Ana Souza Albuquerque de Oliveira</p>
-        <p>Aprovou o pedido 1042 e pediu revisão do frete para a filial de Campinas.</p>
+        <p class="truncate">Anna Southwood-Albright of Oldfield</p>
+        <p>Approved order 1042 and asked for the freight to the Bristol branch to be reviewed.</p>
       </div>
     </div>
   </div>

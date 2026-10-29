@@ -172,7 +172,7 @@ def classify_words(w):
 def findings(command, depth=0):
     """Every finding in a command, nested shells included: [(kind, label)]."""
     out = []
-    for seg in guard_push.segments(command or ""):
+    for seg in guard_push.segments(guard_push.data_only(command)):
         if depth < 3 and seg and name(seg[0]) in SHELLS:
             for t in seg[1:]:
                 if " " in t:
@@ -204,7 +204,7 @@ def hits_project(command, cwd, depth=0):
     """The first destructive finding that reaches the project, or None. A delete that names only
     paths outside the project (temp, scratch) does not reach it."""
     repo = wire.repo_root(Path(cwd))
-    for seg in guard_push.segments(command or ""):
+    for seg in guard_push.segments(guard_push.data_only(command)):
         if depth < 3 and seg and name(seg[0]) in SHELLS:
             for t in seg[1:]:
                 found = hits_project(t, cwd, depth + 1) if " " in t else None
@@ -351,6 +351,14 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
     ("git push -u origin feat", "allow"),
     ("git worktree add ../w feat", "ask"),
     ("git commit -m 'rm -rf everything'", "allow"),
+    ("cat > notes.md <<'EOF'\nthe agent ran `rm -rf` once\nEOF", "allow"),
+    ("python3 - <<'PY'\nprint('rm -rf build')\nPY", "allow"),
+    ("cat > notes.md <<EOF\nplain words: rm -rf is named here\nEOF", "allow"),
+    ("cat > notes.md <<EOF\nrm -rf opens this line, as text\nEOF", "allow"),
+    ("bash <<'EOF'\nrm -rf build\nEOF", "ask"),
+    ("cat <<'EOF' | sh\nrm -rf build\nEOF", "ask"),
+    ("cat > out.txt <<EOF\n`rm -rf build`\nEOF", "ask"),
+    ("cat > notes.md <<'EOF'\ntext\nEOF\nrm -rf build", "ask"),
     ('echo "rm -rf /"', "allow"),
     ('bash -c "rm -rf dist"', "ask"),
     ("FOO=1 rm x", "ask"),

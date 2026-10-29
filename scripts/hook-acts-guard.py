@@ -30,8 +30,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
-import shortcuts  # noqa: E402  (guard_generated(): the state block is generated, R7)
 from conventions_check import BANNED, tokens  # noqa: E402
+import shortcuts  # noqa: E402  (guard_generated(): the state block is generated, R7)
 
 _spec = importlib.util.spec_from_file_location("hook_hazard", Path(__file__).resolve().parent / "hook-hazard.py")
 hazard = importlib.util.module_from_spec(_spec)
@@ -154,12 +154,12 @@ def selftest():
         cases.append((verdict(respond(ev("Edit", "src/Page.razor", sid="s2"))) == "allow",
                       "hazard watch is per session"))
         cases.append((respond({"tool_name": "Bash", "tool_input": {"command": "ls"}}) is None, "other tools pass"))
-        idx = root / ".guidelines/.shortcuts/README.md"
-        idx.write_text("# Shortcuts\n\nRead the state block first.\n", encoding="utf-8")
+        index = root / ".guidelines/.shortcuts/README.md"
+        index.write_text("# Shortcuts\n\nRead the state block first.\n", encoding="utf-8")
         shortcuts.refresh(shortcuts.locate(root), init=True)
-        block = "| latest Order | ORD-0001 |"
         inside = dict(ev("Edit", ".guidelines/.shortcuts/README.md", sid="s3"))
-        inside["tool_input"] = dict(inside["tool_input"], old_string=block, new_string="| latest Order | ORD-0009 |")
+        inside["tool_input"] = dict(inside["tool_input"], old_string="| latest Order | ORD-0001 |",
+                                    new_string="| latest Order | ORD-0009 |")
         outside = dict(inside, tool_input=dict(inside["tool_input"], old_string="Read the state block first.",
                                                new_string="Read it first."))
         cases.append((verdict(respond(inside)) == "deny", "shortcuts state block: hand edit inside -> deny (R7)"))

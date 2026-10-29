@@ -1,34 +1,29 @@
-# História — o sótão
+# History — the attic
 
-> **Não é um eixo.** Um eixo responde a uma pergunta que alguém tem ao retomar o
-> trabalho; este diretório não responde a nenhuma. Ele existe para que **remover
-> não seja apagar**.
+> **Not an axis.** An axis answers a question someone has when resuming the work; this folder answers
+> none. It exists so that **removing is not deleting**.
 >
-> É a contrapartida de duas restrições: *perda conhecida é fixada com a razão* e
-> *nada desaparece em silêncio*. Um documento superado sai do caminho de leitura
-> sem sair do repositório.
+> It is the counterpart of two constraints: *a known loss is pinned with its reason* and *nothing
+> disappears in silence*. A superseded document leaves the reading path without leaving the repository.
 
-## O que vem para cá
+## What comes here
 
-Documento que **foi verdade** e deixou de ser: um changelist de versão antiga,
-um estudo que decidiu algo e depois foi absorvido, o rascunho que uma norma
-substituiu.
+A document that **was true** and stopped being so: an old version's change list, a study that decided
+something and was later absorbed, the draft a norm replaced.
 
-**O que não vem:** documento que ainda decide alguma coisa. Se ele ainda
-responde a uma pergunta, ele pertence ao eixo dela — e mover para cá é esconder,
-não arquivar.
+**What does not come here:** a document that still decides something. If it still answers a question, it
+belongs to that question's axis — and moving it here is hiding it, not archiving it.
 
-## O registro
+## The record
 
-Mover sem registrar é a mesma coisa que apagar, com passos a mais. Uma linha por
-mudança, a mais recente no topo:
+Moving without recording is the same as deleting, with extra steps. One line per move, the newest on top:
 
-| quando | o quê | por quê | o que ficou no lugar |
+| when | what | why | what took its place |
 |---|---|---|---|
-| ⟨AAAA-MM-DD⟩ | ⟨arquivo⟩ | ⟨o que deixou de ser verdade⟩ | ⟨onde a pergunta é respondida agora⟩ |
+| ⟨YYYY-MM-DD⟩ | ⟨file⟩ | ⟨what stopped being true⟩ | ⟨where the question is answered now⟩ |
 
-## A lente para ler o que está aqui
+## How to read what is here
 
-Metade do que parece abandonado foi **reatribuído**, não descartado — e a
-anotação disso costuma estar em outro lugar, com razão e data. Antes de concluir
-que algo foi esquecido, procure a linha da tabela acima.
+Half of what looks abandoned was **reassigned**, not thrown away — and the note saying so is usually
+somewhere else, with a reason and a date. Before concluding that something was forgotten, look for its
+line in the table above.

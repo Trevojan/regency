@@ -1,0 +1,205 @@
+{
+  "description": "The return contract of suba-scribe: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "output",
+      "validated_core",
+      "decisions",
+      "assumptions",
+      "risks",
+      "tests_implied",
+      "open_questions",
+      "changes_made"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "output": {
+        "type": "object",
+        "description": "the path written, the artefact inline, or both",
+        "required": [],
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "path": {
+            "$ref": "envelope#/$defs/path",
+            "description": "where the artefact was written"
+          },
+          "artefact": {
+            "$ref": "envelope#/$defs/artefact",
+            "description": "the artefact, delivered inline"
+          }
+        }
+      },
+      "validated_core": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "what survived the critical pass"
+        }
+      },
+      "decisions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "options",
+            "criteria",
+            "chosen",
+            "reason",
+            "reversible"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "an option"
+              },
+              "minItems": 2
+            },
+            "criteria": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "a criterion"
+              },
+              "minItems": 1
+            },
+            "chosen": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the chosen path"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "description": "why it was chosen"
+            },
+            "reversible": {
+              "type": "boolean",
+              "description": "can it be undone cheaply"
+            }
+          }
+        }
+      },
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "an assumption that would force a revision"
+        }
+      },
+      "risks": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a risk"
+        }
+      },
+      "tests_implied": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a behaviour the artefact makes testable; DV names the test"
+        }
+      },
+      "open_questions": {
+        "type": "array",
+        "items": {
+          "$ref": "envelope#/$defs/question"
+        }
+      },
+      "changes_made": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "change",
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "change": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a change to the delegated material"
+            },
+            "kind": {
+              "enum": [
+                "semantic",
+                "structural",
+                "cosmetic"
+              ],
+              "description": "kind of change"
+            }
+          }
+        }
+      }
+    }
+  },
+  "returns_direct": {
+    "type": "object",
+    "required": [
+      "text",
+      "increment",
+      "not_established",
+      "next"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "text": {
+        "$ref": "envelope#/$defs/artefact",
+        "description": "the text, or this round's increment"
+      },
+      "increment": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "outline",
+              "section",
+              "complete"
+            ],
+            "description": "increment"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "section number"
+          },
+          "of": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "sections planned"
+          }
+        }
+      },
+      "not_established": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a claim left open, or a fact unverified"
+        },
+        "maxItems": 5
+      },
+      "next": {
+        "type": "string",
+        "minLength": 1,
+        "description": "what the next increment covers, or none"
+      }
+    }
+  }
+}
