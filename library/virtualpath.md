@@ -137,7 +137,9 @@ code. If the code is right and the norm is wrong, that is a decision for the Reg
 ## 6. The index — exact, for the harness
 
 `scripts/idx.py` keeps a cache at `<virtual>/index.sqlite` (gitignored by `<virtual>/.gitignore`,
-rebuilt by `idx.py build`). It is written for the harness, not for a reader: every answer is a JSON
+rebuilt by `idx.py build`). It is the one store: its `prints` table holds every recorded file's
+fingerprint, written by `scripts/shortcuts.py` and the write hook and kept by a rebuild; a store that
+holds only prints is not an index until `build` sets `meta.built` (`library/shortcuts.md` §3). It is written for the harness, not for a reader: every answer is a JSON
 line, every position exact. The human-readable anchor stays the interface; it resolves to a node.
 
 | Layer | What it is | Exactness |

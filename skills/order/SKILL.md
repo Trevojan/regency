@@ -59,8 +59,10 @@ are written for the agent, not for the Regent to read). Do not create a new loos
 `library/virtualpath.md` §3): reconcile it with `python scripts/vp.py trace` first, then make it true —
 remove `done` items, give each `ongoing` item its evidence and `next`, give each `blocked` item its
 `blocked_by`, mark finished work `review`, set `updated`. The handoff's *state*, *open* and *next*
-sections must agree with the ledger, and point to it instead of repeating it. Never commit; offer
-`/regency:arrange-cycle-commit`.
+sections must agree with the ledger, and point to it instead of repeating it. Then rewrite the
+generated state block of the index with `python scripts/shortcuts.py refresh` (`--init` once, when the index
+has no block yet) and run `python scripts/shortcuts.py check`: 0 problems before the handoff is done
+(`library/shortcuts.md`). Never commit; offer `/regency:arrange-cycle-commit`.
 
 ### dispatch — hear, classify, emit
 
@@ -85,10 +87,11 @@ The manifest is the hand-off to `/regency:team`; do not start the pass yourself 
 
 ### resume — from the index only
 
-**First peek, before the index:** `python scripts/vp.py ongoing`, then `python scripts/vp.py trace`, and
-reconcile (ghosts, orphan work, stale claims — `library/conventions.md` §10). It is a few lines and it
-tells you what is ongoing and what is only backlog. Then read the project's entry index
-(`.shortcuts/README.md` or equivalent) **whole**; it stays the one document read whole. Decipher only the previous step, the current one and the next; reach everything else by
+**First peek:** `python scripts/shortcuts.py peek` — the project's entry index (`.shortcuts/README.md` or
+equivalent) **whole**, the live state (ledger counts, last checkpoint, STALE, latest Order), and what the
+index check and drift found. The index stays the one document read whole. Then
+`python scripts/vp.py trace` (and `vp.py ongoing` for the ledger's detail) and reconcile (ghosts, orphan
+work, stale claims — `library/conventions.md` §10). Decipher only the previous step, the current one and the next; reach everything else by
 shortcut. If an expected path does not exist: name every missing path and ask permission to create
 exactly those — create nothing beyond them, and never route a fact elsewhere because its path is
 missing. Output: **ongoing / backlog** (from the ledger, reconciled with the traces), **version**,

@@ -178,14 +178,15 @@ Work resumes from **traces**, not from memory. On returning to a project:
    on: this project is newer" and stop; the plugin is what must be updated (`library/migrations/README.md`).
 1. **First peek: the work ledger** (`.shortcuts/.virtual/ongoing.json`, `python scripts/vp.py ongoing`):
    what is `ongoing`, what is `review`, `blocked`, and what is merely `backlog`. The session already
-   opens with a one-line resume slice (ledger counts, STALE lines, latest Order, last checkpoint) from
-   `scripts/hook-resume.py`.
+   opens with a one-line resume slice (ledger counts, STALE lines, latest Order, last checkpoint, the entry
+   index's check and drift counts) from `scripts/hook-resume.py`; `python scripts/shortcuts.py peek` gives the
+   index whole with its live state in one call (`library/shortcuts.md`).
 2. **Gather every trace of agent work** (`python scripts/vp.py trace`): uncommitted files, unmerged
    branches, stashes, recent commits, recently touched guidelines, `STALE` lines, Orders, and the
    checkpoint journal (`python scripts/hook-journal.py --tail 20`).
 3. **Reconcile** the two (ghosts, orphan work, stale claims — `library/virtualpath.md` §3) and ask the
    Regent about anything that is a decision. Never adopt orphan work silently.
-4. Then read the project's entry index and go to the line.
+4. Then read the project's entry index (or the `peek` above) and go to the line.
 
 While working, keep the ledger true without asking: it is the agent's own index. Details of the model:
 `library/virtualpath.md` §3.

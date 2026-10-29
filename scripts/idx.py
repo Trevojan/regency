@@ -21,7 +21,9 @@ every position exact.
             body under a new key (renamed) or a close trigram sketch (similar) is recorded as a move, and
             `check` proposes the relink - nothing is relinked silently
 
-Storage: <virtual>/index.sqlite, a cache gitignored by <virtual>/.gitignore and rebuilt by `build`.
+Storage: <virtual>/index.sqlite, a cache gitignored by <virtual>/.gitignore and rebuilt by `build`. Its prints
+table (every recorded file's fingerprint: sha256, size, mtime, the hash it replaced, when, which session) is
+written by scripts/shortcuts.py and hook-lineage.py, and a rebuild keeps it (library/shortcuts.md §2).
 
 Modes:  build [--guidelines-only] · update PATH · node PATH[:LINE] · get ID · governs PATH[:LINE] · cites REF
         · check · shortcuts [--write] · --selftest             (each mode takes --repo DIR)
@@ -79,6 +81,8 @@ CREATE TABLE IF NOT EXISTS moves(old_path TEXT, old_id TEXT, old_label TEXT, new
   new_label TEXT, how TEXT, score REAL, at TEXT);
 CREATE TABLE IF NOT EXISTS shortcuts(name TEXT, src TEXT, path TEXT, anchor TEXT, node TEXT, l0 INTEGER,
   l1 INTEGER, b0 INTEGER, b1 INTEGER, exact TEXT, status TEXT);
+CREATE TABLE IF NOT EXISTS prints(path TEXT PRIMARY KEY, sha256 TEXT NOT NULL, bytes INTEGER NOT NULL,
+  mtime_ns INTEGER NOT NULL, prev_sha256 TEXT, at TEXT NOT NULL, session TEXT, source TEXT NOT NULL);
 """
 NODE_COLS = ("path", "id", "kind", "depth", "parent", "ord", "b0", "b1", "l0", "l1", "key", "label",
              "exact", "shape", "body", "sketch")
@@ -391,6 +395,11 @@ def connect(vdir, create=False):
     return con
 
 
+def built(con):
+    """True once `build` ran: a store that holds only prints (shortcuts.py) is not an index yet."""
+    return con.execute("SELECT 1 FROM meta WHERE k='built'").fetchone() is not None
+
+
 def row_of(rel, nd):
     l0 = nd["l0"] + 1
     return (rel, nd["id"], nd["kind"], nd["depth"], nd["parent_id"], nd["ord"], nd["b0"], nd["b1"], l0,
@@ -560,6 +569,9 @@ def update_hook(vdir, repo, rel):
         con = connect(vdir)
         if con is None:
             return None
+        if not built(con):
+            con.close()
+            return None
         with con:
             diff = update(con, Path(repo), rel, wire.rel_posix(Path(vdir).parent.parent, repo) or "")
         con.close()
@@ -599,7 +611,9 @@ def cited_entries(entries, diff):
 def summary(vdir):
     try:
         con = connect(vdir)
-        if con is None:
+        if con is None or not built(con):
+            if con:
+                con.close()
             return "index absent (idx.py build)"
         n = con.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
         s = con.execute("SELECT COUNT(*) FROM shortcuts").fetchone()[0]
@@ -791,7 +805,7 @@ def cli(argv):
         emit(build(repo, vdir, a.guidelines_only))
         return 0
     con = connect(vdir)
-    if con is None:
+    if con is None or not built(con):
         emit({"error": "no index: run idx.py build"})
         return 2
     entries = wire.manifest_entries(vdir)

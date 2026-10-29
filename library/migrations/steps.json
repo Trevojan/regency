@@ -1,5 +1,20 @@
 {
   "schema": 1,
-  "_about": "Explicit operations a regency version needs beyond refreshing untouched scaffold files (library/migrations/README.md, 'Adding a step'). Paths are relative to the project's guidelines root. Kinds: rename (alias move), delete, rewrite (literal replacements in a regency-owned file), mkdir.",
-  "steps": []
+  "_about": "Explicit operations a regency version needs beyond refreshing untouched scaffold files (library/migrations/README.md, 'Adding a step'). Paths are relative to the project's guidelines root. Kinds: rename (alias move), delete, rewrite (literal replacements in a regency-owned file), mkdir. An op may carry before: one of regency's scripts and its arguments, run with --repo <project> right before it.",
+  "steps": [
+    {
+      "to": "2.12",
+      "ops": [
+        {
+          "op": "delete",
+          "path": ".shortcuts/.virtual/fingerprints.json",
+          "before": [
+            "shortcuts.py",
+            "migrate"
+          ],
+          "why": "one store (R12): its rows are imported into the prints table of index.sqlite first; git keeps the file's history"
+        }
+      ]
+    }
+  ]
 }

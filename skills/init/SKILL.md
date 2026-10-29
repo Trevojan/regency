@@ -37,6 +37,10 @@ index points at everything else.
 6. **The ledger.** The template includes `.shortcuts/.virtual/` with an empty `ongoing.json` (the work
    ledger: what is ongoing vs backlog), an empty `manifesto.json` (norm ↔ code lineage) and a short
    README. List them among the paths you name in step 3; agents keep the ledger current from then on.
+   Then `python scripts/shortcuts.py refresh`: it fills the generated state block of `.shortcuts/README.md`
+   (between its `shortcuts:state` markers; never fill it by hand) and opens the one store,
+   `.shortcuts/.virtual/index.sqlite` with the `.gitignore` beside it that keeps that cache out of git —
+   name both in step 3 (`library/shortcuts.md`).
 7. **Orders.** The four standard Order templates live in regency (`library/orders/`), not in the
    project. Do not copy them. Filled Orders go to `.orders/ORD-####/` when the Regent opens one.
 8. **Report** the created paths, the holes that remain, and the one next step. Do not commit
