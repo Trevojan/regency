@@ -1,7 +1,7 @@
 {
   "name": "regency",
-  "version": "2.12",
-  "description": "The Regent's harness, built on Claude Code: orchestrated team passes (PO/DV/QA/DA), proceed, commit-and-merge, measure-changes, five inference engines, the Scribe, Orders, three speed modes, the health checkup (/regency:health), guidelines and frontend-documentation scaffolding, code-to-norm lineage, guard and recorder hooks, and a Tailwind frontend audit.",
+  "version": "2.13",
+  "description": "The Regent's harness, built on Claude Code. AA works as a PO/DV/QA/DA team; the Regent decides at the review packet. The rules travel as files and scripts: five inference engines, Orders and speed modes, a health checkup, code-to-norm lineage with a shortcuts index, guard and recorder hooks, a version gate with updates, auto-mode and headless profiles. The practical part of Hackiavelli, The Manual of Good Regency.",
   "author": {
     "name": "Regent"
   },
