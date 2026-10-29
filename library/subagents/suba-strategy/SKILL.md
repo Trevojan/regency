@@ -3,7 +3,7 @@ name: suba-strategy
 description: "Proposal - a Regency subagent of the PO role, drafted by an agent and awaiting the Regent's ratification. Use when the PO must decide what is worth building and in what order: the value hypothesis and success metric, scope cuts that keep MINIMUM strictly smaller than GRAND, modules ordered by real dependency, the smallest function rung that satisfies each rule, and the trade-offs between scope, deadline, debt and residual risk. Prepares the decision; the PO decides."
 metadata:
   owner: PO
-  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#2b9ae25919e1"
+  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#f7feb7ed2d47"
   status: proposal
 ---
 

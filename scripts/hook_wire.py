@@ -7,7 +7,7 @@ JSON by itself. One place owns:
   event      read the hook JSON from stdin (an unreadable event is an empty dict, never a crash)
   location   repository root, guidelines root (library/layouts.md §1), the .shortcuts/.virtual folder
   lineage    the virtual-path manifest and the slices that govern a file (library/virtualpath.md §2)
-  state      session-scoped flags kept outside the repository (hazard watch)
+  state      session-scoped records kept outside the repository (cloud confirmations, session grants)
   verbs      the Regent's verb table, read from library/conventions.md §9 (the only copy)
   answers    PreToolUse permission decisions and additionalContext lines, one slice line each (R4.1)
   failure    guards fail toward the Regent (ask); recorders fail silent (stderr only)
@@ -208,7 +208,7 @@ def clear_state(event, name):
 # ---------- the Regent's verbs (library/conventions.md §9 is the only copy) ---------------------
 
 CONVENTIONS = Path(__file__).resolve().parent.parent / "library" / "conventions.md"
-RELEASE_COMMAND = "hook-hazard.py --clear"
+RATIFY_COMMAND = "judge.py ratify"  # the §9 verb that ratifies changed grant stores (R15)
 MAX_ROUTED = 80  # characters: a longer message is prose, not an order
 
 
@@ -258,8 +258,8 @@ def opening_verb(prompt, table):
     return None
 
 
-def release_words(table=None):
-    return [phrase for phrase, _, cmd in (regent_verbs() if table is None else table) if RELEASE_COMMAND in cmd]
+def ratify_words(table=None):
+    return [phrase for phrase, _, cmd in (regent_verbs() if table is None else table) if RATIFY_COMMAND in cmd]
 
 
 # ---------- answers ----------------------------------------------------------------------------

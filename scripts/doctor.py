@@ -31,7 +31,8 @@ Checks
      returns.py (the return gate), idx.py (the exact index), shortcuts.py (the entry index, its prints and its
      state block, R7 on idx's store), vp.py (the ledger and its drafts) and speed.py
      (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
-     queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) each pass their own
+     queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) and judge.py
+     (grants: parse, scopes, cover, STALE, ratify, revoke) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
  18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
@@ -73,8 +74,7 @@ REQUIRED_WIRING = (
     ("PreToolUse", "Edit", "hook-acts-guard.py"), ("PreToolUse", "Write", "hook-acts-guard.py"),
     ("PreToolUse", "NotebookEdit", "hook-acts-guard.py"),
     ("PostToolUse", "Edit", "hook-lineage.py"), ("PostToolUse", "Write", "hook-lineage.py"),
-    ("PostToolUse", "Bash", "hook-hazard.py"), ("PostToolUse", "PowerShell", "hook-hazard.py"),
-    ("PostToolUse", "Agent", "hook-hazard.py"), ("PostToolUse", "Task", "hook-hazard.py"),
+    ("PreToolUse", "AskUserQuestion", "hook-judge.py"), ("PostToolUse", "AskUserQuestion", "hook-judge.py"),
     ("PostToolUse", "Edit", "hook-journal.py"), ("PostToolUse", "Bash", "hook-journal.py"),
     ("SessionStart", "startup", "hook-resume.py"), ("SessionStart", "resume", "hook-resume.py"),
     ("SessionStart", "compact", "hook-resume.py"),
@@ -86,7 +86,7 @@ REQUIRED_WIRING = (
     ("SessionStart", "startup", "hook-packs.py"), ("UserPromptSubmit", "", "hook-packs.py"),
     ("PreCompact", "", "hook-packs.py"), ("SessionEnd", "", "hook-packs.py"),
 )
-GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
+GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py", "hook-judge.py"}
 MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
 FORBIDDEN_EVENTS = {"Stop": "R4.5: no Stop hook; the next-step line lives in each playbook"}
 
@@ -317,6 +317,8 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-gov.py": {"hook_event_name": "PostToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "suba-validator"},
                     "tool_response": "gov: order=G2 · mode=co · element=image · from=QA · to=RGN\nask: approve SPEC v3"},
     "hook-packs.py": {"hook_event_name": "PreToolUse", "tool_name": "Read", "tool_input": {"file_path": "a.txt"}},
+    "hook-judge.py": {"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion",
+                      "tool_input": {"questions": [{"header": "JD grant", "question": "Grant `delete build/** -- x`?"}]}},
 }
 
 
@@ -375,7 +377,8 @@ def check_ux():
 
 
 def check_engines():
-    for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py"):
+    for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py",
+                 "judge.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")

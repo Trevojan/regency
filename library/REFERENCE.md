@@ -127,6 +127,7 @@ Every command and subcommand, from `library/registry.json`:
 | `/regency:health:context` | The harness's always-on token cost (skill and command descriptions, the conventions import, the resume line) against a budget. | `[--budget N]` | same playbook, subcommand `context` |
 | `/regency:health:pipeline` | Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code. | `[--cases FILE] [--scan PATH ...]` | same playbook, subcommand `pipeline` |
 | `/regency:serious-doctor-appointment` | Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor. | `[guidelines root]` | `skills/serious-doctor-appointment/SKILL.md` |
+| `/regency:judge` | The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line. | `[list \| <folders or task> \| revoke <id> \| ratify]` | `skills/judge/SKILL.md` |
 <!-- regency:dispatch:end -->
 
 `/regency:<id>:<sub>` is the same playbook as `/regency:<id> <sub>`. With no plugin loaded, open the
@@ -160,14 +161,15 @@ line at most. Full reference: `library/hooks.md`.
 | Hook | When | What it does |
 |---|---|---|
 | `guard-push.py` | before a git command | denies a push to `main`/`master` in any form |
-| `hook-hazard.py` | before / after a shell command, after a role agent returns | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs; after a destructive step, keeps file writes waiting for a PO or QA permit or the Regent's release verb |
-| `hook-acts-guard.py` | before a file write | denies writes in `.scope/`, rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), a hand edit of the entry index's generated state block, changes under a `lock` slice, and new names with banned tokens |
+| `hook-hazard.py` | before a shell command | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs, unless a grant of the Regent's covers every path the act names (`library/judge.md`); denies a shell write to a grant store |
+| `hook-acts-guard.py` | before a file write | denies writes in `.scope/` and to a grant store (`JD.md`, `judge.json`), rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), a hand edit of the entry index's generated state block, changes under a `lock` slice, and new names with banned tokens |
 | `hook-lineage.py` | after a file write | records the file's fingerprint in the one store (`index.sqlite`), re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
 | `hook-gov.py` | a subagent starts or returns | gives a role or suba its governance line; routes the returned packet (G1 to the ledger, G2 and G3 to the Regent); checks a packet that names its stage against that stage's return shape, and every suba envelope in it against its contract |
 | `hook-journal.py` | after writes, git and hazardous shell commands, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
 | `hook-resume.py` | session start, resume, clear, compaction | one resume line: a version mismatch first, then ledger counts, STALE lines, latest Order, last checkpoint, the index, the entry index's check and drift counts |
 | `hook-shortcuts.py` | session end | rewrites the generated state block of `.shortcuts/README.md` when the state moved |
-| `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands, ends the hazard watch on a release verb, names the command for a Regent verb (conventions §9) |
+| `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands and the Regent's `grant:` lines, ratifies changed grant stores on a ratify verb, names the command for a Regent verb (conventions §9) |
+| `hook-judge.py` | before / after the Judge's pop-up | denies a Judge question that arrives answered; records the grant of each question the Regent answered with a scope |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
 the hooks are silent. A guard whose script cannot start blocks its call (`onFailure: block`, Claude Code

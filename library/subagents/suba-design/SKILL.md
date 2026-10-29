@@ -3,7 +3,7 @@ name: suba-design
 description: "Regency subagent of the PO role. Use when the PO must specify what an experience permits: flows, every reachable state with its transitions, affordances and recovery, under the project's design language in its .ux/ folder, and a handoff of checkable conditions so nothing is left for the implementer to invent. Specifies intent only; never evaluates usability, writes criteria or tests, implements, or hands anything to DV or QA directly."
 metadata:
   owner: PO
-  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#2b9ae25919e1"
+  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#f7feb7ed2d47"
 ---
 
 # suba-design

@@ -3,7 +3,7 @@ name: suba-research
 description: "Proposal - a Regency subagent of the PO role, drafted by an agent and awaiting the Regent's ratification. Use when the PO needs evidence about users before framing or after a build: a user model and goals traced to their sources, claims about users audited for support, closed questions for the client, and - when a built result is under review - where it failed its users' goals. Works only from the sources the PO's packet holds."
 metadata:
   owner: PO
-  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#2b9ae25919e1"
+  aligned: "library/team/PO.md#c2bd68546988 library/agents/po.md#f7feb7ed2d47"
   status: proposal
 ---
 

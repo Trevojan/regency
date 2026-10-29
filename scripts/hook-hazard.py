@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
-"""hook-hazard.py - the shell's hazardous ground (Bash and PowerShell), before and after the call.
+"""hook-hazard.py - the shell's hazardous ground (Bash and PowerShell), before the call.
 
 PreToolUse   classify every command segment:
                cloud read    get, list, describe, logs, plan, ...                 nothing (allowed)
                cloud write   anything else on a cloud CLI                         deny, unless the Regent
                              confirmed that exact command in this pass            (conventions §6, R5.1)
-               destructive   deleting, discarding work, force / history rewrites  ask (conventions §5)
-               layout, install                                                    ask
-               consent       packs.py ratify --yes: lets a pack's hooks run code  ask (the Regent's alone, T5)
-PostToolUse  when a destructive command actually ran inside the project, switch on the session's
-             HAZARD WATCH: hook-acts-guard.py then refuses every write no permit covers, until the
-             Regent says a release verb (conventions §9, R5.2). The agent may still look around (R4.4).
-             A delete whose every path lies outside the project (a temp or scratch folder) starts nothing.
-PostToolUse  Agent|Task: a PO or QA role agent that returns 'permit: <glob>[, <glob>] -- <reason>'
-             lines grants this session writes to those paths while the watch is on. The agent that
-             needs the permit never grants it (conventions §1).
+               destructive   deleting, discarding work, force / history rewrites  ask, unless a grant of the
+               layout        git worktree add / remove                            Regent's covers every path it
+                                                                                  names (judge.py, R15)
+               install       system software                                      ask (never granted)
+               consent       packs.py / judge.py ratify --yes                     ask (the Regent's alone, T5)
+               grant store   a shell command that writes a JD.md, judge.json or   deny: only the Regent's words
+                             session grants                                       change them (library/judge.md)
+             A 'cd' earlier in the chain moves where later paths resolve; a path no script can resolve
+             ("$d", a glob) needs a grant of '**'.
 
 A pass is the work between two messages of the Regent. hook-verbs.py records, at each message, the
 cloud commands the Regent quoted (in backticks, a code block, or on a line of their own); only those
 exact commands, compared token by token, may write to the cloud until the next message.
 
-Market pattern: human-in-the-loop approval of a specific tool call (LangGraph interrupt) plus a
-circuit breaker that stays open until a human closes it.
+Nothing here locks the session: every act is judged when it happens, against the grants in force then.
 
-Modes:  (no args) hook · --selftest · --clear (release every hazard watch on this machine)
+Market pattern: human-in-the-loop approval of a specific tool call (LangGraph interrupt), with standing
+approvals scoped by place and kind (policy-as-code allow lists).
+
+Modes:  (no args) hook · --selftest
 Pure standard library, Python 3.8+.
 """
-import fnmatch
 import importlib.util
 import os
 import re
@@ -38,13 +38,11 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
+import judge  # noqa: E402  (the Regent's grants, R15)
 
 _spec = importlib.util.spec_from_file_location("guard_push", HERE / "guard-push.py")
 guard_push = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(guard_push)  # one tokenizer for every shell guard
-_spec = importlib.util.spec_from_file_location("hook_gov", HERE / "hook-gov.py")
-hook_gov = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(hook_gov)  # one reader for what a subagent returned
 
 SHELLS = guard_push.SHELLS
 INSTALLERS = {"apt", "apt-get", "yum", "dnf", "pacman", "zypper", "brew", "choco", "winget", "scoop", "snap"}
@@ -167,101 +165,114 @@ def classify_words(w):
         return "delete", f"{cmd}: destructive SQL"
     if cmd == "docker" and args[:2] in (["system", "prune"], ["volume", "rm"], ["volume", "prune"]):
         return "delete", "docker " + " ".join(args[:2])
-    script = next((i for i, a in enumerate(args) if name(a) == "packs.py"), None)
+    script = next((i for i, a in enumerate(args) if name(a) in ("packs.py", "judge.py")), None)
     if cmd.startswith(("python", "py")) and script is not None:
         rest = args[script + 1:]
-        if rest[:1] == ["ratify"] and "--yes" in rest:  # consent to run a pack's hooks: the Regent's alone (T5)
-            return "consent", "packs.py ratify --yes"
+        if rest[:1] == ["ratify"] and "--yes" in rest:  # consent: a pack's hooks, or a changed grant store (T5)
+            return "consent", f"{name(args[script])} ratify --yes"
     return None
 
 
-def findings(command, depth=0):
-    """Every finding in a command, nested shells included: [(kind, label)]."""
-    out = []
+RM_COMMANDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd", "remove-item", "ri"}
+CD_COMMANDS = {"cd", "pushd", "chdir", "set-location", "sl"}
+UNGRANTABLE = {"dd", "mkfs", "format", "diskpart", "docker"} | SQL_CLIENTS  # data outside files: never granted
+
+
+def resolve(arg, here):
+    """The absolute path a shell would act on, or None when no script can know it ($d, a glob, an unknown cwd)."""
+    if here is None or re.search(r"[$%*?{]", arg):
+        return None
+    m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
+    p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
+    return Path(os.path.normpath(str(p if p.is_absolute() else Path(here) / p)))
+
+
+def operands(args):
+    """Non-option arguments, everything after '--' included."""
+    out, rest = [], False
+    for a in args:
+        if a == "--" and not rest:
+            rest = True
+        elif rest or not a.startswith("-"):
+            out.append(a)
+    return out
+
+
+def act_paths(kind, label, w, here):
+    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable."""
+    if name(w[0]) in ("sudo", "doas"):
+        w = words(w[1:])
+    cmd, args = name(w[0]), w[1:]
+    if kind not in judge.KINDS or cmd in UNGRANTABLE or cmd.startswith("mkfs."):
+        return None
+    if cmd in RM_COMMANDS:
+        return [resolve(a, here) for a in operands(args)]
+    if cmd == "find":
+        return [resolve((operands(args) or ["."])[0], here)]
+    if cmd == "git" and label in ("git checkout -- <paths>", "git restore", "git clean -f"):
+        verb = next((i for i, a in enumerate(args) if a in ("checkout", "restore", "clean")), None)
+        rest = args[verb + 1:] if verb is not None else []
+        paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
+        return [resolve(a, here) for a in paths]
+    return []
+
+
+def acts(command, cwd, depth=0):
+    """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves
+    where the later segments of the chain resolve their paths."""
+    out, here = [], Path(cwd) if cwd else None
     for seg in guard_push.segments(guard_push.data_only(command)):
         if depth < 3 and seg and name(seg[0]) in SHELLS:
             for t in seg[1:]:
                 if " " in t:
-                    out += findings(t, depth + 1)
-        f = classify_words(words(seg))
+                    out += acts(t, here, depth + 1)
+        w = words(seg)
+        if w and name(w[0]) in CD_COMMANDS:
+            target = operands(w[1:])
+            here = resolve(target[0], here) if target and target[0] != "-" else None
+            continue
+        f = classify_words(w)
         if f:
-            out.append(f)
+            out.append((f[0], f[1], act_paths(f[0], f[1], w, here)))
     return out
 
 
-RM_COMMANDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd", "remove-item", "ri"}
+def findings(command, depth=0):
+    """Every finding in a command, nested shells included: [(kind, label)]."""
+    return [(k, lbl) for k, lbl, _ in acts(command, None, depth)]
 
 
-def inside(arg, cwd, repo):
-    """True unless the path surely lies outside the project; a variable or a glob counts as inside."""
-    if re.search(r"[$%*?{]", arg):
+STORE_MARK = re.compile(r"(?i)(?:^|[\\/\s'\"`=(,])(JD\.md|judge\.json|[\w.-]*\.grants\.json)(?=$|[\s'\"`),;])")
+REDIRECT_TO_STORE = re.compile(r"(?i)>>?\s*['\"]?[^\s'\"]*(JD\.md|judge\.json|\.grants\.json)")
+READERS = {"cat", "type", "less", "more", "head", "tail", "grep", "egrep", "rg", "get-content", "gc", "wc", "ls", "dir",
+           "stat", "file", "diff", "sha256sum", "md5sum", "select-string", "sls", "test-path", "git"}
+GIT_READS = {"diff", "log", "show", "status", "blame", "add", "commit", "ls-files", "grep"}
+
+
+def touches_store(command):
+    """True when a shell command would change a grant store: only the Regent's words may (library/judge.md)."""
+    text = guard_push.data_only(command)
+    if REDIRECT_TO_STORE.search(text):
         return True
-    m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
-    p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
-    p = p if p.is_absolute() else Path(cwd) / p
-    try:
-        Path(os.path.normpath(str(p))).relative_to(repo)
-        return True
-    except ValueError:
-        return False
-
-
-def hits_project(command, cwd, depth=0):
-    """The first destructive finding that reaches the project, or None. A delete that names only
-    paths outside the project (temp, scratch) does not reach it."""
-    repo = wire.repo_root(Path(cwd))
-    for seg in guard_push.segments(guard_push.data_only(command)):
-        if depth < 3 and seg and name(seg[0]) in SHELLS:
-            for t in seg[1:]:
-                found = hits_project(t, cwd, depth + 1) if " " in t else None
-                if found:
-                    return found
+    for seg in guard_push.segments(text):
         w = words(seg)
-        f = classify_words(w)
-        if not f or f[0] not in DESTRUCTIVE:
+        if not w or not any(STORE_MARK.search(t) for t in w[1:]):
             continue
-        paths = [a for a in w[1:] if not a.startswith("-")]
-        if name(w[0]) not in RM_COMMANDS or not paths or any(inside(a, cwd, repo) for a in paths):
-            return f
-    return None
-
-
-# ---------- permits: a PO or QA role agent lets writes through the watch -------------------------
-
-PERMITTERS = ("po", "qa")
-PERMIT_LINE = re.compile(r"(?im)^[\s>*-]*permit:\s*(.+?)\s+(?:--|—)\s+(\S.*)$")
-
-
-def permits(text):
-    """[(globs, reason)] from the permit lines of a returned packet; a line without a reason is no permit."""
-    return [([g.strip("`") for g in re.split(r"[,\s]+", m.group(1)) if g.strip("`")], m.group(2).strip())
-            for m in PERMIT_LINE.finditer(text or "")]
-
-
-def permitted(event, rel):
-    st = wire.load_state(event, "permit") or {}
-    return any(fnmatch.fnmatchcase(rel, g) for g in st.get("globs", []))
-
-
-def grant(event):
-    """Record the permits a PO or QA role agent returned; one context line, or None."""
-    agent = str(wire.tool_input(event).get("subagent_type") or "")
-    if agent.split(":")[-1].strip().lower() not in PERMITTERS:
-        return None
-    found = permits(hook_gov.returned_text(event))
-    if not found:
-        return None
-    st = wire.load_state(event, "permit") or {"globs": [], "grants": []}
-    for globs, reason in found:
-        st["globs"] += [g for g in globs if g not in st["globs"]]
-        st["grants"].append({"by": agent, "globs": globs, "reason": reason, "at": wire.now()})
-    wire.save_state(event, "permit", st)
-    return wire.context("PostToolUse", f"permit from {agent}: writes to {', '.join(st['globs'])} pass the hazard watch "
-                                       f"for this session ({found[-1][1]})")
+        cmd = name(w[0])
+        if cmd == "git":
+            verb = next((a for a in w[1:] if not a.startswith("-")), "")
+            if verb in GIT_READS:
+                continue
+            return True
+        if cmd in READERS:
+            continue
+        if cmd.startswith(("python", "py")) and any(name(a) == "judge.py" for a in w[1:]):
+            continue  # judge.py's own modes: its ratify --yes asks as consent
+        return True
+    return False
 
 
 ORDER = {"cloud-write": 0, "history": 1, "discard": 2, "delete": 3, "layout": 4, "install": 5, "consent": 6}
-DESTRUCTIVE = {"history", "discard", "delete"}
 
 
 def classify(command):
@@ -299,44 +310,38 @@ def confirmed(event):
 # ---------- hook ---------------------------------------------------------------------------------
 
 def respond(event):
-    if event.get("hook_event_name") == "PostToolUse" and event.get("tool_name") in hook_gov.AGENT_TOOLS:
-        return grant(event)
-    if event.get("tool_name") not in wire.SHELL_TOOLS:
+    if event.get("tool_name") not in wire.SHELL_TOOLS or event.get("hook_event_name") != "PreToolUse":
         return None
     command = wire.tool_input(event).get("command", "")
-    phase = event.get("hook_event_name")
-    if phase == "PreToolUse":
-        found_all = findings(command)
-        writes = [label for kind, label in found_all if kind == "cloud-write"]
-        missing = [c for c in writes if c not in confirmed(event)]
-        if missing:
-            return wire.permission("deny", f"cloud write '{missing[0]}' was not confirmed by the Regent in this pass. "
-                                           "Cloud belongs to its owner: reads run freely, a write runs only when the "
-                                           "Regent quotes that exact command in a message (conventions §6)")
-        local = sorted((f for f in found_all if f[0] in ORDER and f[0] != "cloud-write"), key=lambda f: ORDER[f[0]])
-        if local and local[0][0] == "consent":
-            return wire.permission("ask", "consent: ratifying lets a pack's hooks run code on this machine in this project. "
-                                          "Only the Regent approves it, after reading the review (packs.py ratify without --yes)")
-        if local:
-            return wire.permission("ask", f"{local[0][0]}: '{local[0][1]}' needs the Regent's yes (conventions §5)")
+    cwd = event.get("cwd") or os.getcwd()
+    found_all = acts(command, cwd)
+    writes = [label for kind, label, _ in found_all if kind == "cloud-write"]
+    missing = [c for c in writes if c not in confirmed(event)]
+    if missing:
+        return wire.permission("deny", f"cloud write '{missing[0]}' was not confirmed by the Regent in this pass. "
+                                       "Cloud belongs to its owner: reads run freely, a write runs only when the "
+                                       "Regent quotes that exact command in a message (conventions §6)")
+    if touches_store(command):
+        return wire.permission("deny", "this command would change a grant store (a JD.md, judge.json or the session's "
+                                       "grants): only the Regent's own words change them. Ask the Regent for a "
+                                       "'grant:' line, or run /regency:judge (library/judge.md)")
+    local = sorted((f for f in found_all if f[0] in ORDER and f[0] != "cloud-write"), key=lambda f: ORDER[f[0]])
+    if local and local[0][0] == "consent":
+        return wire.permission("ask", f"consent: '{local[0][1]}' widens what runs without asking (a pack's hooks, or a "
+                                      "grant store that changed). Only the Regent approves it, after reading the review "
+                                      "the same command prints without --yes (T5)")
+    repo = wire.repo_root(Path(cwd))
+    open_ = [(k, lbl, ps) for k, lbl, ps in local if not judge.covers(event, repo, k, ps)]
+    if not open_:
         return None
-    found = hits_project(command, event.get("cwd") or os.getcwd()) if phase == "PostToolUse" else None
-    if found:
-        kind, label = found
-        wire.save_state(event, "hazard", {"label": label, "kind": kind, "at": wire.now()})
-        words_ = "', '".join(wire.release_words()) or "a release verb"
-        return wire.context("PostToolUse", f"hazard watch on: '{label}' ran. Writes no PO/QA permit covers are refused "
-                                           f"until the Regent says '{words_}' (conventions §9); reading and inspecting stay free (R4.4)")
-    return None
-
-
-def clear_all():
-    n = 0
-    for p in wire.state_dir().glob("*.hazard.json"):
-        p.unlink()
-        n += 1
-    print(f"hazard watch released in {n} session(s)")
-    return 0
+    kind, label, paths = open_[0]
+    reason = f"{kind}: '{label}' needs the Regent's yes (conventions §5)"
+    if paths is not None:
+        reason += f". No grant covers it; the Judge proposes '{judge.propose(kind, paths, repo)}' (/regency:judge)"
+    stale = judge.stale(repo)
+    if stale:
+        reason += f". {len(stale)} grant store(s) STALE until the Regent says 'ratify grants'"
+    return wire.permission("ask", reason)
 
 
 TABLE = [  # command, expected PreToolUse verdict with no confirmation
@@ -414,9 +419,12 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
 def selftest():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["REGENCY_HOOK_STATE"] = str(Path(tmp) / "state")
+        os.environ["REGENCY_JUDGE_HOME"] = str(Path(tmp) / "home")
+        os.environ.pop("REGENCY_JD", None)
+        root = wire.build_fixture(Path(tmp) / "proj")
 
-        def ev(phase, cmd, sid="s1", tool="Bash"):
-            return {"hook_event_name": phase, "tool_name": tool, "session_id": sid, "cwd": tmp,
+        def ev(phase, cmd, sid="s1", tool="Bash", cwd=None):
+            return {"hook_event_name": phase, "tool_name": tool, "session_id": sid, "cwd": str(cwd or root),
                     "tool_input": {"command": cmd}}
 
         def verdict(a):
@@ -441,36 +449,70 @@ def selftest():
                       "confirmed cloud write inside a chain: the local hazard still asks"))
         cases.append((verdict(respond(ev("PreToolUse", "kubectl apply -f k8s/", sid="s2"))) == "deny",
                       "confirmation is per session"))
-        cases.append((respond(ev("PostToolUse", "ls")) is None and wire.load_state(ev("x", ""), "hazard") is None,
-                      "post: harmless command leaves no watch"))
-        cases.append((respond(ev("PostToolUse", "sudo apt-get install jq")) is None
-                      and wire.load_state(ev("x", ""), "hazard") is None, "post: install is not destructive"))
-        out = respond(ev("PostToolUse", "git reset --hard"))
-        st = wire.load_state(ev("x", ""), "hazard")
-        cases.append((bool(out) and bool(st) and st.get("label") == "git reset --hard", "post: reset --hard sets the watch"))
-        cases.append((wire.load_state(ev("x", "", sid="s2"), "hazard") is None, "post: watch is per session"))
-        outside = Path(tmp).parent / "elsewhere-regency" / "scratch"
-        cases.append((respond(ev("PostToolUse", f'rm -rf "{outside}"', sid="s3")) is None,
-                      "post: a delete outside the project starts no watch"))
-        cases.append((bool(respond(ev("PostToolUse", f'rm -rf "{outside}" build', sid="s3"))),
-                      "post: one path inside the project is enough"))
-        cases.append((bool(respond(ev("PostToolUse", 'rm -rf "$d"', sid="s4"))), "post: an unknown path counts as inside"))
+        # grants replace the watch (R15): nothing locks; each act is judged against the grants in force
+        cases.append((respond(ev("PostToolUse", "rm -rf build")) is None and wire.load_state(ev("x", ""), "hazard") is None,
+                      "post: nothing runs after the call, nothing locks the session"))
 
-        def agent(kind, text, sid="s5"):
-            return respond({"hook_event_name": "PostToolUse", "tool_name": "Agent", "session_id": sid, "cwd": tmp,
-                            "tool_input": {"subagent_type": kind},
-                            "tool_response": {"content": [{"type": "text", "text": text}]}})
-        pkt = "Granted.\npermit: library/*.md, `scripts/hook-*.py` -- rewrite of the chapter the agent reset\npermit: x.md"
-        cases.append((agent("general-purpose", pkt) is None and wire.load_state(ev("x", "", sid="s5"), "permit") is None,
-                      "permit: only a PO or QA role agent grants"))
-        out = agent("regency:po", pkt)
-        e5 = ev("x", "", sid="s5")
-        cases.append((bool(out) and permitted(e5, "library/conventions.md") and permitted(e5, "scripts/hook-hazard.py")
-                      and not permitted(e5, "x.md") and not permitted(e5, "README.md"),
-                      "permit: globs recorded; a line without a reason grants nothing"))
+        def grant(spec, sid="s1"):
+            return judge.record(ev("x", "", sid=sid), root, spec, "Regent: message")
+
+        def reason(a):
+            return (a or {}).get("hookSpecificOutput", {}).get("permissionDecisionReason", "")
+
+        grant("delete build/** -- generated output")
+        cases.append((verdict(respond(ev("PreToolUse", "rm -rf build"))) == "allow", "a granted delete runs without asking"))
+        cases.append((verdict(respond(ev("PreToolUse", "rm -rf build/obj build/bin"))) == "allow", "every path inside the grant"))
+        cases.append((verdict(respond(ev("PreToolUse", "rm -rf build src"))) == "ask", "one path outside the grant asks"))
+        out = respond(ev("PreToolUse", "rm -rf src"))
+        cases.append((verdict(out) == "ask" and "grant: delete src/** for session" in reason(out),
+                      f"the ask carries the Judge's proposal ({reason(out)[:90]})"))
+        cases.append((verdict(respond(ev("PreToolUse", "rm -rf build", sid="s2"))) == "ask", "a session grant stays in its session"))
+        cases.append((verdict(respond(ev("PreToolUse", "cd src && rm -rf ../build"))) == "allow",
+                      "a 'cd' in the chain moves where paths resolve"))
+        cases.append((verdict(respond(ev("PreToolUse", 'cd "$X" && rm -rf build'))) == "ask",
+                      "after a 'cd' to an unknown place nothing is covered"))
+        cases.append((verdict(respond(ev("PreToolUse", 'rm -rf "$d"'))) == "ask", "an unresolvable path asks"))
+        scratch = Path(tmp) / "scratch"
+        (scratch / "rg").mkdir(parents=True)
+        grant(f"delete {scratch.as_posix()}/** -- the session's scratch clones")
+        cases.append((verdict(respond(ev("PreToolUse", f"cd {scratch.as_posix()} && rm -rf rg"))) == "allow"
+                      and verdict(respond(ev("PreToolUse", "rm -rf rg"))) == "ask",
+                      "the 2026-10-29 false alarm: 'cd /tmp && rm -rf rg' resolves outside the project"))
+        cases.append((verdict(respond(ev("PreToolUse", "git reset --hard"))) == "ask", "no path: needs '**'"))
+        grant("discard ** for repo -- the plumbing branch is scratch")
+        cases.append((verdict(respond(ev("PreToolUse", "git reset --hard", sid="s3"))) == "allow"
+                      and verdict(respond(ev("PreToolUse", "git checkout -- src/a.cs", sid="s3"))) == "allow",
+                      "a repo grant of '**' covers every discard, in every session"))
+        grant("delete ** -- everything", sid="s4")
+        cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "docker system prune -af", sid="s4"))) == "ask",
+                      "never granted: destructive SQL, installs, docker prunes"))
+        cases.append((verdict(respond(ev("PreToolUse", "aws s3 cp a s3://b/a", sid="s4"))) == "deny", "a grant never opens the cloud"))
+        cases.append((verdict(respond(ev("PreToolUse", "python scripts/judge.py ratify --yes"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "python scripts/judge.py ratify"))) == "allow"
+                      and verdict(respond(ev("PreToolUse", "python3 scripts/judge.py list"))) == "allow",
+                      "judge.py ratify --yes is consent; its review and list run"))
+        for cmd, want in (("echo '| JD-R9 | delete | `**` |' >> .guidelines/JD.md", "deny"),
+                          ("sed -i 's/a/b/' .guidelines/JD.md", "deny"),
+                          ("python -c \"open('JD.md','w').write('x')\"", "deny"),
+                          ("cp /tmp/x ~/.claude/regency/judge.json", "deny"),
+                          ("git checkout -- .guidelines/JD.md", "deny"),
+                          ("cat .guidelines/JD.md", "allow"),
+                          ("git add .guidelines/JD.md && git commit -m 'grants'", "allow"),
+                          ("cat > notes.md <<'EOF'\nthe JD.md table holds the grants\nEOF", "allow")):
+            got = verdict(respond(ev("PreToolUse", cmd, sid="s5")))
+            cases.append((got == want, f"grant store: {cmd!r} -> {got} (want {want})"))
+        store = root / ".guidelines" / "JD.md"
+        store.write_text(store.read_text(encoding="utf-8") + "\nhand edit\n", encoding="utf-8")
+        cases.append((verdict(respond(ev("PreToolUse", "rm -rf build"))) == "allow", "a text edit outside the table changes nothing"))
+        store.write_text(store.read_text(encoding="utf-8").replace("the plumbing branch is scratch", "anything goes"),
+                         encoding="utf-8")
+        out = respond(ev("PreToolUse", "git reset --hard", sid="s6"))
+        cases.append((verdict(out) == "ask" and "STALE" in reason(out), "a changed table is STALE: it grants nothing and says so"))
         return wire.check(cases)
 
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    sys.exit(selftest() if "--selftest" in a else clear_all() if "--clear" in a else wire.serve(respond, guard=True))
+    sys.exit(selftest() if "--selftest" in a else wire.serve(respond, guard=True))

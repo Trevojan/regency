@@ -3,7 +3,7 @@ name: suba-tester
 description: "Regency subagent of the QA role. Use when QA needs justified coverage: form a test strategy proportionate to risk - surfaces, techniques, the invariants worth defending, the coherence-matrix cases a change must keep - author the tests it implies as verbatim artefacts, confirm each named test fails when its behaviour is removed, and report as evidence only what actually ran. Does not judge criteria, classify defects, set severity or issue the version verdict."
 metadata:
   owner: QA
-  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#226567051d2f"
+  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#d94b930acd92"
 ---
 
 # suba-tester

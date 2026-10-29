@@ -1,6 +1,6 @@
 # Hooks — triggers that call scripts
 
-Decision records R4 and R5 (`REGENCY_CUSTOMIZATION.md`). Wiring: `hooks/hooks.json`. Health: `scripts/doctor.py`
+Decision records R4, R5 and R15 (`REGENCY_CUSTOMIZATION.md`). Wiring: `hooks/hooks.json`. Health: `scripts/doctor.py`
 checks 12 and 15. Every script here is Python standard library and imports `scripts/hook_wire.py`.
 
 ## 0. The rule
@@ -29,13 +29,13 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | Event | Matcher | Script | Kind | Answer |
 |---|---|---|---|---|
 | `SessionStart` | `startup\|resume\|clear\|compact` | `hook-resume.py` | recorder | one resume line (R4.2) |
-| `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted; a release verb ends the hazard watch; routes a Regent verb |
+| `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted and the Regent's `grant:` lines; a ratify verb ratifies changed grant stores; routes a Regent verb |
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
-| `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write; `ask` destructive, layout, install |
-| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, a hand edit of the shortcuts state block (R7), lock slices, banned names, and under hazard watch a path no PO/QA permit covers (R4.4) |
+| `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write and a shell write to a grant store; `ask` destructive and layout unless a grant covers every path (`library/judge.md`), install, consent |
+| `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, a hand edit of the shortcuts state block (R7), lock slices, banned names, a grant store (`JD.md`, `judge.json`; R15) |
 | `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the one store (`shortcuts.record`); re-index the file (`scripts/idx.py`); STALE under the slices whose governed nodes changed (R4.3, R12) |
-| `PostToolUse` | `Bash\|PowerShell` | `hook-hazard.py` | recorder | switches the hazard watch on after a destructive command that reached the project |
-| `PostToolUse` | `Agent\|Task` | `hook-hazard.py` | recorder | records the write permits a `po` or `qa` role agent returned |
+| `PreToolUse` | `AskUserQuestion` | `hook-judge.py` | guard | `deny` a Judge question (`JD grant`) that arrives with its answers filled in |
+| `PostToolUse` | `AskUserQuestion` | `hook-judge.py` | recorder | records the grant of each Judge question the Regent answered with a scope (R15) |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
@@ -56,15 +56,17 @@ read as the act itself. `hook-journal.py` reads git verbs the same way.
 
 ### Hazardous shell — `hook-hazard.py`
 
-| Kind | Examples | PreToolUse | Starts the watch |
+| Kind | Examples | PreToolUse | A grant may cover it |
 |---|---|---|---|
-| `cloud-read` | `kubectl get`, `aws s3 ls`, `aws ec2 describe-*`, `gcloud … list`, `terraform plan`, `--help` | nothing: runs | no |
-| `cloud-write` | every other cloud CLI call, an unknown verb included | **deny**, unless the Regent quoted that exact command in this pass (conventions §6, R5.1) | no |
-| `history` | `git rebase`, `git push --force`, `git filter-repo` | ask | yes |
+| `cloud-read` | `kubectl get`, `aws s3 ls`, `aws ec2 describe-*`, `gcloud … list`, `terraform plan`, `--help` | nothing: runs | — |
+| `cloud-write` | every other cloud CLI call, an unknown verb included | **deny**, unless the Regent quoted that exact command in this pass (conventions §6, R5.1) | never |
+| `history` | `git rebase`, `git push --force`, `git filter-repo` | ask | yes, with `**` |
 | `discard` | `git reset --hard`, `git checkout -- <paths>`, `git restore` | ask | yes |
-| `delete` | `rm`, `Remove-Item`, `git clean -f`, `git branch -D`, `find -delete`, `DROP TABLE` | ask | yes |
-| `layout` | `git worktree add/remove` | ask | no |
-| `install` | `sudo …`, `apt-get install`, `brew install`, `winget install` | ask | no |
+| `delete` | `rm`, `Remove-Item`, `git clean -f`, `git branch -D`, `find -delete`, `DROP TABLE` | ask | file paths yes; SQL, docker, disk tools never |
+| `layout` | `git worktree add/remove` | ask | yes, with `**` |
+| `install` | `sudo …`, `apt-get install`, `brew install`, `winget install` | ask | never |
+| `consent` | `packs.py ratify --yes`, `judge.py ratify --yes` | ask | never |
+| grant store | a redirect into, or a non-reading command naming, a `JD.md`, `judge.json` or session grants | **deny** | never |
 
 Commands are tokenised by `guard-push.py`'s quote-aware splitter: text inside a commit message or an
 `echo` is not a command; `bash -c "…"` is read inside. Every segment of a chain is judged: a confirmed
@@ -91,37 +93,21 @@ First match wins:
 3. **A lock slice** cites the file in the manifest → deny; the Regent changes the norm first.
 4. **A new name** (file or missing folder) carries `Base`, `Abs`, `Mgr`, `Helper`, `Common`, `Utils`
    → deny (conventions §14). Existing files keep their names.
-5. **Hazard watch on** and no permit covers the path → deny, naming the two ways through: a permit, or
-   the Regent's release verb.
+5. **A grant store** (any `JD.md`, `~/.claude/regency/judge.json`, a grant file the Regent named) → deny: only
+   the Regent's words change it, through the hooks (`library/judge.md` §6).
 
-### The hazard watch
+### Grants (R15)
 
-```text
-off ──(a destructive command reached the project: PostToolUse)──▶ on ──(the Regent says a release verb: UserPromptSubmit)──▶ off
-              while on: a file write no permit covers is refused; reading, searching, git status stay free
-              an ordinary message from the Regent keeps it on (R5.2)
-```
-
-**Reaching the project.** `history` and `discard` always do. A `delete` does unless every path it names
-lies outside the project root: `rm -rf` on a temp or scratch folder starts nothing. A path the hook cannot
-resolve (`$d`, a glob) counts as inside.
-
-**Permits.** The watch interrupts nobody: the refusal goes to the agent, not to a pop-up. The agent
-dispatches the `po` or `qa` role agent with the files it needs and why; the role agent answers with one
-line per grant, `permit: <glob>[, <glob>] -- <reason>`, and `hook-hazard.py` (`PostToolUse Agent|Task`)
-records the globs for the session. A line without a reason grants nothing; any other agent's lines are
-ignored, so the agent that needs a permit never grants it (conventions §1). A role agent may grant ahead
-of any watch: that is the session's permission list. Globs match the path relative to the project root.
-Permits need the role agents installed (`scripts/install-agents.py`); without them, only the release
-verb opens the watch.
-
-The release verbs are the rows of conventions §9 whose command is `hook-hazard.py --clear`
-(`libere`, `release`); the ask shown on every write names them. Session-scoped, stored outside the
-repository (`$CLAUDE_PLUGIN_DATA`, else the system temp folder). Manual release:
-`python scripts/hook-hazard.py --clear`.
+Each `ask` above is judged when it happens, and nothing locks the session after it: a `delete`,
+`discard`, `history` or `layout` act runs without asking when **one grant of the Regent's covers every path it
+names** (`judge.covers`); otherwise it asks, and the ask carries the grant line the Judge would propose. A `cd`
+earlier in the chain moves where the later paths resolve. Installs, destructive SQL, docker prunes, disk tools,
+cloud writes and consent are never granted. Grants come only from the Regent: a `grant:` line in a message
+(`hook-verbs.py`) or an answer to the Judge's pop-up (`hook-judge.py`). Where they live, STALE stores and
+ratification: `library/judge.md`.
 
 **Consent** (3.0). `python scripts/packs.py ratify ... --yes` lets a pack's hooks run code on the machine in one
-project. `hook-hazard.py` classifies it as `consent` and asks: only the Regent approves it, after reading the review
+project; so does `judge.py ratify --yes`, which records a changed grant store. `hook-hazard.py` classifies both as `consent` and asks: only the Regent approves it, after reading the review
 that the same command prints without `--yes` (T5; `library/packs.md` §5).
 
 ### Pack dispatcher — `hook-packs.py`
@@ -230,7 +216,8 @@ Every message of the Regent opens a pass. The hook:
 
 1. records the cloud commands quoted in the message as the pass's confirmed writes (replacing the last
    list; a message with none clears it);
-2. ends the hazard watch when the message opens with a release verb;
+2. records every line that opens with `grant:` as the Regent's grant (`judge.record`), and ratifies every
+   changed grant store when the message opens with a ratify verb (conventions §9);
 3. otherwise, for a message of 80 characters or fewer that opens with a verb, adds one line:
    `Regent verb 'prossiga' = work the whole queue -> /regency:proceed (conventions §9)`.
 
@@ -268,7 +255,9 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<virtual>/gov-keys.json` | gov (per-key aggregate, not trimmed with the queue) | `gov.py recur`, the Regent | project |
 | `<virtual>/returns.jsonl` | gov (one line per suba envelope, metadata only, trimmed to 500) | `returns.py show`, the Regent | project |
 | norm slices (one STALE line) | lineage | `vp.py stale`, the Regent | project |
-| `<state>/sessions/<session>.hazard.json` | hazard | acts guard, verbs | machine, outside any repository |
+| `<state>/sessions/<session>.grants.json` | verbs, judge (`grant:` lines, the Judge's pop-up) | hazard (`judge.covers`) | machine, outside any repository |
+| `<guidelines>/JD.md`, `~/.claude/regency/JD.md`, named grant files | verbs, judge — never by hand unless ratified | hazard (`judge.covers`), `judge.py list` | project (`JD.md`, committed) or machine |
+| `~/.claude/regency/judge.json` | verbs, judge, `judge.py ratify --yes` | every grant check (fingerprints, sources) | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
 | `<state>/heartbeats/<script>.<event>` | every hook (`hook_wire.serve`) | `health.py hooks` | machine, outside any repository |
 | `<guidelines>/.packs/active.json` | `packs.py` (activate, ratify) — never a hook | `hook-packs.py`, `packs.py` | project |
@@ -285,7 +274,7 @@ imports and then retires); the session files never leave the machine.
 | Practice | Reference implementation | Regency mechanism |
 |---|---|---|
 | Durable execution: persist state per step, resume a thread from its last checkpoint | LangGraph checkpointers keyed by `thread_id` | journal + resume line; `PreCompact` writes a checkpoint before context is lost |
-| Human-in-the-loop interrupt, resumed by human input | LangGraph `interrupt()` / `Command(resume=…)` | `ask` decisions; the hazard watch, released by a release verb |
+| Human-in-the-loop interrupt, resumed by human input | LangGraph `interrupt()` / `Command(resume=…)` | `ask` decisions; standing grants the Regent gives by place and kind (`library/judge.md`) |
 | Approval scoped to one exact tool call | tool-call approval in agent SDKs | a cloud write runs only as the exact command the Regent quoted, for one pass |
 | Idempotent side effects (a resumed step may run twice) | LangGraph interrupt rules (upsert, not create) | STALE written once per changed file; fingerprints upsert; journal append-only and trimmed |
 | Tool guardrails with a tripwire that halts the run | OpenAI Agents SDK input, output and tool guardrails | PreToolUse guards (`deny` = tripwire) |
@@ -322,7 +311,7 @@ Checked against the Claude Code hooks reference on 2026-10-09.
 | `async: true` runs in the background, has no timeout and cannot block | the journal is async except on `PreCompact` and `SessionEnd` |
 | `onFailure: "block"` blocks the call when the hook cannot start, times out or answers badly (newer versions; older ones ignore the key) | set on every guard; doctor WARNs if one lacks it |
 | `SessionEnd` hooks share a 1.5 s budget | the journal's `SessionEnd` entry has a 2 s timeout |
-| `CLAUDE_PLUGIN_DATA` is the plugin's persistent data folder | the hazard watch lives there |
+| `CLAUDE_PLUGIN_DATA` is the plugin's persistent data folder | the session's grants and cloud confirmations live there |
 | A hook whose script is missing or broken fails open | doctor runs every `--selftest` and the wire test |
 
 The command is `python "<script>"`. A machine where `python` is not on the PATH cannot start any hook:
@@ -335,7 +324,8 @@ interpreter it was started with, so run it as `python scripts/doctor.py`.
 |---|---|
 | health of every hook | `python scripts/doctor.py` |
 | one hook's rules | `python scripts/<hook>.py --selftest` |
-| release the hazard watch now | `python scripts/hook-hazard.py --clear` |
+| the grants in force here | `python scripts/judge.py list` |
+| does a grant cover this act | `python scripts/judge.py check delete build` |
 | last checkpoints | `python scripts/hook-journal.py --tail 20` |
 | the resume line here | `python scripts/hook-resume.py --print` |
 | the first read on resume | `python scripts/shortcuts.py peek` |

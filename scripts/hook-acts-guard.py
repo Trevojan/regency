@@ -4,14 +4,13 @@
 Decision record R4.4. One answer per call, first match wins:
 
   deny  .scope/          the Regent's raw material is read-only for agents          (ids.md, Terms)
+  deny  grant store      a JD.md, the grant fingerprints, a grant file the Regent named: only the Regent's
+                         words change them, through regency's hooks                  (library/judge.md, R15)
   deny  act rewrite      an existing act is never rewritten: Order ORD-####, gate GT-## / GATE_*,
                          ladder plan LADDER_*, opinion, dated handoff — add a new one   (conventions §7)
   deny  generated block  a hand edit inside the shortcuts:state block of .shortcuts/README.md (F4, R7)
   deny  lock slice       the file is governed by a manifest slice with on_mutation=lock (virtualpath §2)
   deny  banned name      a NEW path carries Base/Abs/Mgr/Helper/Common/Utils           (conventions §14)
-  deny  hazard watch     a destructive step ran in the project this session and no PO/QA permit covers
-                         the path; a permit or the Regent's release verb lets writes through
-                         (set and permitted by hook-hazard.py, released by hook-verbs.py; R5.2)
   (nothing)              the write proceeds
 
 Market pattern: tool guardrail with a tripwire (OpenAI Agents SDK), policy-as-code before the side
@@ -20,7 +19,6 @@ effect. A broken guard answers 'ask', never a silent pass (hook_wire.serve, guar
 Modes:  (no args) hook · --selftest
 Pure standard library, Python 3.8+.
 """
-import importlib.util
 import os
 import re
 import sys
@@ -32,10 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
 from conventions_check import BANNED, tokens  # noqa: E402
 import shortcuts  # noqa: E402  (guard_generated(): the state block is generated, R7)
-
-_spec = importlib.util.spec_from_file_location("hook_hazard", Path(__file__).resolve().parent / "hook-hazard.py")
-hazard = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(hazard)  # the permits live with the watch
+import judge  # noqa: E402  (is_store(): the Regent's grants, R15)
 
 ACTS = (  # (kind, filename pattern, what to do instead)
     ("Order", re.compile(r"^ORD-\d{4,}"), "an Order is immutable: write a versioned file or an INTAKE-*.md"),
@@ -77,6 +72,9 @@ def respond(event):
     rel = wire.rel_posix(path, repo) or path.as_posix()
     if ".scope" in Path(rel).parts:
         return wire.permission("deny", f"{rel}: .scope/ is the Regent's raw material, read-only for agents (R4.6)")
+    if judge.is_store(path):
+        return wire.permission("deny", f"{rel} holds the Regent's grants: only the Regent's own words change it, through "
+                                       "a 'grant:' line or the Judge's pop-up (/regency:judge, library/judge.md)")
     act = act_kind(path.name)
     if act and path.exists():
         kind, instead = act
@@ -94,13 +92,6 @@ def respond(event):
         if hit:
             return wire.permission("deny", f"new name '{part}' uses banned token {sorted(hit)} (conventions §14, S3): "
                                            "name it by role")
-    watch = wire.load_state(event, "hazard")
-    if watch and not hazard.permitted(event, rel):
-        release = "' or '".join(wire.release_words()) or "a release verb"
-        return wire.permission("deny", f"hazard watch: '{watch.get('label')}' ran at {watch.get('at')}; {rel} has no permit. "
-                                       "Dispatch the po or qa agent with the files you need and why; its "
-                                       "'permit: <glob> -- <reason>' lines let them through. Or the Regent says "
-                                       f"'{release}' (R4.4, R5.2)")
     return None
 
 
@@ -109,6 +100,8 @@ def selftest():
         root = wire.build_fixture(Path(tmp) / "proj")
         state = Path(tmp) / "state"
         os.environ["REGENCY_HOOK_STATE"] = str(state)
+        os.environ["REGENCY_JUDGE_HOME"] = str(Path(tmp) / "home")
+        os.environ.pop("REGENCY_JD", None)
 
         def ev(tool, rel, sid="s1"):
             key = "notebook_path" if tool == "NotebookEdit" else "file_path"
@@ -147,12 +140,17 @@ def selftest():
         cases.append((verdict(respond(ev("Edit", "src/CommonThing.cs"))) == "allow",
                       "an existing banned-name file can still be edited"))
         wire.save_state(ev("Edit", "x"), "hazard", {"label": "git reset --hard", "at": "t"})
-        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "deny", "hazard watch, no permit -> deny"))
-        wire.save_state(ev("Edit", "x"), "permit", {"globs": ["src/*.razor"], "grants": []})
-        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "allow", "hazard watch, permitted path -> allow"))
-        cases.append((verdict(respond(ev("Edit", "src/Parser.cs"))) == "deny", "hazard watch, path outside permit -> deny"))
-        cases.append((verdict(respond(ev("Edit", "src/Page.razor", sid="s2"))) == "allow",
-                      "hazard watch is per session"))
+        cases.append((verdict(respond(ev("Edit", "src/Page.razor"))) == "allow",
+                      "no hazard watch: a destructive step earlier locks nothing (R15)"))
+        for rel, label in ((g + "JD.md", "the repository's grants"), ("JD.md", "a JD.md at the root"),
+                           ("docs/JD.md", "any JD.md")):
+            cases.append((verdict(respond(ev("Write", rel))) == "deny", f"grant store: {label} -> deny"))
+        rec = judge.record_file()
+        rec.parent.mkdir(parents=True, exist_ok=True)
+        outside = {"hook_event_name": "PreToolUse", "tool_name": "Edit", "session_id": "s1", "cwd": str(root),
+                   "tool_input": {"file_path": str(rec)}}
+        cases.append((verdict(respond(outside)) == "deny", "grant store: the fingerprint record -> deny"))
+        cases.append((verdict(respond(ev("Write", g + "JD-notes.md"))) == "allow", "a name that only starts with JD passes"))
         cases.append((respond({"tool_name": "Bash", "tool_input": {"command": "ls"}}) is None, "other tools pass"))
         index = root / ".guidelines/.shortcuts/README.md"
         index.write_text("# Shortcuts\n\nRead the state block first.\n", encoding="utf-8")

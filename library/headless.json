@@ -63,6 +63,6 @@
     {"id": "commit", "command": "arrange-cycle-commit", "reason": "merges and pushes reach outside the machine; the Regent watches each step interactively"},
     {"id": "init", "command": "init", "reason": "names every path before creating it and waits for the Regent's yes; run it interactively"},
     {"id": "ux-init", "command": "ux-init", "reason": "fills the brief with the Regent through questions; run it interactively"},
-    {"id": "release", "command": null, "reason": "the release verb is the Regent's own, and a headless run's hazard watch ends with its session; run python scripts/hook-hazard.py --clear yourself if needed"}
+    {"id": "judge", "command": "judge", "reason": "a grant is the Regent's own word, given through a message or a pop-up; a headless run, which nobody can answer, never records one"}
   ]
 }

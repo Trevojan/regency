@@ -3,7 +3,7 @@ name: suba-recon
 description: "Regency subagent of the QA role. Use when QA needs the verification context before judging: map the environment a change lives in - the norm slices that govern it, conventions, contracts, tooling, the test surface - compress recurring knowledge into pointers with provenance, and turn a verified finding into a correction brief in QA's bug-report shape. Read-only; never fixes, redesigns or sets severity."
 metadata:
   owner: QA
-  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#226567051d2f"
+  aligned: "library/team/QA.md#c74f58c8b0cd library/agents/qa.md#d94b930acd92"
 ---
 
 # suba-recon

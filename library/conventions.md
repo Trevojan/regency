@@ -99,7 +99,8 @@ from its brief; a UI rule changes there first, then in code.
   resource stays, whichever side it came from; newer by date is not better by itself. Keep what improves
   performance, efficiency or a bottleneck; drop what is useless, already made by existing means, or
   underused (§15.1). A branch whose content another already holds retires as a tag `archive/<branch>`.
-  Destructive steps are left to the hooks to judge (`scripts/hook-hazard.py`, §9 release words).
+  Destructive steps are left to the hooks to judge (`scripts/hook-hazard.py`, the Regent's grants in
+  `library/judge.md`).
 - Stage only the files that belong to the work. Other uncommitted changes in the tree are the
   Regent's: leave them untouched and unstaged.
 - One step per commit, verification green at each step. Format-only differences (spaces,
@@ -113,9 +114,12 @@ Without asking, an agent may: read, search, edit inside the task, run the build,
 app, containers and local servers, and kill its own stray processes.
 Ask first before: deleting, force operations, "danger-zone" commands, changing worktree or branch
 layout, installing system software, and **anything that touches cloud, production or shared data**.
-`scripts/hook-hazard.py` asks for the destructive ones before they run and, once one has reached the
-project, refuses file writes that no permit from the `po` or `qa` agent covers, until the Regent says a
-release verb (§9; `library/hooks.md` §2). The agent that needs a permit never grants it.
+`scripts/hook-hazard.py` asks for the destructive ones before they run, unless a **grant** of the
+Regent's covers every path the act names: where (globs), how (delete, discard, history, layout), for this
+session, the repository (`JD.md`), this machine or a file the Regent names (`library/judge.md`). Only the
+Regent grants: a `grant:` line in a message of theirs, or their answer to the Judge's pop-up
+(`/regency:judge`). Nothing locks the session after a destructive step; each act is judged when it happens.
+Installing system software, destructive SQL, cloud writes and pack consent are never granted.
 In auto mode and in headless runs these lines reach the classifier through `library/automode.json`, and
 a headless run, which nobody can answer, reads every *ask first* as a denial it reports
 (`library/automation.md`).
@@ -165,7 +169,8 @@ a headless run, which nobody can answer, reads every *ask first* as a denial it 
 ## 9. Verbs the Regent uses (what they mean here)
 
 `scripts/hook-verbs.py` reads this table: a short message opening with one of these verbs gets its
-command named in context, and a release verb ends the hazard watch. Edit the table here, never in a script.
+command named in context, and a ratify verb records every changed grant store as the Regent's
+(`library/judge.md`). Edit the table here, never in a script.
 
 | Says | Means | Command |
 |---|---|---|
@@ -176,8 +181,9 @@ command named in context, and a release verb ends the hazard watch. Edit the tab
 | retome | reopen from the shortcuts index only | `/regency:order:resume` |
 | chame o TEAM | one orchestrated pass | `/regency:team` |
 | health check, checkup | every health check that applies here, one line per finding | `/regency:health` |
-| release the kraken, solte o kraken | two full teams, passes chained on the declared fuel; it is not a release verb | `/regency:team:extreme-go-horse` |
-| libere, release | end the hazard watch: file writes stop asking | `hook-hazard.py --clear` |
+| release the kraken, solte o kraken | two full teams, passes chained on the declared fuel | `/regency:team:extreme-go-horse` |
+| ratify grants, ratifique as concessões | record every changed grant store (`JD.md`) as the Regent's | `judge.py ratify --yes` |
+| juiz, judge | what the Regent's grants allow here, and new ones put to the Regent | `/regency:judge` |
 
 ## 10. Returning to a repository
 

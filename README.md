@@ -10,8 +10,8 @@
 <p align="center">
 <!-- regency:badges:begin -->
   <a href="#versioning"><img alt="version: 3.0" src="https://img.shields.io/badge/regency-3.0-00D7FF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="commands: 63" src="https://img.shields.io/badge/commands-63-A66CFF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="skills: 18" src="https://img.shields.io/badge/skills-18-8FD3FF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="commands: 64" src="https://img.shields.io/badge/commands-64-A66CFF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="skills: 19" src="https://img.shields.io/badge/skills-19-8FD3FF?style=flat-square&labelColor=000000"></a>
 <!-- regency:badges:end -->
   <a href="#requirements"><img alt="Claude Code 2.1.201 or later" src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.201-00D7FF?style=flat-square&labelColor=000000&logo=claude&logoColor=00D7FF"></a>
   <a href="#requirements"><img alt="Python 3.8 or later, standard library only" src="https://img.shields.io/badge/python-3.8%2B%20%C2%B7%20stdlib-0B7A3E?style=flat-square&labelColor=000000&logo=python&logoColor=8FD3FF"></a>
@@ -213,6 +213,7 @@ Every command, generated from `library/registry.json`; each name links to its pl
 | [`/regency:station`](skills/station/SKILL.md) | Mise-en-place before a pass. | `check` `gate` `scaffold` `line` |
 | [`/regency:health`](skills/health/SKILL.md) | The Regent's checkup, one line per finding with its method. | `project` `harness` `doctor` `shortcuts` `version` `copies` `distributable` `engines` `hooks` `queues` `context` `pipeline` |
 | [`/regency:serious-doctor-appointment`](skills/serious-doctor-appointment/SKILL.md) | Assemble the caring topics of a project. | — |
+| [`/regency:judge`](skills/judge/SKILL.md) | The Judge: what the Regent's grants let run without asking here. | — |
 <!-- regency:modules:end -->
 
 `/regency:<id>:<sub>` and `/regency:<id> <sub>` run the same playbook. Without the plugin loaded, open
@@ -224,7 +225,7 @@ the playbook and follow it as a plain file.
 |---|---|
 | A push to `main` or `master` is denied in any form | `scripts/guard-push.py` |
 | A cloud CLI write runs only if the Regent quoted that exact command in the current turn; reads pass | `scripts/hook-hazard.py`, `scripts/hook-verbs.py` |
-| After a destructive command, file writes wait for a PO or QA permit or the Regent's release verb | `scripts/hook-hazard.py`, `scripts/hook-acts-guard.py` |
+| A delete, discard, history rewrite or worktree change asks first, unless a grant of the Regent's covers every path it names; only the Regent grants | `scripts/hook-hazard.py`, `scripts/judge.py`, `scripts/hook-verbs.py`, `scripts/hook-judge.py` |
 | Closed acts (Orders, gate sheets, ladder plans, dated handoffs) are never rewritten; `.scope/` is read-only | `scripts/hook-acts-guard.py` |
 | Every write re-fingerprints the file and marks governing norm slices `STALE` | `scripts/hook-lineage.py` |
 | Every subagent return is validated against its contract before it is routed | `scripts/hook-gov.py`, `scripts/returns.py` |
