@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/Trevojan/regency/security/advisories/new
+    about: A private report to the maintainer. Never open a public issue for a security problem.
+  - name: Ask a question
+    url: https://github.com/Trevojan/regency/discussions
+    about: How-to questions, install help and open ideas go to Discussions.
