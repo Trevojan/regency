@@ -12,7 +12,12 @@ Checks (each takes --repo DIR; default: the nearest .git above the current direc
                  [--used N] --cap N [--root DIR]
   queues         a dated queue (a markdown section of dated items) by age, and the ledger's review and
                  draft counts against a WIP limit (P-14)   [--file F --section S --days N] [--wip N] [--today D]
-  shortcuts      virtual paths (vp.py check) and the exact index (idx.py check) in one report (R11.8)
+  shortcuts      virtual paths (vp.py check), the entry index and its drift (shortcuts.py check, drift) and the
+                 exact index (idx.py check) in one report (R11.8, R12)
+  version        the project against the installed regency: the version gate, update operations still owed,
+                 unverified speed-mode drafts (R12)
+  copies         split copies of regency: this folder, every installed copy on the machine and every git branch;
+                 lines of work that split, versions no branch holds, uncommitted work (R12)   [--root DIR] [--home DIR]
   distributable  a project's release outputs: generated files edited by hand (F4), what must never be
                  uploaded, machine paths in a release folder (F5)   [--list FILE] [--release DIR]
   engines        every engine copy against regency's base and the Regent's ratified record: AOK, STALE
@@ -332,6 +337,15 @@ def shortcuts(rep, repo):
         if l.startswith(("UNRESOLVED", "MISSING")):
             rep.add("FAIL", "shortcuts", "virtual path " + " ".join(l.split()))
     rep.add("OK" if vp.returncode == 0 else "FAIL", "shortcuts", "virtual paths: " + (lines[-1] if lines else "no answer"))
+    for verb, label, fix in (("check", "entry index", "shortcuts.py check"), ("drift", "drift", "shortcuts.py peek, then index")):
+        r = run([sys.executable, str(HERE / "shortcuts.py"), verb, "--repo", str(repo)], cwd=repo)
+        said = [l for l in r.stdout.splitlines() if l.strip()]
+        if r.returncode == 0:
+            rep.add("OK", "shortcuts", f"{label}: {said[-1] if said else 'no answer'}")
+            continue
+        for l in said[:-1][:5]:
+            rep.add("WARN", "shortcuts", f"{label} " + " ".join(l.split()))
+        rep.add("WARN", "shortcuts", f"{label}: {said[-1] if said else 'no answer'} -> {fix}")
     ix = run([sys.executable, str(HERE / "idx.py"), "--repo", str(repo), "check"], cwd=repo)
     rows = []
     for l in ix.stdout.splitlines():
@@ -350,6 +364,151 @@ def shortcuts(rep, repo):
     rep.add("WARN" if drift else "OK", "shortcuts",
             f"exact index: {cache.get('files', 0)} file(s), {cache.get('drifted', 0)} drifted, {cache.get('deleted', 0)} "
             f"deleted, {len(bad)} broken reference(s)" + ("; run idx.py build" if drift else ""))
+
+
+# ---------- version and copies (R12) ----------------------------------------------------------
+
+def vkey(v):
+    """'2.10' > '2.9'; anything that is not a.b sorts first."""
+    try:
+        return tuple(int(x) for x in str(v).split("."))
+    except ValueError:
+        return (-1,)
+
+
+def version(rep, repo, plugin_root=ROOT):
+    """The project against the installed regency: the gate, operations an update still owes, unverified drafts."""
+    import migrate  # noqa: E402  (the version gate and the plan: library/migrations/README.md §2)
+    if not wire.guidelines_root(repo):
+        return rep.add("INFO", "version", "no guidelines here: nothing to fit to regency")
+    code, line = migrate.gate(repo, plugin_root)
+    rep.add(("OK", "WARN", "FAIL")[code], "version", line)
+    if code == 0:
+        pending = [op for op in migrate.plan(repo, plugin_root)["ops"] if op["op"] != "stamp"]
+        if pending:
+            shown = ", ".join(f"{op['op']} {op['path']}" for op in pending[:3])
+            more = f" and {len(pending) - 3} more" if len(pending) > 3 else ""
+            rep.add("WARN", "version", f"{len(pending)} update operation(s) pending though the stamp agrees "
+                                       f"({shown}{more}) -> /regency:update:plan")
+    if wire.virtual_dir(repo):
+        r = run([sys.executable, str(HERE / "vp.py"), "drafts", "--from", str(repo)], cwd=repo)
+        said = [l for l in r.stdout.splitlines() if l.strip()]
+        rep.add("WARN" if r.returncode else "OK", "version", "drafts: " + (said[-1] if said else "no answer")
+                + (" (vp.py drafts)" if r.returncode else ""))
+
+
+def installed_copies(home=None):
+    """Every installed regency on this machine: the CLI's cache and the account's synced copies (never .trash)."""
+    base = Path(home or Path.home()) / ".claude" / "plugins"
+    out = []
+    for pat, kind in (("cache/*/*/*/.claude-plugin/plugin.json", "cache"), ("synced/*/*/.claude-plugin/plugin.json", "synced")):
+        for mf in sorted(base.glob(pat)):
+            try:
+                d = json.loads(mf.read_text(encoding="utf-8"))
+            except (ValueError, OSError):  # health: allow-silent an unreadable manifest is not a regency copy
+                continue
+            if d.get("name") != "regency":
+                continue
+            root = mf.parent.parent
+            label = f"cache {root.parent.parent.name}/{root.parent.name}@{root.name}" if kind == "cache" else f"synced {root.name}"
+            out.append({"label": label, "version": str(d.get("version")), "root": root})
+    return out
+
+
+def branch_tips(root):
+    """Branches (local and remote-tracking) that carry regency, and which of them are tips: no other one contains
+    them. None when the folder is not a git repository."""
+    r = git(root, "for-each-ref", "--format=%(refname:short) %(objectname) %(refname)", "refs/heads", "refs/remotes")
+    if r is None or r.returncode != 0:
+        return None
+    refs = []
+    for line in r.stdout.splitlines()[:40]:
+        name, sha, full = line.split(" ", 2)
+        if full.endswith("/HEAD"):
+            continue
+        shown = git(root, "show", f"{sha}:library/registry.json")
+        try:
+            v = json.loads(shown.stdout).get("version") if shown is not None and shown.returncode == 0 else None
+        except ValueError:  # health: allow-silent a ref whose registry does not parse carries no version
+            v = None
+        if v is not None:
+            refs.append({"ref": name, "sha": sha, "version": str(v)})
+    shas = {x["sha"] for x in refs}
+    contained = set()
+    for a in shas:
+        for b in shas - {a}:
+            anc = git(root, "merge-base", "--is-ancestor", a, b)
+            if anc is not None and anc.returncode == 0:
+                contained.add(a)
+                break
+    for x in refs:
+        x["tip"] = x["sha"] not in contained
+    return refs
+
+
+def in_history(root, v):
+    """True when some commit on any branch set library/registry.json to version v."""
+    r = git(root, "log", "--all", "-1", "--format=%h", "-G", '"version": "' + re.escape(str(v)) + '"', "--", "library/registry.json")
+    return bool(r is not None and r.returncode == 0 and r.stdout.strip())
+
+
+def copies(rep, root=ROOT, home=None):
+    """Split copies of regency (R12): one line of work, one version per content, nothing living only in a copy."""
+    root = Path(root)
+    try:
+        here = json.loads((root / "library" / "registry.json").read_text(encoding="utf-8"))["version"]
+    except (OSError, ValueError, KeyError):
+        return rep.add("FAIL", "copies", f"{root}: no library/registry.json, so not a regency folder")
+    found = 0
+    inst = installed_copies(home)
+    refs = branch_tips(root)
+    held = {here} | {x["version"] for x in refs or []}
+    if len(inst) > 1:
+        found += rep.add("WARN", "copies", f"{len(inst)} installed copies of regency on this machine ("
+                         + ", ".join(f"{c['label']} {c['version']}" for c in inst)
+                         + "): each one loads its skills and hooks; keep one") == "WARN"
+    for c in inst:
+        if c["version"] not in held and not (refs is not None and in_history(root, c["version"])):
+            found += 1
+            rep.add("WARN", "copies", f"installed {c['label']} carries {c['version']}, which neither this folder ({here}) "
+                                      "nor any branch holds: its source lives only in the install")
+        elif vkey(c["version"]) < vkey(here):
+            rep.add("INFO", "copies", f"installed {c['label']} {c['version']} is behind this folder's {here}: "
+                                      "update it once this version ships (library/maintaining.md)")
+    if refs is None:
+        rep.add("UNCHECKED", "copies", f"{root.name}: not a git repository, so its branches cannot be compared")
+    else:
+        st = git(root, "status", "--porcelain")
+        dirty = [l for l in (st.stdout if st is not None else "").splitlines() if l.strip()]
+        if dirty:
+            found += 1
+            rep.add("WARN", "copies", f"this folder holds {len(dirty)} uncommitted file(s) on regency {here}: a copy "
+                                      "that lives nowhere else until it is committed to a branch")
+        tips = {}
+        for x in refs:
+            if x["tip"]:
+                tips.setdefault(x["sha"], []).append(x)
+        if len(tips) > 1:
+            found += 1
+            lines = [f"{'/'.join(x['ref'] for x in group)} {group[0]['version']}" for group in tips.values()]
+            rep.add("WARN", "copies", f"{len(tips)} lines of work have split ({'; '.join(lines)}): no branch holds the "
+                                      "others; merge them into one, or retire one (the Regent's act)")
+            seen = {}
+            for group in tips.values():
+                seen.setdefault(group[0]["version"], []).append(group[0]["ref"])
+            for v, names_ in seen.items():
+                if len(names_) > 1:
+                    rep.add("WARN", "copies", f"version {v} names {len(names_)} different contents ({', '.join(names_)}): "
+                                              "a version must name one content")
+        ahead = [x for x in refs if vkey(x["version"]) > vkey(here)]
+        if ahead:
+            found += 1
+            rep.add("WARN", "copies", f"{', '.join(sorted({x['ref'] + ' ' + x['version'] for x in ahead}))} ahead of this "
+                                      f"folder's {here}: this folder is not the newest copy")
+    if not found:
+        rep.add("OK", "copies", f"one line of work: this folder {here}"
+                + (f", {len(refs)} branch(es) inside it" if refs else "")
+                + (f", installed {', '.join(c['version'] for c in inst)}" if inst else ", no installed copy on this machine"))
 
 
 # ---------- distributable (R11.7) --------------------------------------------------------------
@@ -867,7 +1026,8 @@ def underuse(rep, repo):
 
 def default_topics(repo):
     g = wire.guidelines_root(repo)
-    plan = {"root": [{"id": "names", "check": "names", "args": {"upload_set": True}, "why": "one record per subject"},
+    plan = {"root": [{"id": "version", "check": "version", "args": {}, "why": "the project fits the installed regency"},
+                     {"id": "names", "check": "names", "args": {"upload_set": True}, "why": "one record per subject"},
                      {"id": "underuse", "check": "underuse", "args": {}, "why": "specific parts over common-sense folders"},
                      {"id": "distributable", "check": "distributable", "args": {}, "why": "generated files are rebuilt, never edited (F4)"},
                      {"id": "pipeline", "check": "pipeline", "args": {}, "why": "every message reaches the Regent; no silent error"}]}
@@ -969,6 +1129,10 @@ def run_topic(rep, repo, t):
         return queues(rep, repo, a.get("file"), a.get("section"), a.get("days", 7), a.get("wip"))
     if c == "shortcuts":
         return shortcuts(rep, repo)
+    if c == "version":
+        return version(rep, repo)
+    if c == "copies":
+        return copies(rep, a.get("root") or ROOT, a.get("home"))
     if c == "distributable":
         return distributable(rep, repo, a.get("list"), a.get("release", []))
     if c == "engines":
@@ -1020,7 +1184,8 @@ def harness(rep, plugin_root=ROOT):
 
 def overview(repo, plugin_root=ROOT, machine=None, account=None, record=None):
     rows = []
-    for label, fn in (("harness", lambda r: harness(r, plugin_root)), ("project", lambda r: project(r, repo)),
+    for label, fn in (("harness", lambda r: harness(r, plugin_root)), ("copies", lambda r: copies(r, plugin_root)),
+                      ("version", lambda r: version(r, repo, plugin_root)), ("project", lambda r: project(r, repo)),
                       ("hooks", lambda r: hooks(r, repo, plugin_root)), ("context", lambda r: context(r, None, plugin_root)),
                       ("engines", lambda r: engines(r, repo, machine, account, record)), ("underuse", lambda r: underuse(r, repo))):
         sub = Report()
@@ -1246,6 +1411,94 @@ def selftest():
             case(has(rep, "OK", "4 finding(s) in 2 file(s); 1 declared silent on purpose") or
                  has(rep, "WARN", "4 finding(s) in 2 file(s); 1 declared silent on purpose"), "scan: a declared silence is counted, not hidden")
 
+            # shortcuts, read-only: the entry index and its drift join the report, and nothing is created
+            rep = Report()
+            shortcuts(rep, repo)
+            vd = g / ".shortcuts/.virtual"
+            case(has(rep, "WARN", "entry index") and has(rep, "WARN", "no store yet")
+                 and not (vd / "index.sqlite").exists() and not (vd / ".gitignore").exists(),
+                 "shortcuts: the entry index and drift are reported, and a health run creates no store (R12)")
+
+            # version: the gate, owed operations, drafts
+            import migrate  # noqa: E402
+            rep = Report()
+            version(rep, repo)
+            case(has(rep, "WARN", "no regency stamp") or has(rep, "WARN", "run /regency:update"), "version: an unstamped project is behind")
+            migrate.write_stamp(g, ROOT)
+            rep = Report()
+            version(rep, repo)
+            case(has(rep, "OK", "agree") and has(rep, "WARN", "update operation(s) pending though the stamp agrees"),
+                 "version: a stamp that agrees with operations still owed is a finding")
+            case(has(rep, "OK", "drafts: 0 unverified"), "version: no draft, OK")
+            led = vd / "ongoing.json"
+            keep_led = led.read_text(encoding="utf-8")
+            data = json.loads(keep_led)
+            data["items"].append({"id": "M09.D01.T01", "title": "x", "state": "draft", "where": ["branch:plumbing"]})
+            led.write_text(json.dumps(data), encoding="utf-8")
+            rep = Report()
+            version(rep, repo)
+            case(has(rep, "WARN", "1 unverified draft(s)"), "version: an unverified draft is a finding")
+            led.write_text(keep_led, encoding="utf-8")
+            stamp = g / migrate.STAMP
+            stamp.write_text(json.dumps({"schema": 1, "regency": "999.0"}), encoding="utf-8")
+            rep = Report()
+            version(rep, repo)
+            case(rep.items[0][0] == "FAIL", "version: a project newer than the installed regency FAILs")
+            stamp.unlink()
+
+            # copies: one line of work, split lines, a version naming two contents, a copy living only in an install
+            reg, home = tmp / "regcopy", tmp / "home"
+            (reg / "library").mkdir(parents=True)
+
+            def gr(*args):
+                subprocess.run(["git", "-C", str(reg), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false",
+                                *args], check=True, capture_output=True)
+
+            def ver(v, extra=None):
+                (reg / "library" / "registry.json").write_text(json.dumps({"version": v}), encoding="utf-8")
+                if extra:
+                    (reg / extra).write_text(extra, encoding="utf-8")
+                gr("add", "-A")
+                gr("commit", "-qm", v)
+
+            def install(name, v):
+                m = home / ".claude/plugins/synced/acct" / name / ".claude-plugin"
+                m.mkdir(parents=True, exist_ok=True)
+                (m / "plugin.json").write_text(json.dumps({"name": "regency", "version": v}), encoding="utf-8")
+
+            gr("init", "-q")
+            gr("checkout", "-qb", "main")
+            ver("2.11")
+            install("regency", "2.11")
+            gr("checkout", "-qb", "plumbing")
+            ver("2.12")
+            rep = Report()
+            copies(rep, reg, home)
+            case(has(rep, "OK", "one line of work") and has(rep, "INFO", "2.11 is behind this folder's 2.12"),
+                 "copies: a branch inside another is one line of work; an older install is only behind")
+            gr("checkout", "-q", "main")
+            gr("checkout", "-qb", "side")
+            ver("2.4", "a.txt")
+            gr("checkout", "-q", "main")
+            gr("checkout", "-qb", "side2")
+            ver("2.4", "b.txt")
+            install("regency~g2", "2.9")
+            (reg / "loose.txt").write_text("x", encoding="utf-8")
+            rep = Report()
+            copies(rep, reg, home)
+            case(has(rep, "WARN", "3 lines of work have split"), "copies: tips no branch holds are split lines of work")
+            case(has(rep, "WARN", "version 2.4 names 2 different contents"), "copies: one version naming two contents is a finding")
+            case(has(rep, "WARN", "2 installed copies"), "copies: two installs of regency on one machine are a finding")
+            case(has(rep, "WARN", "carries 2.9, which neither this folder"), "copies: a version no branch ever held lives only in the install")
+            case(has(rep, "WARN", "1 uncommitted file(s)"), "copies: uncommitted work is a copy that lives nowhere else")
+            case(has(rep, "WARN", "plumbing 2.12 ahead of this folder's 2.4"), "copies: a branch ahead of the folder is named")
+            plain = tmp / "plainreg"
+            (plain / "library").mkdir(parents=True)
+            (plain / "library" / "registry.json").write_text('{"version": "2.12"}', encoding="utf-8")
+            rep = Report()
+            copies(rep, plain, tmp / "nohome")
+            case(has(rep, "UNCHECKED", "not a git repository"), "copies: without git the branches are UNCHECKED, never clean")
+
             # underuse
             (g / ".changelog").mkdir(exist_ok=True)
             (g / ".changelog" / "README.md").write_text("# changelog\n", encoding="utf-8")
@@ -1317,6 +1570,10 @@ def cli(argv):
     s.add_argument("--wip", type=int)
     s.add_argument("--today")
     sub.add_parser("shortcuts")
+    sub.add_parser("version")
+    s = sub.add_parser("copies")
+    s.add_argument("--root")
+    s.add_argument("--home")
     s = sub.add_parser("distributable")
     s.add_argument("--list")
     s.add_argument("--release", action="append", default=[])
@@ -1366,6 +1623,10 @@ def cli(argv):
         queues(rep, repo, a.file, a.section, a.days, a.wip, a.today)
     elif a.cmd == "shortcuts":
         shortcuts(rep, repo)
+    elif a.cmd == "version":
+        version(rep, repo)
+    elif a.cmd == "copies":
+        copies(rep, Path(a.root) if a.root else ROOT, a.home)
     elif a.cmd == "distributable":
         distributable(rep, repo, a.list, a.release)
     elif a.cmd == "engines":

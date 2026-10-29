@@ -1,7 +1,7 @@
 ---
 name: health
-description: "Regency health, the Regent's checkup: one line per finding with its method. Bare: a summary of every check that applies here. project: the ratified check set, plus a claude.ai Project's own checks. harness: regency checks itself. doctor: assemble what to check. Single checks: shortcuts, distributable, engines, hooks, queues, context, pipeline. Use for /regency:health[:sub], 'health check', 'checkup'."
-argument-hint: "[project | harness | doctor | shortcuts | distributable | engines [ratify|restore] | hooks | queues | context | pipeline]"
+description: "Regency health, the Regent's checkup: one line per finding with its method. Bare: a summary of every check that applies here. project: the ratified check set, plus a claude.ai Project's own checks. harness: regency checks itself. doctor: assemble what to check. Single checks: shortcuts, version, copies, distributable, engines, hooks, queues, context, pipeline. Use for /regency:health[:sub], 'health check', 'checkup'."
+argument-hint: "[project | harness | doctor | shortcuts | version | copies | distributable | engines [ratify|restore] | hooks | queues | context | pipeline]"
 ---
 
 # health — the checkup
@@ -21,7 +21,8 @@ Read-only. Nothing here writes into a project or a record unless the Regent answ
 | `project` | `health.py project`, then the **Project surface** below when this session is bound to a claude.ai Project | every finding, FAIL first |
 | `harness` | `health.py harness` (the same as `/regency doctor`) | the doctor's FAIL lines and its summary |
 | `doctor` | open `skills/serious-doctor-appointment/SKILL.md` and follow it | the proposal, then the Regent's answer |
-| `shortcuts` · `distributable` · `hooks` · `queues` · `context` · `pipeline` | `health.py <check>` with the arguments below | its lines |
+| `shortcuts` · `version` · `distributable` · `hooks` · `queues` · `context` · `pipeline` | `health.py <check>` with the arguments below | its lines |
+| `copies` | `health.py copies` from the Regent's regency folder (`--root DIR` names another copy); run from an installed copy, its branches are UNCHECKED | every WARN: the Regent decides which line of work stays |
 | `engines` | `health.py engines` with the surfaces below; then **Ratify or deny** | AOK, STALE, UNCHECKED lines |
 
 Every run takes `--repo DIR` (default: the nearest `.git` above the working directory).

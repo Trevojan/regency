@@ -121,7 +121,8 @@ def selftest():
             ("STALE 1" in out, "STALE lines counted"),
             ("latest Order ORD-0001" in out, "latest Order named"),
             ("Edit src/Page.razor" in out, "last checkpoint read back"),
-            ("shortcuts check " in out and "drift " in out and "shortcuts.py peek" in out, "shortcuts index and drift counted (R7)"),
+            ("shortcuts check " in out and "no store yet (shortcuts.py index)" in out and "shortcuts.py peek" in out,
+             "shortcuts: the index checked; no store yet, so no drift claimed (R7)"),
             ("\n" not in out and len(out) <= wire.MAX_LINE, "one slice line, capped"),
             ("after compact" in text(respond({"hook_event_name": "SessionStart", "source": "compact", "cwd": str(root)})),
              "compaction is named"),
@@ -134,6 +135,7 @@ def selftest():
         idx.build(root, root / ".guidelines/.shortcuts/.virtual", guidelines_only=True)
         out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
         cases.append((re.search(r"index \d+ nodes", out) is not None, f"with an index: its size is named ({out[-90:]})"))
+        cases.append((re.search(r"shortcuts check \d+ · drift \d+", out) is not None, "with a store: drift counted"))
         cases.append(("draft" not in out, "no draft item, no draft count"))
         led = root / ".guidelines/.shortcuts/.virtual/ongoing.json"
         data = json.loads(led.read_text(encoding="utf-8"))

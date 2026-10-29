@@ -23,7 +23,9 @@ checks its parts need — and writes them as a proposal. Nothing runs until the 
 | `names` | one name for two files: each copy gets a suggested name (`Aa1`, `Aa2`) and a candidate keeps the name (the first born; a copy in a specific folder over a loose one); identical copies are called copies | WARN; a name a runtime fixes (`SKILL.md`, `plugin.json`) is INFO, reported once |
 | `size` | knowledge weight against a cap: a surface's own figure, or the local upload set | WARN from 80 %, FAIL over the cap |
 | `queues` | a dated queue (a markdown section of dated items) older than N days; the ledger's review count over its WIP limit (P-14) | WARN |
-| `shortcuts` | virtual paths (`vp.py check`) and the exact index (`idx.py check`) in one report | FAIL broken reference, WARN drift |
+| `shortcuts` | virtual paths (`vp.py check`), the entry index and its drift (`shortcuts.py check`, `drift`; `library/shortcuts.md`) and the exact index (`idx.py check`) in one report; it never creates the store | FAIL broken reference, WARN drift or an entry-index problem |
+| `version` | the project against the installed regency: the version gate (`library/migrations/README.md` §2), update operations still owed while the stamp agrees, unverified speed-mode drafts (`vp.py drafts`) | FAIL newer than the plugin; WARN behind, unstamped, owed operations, a draft |
+| `copies` | split copies of regency (R12): this folder, every installed copy (the CLI's cache, the account's synced copies) and every branch — lines of work no branch holds together, one version naming two contents, a version only an install holds, uncommitted work, a branch ahead of the folder | WARN; INFO for an install that is only behind; UNCHECKED without git |
 | `distributable` | a generated file edited by hand (F4); dist/ output or an archive in an uploaded set; a machine path in a release (F5) | FAIL, FAIL, WARN |
 | `engines` | every engine copy against regency's base and the Regent's record | AOK, STALE, UNCHECKED |
 | `hooks` | a wired hook with no heartbeat on this machine; torn journal lines | WARN |

@@ -91,12 +91,14 @@ def is_guideline_doc(place, path):
 
 # ---------- the store (idx.py's) ---------------------------------------------------------------
 
-def open_db(place):
-    """idx.py's index.sqlite, created when absent; the legacy fingerprints.json is imported once."""
+def open_db(place, create=True):
+    """idx.py's index.sqlite; the legacy fingerprints.json is imported once. Writers create the store (and the
+    .gitignore beside it); readers (drift, export, health) pass create=False and never add a file to the project."""
     if not place.vdir:
         return None
-    con = idx.connect(place.vdir, create=True)
-    migrate_legacy(con, place)
+    con = idx.connect(place.vdir, create=create)
+    if con is not None:
+        migrate_legacy(con, place)
     return con
 
 
@@ -211,10 +213,12 @@ def node_moves(con, place, path):
 
 
 def drift(place, hashing=True):
-    """[(kind, rel, detail)] — kind: drift (content changed), gone, unindexed, maybe (stat only)."""
+    """[(kind, rel, detail)] — kind: drift (content changed), gone, unindexed, maybe (stat only), store (none yet)."""
     if not place.vdir:
         return []
-    con = open_db(place)
+    con = open_db(place, create=False)
+    if con is None:
+        return [("store", "", "no store yet: shortcuts.py index")]
     try:
         out = []
         for rel, sha, size, mtime in con.execute("SELECT path, sha256, bytes, mtime_ns FROM prints ORDER BY path"):
@@ -330,7 +334,7 @@ def render_state(place, nl="\n"):
         items = [it for it in led.get("items", []) if isinstance(it, dict)]
         by = {s: [it for it in items if it.get("state") == s] for s in LEDGER_STATES}
         rows.append(("ledger", " / ".join(f"{len(by[s])} {s}" for s in LEDGER_STATES)
-                     + f" (updated {led.get('updated') or '?'})"))
+                     + f" (updated {led.get('updated') or '—'})"))
         for it in by["ongoing"][:SHOWN]:
             rows.append(("ongoing", f"{it.get('id')} {it.get('title', '')}" + (f" → {it['next']}" if it.get("next") else "")))
         for it in by["draft"][:SHOWN]:
@@ -536,7 +540,10 @@ def summary_part(place):
     """One fragment for the SessionStart resume line (hook-resume), or None outside adopted projects."""
     if not place.vdir:
         return None
-    c, d = check(place), [x for x in drift(place) if x[0] in ("drift", "gone")]
+    c, d = check(place), drift(place)
+    if any(k == "store" for k, _, _ in d):
+        return f"shortcuts check {len(c)} · no store yet (shortcuts.py index)"
+    d = [x for x in d if x[0] in ("drift", "gone")]
     return f"shortcuts check {len(c)} · drift {len(d)}" + (" (shortcuts.py peek)" if c or d else "")
 
 
@@ -564,7 +571,9 @@ def peek(place):
 
 
 def export(place):
-    con = open_db(place)
+    con = open_db(place, create=False)
+    if con is None:
+        return {"store": None, "meta": {}, "prints": {}, "nodes": 0}
     try:
         prints = {r[0]: dict(zip(("sha256", "bytes", "mtime_ns", "prev_sha256", "at", "session", "source"), tuple(r)[1:]))
                   for r in con.execute("SELECT * FROM prints ORDER BY path")}
@@ -611,6 +620,14 @@ def selftest():
                                                             "at": "2026-10-09T20:00:00-03:00", "session": "abcd1234"}}}
         (vdir / LEGACY).write_text(json.dumps(legacy), encoding="utf-8")
         place = locate(root)
+
+        # readers never add a file to the project
+        first = drift(place)
+        check(place)
+        export(place)
+        cases.append((first and first[0][0] == "store" and not (vdir / idx.DB).exists() and not (vdir / ".gitignore").exists()
+                      and "no store yet" in (summary_part(place) or ""),
+                      "read-only: drift, check, export and the resume part create no store"))
 
         # one store: idx's index.sqlite; the legacy import; no second database
         index_all(place)
