@@ -45,7 +45,7 @@ GIT_STATE = {"commit", "merge", "checkout", "switch", "branch", "tag", "stash", 
 
 
 def git_verb(command):
-    for seg in hazard.guard_push.segments(command or ""):
+    for seg in hazard.guard_push.segments(hazard.guard_push.data_only(command)):
         w = hazard.words(seg)
         if w and hazard.name(w[0]) == "git":
             j = 1

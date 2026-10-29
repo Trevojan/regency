@@ -80,6 +80,43 @@ def segments(cmd):
     return segs
 
 
+HEREDOC = re.compile(r"<<(-?)[ \t]*(?:'([^'\n]+)'|\"([^\"\n]+)\"|\\?([A-Za-z_][A-Za-z0-9_]*))")
+SUBSTITUTION = re.compile(r"\$\((?:[^()]|\([^()]*\))*\)|`[^`\n]*`")
+
+
+def data_only(cmd):
+    """The command as a shell would run it, with heredoc bodies that are only data taken out.
+
+    A heredoc body is text fed to a command's stdin. It runs as commands only when a shell reads it
+    (`bash <<'EOF'`, `cat <<EOF | sh`): then it stays. Otherwise a quoted delimiter (<<'EOF', <<"EOF",
+    <<\\EOF) makes it pure data, so it goes; an unquoted one still expands $( ) and backticks, so only
+    those substitutions stay. Text written about `rm -rf` or a push is never read as the act itself.
+    """
+    lines = (cmd or "").split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        line = lines[i]
+        out.append(line)
+        i += 1
+        for m in HEREDOC.finditer(line):
+            delim = m.group(2) or m.group(3) or m.group(4)
+            quoted = bool(m.group(2) or m.group(3)) or line[m.start():m.end()].lstrip("<-  \t").startswith("\\")
+            body = []
+            while i < len(lines) and (lines[i].lstrip("\t") if m.group(1) else lines[i]) != delim:
+                body.append(lines[i])
+                i += 1
+            closing = lines[i] if i < len(lines) else None
+            i += 1 if closing is not None else 0
+            fed_to_shell = any(basename(t).rsplit(".", 1)[0] in SHELLS for seg in segments(line) for t in seg)
+            if fed_to_shell:
+                out += body
+            elif not quoted:
+                out += [s for b in body for s in SUBSTITUTION.findall(b)]
+            if closing is not None:
+                out.append(closing)
+    return "\n".join(out)
+
+
 def basename(tok):
     return re.split(r"[\\/]", tok)[-1].lower()
 
@@ -88,7 +125,7 @@ def git_pushes(cmd, depth=0):
     """Yield (cwd_override, args_after_push) for every `git ... push ...` found in cmd."""
     if depth > 3:
         return
-    for seg in segments(cmd):
+    for seg in segments(data_only(cmd)):
         # shells carrying a command string: look inside the string arguments
         if any(basename(t).rsplit(".", 1)[0] in SHELLS for t in seg[:3]):
             for t in seg[1:]:
@@ -265,6 +302,14 @@ CASES = [  # command, current branch, upstream branch, expected
     ("git log --oneline | head -5", "main", "main", "allow"),
     ('echo "git push origin main"', "feat", "feat", "allow"),
     ("git commit -m 'fix: push origin main docs'", "feat", "feat", "allow"),
+    # heredocs: text written about a push is data; a body a shell reads, or a substitution, still runs
+    ("cat > notes.md <<'EOF'\nnever run git push origin main\nEOF", "feat", "feat", "allow"),
+    ("cat > notes.md <<\"EOF\"\n`git push origin main` is the Regent's\nEOF", "feat", "feat", "allow"),
+    ("python3 - <<'PY'\nprint('git push origin main')\nPY\ngit push origin main", "feat", "feat", "deny"),
+    ("bash <<'EOF'\ngit push origin main\nEOF", "feat", "feat", "deny"),
+    ("cat <<'EOF' | sh\ngit push origin main\nEOF", "feat", "feat", "deny"),
+    ("cat > out.txt <<EOF\n$(git push origin main)\nEOF", "feat", "feat", "deny"),
+    ("cat > notes.md <<EOF\ngit push origin main opens this line, as text\nEOF", "feat", "feat", "allow"),
 ]
 
 
