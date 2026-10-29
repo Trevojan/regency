@@ -28,7 +28,8 @@ Checks
      throwaway project, the template tokens pass (roles, naming, computed contrast), theme.css matches
      them, the template brief parses
  17. the engines behind the hooks and the playbooks prove themselves: gov.py (routing, keys, recur),
-     returns.py (the return gate), idx.py (the exact index), vp.py (the ledger and its drafts) and speed.py
+     returns.py (the return gate), idx.py (the exact index), shortcuts.py (the entry index, its prints and its
+     state block, R7 on idx's store), vp.py (the ledger and its drafts) and speed.py
      (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
@@ -76,6 +77,7 @@ REQUIRED_WIRING = (
     ("UserPromptSubmit", "", "hook-verbs.py"),
     ("PreCompact", "", "hook-journal.py"), ("SubagentStop", "", "hook-journal.py"),
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
+    ("SessionEnd", "", "hook-shortcuts.py"),
 )
 GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
 MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
@@ -299,6 +301,7 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-acts-guard.py": {"hook_event_name": "PreToolUse", "tool_name": "Write", "tool_input": {"file_path": "x/.scope/a.txt"}},
     "hook-lineage.py": {"hook_event_name": "PostToolUse", "tool_name": "Edit", "tool_input": {"file_path": "nowhere.txt"}},
     "hook-journal.py": {"hook_event_name": "PreCompact", "trigger": "auto"},
+    "hook-shortcuts.py": {"hook_event_name": "SessionEnd", "reason": "other"},
     "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
     "hook-gov.py": {"hook_event_name": "PostToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "suba-validator"},
@@ -361,7 +364,7 @@ def check_ux():
 
 
 def check_engines():
-    for name in ("gov.py", "returns.py", "idx.py", "vp.py", "speed.py", "migrate.py", "health.py"):
+    for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")

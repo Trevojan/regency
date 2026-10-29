@@ -216,11 +216,12 @@ line at most. Full reference: `library/hooks.md`.
 |---|---|---|
 | `guard-push.py` | before a git command | denies a push to `main`/`master` in any form |
 | `hook-hazard.py` | before / after a shell command, after a role agent returns | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs; after a destructive step, keeps file writes waiting for a PO or QA permit or the Regent's release verb |
-| `hook-acts-guard.py` | before a file write | denies writes in `.scope/`, rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), changes under a `lock` slice, and new names with banned tokens |
-| `hook-lineage.py` | after a file write | refreshes the file's fingerprint, re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
+| `hook-acts-guard.py` | before a file write | denies writes in `.scope/`, rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), a hand edit of the entry index's generated state block, changes under a `lock` slice, and new names with banned tokens |
+| `hook-lineage.py` | after a file write | records the file's fingerprint in the one store (`index.sqlite`), re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
 | `hook-gov.py` | a subagent starts or returns | gives a role or suba its governance line; routes the returned packet (G1 to the ledger, G2 and G3 to the Regent); checks a packet that names its stage against that stage's return shape, and every suba envelope in it against its contract |
 | `hook-journal.py` | after writes, git and hazardous shell commands, subagents, tasks, compaction, session end | appends one checkpoint line (OpenTelemetry GenAI keys), latest 200 kept |
-| `hook-resume.py` | session start, resume, clear, compaction | one resume line: a version mismatch first, then ledger counts, STALE lines, latest Order, last checkpoint, the index |
+| `hook-resume.py` | session start, resume, clear, compaction | one resume line: a version mismatch first, then ledger counts, STALE lines, latest Order, last checkpoint, the index, the entry index's check and drift counts |
+| `hook-shortcuts.py` | session end | rewrites the generated state block of `.shortcuts/README.md` when the state moved |
 | `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands, ends the hazard watch on a release verb, names the command for a Regent verb (conventions §9) |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
@@ -317,6 +318,7 @@ Claude Code version that supports plugins.
 | `library/subagents/ALIGNMENT.md` | what every suba inherits, and its return envelope |
 | `library/hooks.md` | every hook: what it guards or records, and the files it touches |
 | `library/virtualpath.md` | the code-to-norm lineage, the work ledger and the exact index |
+| `library/shortcuts.md` | the entry index, its generated state block, drift, and the one store it shares with the exact index |
 | `library/maintaining.md` | verified Claude Code behaviour, and the traps met while building this |
 
 ## Help shape it

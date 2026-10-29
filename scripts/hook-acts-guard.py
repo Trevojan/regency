@@ -6,6 +6,7 @@ Decision record R4.4. One answer per call, first match wins:
   deny  .scope/          the Regent's raw material is read-only for agents          (ids.md, Terms)
   deny  act rewrite      an existing act is never rewritten: Order ORD-####, gate GT-## / GATE_*,
                          ladder plan LADDER_*, opinion, dated handoff — add a new one   (conventions §7)
+  deny  generated block  a hand edit inside the shortcuts:state block of .shortcuts/README.md (F4, R7)
   deny  lock slice       the file is governed by a manifest slice with on_mutation=lock (virtualpath §2)
   deny  banned name      a NEW path carries Base/Abs/Mgr/Helper/Common/Utils           (conventions §14)
   deny  hazard watch     a destructive step ran in the project this session and no PO/QA permit covers
@@ -30,6 +31,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
 from conventions_check import BANNED, tokens  # noqa: E402
+import shortcuts  # noqa: E402  (guard_generated(): the state block is generated, R7)
 
 _spec = importlib.util.spec_from_file_location("hook_hazard", Path(__file__).resolve().parent / "hook-hazard.py")
 hazard = importlib.util.module_from_spec(_spec)
@@ -79,6 +81,9 @@ def respond(event):
     if act and path.exists():
         kind, instead = act
         return wire.permission("deny", f"{rel} is a closed act ({kind}); acts are never rewritten (conventions §7): {instead}")
+    generated = shortcuts.guard_generated(event)
+    if generated:
+        return wire.permission("deny", generated)
     vdir = wire.virtual_dir(repo)
     for e in wire.governing(wire.manifest_entries(vdir), rel):
         if e.get("on_mutation") == "lock":
@@ -149,6 +154,16 @@ def selftest():
         cases.append((verdict(respond(ev("Edit", "src/Page.razor", sid="s2"))) == "allow",
                       "hazard watch is per session"))
         cases.append((respond({"tool_name": "Bash", "tool_input": {"command": "ls"}}) is None, "other tools pass"))
+        index = root / ".guidelines/.shortcuts/README.md"
+        index.write_text("# Shortcuts\n\nRead the state block first.\n", encoding="utf-8")
+        shortcuts.refresh(shortcuts.locate(root), init=True)
+        inside = dict(ev("Edit", ".guidelines/.shortcuts/README.md", sid="s3"))
+        inside["tool_input"] = dict(inside["tool_input"], old_string="| latest Order | ORD-0001 |",
+                                    new_string="| latest Order | ORD-0009 |")
+        outside = dict(inside, tool_input=dict(inside["tool_input"], old_string="Read the state block first.",
+                                               new_string="Read it first."))
+        cases.append((verdict(respond(inside)) == "deny", "shortcuts state block: hand edit inside -> deny (R7)"))
+        cases.append((verdict(respond(outside)) == "allow", "shortcuts index: edit outside the block -> allow"))
         return wire.check(cases)
 
 

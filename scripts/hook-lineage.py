@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """hook-lineage.py - PostToolUse after every file write: fingerprint the file, mark governing norms STALE.
 
-Decision record R4.3. For a file written inside an adopted project (one with .shortcuts/.virtual/):
+Decision records R4.3 and R12. For a file written inside an adopted project (one with .shortcuts/.virtual/):
 
-  1. fingerprint   refresh <virtual>/fingerprints.json: sha256, size, when, which session
+  1. fingerprint   shortcuts.record(): the file's row in the prints table of the one store, idx.py's
+                   <virtual>/index.sqlite (sha256, size, mtime, the hash it replaced, when, which session;
+                   library/shortcuts.md §3)
   2. index         with an index (idx.py build), re-index the file and diff its nodes: what was modified,
                    added, removed, or only reformatted (virtualpath §6)
   3. lineage       for each manifest slice whose refers_to cites the file, and each slice whose anchor a
@@ -11,7 +13,8 @@ Decision record R4.3. For a file written inside an adopted project (one with .sh
                      mark_stale  write one STALE line right under the anchor (once per changed file) when a
                                  governed node changed beyond whitespace - or on any write when there is no
                                  index or the index never saw the file (the conservative rule, virtualpath §2);
-                                 only a human removes it
+                                 only a human removes it; the norm doc is then
+                                 re-indexed and recorded too, so the STALE line never reads as drift
                      ledger_row  never written inside a table: reported in the context line instead
                      lock        cannot happen here (hook-acts-guard.py refused the write)
   4. one context line telling the agent which slices are now out of date (virtualpath §5)
@@ -35,25 +38,8 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
 import idx  # noqa: E402  (the exact index: node diff, touches())
+import shortcuts  # noqa: E402  (record(): the one writer of a file's print)
 import vp  # noqa: E402  (resolve(): the one slice resolver)
-
-FINGERPRINTS = "fingerprints.json"
-
-
-def fingerprint(vdir, rel, path, event):
-    fp = vdir / FINGERPRINTS
-    try:
-        data = json.loads(fp.read_text(encoding="utf-8")) if fp.is_file() else {}
-    except ValueError:
-        data = {}
-    files = data.setdefault("files", {})
-    data["schema"] = 1
-    if path.is_file():
-        files[rel] = {"sha256": wire.sha256(path), "bytes": path.stat().st_size, "at": wire.now(),
-                      "session": wire.session_key(event)[:8]}
-    else:
-        files.pop(rel, None)
-    wire.atomic_write(fp, json.dumps(data, indent=1, sort_keys=True) + "\n")
 
 
 def stale_line(rel, nodes=None):
@@ -89,7 +75,8 @@ def respond(event):
     rel = wire.rel_posix(path, repo)
     if not vdir or not rel or wire.rel_posix(path, vdir) is not None or rel.startswith(".git/"):
         return None
-    fingerprint(vdir, rel, path, event)
+    place = shortcuts.locate(repo)
+    shortcuts.record(place, path, session=wire.session_key(event), source="hook")
     guidelines = vdir.parent.parent
     entries = wire.manifest_entries(vdir)
     diff = idx.update_hook(vdir, repo, rel)
@@ -110,8 +97,9 @@ def respond(event):
                       "already": f"{e['virtual_path']} (already STALE for this file)",
                       "reported": f"{e['virtual_path']} (ledger row: check it by hand)",
                       "unresolved": f"{e['virtual_path']} (slice DOES NOT RESOLVE: vp.py check)"}[result])
-    for doc in touched_docs:  # the STALE line moved bytes: keep the index exact
+    for doc in touched_docs:  # the STALE line moved bytes: keep the index exact, and the print current
         idx.update_hook(vdir, repo, wire.rel_posix(guidelines / doc, repo))
+        shortcuts.record(place, guidelines / doc, session=wire.session_key(event), source="lineage")
     if not notes and not unchanged:
         return None
     if diff is None:
@@ -140,6 +128,13 @@ def selftest():
             return {"hook_event_name": "PostToolUse", "tool_name": tool, "session_id": "sess-1234567890",
                     "cwd": str(base), "tool_input": {"file_path": str(base / rel)}}
 
+        def prints():
+            con = idx.connect(vdir)
+            rows = {r["path"]: dict(r) for r in con.execute("SELECT * FROM prints")} if con else {}
+            if con:
+                con.close()
+            return rows
+
         cases = []
         out = respond(ev(root, "src/Page.razor"))
         text = arch.read_text(encoding="utf-8").split("\n")
@@ -147,9 +142,18 @@ def selftest():
         cases.append((wire.STALE_MARK in text[i + 1] and "changed='src/Page.razor'" in text[i + 1],
                       "STALE line written right under the anchor"))
         cases.append((bool(out) and "STALE written" in json.dumps(out), "context line names the slice"))
-        fps = json.loads((vdir / FINGERPRINTS).read_text(encoding="utf-8"))["files"]
-        cases.append((fps.get("src/Page.razor", {}).get("sha256") == wire.sha256(root / "src/Page.razor"),
-                      "fingerprint matches the file"))
+        fps = prints()
+        cases.append((fps.get("src/Page.razor", {}).get("sha256") == wire.sha256(root / "src/Page.razor")
+                      and fps["src/Page.razor"]["source"] == "hook" and fps["src/Page.razor"]["session"] == "sess-123",
+                      "fingerprint matches the file, in the prints table, with its session"))
+        norm = fps.get(".guidelines/.decisions/ARCHITECTURE.md", {})
+        cases.append((norm.get("source") == "lineage" and norm.get("sha256") == wire.sha256(arch),
+                      "the norm doc's STALE write is recorded, so it never reads as drift"))
+        con = idx.connect(vdir)
+        partial = con.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
+        con.close()
+        cases.append((not (vdir / "fingerprints.json").exists() and not partial,
+                      "one store: no fingerprints.json, and no partial index"))
         respond(ev(root, "src/Page.razor"))
         cases.append((arch.read_text(encoding="utf-8").count(wire.STALE_MARK) == 1, "second edit: no duplicate STALE"))
         vp_check = vp.resolve(root / ".guidelines", {"virtual_path": ".decisions/ARCHITECTURE.md#layout-stable"})
@@ -159,12 +163,10 @@ def selftest():
         cases.append((before == (root / ".guidelines/.plan/BACKLOG.md").read_text(encoding="utf-8")
                       and "ledger row" in json.dumps(out), "ledger_row: table untouched, reported"))
         (root / "src/Other.cs").write_text("class Other {}\n", encoding="utf-8")
-        cases.append((respond(ev(root, "src/Other.cs", tool="Write")) is None
-                      and "src/Other.cs" in json.loads((vdir / FINGERPRINTS).read_text(encoding="utf-8"))["files"],
+        cases.append((respond(ev(root, "src/Other.cs", tool="Write")) is None and "src/Other.cs" in prints(),
                       "ungoverned file: fingerprinted, silent"))
         cases.append((respond(ev(root, ".guidelines/.shortcuts/.virtual/ongoing.json")) is None
-                      and ".guidelines/.shortcuts/.virtual/ongoing.json" not in
-                      json.loads((vdir / FINGERPRINTS).read_text(encoding="utf-8"))["files"],
+                      and ".guidelines/.shortcuts/.virtual/ongoing.json" not in prints(),
                       "the virtual folder itself is ignored"))
         cases.append((respond(ev(bare, "src/Page.razor")) is None
                       and not (bare / ".guidelines/.shortcuts/.virtual").exists(),
