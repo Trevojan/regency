@@ -1,0 +1,181 @@
+{
+  "description": "The return contract of suba-strategy: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "direction",
+      "options",
+      "recommendation",
+      "consult"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "direction": {
+        "type": "object",
+        "required": [
+          "problem",
+          "hypothesis",
+          "metric"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the problem, as the briefing states it"
+          },
+          "hypothesis": {
+            "type": "string",
+            "minLength": 1,
+            "description": "who gains what, and how the team will know"
+          },
+          "metric": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the success metric, defined before delivery"
+          }
+        }
+      },
+      "options": {
+        "type": "object",
+        "required": [
+          "cuts",
+          "order",
+          "rungs",
+          "trade_offs"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "cuts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "cut",
+                "loses"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "cut": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a scope cut keeping MINIMUM < GRAND"
+                },
+                "loses": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "what it gives up"
+                }
+              }
+            }
+          },
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "module",
+                "unblocks"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "module": {
+                  "$ref": "ids:unit",
+                  "description": "a module"
+                },
+                "unblocks": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "what it unblocks"
+                  }
+                }
+              }
+            }
+          },
+          "rungs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "rule",
+                "rung"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "rule": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a rule"
+                },
+                "rung": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "the smallest scale that satisfies it"
+                }
+              }
+            }
+          },
+          "trade_offs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "axis",
+                "cost"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "axis": {
+                  "enum": [
+                    "scope",
+                    "deadline",
+                    "debt",
+                    "residual-risk"
+                  ],
+                  "description": "axis"
+                },
+                "cost": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its cost"
+                }
+              }
+            }
+          }
+        }
+      },
+      "recommendation": {
+        "type": "object",
+        "required": [
+          "kind",
+          "text"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "option",
+              "deferral"
+            ],
+            "description": "recommendation"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the option, or the information that would decide it"
+          }
+        }
+      },
+      "consult": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "what PO.md §12 says the PO consults on first"
+        }
+      }
+    }
+  }
+}

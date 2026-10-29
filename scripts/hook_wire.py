@@ -34,7 +34,7 @@ WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
 SHELL_TOOLS = ("Bash", "PowerShell")
 STALE_MARK = "warn'STALE"
 MAX_LINE = 600            # one slice line; Claude Code caps any hook string at 10 000 characters
-UNIT = re.compile(r"\bM\d{2}(?:\.D\d{2}(?:\.T\d{2})?)?\b")
+UNIT = re.compile(r"\bM\d{2}(?:\.S\d{2}(?:\.T\d{2})?)?\b")
 SKIP_PARTS = {".git", "node_modules", ".venv", "__pycache__", ".history", "discard", ".obsidian"}
 
 
@@ -124,8 +124,13 @@ def manifest_entries(vdir):
     return []
 
 
+def ref_path(ref):
+    """The file part of a refers_to entry: 'src/a.py' or 'src/a.py#n:<id>' (a node selector, idx.py)."""
+    return (ref or "").partition("#")[0]
+
+
 def governing(entries, rel):
-    return [e for e in entries if rel in (e.get("refers_to") or [])]
+    return [e for e in entries if any(ref_path(r) == rel for r in (e.get("refers_to") or []))]
 
 
 # ---------- files ------------------------------------------------------------------------------
@@ -280,6 +285,19 @@ def emit(answer):
         sys.stdout.flush()
 
 
+def heartbeat(event):
+    """Prove the harness called this hook: one small file per (script, event) beside the session state, holding
+    the last time it ran. scripts/health.py hooks reads them back (R11.11); a hook the surface never calls leaves
+    none. Machine state, never inside a repository; a failure to write is ignored."""
+    try:
+        ev = re.sub(r"[^A-Za-z0-9_-]", "_", str(event.get("hook_event_name") or "unknown"))
+        d = state_dir().parent / "heartbeats"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{Path(sys.argv[0]).name}.{ev}").write_text(now() + "\n", encoding="utf-8")
+    except OSError:  # health: allow-silent a heartbeat must never disturb the hook it proves
+        pass
+
+
 def serve(respond, guard=False):
     """Run one hook: read, respond, emit. Exit code is always 0 so the JSON decides.
 
@@ -288,6 +306,7 @@ def serve(respond, guard=False):
     guard=False (recorders): an internal error goes to stderr only; the session is never disturbed.
     """
     event = read_event()
+    heartbeat(event)
     try:
         emit(respond(event))
     except Exception as e:  # noqa: BLE001 - a hook must never crash the session
@@ -309,9 +328,9 @@ FIXTURE = {
         {"virtual_path": ".plan/BACKLOG.md#ledger-x", "refers_to": ["src/Ledger.cs"],
          "selector_type": "ledger_row", "on_mutation": "mark_stale"}]}),
     ".guidelines/.shortcuts/.virtual/ongoing.json": json.dumps({"schema": 1, "updated": "2026-10-09", "items": [
-        {"id": "M01.D01.T01", "title": "a", "state": "ongoing", "where": ["src/Page.razor"]},
-        {"id": "M01.D01.T02", "title": "b", "state": "review"},
-        {"id": "M01.D02.T01", "title": "c", "state": "blocked", "blocked_by": "RGN"},
+        {"id": "M01.S01.T01", "title": "a", "state": "ongoing", "where": ["src/Page.razor"]},
+        {"id": "M01.S01.T02", "title": "b", "state": "review"},
+        {"id": "M01.S02.T01", "title": "c", "state": "blocked", "blocked_by": "RGN"},
         {"id": "M02", "title": "d", "state": "backlog"},
         {"id": "M03", "title": "e", "state": "backlog"}]}),
     ".guidelines/.decisions/ARCHITECTURE.md": "# Architecture\n\n## §layout-stable — layout\n\nRule text.\n\n## Other\n\nx\n",

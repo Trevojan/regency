@@ -1,7 +1,7 @@
 ---
 name: order
-description: "Regency Orders. Fill and emit one of the four standard Orders from its template: germinate (grow the path to a goal as a tree), handoff (close a stretch of work and hand its state over), dispatch (hear an order over the D3/D2/D1 hierarchy, classify it, emit the dispatch manifest) and resume (reopen a project mid-work from its shortcuts index only). Use for /regency:order[:germinate|handoff|dispatch|resume], 'prepare a handoff', 'retomada', 'resume the project', 'grow the plan', 'classify this order'."
-argument-hint: "<germinate|handoff|dispatch|resume> [material]"
+description: "Regency Orders. Fill and emit one of the four standard Orders from its template: germinate (grow the path to a goal as a tree), handoff (close a stretch of work and hand its state over), dispatch (hear an order over the O3/O2/O1 hierarchy, classify it, emit the dispatch manifest) and resume (reopen a project mid-work from its shortcuts index only); or lazy (run an Emission's Orders, skipping those that need the Regent). Use for /regency:order[:germinate|handoff|dispatch|resume|lazy], 'prepare a handoff', 'retomada', 'resume the project', 'grow the plan', 'classify this order', 'run EMS-011'."
+argument-hint: "<germinate|handoff|dispatch|resume> [material] | lazy [EMS-id]"
 ---
 
 # order — four templates, one procedure
@@ -14,7 +14,9 @@ argument-hint: "<germinate|handoff|dispatch|resume> [material]"
 
 The first argument names the kind (`germinate`, `handoff`, `dispatch`, `resume`). If it does not, ask
 (pop-up) which. Then read `library/orders/README.md` (how to read the XML, slot filling, numbering)
-and the template `library/orders/<kind>.xml`.
+and the template `library/orders/<kind>.xml`. In a project, run the version gate first
+(`python scripts/migrate.py gate`, `library/conventions.md` §10): exit 1 or 2 stops here. `lazy` fills no template: it runs the Orders an Emission
+already carries (§3, *lazy*).
 
 ## 2. Fill
 
@@ -58,26 +60,26 @@ are written for the agent, not for the Regent to read). Do not create a new loos
 remove `done` items, give each `ongoing` item its evidence and `next`, give each `blocked` item its
 `blocked_by`, mark finished work `review`, set `updated`. The handoff's *state*, *open* and *next*
 sections must agree with the ledger, and point to it instead of repeating it. Then rewrite the
-generated state block of the index with `python scripts/shortcuts.py refresh` and run
-`python scripts/shortcuts.py check`: 0 problems before the handoff is done (`library/shortcuts.md`).
-Never commit; offer `/regency:arrange-cycle-commit`.
+generated state block of the index with `python scripts/shortcuts.py refresh` (`--init` once, when the index
+has no block yet) and run `python scripts/shortcuts.py check`: 0 problems before the handoff is done
+(`library/shortcuts.md`). Never commit; offer `/regency:arrange-cycle-commit`.
 
 ### dispatch — hear, classify, emit
 
-Hierarchy (`library/task-granulation.md`): **D4** = the whole solution (no id, never a target);
-**D3** = module, what holds the features (`M##`, fragments into D2, never worked directly); **D2** = step,
-the *degrau* of the development ladder (`D##`; holds the concepts that build one D3; owns its file; acts as
-checkpoint); **D1** = task (`T##`, atomic, one code file; the unit of work and of resume). Read where the breakdown already lives and **never re-derive or
+Hierarchy (`library/task-granulation.md`): **O4** = the whole solution (no id, never a target);
+**O3** = module, what holds the features (`M##`, fragments into O2, never worked directly); **O2** = step,
+the *degrau* of the development ladder (`S##`; holds the concepts that build one O3; owns its file; acts as
+checkpoint); **O1** = task (`T##`, atomic, one code file; the unit of work and of resume). Read where the breakdown already lives and **never re-derive or
 re-fragment it**. Classify the order's level, then emit the manifest:
 
 ```yaml
 order: ORD-#### | ad-hoc
-level: D3 | D2 | D1
+level: O3 | O2 | O1
 d3: <the problem it closes, as a problem>
 d2: [ <concepts in dependency order, one line each> ]
 d1: [ { id: <id>, file: <path>, state: done|open } ]    # existing tasks named by id and file
 route: { pass: "/regency:team <unit>" }                  # or { role: po|dv|qa|da }
-resume_from: <last completed D1>                         # never from the top of the tree
+resume_from: <last completed O1>                         # never from the top of the tree
 open_questions: [ ]
 ```
 
@@ -94,7 +96,27 @@ shortcut. If an expected path does not exist: name every missing path and ask pe
 exactly those — create nothing beyond them, and never route a fact elsewhere because its path is
 missing. Output: **ongoing / backlog** (from the ledger, reconciled with the traces), **version**,
 **suite** (the command, and whether it is green — run it only if cheap and read-only), **last
-milestone** (the last completed D1), **next** — filled, never inferred — then offer `/regency:proceed`.
+milestone** (the last completed O1), **next** — filled, never inferred — then offer `/regency:proceed`.
+
+### lazy — run an Emission, skip what needs the Regent
+
+A speed mode: read `library/team/SPEED_MODES.md` §1–§3 first; it holds the doctrine this list obeys.
+
+1. **Find the Emission**: the `EMS-###` named in the arguments, else the one the open Order names in its
+   `position` slot. Its Orders are every Order under `.orders/` whose `position` names it, taken in number
+   order (§3 there). None found: stop with one line naming what you probed.
+2. **First peek**: `python scripts/vp.py ongoing` and `python scripts/vp.py trace`, as for any return to a
+   repository; the run writes itself into the ledger as `pass:lazy-<EMS-id>`.
+3. **Each Order, in sequence**: one that depends on a skipped or blocked Order joins the blocked chain;
+   one that needs the Regent is **skipped, never guessed**, logged as
+   `SKIP <ORD-id> · <question> · (a) <answer> · (b) <answer>` in the open-questions queue (blockers first);
+   one whose next step is destructive-class stops the run; every other one runs through its executor (a
+   `/regency:team` pass ends at its review packet) and decides on its own wherever the conventions or the
+   Emission settle the matter.
+4. **Stop** at the end of the Emission, at a destructive-class action, or when every remaining Order is
+   blocked. Make the ledger true; commit, merge and push nothing.
+5. **Report once**, in the shape of `library/team/SPEED_MODES.md` §3: done / skipped (questions grouped,
+   two candidates each) / blocked chain, and why it stopped. Then offer `/regency:arrange-cycle-commit`.
 
 ## 4. Opening an Order in the project
 
@@ -105,4 +127,5 @@ If the Regent wants the filled template commissioned as a contract: write it as
 ## Boundaries
 
 No invented slot values, no second open Order, no amendment of an open Order, no commit, no
-re-fragmenting a breakdown that exists, no reading the whole repository to "get context".
+re-fragmenting a breakdown that exists, no reading the whole repository to "get context". `lazy` opens no
+Order and no Emission, and answers none of the Regent's questions on the Regent's behalf.

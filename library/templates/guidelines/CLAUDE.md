@@ -1,50 +1,48 @@
-# ⟨projeto⟩
+# ⟨project⟩
 
-⟨Uma frase dizendo o que este projeto é. Depois, uma frase dizendo qual é a
-fonte de verdade e o que deriva dela.⟩
+⟨One sentence saying what this project is. Then one sentence saying what the source of truth is and what
+derives from it.⟩
 
-## Comece por aqui — sempre
+## Start here — always
 
 **[`.guidelines/.shortcuts/README.md`](.guidelines/.shortcuts/README.md)**
 
-É o índice: onde o trabalho parou, o que vem a seguir, e qual documento responde
-qual pergunta. Ele **aponta e nunca copia**, e este arquivo faz o mesmo de
-propósito. Não reconstrua por inferência o que está a um atalho de distância.
+It is the index: where the work stopped, what comes next, and which document answers which question. It
+**points and never copies**, and this file does the same on purpose. Do not rebuild by inference what is
+one shortcut away.
 
-| eixo | guarda |
+| axis | holds |
 |---|---|
-| [`.decisions/`](.guidelines/.decisions/) | o que já foi decidido, por quem, e a razão |
-| [`.plan/`](.guidelines/.plan/) | o que vem a seguir, e o que ficou para depois |
-| [`.orders/`](.guidelines/.orders/) | as Ordens — o contrato que despacha o trabalho. **Uma aberta por vez** |
-| [`.constraints/`](.guidelines/.constraints/) | o que o projeto se proíbe — **leia antes de propor** |
-| [`.changelog/`](.guidelines/.changelog/) | como o número de versão se move |
-| [`.sources/`](.guidelines/.sources/) | as referências externas que decidiram alguma coisa |
+| [`.decisions/`](.guidelines/.decisions/) | what has been decided, by whom, and why |
+| [`.plan/`](.guidelines/.plan/) | what comes next, and what was put off |
+| [`.orders/`](.guidelines/.orders/) | the Orders — the contract that dispatches the work. **One open at a time** |
+| [`.constraints/`](.guidelines/.constraints/) | what the project forbids itself — **read before proposing** |
+| [`.changelog/`](.guidelines/.changelog/) | how the version number moves |
+| [`.sources/`](.guidelines/.sources/) | the external references that decided something |
 
-## Verificar
+## Verify
 
 ```bash
-⟨o comando de verificação⟩
+⟨the verification command⟩
 ```
 
-⟨O que ele roda.⟩ **Um passo por commit, verde em cada um.**
+⟨What it runs.⟩ **One step per commit, green at each one.**
 
-⟨Se algum arquivo é gerado a partir de outro, diga aqui qual é a fonte, qual é a
-cópia, e qual comando reconstrói — antes que alguém edite a cópia.⟩
+⟨If a file is generated from another, say here which is the source, which is the copy, and which command
+rebuilds it — before someone edits the copy.⟩
 
-## Duas restrições que pegam todo agente novo
+## Two constraints that catch every new agent
 
-O conjunto inteiro está em
-[`.constraints/`](.guidelines/.constraints/README.md). Estas duas mudam o que
-você faz na primeira hora:
+The full set is in [`.constraints/`](.guidelines/.constraints/README.md). These two change what you do in
+the first hour:
 
-- **⟨a restrição deste projeto que mais custa descobrir tarde⟩**
-- **Declarar o estado, nunca a correção.** O texto que dizia "isto é A"
-  **torna-se** "isto é B"; não ganha um "não é mais A, agora é B".
-  Micro-correção acumulada vira resíduo que o leitor infere e descarta, porque
-  não ajuda o estado final. Onde a aposentadoria precisa agir, ela age no
-  mecanismo — não na prosa.
+- **⟨the constraint of this project that costs most to find out late⟩**
+- **State the present, never the correction.** Text that said "this is A" **becomes** "this is B"; it
+  does not gain a "no longer A, now B". Accumulated micro-corrections become residue the reader infers
+  and throws away, because they do not help the final state. Where retirement has to act, it acts on the
+  mechanism, not on the prose.
 
-## Vocabulário
+## Vocabulary
 
-- **Regente** — quem decide. Um agente mede, propõe e recusa; não ratifica.
-- **⟨termo cunhado aqui⟩** — ⟨o que significa neste projeto⟩
+- **Regent** — who decides. An agent measures, proposes and refuses; it does not ratify.
+- **⟨term coined here⟩** — ⟨what it means in this project⟩

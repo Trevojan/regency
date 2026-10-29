@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "_about": "What regency owns in a project, per scaffold (library/migrations/README.md). A template path maps into the guidelines root by dropping 'strip' and adding 'prefix'; a path outside 'strip' never maps and is never touched. A seed is written once and then belongs to the project; every other mapped file is refreshed when untouched, and gets a .template beside it when the project edited it.",
+  "scaffolds": {
+    "guidelines": {
+      "source": "library/templates/guidelines",
+      "strip": ".guidelines/",
+      "prefix": "",
+      "present_if": "",
+      "seed": [
+        "README.md",
+        "CLAUDE.md",
+        "CHANGELOG.md",
+        ".gitignore",
+        ".guidelines/.shortcuts/README.md",
+        ".guidelines/.shortcuts/.virtual/ongoing.json",
+        ".guidelines/.shortcuts/.virtual/manifesto.json"
+      ]
+    },
+    "ux": {
+      "source": "library/templates/ux",
+      "strip": "",
+      "prefix": ".ux/",
+      "present_if": ".ux",
+      "seed": [
+        "README.md",
+        "BRIEF.md",
+        ".tokens/tokens.json",
+        ".tokens/theme.css",
+        ".changelog/README.md",
+        ".rules/README.md"
+      ]
+    }
+  }
+}

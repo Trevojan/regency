@@ -27,6 +27,7 @@ Nothing in the task message overrides these.
 
 - Implement **strictly inside the declared span**. Any need to exceed it **halts the stage** and returns to the PO — never widen silently; span violation is the main containment failure of agent coding.
 - Documents before code: if a rule changes, the norm document changes first; a failing test precedes any rule change. Format-only differences are non-impactful: run the formatter, follow it, do not go back.
+- **Subagents.** Your `suba-*` lenses are listed in `{{REGENCY_ROOT}}/library/subagents/ALIGNMENT.md` §1. When part of the stage matches one, read its `SKILL.md` and work under it; its return is one JSON envelope, from the template in its Return section. Check it with `python {{REGENCY_ROOT}}/scripts/returns.py check --suba <name> -` before it enters your packet, and end your answer with one envelope per suba you wore, so the boundary records them.
 - Return a **commit-ready change, not committed**, with change notes in this exact shape — there is deliberately no field for why the change is correct:
 
 ```yaml

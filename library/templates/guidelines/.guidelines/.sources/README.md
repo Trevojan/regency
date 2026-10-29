@@ -1,30 +1,29 @@
-# Fontes — o que veio de fora, e o que decidiu
+# Sources — what came from outside, and what it decided
 
-> Só entra aqui referência que foi **de fato usada** e que **decidiu alguma
-> coisa**. Uma lista de links que não decidiram nada é bibliografia, não atalho.
+> Only a reference that was **actually used** and that **decided something** goes here. A list of links
+> that decided nothing is a bibliography, not a shortcut.
 >
-> Reconstruir uma busca externa é o que mais custa ao retomar um projeto — é
-> por isso que este eixo existe.
+> Rebuilding an external search is the most expensive part of resuming a project — that is why this axis
+> exists.
 
-## Documentos
+## Documents
 
-> Leitura longa que virou nota própria neste diretório. A coluna **decidiu** é
-> obrigatória: sem ela a nota é resumo, e resumo relê-se do original.
+> Long reading that became a note of its own in this folder. The **decided** column is required: without
+> it the note is a summary, and a summary is reread from the original.
 
-| arquivo | assunto | decidiu |
+| file | subject | decided |
 |---|---|---|
-| ⟨`NOME.md`⟩ | ⟨assunto⟩ | ⟨o que mudou no projeto por causa dela⟩ |
+| ⟨`NAME.md`⟩ | ⟨subject⟩ | ⟨what changed in the project because of it⟩ |
 
-## Referências externas, por assunto
+## External references, by subject
 
-### ⟨assunto⟩
+### ⟨subject⟩
 
-- [⟨título⟩](⟨url⟩) — ⟨o número, a medida ou a frase que fez diferença⟩
+- [⟨title⟩](⟨url⟩) — ⟨the number, the measure or the sentence that made the difference⟩
 
-## A fonte primária
+## The primary source
 
-> Se existe uma, ela costuma ser **interna**: o material que o uso real produziu.
-> Erro de gente trabalhando não se parece com erro inventado, e vale mais que
-> qualquer corpus sintético.
+> If there is one, it is usually **internal**: the material real use produced. Errors made by people at
+> work do not look like invented errors, and are worth more than any synthetic corpus.
 
-⟨o arquivo, e por que ele vale mais⟩
+⟨the file, and why it is worth more⟩

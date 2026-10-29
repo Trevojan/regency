@@ -1,48 +1,47 @@
-# Ordens — o contrato que despacha o trabalho
+# Orders — the contract that dispatches the work
 
-> Uma Ordem não é plano nem decisão. A decisão **autoriza**, o plano **agenda**,
-> a Ordem **comissiona**: diz o que é para ser feito, sob quais restrições, e
-> quais entregáveis voltam.
+> An Order is neither a plan nor a decision. A decision **authorises**, a plan **schedules**, an Order
+> **commissions**: it says what is to be done, under which constraints, and which deliverables come back.
 >
-> **Uma Ordem aberta é imutável salvo por versão.** Material novo que chega com
-> uma Ordem aberta vira *intake* — nunca emenda. **Duas Ordens concorrentes são
-> proibidas:** exatamente uma fica aberta por vez.
+> **An open Order is immutable except by version.** New material that arrives while an Order is open
+> becomes *intake*, never an amendment. **Two concurrent Orders are forbidden:** exactly one stays open at
+> a time.
 
-## Numeração
+## Numbering
 
-Chapada e sequencial, como um ADR: a próxima é a maior que já existe aqui, mais
-um. Sem ramificar por assunto, sem reaproveitar número de Ordem cancelada.
+Flat and sequential, like an ADR: the next one is the largest that already exists here, plus one. No
+branching by subject, no reusing the number of a cancelled Order.
 
 ```
-ORD-####          ⟨ou o esquema deste projeto⟩
+ORD-####          ⟨or this project's scheme⟩
 ```
 
-## A Ordem aberta
+## The open Order
 
-> Uma linha, ou nenhuma. Se houver duas, uma delas está errada.
+> One line, or none. If there are two, one of them is wrong.
 
 | | |
 |---|---|
 | id | ⟨ORD-####⟩ |
-| comissiona | ⟨o que, em uma linha⟩ |
-| aberta desde | ⟨AAAA-MM-DD⟩ |
-| versão | ⟨v#⟩ — ⟨o que a última versão mudou⟩ |
+| commissions | ⟨what, in one line⟩ |
+| open since | ⟨YYYY-MM-DD⟩ |
+| version | ⟨v#⟩ — ⟨what the latest version changed⟩ |
 
-## Ordens fechadas
+## Closed Orders
 
-> Ficam. Uma Ordem fechada é o contrato do que foi entregue, e é por ela que se
-> responde "isto foi pedido assim?" — por isso ela **não** sai daqui quando
-> fecha, ao contrário do que está em [`.plan/`](../.plan/).
+> They stay. A closed Order is the contract of what was delivered, and it is how "was this asked for this
+> way?" gets answered — so it does **not** leave this folder when it closes, unlike what is in
+> [`.plan/`](../.plan/).
 
-| id | comissionou | onde está o resultado |
+| id | commissioned | where the result is |
 |---|---|---|
-| ⟨ORD-####⟩ | ⟨…⟩ | ⟨o release, o documento, o commit⟩ |
+| ⟨ORD-####⟩ | ⟨…⟩ | ⟨the release, the document, the commit⟩ |
 
-## Intake — o que chegou com uma Ordem aberta
+## Intake — what arrived while an Order was open
 
-> Não é fila de ideias: é material que **teria emendado** uma Ordem imutável.
-> Cada linha espera virar Ordem própria ou entrar em [`.plan/`](../.plan/).
+> Not a queue of ideas: material that **would have amended** an immutable Order. Each line waits to
+> become an Order of its own or to enter [`.plan/`](../.plan/).
 
 | | |
 |---|---|
-| ⟨`INTAKE-*.md`⟩ | ⟨o que chegou, e por que não coube na Ordem aberta⟩ |
+| ⟨`INTAKE-*.md`⟩ | ⟨what arrived, and why it did not fit the open Order⟩ |

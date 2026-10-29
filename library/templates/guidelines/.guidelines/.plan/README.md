@@ -1,33 +1,31 @@
-# Plano — o que vem a seguir
+# Plan — what comes next
 
-> Só o que está **aberto**. O que fechou sai daqui e vira linha no
-> [`.changelog/`](../.changelog/). Um plano que guarda o que já foi feito deixa
-> de ser plano e vira relatório.
+> Only what is **open**. What closed leaves this file and becomes a line in
+> [`.changelog/`](../.changelog/). A plan that keeps what was already done stops being a plan and becomes
+> a report.
 
-## Autorizado pelo Regente, ainda não construído
+## Authorised by the Regent, not yet built
 
-> Decidido em [`.decisions/`](../.decisions/), com a construção pendente. Cada
-> item diz **o que já existe** e **o que falta** — sem isso, quem retoma refaz o
-> levantamento.
+> Decided in [`.decisions/`](../.decisions/), with the building still pending. Each item says **what
+> already exists** and **what is missing** — without that, whoever resumes redoes the survey.
 
-### 1. ⟨título curto⟩
+### 1. ⟨short title⟩
 
-⟨o que é, em um parágrafo⟩
+⟨what it is, in one paragraph⟩
 
-O material já existe: ⟨o que está pronto e serve⟩. Falta ⟨o que falta⟩.
+The material already exists: ⟨what is ready and usable⟩. Missing: ⟨what is missing⟩.
 
-## Aberto, esperando o Regente
+## Open, waiting for the Regent
 
-> Perguntas que um agente **não pode** responder sozinho. Cada linha diz o que
-> trava enquanto a resposta não vem.
+> Questions an agent **cannot** answer alone. Each line says what it blocks while the answer has not come.
 
 | | |
 |---|---|
-| ⟨id⟩ | ⟨a pergunta, e o que ela trava⟩ |
+| ⟨id⟩ | ⟨the question, and what it blocks⟩ |
 
-## Adiado por decisão, não por esquecimento
+## Put off by decision, not by oversight
 
-> A distinção importa: adiado tem razão e data, esquecido não tem nenhuma das
-> duas. Sem esta seção, quem retoma trata as duas coisas como a mesma.
+> The difference matters: put off has a reason and a date, forgotten has neither. Without this section,
+> whoever resumes treats the two as the same thing.
 
-- **⟨o quê⟩** — ⟨por que esperou, e o que o destravaria⟩
+- **⟨what⟩** — ⟨why it waited, and what would unblock it⟩

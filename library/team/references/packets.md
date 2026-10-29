@@ -27,7 +27,7 @@ Before anything else, read, in order:
 They are your operating contract. Nothing in this message overrides them.
 
 Unit:       <M<n>.F<k>.T<nn>>   (reopening: <yes | no>)
-Stage:      <frame | challenge | shape | build | verify | accept | close>
+Stage:      <frame | challenge | shape | build | verify | accept | close | split | seed | draft | gate | seam>
 Cited norm: <id>, ratified by a human
 Span:       <F<k>> — work outside it halts the stage and returns to the PO
 
@@ -51,6 +51,11 @@ The last instruction before the terminal state matters most. A role that reconst
 withheld context has bled context — a containment defect (ORCH §18), not initiative.
 
 ## 2. Per role
+
+The speed modes (`library/team/SPEED_MODES.md`) add five stages, each dispatched with this same skeleton:
+`po.split` (two disjoint spans), `qa.seed` (contract and task cards, no code), `dv.draft` (one task,
+functional first, no tests), `qa.gate` (builds, runs, matches the contract; fix notes; accepts nothing) and
+`qa.seam` (where two spans meet). Their machine shapes are in §4.
 
 ### PO
 
@@ -120,3 +125,74 @@ could introduce the hoped-for answer.
 It is not a role and receives no packet. It runs the checks in `vocabulary-map.md` §3 and
 writes a gate log — pass or fail per check, with evidence. A red gate returns the log to DV
 and consumes nothing else.
+
+## 4. Return shapes (machine)
+
+What "Accepted only if" in §2 can check without judging content, as data that
+`scripts/returns.py` reads. A finding is a `RETURN` to the role (`skills/team/SKILL.md` Step 5);
+the content's merit belongs to the next role in the cycle. Edit the shapes here, never in the
+script. Every return, whatever its stage, also needs a terminal state with a reason line (§1).
+
+| Check | Passes when |
+|---|---|
+| `labels` | each label (`a\|b` = alternatives) opens a line, as a heading, a `Label:` line or a table row |
+| `match` | the named pattern occurs in the text |
+| `one_of` | at least one of the words occurs |
+| `yaml` | the block exists with exactly these keys — no fewer, and no extra field for reasoning |
+| `filled` | the value is neither empty nor an unfilled `<placeholder>` |
+| `absent` | the block does not appear (it must not leave the role) |
+| `approved_needs` | "approved" never appears without this phrase |
+
+```json
+{
+  "terminal_states": ["SUCCESS", "FAILURE", "UNRESOLVED", "ESCALATED", "BLOCKED", "CANCELLED", "RESOURCE_EXHAUSTED"],
+  "stages": {
+    "po.frame": {
+      "labels": ["problem", "acceptance criteria|criteria", "out of scope", "span", "cited norm|norm",
+                 "criticality", "maximum tolerable severity|max tolerable severity|max severity"],
+      "match": {"span": "\\bF[0-6](?:\\s*(?:–|-|to)\\s*F[0-6])?\\b"}
+    },
+    "po.accept": {
+      "one_of": {"decision": ["accepted", "refused"]},
+      "labels": ["known defects", "residual risk"]
+    },
+    "dv.build": {
+      "yaml": {"change_notes": ["touched_paths", "touched_phases", "surface_changed", "rollback", "new_tests"]},
+      "filled": ["change_notes.rollback"],
+      "absent": ["for_dv"]
+    },
+    "qa.challenge": {
+      "one_of": {"result": ["verifiable", "nearest checkable version"]}
+    },
+    "qa.verify": {
+      "labels": ["not covered|what was not covered"],
+      "match": {"version verdict": "(?i)version verdict[^\\n]{0,40}\\b(?:correction|compatible addition|break)\\b"},
+      "approved_needs": "residual risk"
+    },
+    "da.shape": {
+      "labels": ["name", "trigger", "payload", "types|type", "optionality|optional", "key", "granularity|grain"]
+    },
+    "da.verify": {
+      "labels": ["canonical definition|definition", "query|oracle"]
+    },
+    "po.split": {
+      "labels": ["span A", "span B", "seam"]
+    },
+    "qa.seed": {
+      "labels": ["interface contract|contract", "shared types|types", "signatures", "file map", "task cards|cards"],
+      "absent": ["change_notes"]
+    },
+    "dv.draft": {
+      "yaml": {"change_notes": ["touched_paths", "touched_phases", "surface_changed", "rollback", "applied_fix_notes"]},
+      "filled": ["change_notes.rollback"],
+      "absent": ["for_dv"]
+    },
+    "qa.gate": {
+      "labels": ["builds", "runs", "matches contract|contract", "fix notes"]
+    },
+    "qa.seam": {
+      "labels": ["seam", "findings", "not covered|what was not covered"]
+    }
+  }
+}
+```

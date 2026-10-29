@@ -1,0 +1,184 @@
+{
+  "description": "The return contract of suba-research: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "users",
+      "evidence",
+      "evaluation",
+      "questions",
+      "gaps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "users": {
+        "type": "object",
+        "required": [
+          "model",
+          "goals"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "model": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "who",
+                "goal",
+                "context",
+                "source"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "who": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "who"
+                },
+                "goal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "goal"
+                },
+                "context": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "context"
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its source"
+                }
+              }
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an established goal"
+            }
+          }
+        }
+      },
+      "evidence": {
+        "type": "object",
+        "required": [
+          "sources",
+          "claims"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "source",
+                "kind",
+                "date"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a source in the packet"
+                },
+                "kind": {
+                  "enum": [
+                    "briefing",
+                    "answer",
+                    "artefact",
+                    "analysis"
+                  ],
+                  "description": "kind"
+                },
+                "date": {
+                  "$ref": "envelope#/$defs/date"
+                }
+              }
+            }
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "claim",
+                "status"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "claim": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a claim about users"
+                },
+                "status": {
+                  "enum": [
+                    "observed",
+                    "inferred",
+                    "assumed"
+                  ],
+                  "description": "status"
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its source"
+                }
+              }
+            }
+          }
+        }
+      },
+      "evaluation": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "goal",
+            "observation",
+            "failed_at"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "goal": {
+              "type": "string",
+              "minLength": 1,
+              "description": "goal"
+            },
+            "observation": {
+              "type": "string",
+              "minLength": 1,
+              "description": "what was observed"
+            },
+            "failed_at": {
+              "type": "string",
+              "minLength": 1,
+              "description": "where it failed the goal"
+            }
+          }
+        }
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "$ref": "envelope#/$defs/question"
+        }
+      },
+      "gaps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "what no source in the packet can answer"
+        }
+      }
+    }
+  }
+}

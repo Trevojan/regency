@@ -1,0 +1,17 @@
+# regency: text is stored with LF line endings; each checkout follows its platform (core.autocrlf).
+# A patch moved between Windows and Linux then needs no --keep-cr, and a diff shows content, not endings.
+* text=auto
+
+# what runs: the same bytes on every machine
+*.py text eol=lf
+*.sh text eol=lf
+*.json text eol=lf
+
+# never normalised, never diffed as text
+*.plugin binary
+*.sqlite binary
+*.zip binary
+*.tgz binary
+*.png binary
+*.jpg binary
+*.ico binary

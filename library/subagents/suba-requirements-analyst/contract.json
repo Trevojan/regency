@@ -1,0 +1,219 @@
+{
+  "description": "The return contract of suba-requirements-analyst: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "story",
+      "trace",
+      "assumptions",
+      "norm_drafts",
+      "spec_version",
+      "questions"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "story": {
+        "type": "object",
+        "required": [
+          "problem",
+          "criteria",
+          "out_of_scope",
+          "invariants",
+          "transitions",
+          "criticality",
+          "max_severity"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the pain, as the client stated it"
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "given",
+                "when",
+                "then"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "criterion id"
+                },
+                "given": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "given"
+                },
+                "when": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "when"
+                },
+                "then": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "then"
+                }
+              }
+            }
+          },
+          "out_of_scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "out of scope"
+            }
+          },
+          "invariants": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a domain invariant"
+            }
+          },
+          "transitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from",
+                "to",
+                "trigger"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "state"
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "state"
+                },
+                "trigger": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "trigger"
+                }
+              }
+            }
+          },
+          "criticality": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "criticality"
+          },
+          "max_severity": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the highest severity a release may carry, in the project's scale"
+          }
+        }
+      },
+      "trace": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "statement",
+            "source",
+            "ref"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "statement": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a statement of the story"
+            },
+            "source": {
+              "enum": [
+                "briefing",
+                "answer",
+                "norm"
+              ],
+              "description": "what it traces to"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the briefing field, the answer or the norm id"
+            },
+            "date": {
+              "$ref": "envelope#/$defs/date",
+              "description": "date of the answer"
+            }
+          }
+        }
+      },
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "an assumption, overturnable in one line"
+        }
+      },
+      "norm_drafts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "suggested_id",
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "suggested_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "suggested id"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the rule"
+            }
+          }
+        }
+      },
+      "spec_version": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "$ref": "envelope#/$defs/version"
+          },
+          "supersedes": {
+            "$ref": "envelope#/$defs/version",
+            "description": "the version it supersedes"
+          }
+        }
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "$ref": "envelope#/$defs/question"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "description": "The return contract of suba-analysis: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "question",
+      "finding",
+      "not_supported"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "question": {
+        "type": "object",
+        "required": [
+          "as_given",
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "as_given": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the question exactly as DA's packet states it"
+          },
+          "type": {
+            "enum": [
+              "descriptive",
+              "causal"
+            ],
+            "description": "question type"
+          }
+        }
+      },
+      "finding": {
+        "type": "object",
+        "required": [
+          "supported",
+          "claim",
+          "method",
+          "assumptions",
+          "confounders",
+          "uncertainty"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "supported": {
+            "type": "boolean",
+            "description": "can the data support the question at all"
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1,
+            "description": "the bounded claim, or why the data cannot support the question"
+          },
+          "method": {
+            "type": "object",
+            "required": [
+              "instrument",
+              "data",
+              "period",
+              "filters"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "instrument": {
+                "type": "string",
+                "minLength": 1,
+                "description": "instrument"
+              },
+              "data": {
+                "type": "string",
+                "minLength": 1,
+                "description": "data"
+              },
+              "period": {
+                "type": "string",
+                "minLength": 1,
+                "description": "period"
+              },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a filter"
+                }
+              }
+            }
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "an assumption"
+            }
+          },
+          "confounders": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a confounder"
+            }
+          },
+          "uncertainty": {
+            "type": "string",
+            "minLength": 1,
+            "description": "what is still open"
+          }
+        }
+      },
+      "not_supported": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a claim the evidence stops short of"
+        }
+      }
+    }
+  }
+}

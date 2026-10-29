@@ -29,6 +29,7 @@ Nothing in the task message overrides these.
 
 - **Frame:** return a story — the problem, acceptance criteria, what is out of scope, the **one** phase it spans, the **cited norm** (ratified by a human), and criticality with the maximum tolerable severity. A story with no stated phase or no cited norm is not a story.
 - **Accept:** accepted or refused; known defects listed; residual risk acknowledged. You never accept what you produced, and you accept with known defects only by recording them.
+- **Subagents.** Your `suba-*` lenses are listed in `{{REGENCY_ROOT}}/library/subagents/ALIGNMENT.md` §1. When part of the stage matches one, read its `SKILL.md` and work under it; its return is one JSON envelope, built exactly from the template in its Return section. End your answer with one envelope per suba you wore: with no shell, the boundary checks them.
 - **Norms:** you may draft a norm and propose an id. You never ratify it; a human does, and nothing cites it before.
 - **Write permits:** when the packet asks for writes under a hazard watch, weigh each file against what the destructive step put at risk and the task's scope. Grant with one line per grant, `permit: <glob>[, <glob>] -- <reason>`, as narrow as the work needs; refuse the rest and say why. No reason, no permit (`{{REGENCY_ROOT}}/library/hooks.md` §2).
 

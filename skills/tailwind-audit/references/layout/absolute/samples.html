@@ -25,18 +25,18 @@
   <div data-pattern="A02" data-case="broken">
     <div class="relative w-64">
       <span class="demo demo-fill pointer-events-none absolute inset-y-0 start-3 my-auto size-4" aria-hidden="true"></span>
-      <input class="demo h-9 w-full px-3" value="Buscar pedidos por cliente" aria-label="Buscar">
+      <input class="demo h-9 w-full px-3" value="Search orders by customer" aria-label="Search">
     </div>
   </div>
   <div data-pattern="A02" data-case="fixed">
     <div class="flex flex-wrap gap-4">
       <div class="relative w-64">
         <span class="demo demo-fill pointer-events-none absolute inset-y-0 start-3 my-auto size-4" aria-hidden="true"></span>
-        <input class="demo h-9 w-full ps-9 pe-3" value="Buscar pedidos por cliente" aria-label="Buscar">
+        <input class="demo h-9 w-full ps-9 pe-3" value="Search orders by customer" aria-label="Search">
       </div>
       <div class="relative w-48">
-        <select class="demo h-9 w-full appearance-none ps-3 pe-9" aria-label="Período">
-          <option>Últimos 30 dias</option><option>Últimos 90 dias</option>
+        <select class="demo h-9 w-full appearance-none ps-3 pe-9" aria-label="Period">
+          <option>Last 30 days</option><option>Last 90 days</option>
         </select>
         <span class="demo demo-fill pointer-events-none absolute inset-y-0 end-3 my-auto size-4" aria-hidden="true"></span>
       </div>
@@ -46,9 +46,9 @@
   <!-- A03 Full cover: veil over a card while it reloads; the card keeps its size because the veil takes none. -->
   <div data-pattern="A03" data-case="sample">
     <div class="demo relative max-w-sm p-4">
-      <p>Receita mensal</p>
-      <p>R$ 487,3 mil</p>
-      <div class="demo demo-fill absolute inset-0 grid place-items-center">Atualizando</div>
+      <p>Monthly revenue</p>
+      <p>£487.3k</p>
+      <div class="demo demo-fill absolute inset-0 grid place-items-center">Refreshing</div>
     </div>
   </div>
 
@@ -57,9 +57,9 @@
   <div data-pattern="A04" data-case="broken">
     <div class="demo relative h-24 max-w-sm overflow-hidden p-4">
       <div class="relative inline-block">
-        <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2">Ações</button>
+        <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2">Actions</button>
         <ul class="demo demo-fill absolute start-0 top-full z-40 mt-1 w-max min-w-48 p-1">
-          <li class="p-2">Editar</li><li class="p-2">Duplicar</li><li class="p-2">Exportar</li><li class="p-2">Excluir</li>
+          <li class="p-2">Edit</li><li class="p-2">Duplicate</li><li class="p-2">Export</li><li class="p-2">Delete</li>
         </ul>
       </div>
     </div>
@@ -67,9 +67,9 @@
   <div data-pattern="A04" data-case="fixed" data-room="below">
     <div class="demo relative h-24 max-w-sm p-4">
       <div class="relative inline-block">
-        <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2">Ações</button>
+        <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2">Actions</button>
         <ul class="demo demo-fill absolute start-0 top-full z-40 mt-1 w-max min-w-48 p-1">
-          <li class="p-2">Editar</li><li class="p-2">Duplicar</li><li class="p-2">Exportar</li><li class="p-2">Excluir</li>
+          <li class="p-2">Edit</li><li class="p-2">Duplicate</li><li class="p-2">Export</li><li class="p-2">Delete</li>
         </ul>
       </div>
     </div>
@@ -81,7 +81,7 @@
     <div>
       <span class="relative inline-flex">
         <span class="demo size-8" aria-hidden="true"></span>
-        <span class="demo demo-fill absolute bottom-full start-1/2 mb-2 -translate-x-1/2 p-2">Exportar relatório em CSV</span>
+        <span class="demo demo-fill absolute bottom-full start-1/2 mb-2 -translate-x-1/2 p-2">Export the report as CSV</span>
       </span>
     </div>
   </div>
@@ -89,7 +89,7 @@
     <div>
       <span class="relative inline-flex">
         <span class="demo size-8" aria-hidden="true"></span>
-        <span class="demo demo-fill absolute bottom-full start-1/2 mb-2 w-max max-w-xs -translate-x-1/2 p-2">Exportar relatório em CSV</span>
+        <span class="demo demo-fill absolute bottom-full start-1/2 mb-2 w-max max-w-xs -translate-x-1/2 p-2">Export the report as CSV</span>
       </span>
     </div>
   </div>
@@ -100,8 +100,8 @@
        top layer (A10). Run containingBlock(el) on the child to see "backdrop-filter". -->
   <div data-pattern="A06" data-case="broken">
     <div class="demo h-24 max-w-sm p-2 backdrop-blur-sm">
-      Cabeçalho com desfoque
-      <div class="demo demo-fill fixed end-2 bottom-2 p-2">Pedido salvo</div>
+      Header with blur
+      <div class="demo demo-fill fixed end-2 bottom-2 p-2">Order saved</div>
     </div>
   </div>
 
@@ -110,16 +110,16 @@
     <div class="demo max-h-48 max-w-md overflow-auto">
       <table class="w-full">
         <thead class="sticky top-0 z-10">
-          <tr class="demo demo-fill"><th scope="col" class="p-2 text-start">Cliente</th><th scope="col" class="p-2 text-end">Valor</th></tr>
+          <tr class="demo demo-fill"><th scope="col" class="p-2 text-start">Customer</th><th scope="col" class="p-2 text-end">Amount</th></tr>
         </thead>
         <tbody>
-          <tr><td class="p-2">Ana Souza</td><td class="p-2 text-end">R$ 2.450,00</td></tr>
-          <tr><td class="p-2">Bruno Lima</td><td class="p-2 text-end">R$ 1.180,00</td></tr>
-          <tr><td class="p-2">Carla Dias</td><td class="p-2 text-end">R$ 3.020,00</td></tr>
-          <tr><td class="p-2">Diego Reis</td><td class="p-2 text-end">R$ 640,00</td></tr>
-          <tr><td class="p-2">Elisa Prado</td><td class="p-2 text-end">R$ 5.900,00</td></tr>
-          <tr><td class="p-2">Fábio Nunes</td><td class="p-2 text-end">R$ 410,00</td></tr>
-          <tr><td class="p-2">Gabriela Rocha</td><td class="p-2 text-end">R$ 2.210,00</td></tr>
+          <tr><td class="p-2">Anna Southwood</td><td class="p-2 text-end">£2,450.00</td></tr>
+          <tr><td class="p-2">Bruno Lane</td><td class="p-2 text-end">£1,180.00</td></tr>
+          <tr><td class="p-2">Carla Dean</td><td class="p-2 text-end">£3,020.00</td></tr>
+          <tr><td class="p-2">Diego Reeves</td><td class="p-2 text-end">£640.00</td></tr>
+          <tr><td class="p-2">Eliza Pratt</td><td class="p-2 text-end">£5,900.00</td></tr>
+          <tr><td class="p-2">Fabian Nunn</td><td class="p-2 text-end">£410.00</td></tr>
+          <tr><td class="p-2">Gabriella Rourke</td><td class="p-2 text-end">£2,210.00</td></tr>
         </tbody>
       </table>
     </div>
@@ -128,7 +128,7 @@
   <!-- A08 Centred overlay in a box: inset-0 + m-auto + size-fit centres any size without transforms. -->
   <div data-pattern="A08" data-case="sample">
     <div class="demo relative h-32 max-w-sm">
-      <span class="demo demo-fill absolute inset-0 m-auto size-fit p-2">Carregando gráfico</span>
+      <span class="demo demo-fill absolute inset-0 m-auto size-fit p-2">Loading chart</span>
     </div>
   </div>
 
@@ -137,14 +137,14 @@
        inside the z-10 context. Fixed: the left parent is lifted to z-40 (or the child moves to the top layer). -->
   <div data-pattern="A09" data-case="broken">
     <div class="flex">
-      <div class="relative z-10 w-40"><div class="demo demo-fill relative z-50 h-16 w-56 p-2">Menu aberto</div></div>
-      <div class="demo demo-fill relative z-30 -ms-12 h-16 w-40 p-2">Card vizinho</div>
+      <div class="relative z-10 w-40"><div class="demo demo-fill relative z-50 h-16 w-56 p-2">Menu open</div></div>
+      <div class="demo demo-fill relative z-30 -ms-12 h-16 w-40 p-2">Neighbouring card</div>
     </div>
   </div>
   <div data-pattern="A09" data-case="fixed">
     <div class="flex">
-      <div class="relative z-40 w-40"><div class="demo demo-fill relative z-50 h-16 w-56 p-2">Menu aberto</div></div>
-      <div class="demo demo-fill relative z-30 -ms-12 h-16 w-40 p-2">Card vizinho</div>
+      <div class="relative z-40 w-40"><div class="demo demo-fill relative z-50 h-16 w-56 p-2">Menu open</div></div>
+      <div class="demo demo-fill relative z-30 -ms-12 h-16 w-40 p-2">Neighbouring card</div>
     </div>
   </div>
 
@@ -152,9 +152,9 @@
        Open it with the button; Esc or a click outside closes it. Unanchored, the browser centres it. -->
   <div data-pattern="A10" data-case="sample">
     <div class="demo h-20 max-w-sm overflow-hidden p-4">
-      <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2" popovertarget="a10-menu">Ações</button>
+      <button type="button" class="demo px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2" popovertarget="a10-menu">Actions</button>
       <ul id="a10-menu" popover class="demo w-max min-w-48 p-1">
-        <li class="p-2">Editar</li><li class="p-2">Duplicar</li><li class="p-2">Excluir</li>
+        <li class="p-2">Edit</li><li class="p-2">Duplicate</li><li class="p-2">Delete</li>
       </ul>
     </div>
   </div>

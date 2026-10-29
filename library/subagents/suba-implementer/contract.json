@@ -1,0 +1,136 @@
+{
+  "description": "The return contract of suba-implementer: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "change_notes",
+      "for_dv"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "change_notes": {
+        "type": "object",
+        "description": "DV's fixed change notes: they go to QA as they stand",
+        "required": [
+          "touched_paths",
+          "touched_phases",
+          "surface_changed",
+          "rollback",
+          "new_tests"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "touched_paths": {
+            "type": "array",
+            "items": {
+              "$ref": "envelope#/$defs/path",
+              "description": "a file the change touched"
+            }
+          },
+          "touched_phases": {
+            "type": "array",
+            "items": {
+              "$ref": "ids:phase",
+              "description": "a phase the change touched"
+            },
+            "minItems": 1
+          },
+          "surface_changed": {
+            "type": "boolean",
+            "description": "did API_SURFACE.md change"
+          },
+          "rollback": {
+            "type": "string",
+            "minLength": 1,
+            "description": "how to revert"
+          },
+          "new_tests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a test name, seen red before green"
+            }
+          }
+        }
+      },
+      "for_dv": {
+        "type": "object",
+        "description": "for DV only: never reaches QA",
+        "required": [
+          "change_class",
+          "contract_impact",
+          "dependencies",
+          "limitations"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "change_class": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "fix",
+                "feat",
+                "rev",
+                "rule",
+                "chore",
+                "docs",
+                "perf",
+                "ref",
+                "test",
+                "sec",
+                "build"
+              ],
+              "description": "change class (skill §16)"
+            },
+            "minItems": 1
+          },
+          "contract_impact": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "contract",
+                "consumers"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "contract": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a contract that breaks"
+                },
+                "consumers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "a consumer of it"
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "description": "each break with its consumers; empty when none"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a dependency added or modified"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a known limitation"
+            }
+          }
+        }
+      }
+    }
+  }
+}

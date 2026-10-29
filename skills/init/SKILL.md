@@ -24,16 +24,23 @@ index points at everything else.
    being named is a decision nobody took.
 4. **Copy, never overwrite.** Copy the template into the target. If a file exists (a `CLAUDE.md`, a
    `README.md`, a `.gitignore`), do not replace it: write the template version next to it as
-   `<name>.template` and say so, or merge only the missing lines after asking.
+   `<name>.template` and say so, or merge only the missing lines after asking. Then, before filling
+   anything, `python scripts/migrate.py stamp`: it writes `.shortcuts/regency.json` (the installed version
+   and the fingerprints of the files just copied), which the version gate and `/regency:update` read;
+   name it among the paths of step 3.
 5. **Fill the holes.** The template's only gaps are `⟨…⟩` fields; each one says what it expects. Fill
    those you can answer from facts in the repository (name, one-line description, the verification
    command) and cite the source; leave the rest as `⟨…⟩` and list them as open questions. Never invent.
    Order that avoids rework: `CLAUDE.md` → `.shortcuts/README.md` ("Where I am" and the five-line map)
-   → `.constraints/README.md` ("Do artefato") → the rest only when there is something to record. An
+   → `.constraints/README.md` ("Of the artefact") → the rest only when there is something to record. An
    empty axis is honest; an invented one lies.
 6. **The ledger.** The template includes `.shortcuts/.virtual/` with an empty `ongoing.json` (the work
    ledger: what is ongoing vs backlog), an empty `manifesto.json` (norm ↔ code lineage) and a short
    README. List them among the paths you name in step 3; agents keep the ledger current from then on.
+   Then `python scripts/shortcuts.py refresh`: it fills the generated state block of `.shortcuts/README.md`
+   (between its `shortcuts:state` markers; never fill it by hand) and opens the one store,
+   `.shortcuts/.virtual/index.sqlite` with the `.gitignore` beside it that keeps that cache out of git —
+   name both in step 3 (`library/shortcuts.md`).
 7. **Orders.** The four standard Order templates live in regency (`library/orders/`), not in the
    project. Do not copy them. Filled Orders go to `.orders/ORD-####/` when the Regent opens one.
 8. **Report** the created paths, the holes that remain, and the one next step. Do not commit

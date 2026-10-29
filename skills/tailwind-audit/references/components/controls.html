@@ -1,4 +1,4 @@
-<!-- lang: pt-BR -->
+<!-- lang: en-GB -->
 <!-- Body fragment: controls (norm §4.1–§4.3, §4.8). Render: python scripts/preview.py.
      All controls in a row share one height table: sm h-8 · md h-9 (default) · lg h-10 (§4.1).
      Button = base + size + variant. Base (every variant):
@@ -12,11 +12,11 @@
   <!-- Variants at md. Order in a group: secondary(ies) first, primary last (§4.2). -->
   <div data-pattern="button" data-case="variants">
     <div class="flex flex-wrap items-center gap-2">
-      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-primary-700 active:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Salvar</button>
-      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Exportar CSV</button>
-      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Limpar filtros</button>
-      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-danger-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-danger-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Excluir</button>
-      <a href="#" class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium text-primary-600 underline-offset-4 transition-colors duration-150 ease-standard hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Ver detalhes</a>
+      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-primary-700 active:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Save</button>
+      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Export CSV</button>
+      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Clear filters</button>
+      <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-danger-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-danger-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Delete</button>
+      <a href="#" class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium text-primary-600 underline-offset-4 transition-colors duration-150 ease-standard hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">View details</a>
     </div>
   </div>
 
@@ -25,15 +25,15 @@
     <div class="flex flex-wrap items-center gap-2">
       <button type="button" class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
-        Exportar
+        Export
       </button>
       <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
-        Exportar
+        Export
       </button>
       <button type="button" class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-5 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
-        Exportar
+        Export
       </button>
     </div>
   </div>
@@ -42,15 +42,15 @@
        disabled (reason in title when not obvious). -->
   <div data-pattern="button" data-case="states">
     <div class="flex flex-wrap items-center gap-2">
-      <button type="button" aria-label="Atualizar" title="Atualizar" class="inline-flex size-9 items-center justify-center rounded-md border border-line-strong bg-surface text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
+      <button type="button" aria-label="Refresh" title="Refresh" class="inline-flex size-9 items-center justify-center rounded-md border border-line-strong bg-surface text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
       </button>
       <button type="button" disabled aria-busy="true" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-primary-700 active:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0 animate-spin motion-reduce:animate-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg>
-        Salvar
+        Save
       </button>
-      <span title="Selecione ao menos um pedido">
-        <button type="button" disabled class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Arquivar</button>
+      <span title="Select at least one order">
+        <button type="button" disabled class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Archive</button>
       </span>
     </div>
   </div>
@@ -60,22 +60,22 @@
   <div data-pattern="field" data-case="states">
     <div class="grid max-w-2xl gap-4 md:grid-cols-2">
       <div class="space-y-1.5">
-        <label for="f-email" class="block text-sm font-medium text-ink">E-mail</label>
-        <input id="f-email" type="email" placeholder="nome@empresa.com" aria-describedby="f-email-help" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
-        <p id="f-email-help" class="text-xs text-ink-subtle">Usado só para notificações.</p>
+        <label for="f-email" class="block text-sm font-medium text-ink">Email</label>
+        <input id="f-email" type="email" placeholder="name@company.com" aria-describedby="f-email-help" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
+        <p id="f-email-help" class="text-xs text-ink-subtle">Used only for notifications.</p>
       </div>
       <div class="space-y-1.5">
-        <label for="f-email-err" class="block text-sm font-medium text-ink">E-mail de cobrança</label>
-        <input id="f-email-err" type="email" value="ana@empresa" aria-invalid="true" aria-describedby="f-email-err-msg" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
-        <p id="f-email-err-msg" class="text-xs text-danger-700">Informe um e-mail válido.</p>
+        <label for="f-email-err" class="block text-sm font-medium text-ink">Billing email</label>
+        <input id="f-email-err" type="email" value="anna@company" aria-invalid="true" aria-describedby="f-email-err-msg" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
+        <p id="f-email-err-msg" class="text-xs text-danger-700">Enter a valid email address.</p>
       </div>
       <div class="space-y-1.5">
-        <label for="f-cep" class="block text-sm font-medium text-ink">CEP</label>
-        <input id="f-cep" inputmode="numeric" placeholder="00000-000" class="block h-9 w-32 rounded-md border border-line-strong bg-surface px-3 text-sm tabular-nums text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
+        <label for="f-cep" class="block text-sm font-medium text-ink">Postcode</label>
+        <input id="f-cep" inputmode="numeric" placeholder="SW1A 1AA" class="block h-9 w-32 rounded-md border border-line-strong bg-surface px-3 text-sm tabular-nums text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
       </div>
       <div class="space-y-1.5">
-        <label for="f-ref" class="block text-sm font-medium text-ink">Referência <span class="font-normal text-ink-subtle">(opcional)</span></label>
-        <input id="f-ref" disabled value="Gerada automaticamente" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
+        <label for="f-ref" class="block text-sm font-medium text-ink">Reference <span class="font-normal text-ink-subtle">(optional)</span></label>
+        <input id="f-ref" disabled value="Generated automatically" class="block h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20 disabled:bg-surface-sunken disabled:text-ink-subtle aria-invalid:border-danger-600 aria-invalid:focus:outline-danger-600/20">
       </div>
     </div>
   </div>
@@ -85,23 +85,23 @@
   <div data-pattern="field" data-case="select-search-textarea">
     <div class="grid max-w-2xl gap-4 md:grid-cols-2">
       <div class="space-y-1.5">
-        <label for="f-uf" class="block text-sm font-medium text-ink">UF</label>
+        <label for="f-uf" class="block text-sm font-medium text-ink">Nation</label>
         <div class="relative w-24">
           <select id="f-uf" class="block h-9 w-full appearance-none rounded-md border border-line-strong bg-surface ps-3 pe-9 text-sm text-ink shadow-xs focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20">
-            <option>SP</option><option>RJ</option><option>MG</option>
+            <option>ENG</option><option>SCT</option><option>WLS</option>
           </select>
           <svg class="pointer-events-none absolute inset-y-0 end-3 my-auto size-4 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </div>
       </div>
       <div class="space-y-1.5">
-        <label for="f-busca" class="block text-sm font-medium text-ink">Buscar cliente</label>
+        <label for="f-busca" class="block text-sm font-medium text-ink">Search customer</label>
         <div class="relative">
           <svg class="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="f-busca" type="search" placeholder="Nome, e-mail ou CPF" class="block h-9 w-full rounded-md border border-line-strong bg-surface ps-9 pe-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20">
+          <input id="f-busca" type="search" placeholder="Name, email or customer ID" class="block h-9 w-full rounded-md border border-line-strong bg-surface ps-9 pe-3 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20">
         </div>
       </div>
       <div class="space-y-1.5 md:col-span-2">
-        <label for="f-obs" class="block text-sm font-medium text-ink">Observações <span class="font-normal text-ink-subtle">(opcional)</span></label>
+        <label for="f-obs" class="block text-sm font-medium text-ink">Notes <span class="font-normal text-ink-subtle">(optional)</span></label>
         <textarea id="f-obs" class="block min-h-24 w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm text-ink shadow-xs placeholder:text-ink-subtle focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20"></textarea>
       </div>
     </div>
@@ -111,14 +111,14 @@
   <div data-pattern="field" data-case="checkbox-radio">
     <div class="flex flex-wrap gap-8">
       <fieldset class="space-y-2">
-        <legend class="mb-2 text-sm font-medium text-ink">Notificações</legend>
-        <label class="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked class="size-4 rounded-sm border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Pedido pago</label>
-        <label class="flex items-center gap-2 text-sm text-ink"><input type="checkbox" class="size-4 rounded-sm border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Pedido cancelado</label>
+        <legend class="mb-2 text-sm font-medium text-ink">Notifications</legend>
+        <label class="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked class="size-4 rounded-sm border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Order paid</label>
+        <label class="flex items-center gap-2 text-sm text-ink"><input type="checkbox" class="size-4 rounded-sm border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Order cancelled</label>
       </fieldset>
       <fieldset class="space-y-2">
-        <legend class="mb-2 text-sm font-medium text-ink">Frequência</legend>
-        <label class="flex items-center gap-2 text-sm text-ink"><input type="radio" name="freq" checked class="size-4 border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Imediata</label>
-        <label class="flex items-center gap-2 text-sm text-ink"><input type="radio" name="freq" class="size-4 border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Resumo diário</label>
+        <legend class="mb-2 text-sm font-medium text-ink">Frequency</legend>
+        <label class="flex items-center gap-2 text-sm text-ink"><input type="radio" name="freq" checked class="size-4 border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Immediate</label>
+        <label class="flex items-center gap-2 text-sm text-ink"><input type="radio" name="freq" class="size-4 border-line-strong accent-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Daily summary</label>
       </fieldset>
     </div>
   </div>
@@ -126,21 +126,21 @@
   <!-- Segmented (one view of the same data, max 4 options): equal segments with flex-1 would also work (F10);
        the norm sizes options by content, h-8 px-3. -->
   <div data-pattern="segmented" data-case="sample">
-    <div role="group" aria-label="Agrupar por" class="inline-flex rounded-md bg-surface-sunken p-0.5">
-      <button type="button" aria-pressed="false" class="h-8 rounded-sm px-3 text-xs font-medium text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Dia</button>
-      <button type="button" aria-pressed="true" class="h-8 rounded-sm bg-surface px-3 text-xs font-medium text-ink shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Semana</button>
-      <button type="button" aria-pressed="false" class="h-8 rounded-sm px-3 text-xs font-medium text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Mês</button>
+    <div role="group" aria-label="Group by" class="inline-flex rounded-md bg-surface-sunken p-0.5">
+      <button type="button" aria-pressed="false" class="h-8 rounded-sm px-3 text-xs font-medium text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Day</button>
+      <button type="button" aria-pressed="true" class="h-8 rounded-sm bg-surface px-3 text-xs font-medium text-ink shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Week</button>
+      <button type="button" aria-pressed="false" class="h-8 rounded-sm px-3 text-xs font-medium text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Month</button>
     </div>
   </div>
 
   <!-- Tabs (switch the content of an area): underline sits on the container border via -mb-px.
        Row may scroll horizontally on mobile (overflow-x-auto), never wrap. -->
   <div data-pattern="tabs" data-case="sample">
-    <div role="tablist" aria-label="Seções do pedido" class="flex overflow-x-auto border-b border-line">
-      <button type="button" role="tab" aria-selected="true" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-primary-600 px-1 text-sm font-medium whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Resumo</button>
-      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Itens</button>
-      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Pagamento</button>
-      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Histórico</button>
+    <div role="tablist" aria-label="Order sections" class="flex overflow-x-auto border-b border-line">
+      <button type="button" role="tab" aria-selected="true" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-primary-600 px-1 text-sm font-medium whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Summary</button>
+      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Items</button>
+      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Payment</button>
+      <button type="button" role="tab" aria-selected="false" class="-mb-px me-6 h-10 shrink-0 border-b-2 border-transparent px-1 text-sm font-medium whitespace-nowrap text-ink-muted transition-colors duration-150 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">History</button>
     </div>
   </div>
 

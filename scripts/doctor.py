@@ -4,7 +4,7 @@
 Run from anywhere:  python scripts/doctor.py        (exit 0 = healthy, 1 = a FAIL was found)
 
 Checks
-  1. plugin manifest is valid JSON and names the plugin 'regency'
+  1. plugin manifest is valid JSON, names the plugin 'regency', and its description fits the account install's 500 characters
   2. registry <-> skills <-> generated commands are consistent (same as build.py --check)
   3. every skill has frontmatter: name == directory, description present and <= 1024 chars
   4. every repo-relative path written in backticks (library/..., scripts/..., skills/..., commands/...) resolves
@@ -12,7 +12,7 @@ Checks
   6. all JSON and XML under the root parse
   7. the push guard's built-in decision table passes (scripts/guard-push.py --selftest)
   8. the four role-agent sources are valid; WARN if they are not installed (or are stale) in ~/.claude/agents
-  9. frontmatter of skills, commands and agent sources parses strictly (an unquoted ": " drops every field), and
+  9. frontmatter of skills, commands, agent sources and subagent spines parses strictly (an unquoted ": " drops every field), and
      no description carries an XML-like tag (`claude plugin validate` rejects the plugin for it)
  10. `claude plugin validate` on the components, when the CLI is available
  11. WARN while unapproved drafts exist in library/team/_draft
@@ -21,14 +21,23 @@ Checks
      (onFailure: block), and there is no Stop hook (R4.5)
  13. the path-scoped rule sources (library/rules) are valid; WARN if they are not installed (or are stale) in ~/.claude/rules
  14. the Regent's conventions hold (scripts/conventions_check.py: a.b version, id grammar, O-levels,
-     banned names, canonical UPPER_CASE, suba-/-vendor placement) and its self-test detects every planted defect
+     banned names, canonical UPPER_CASE, suba-/-vendor placement, the app's sources in English) and its self-test detects every planted defect
  15. every hook script passes its own --selftest, and answers the real wire: an empty event and a
      sample event on stdin give exit 0 and either nothing or valid JSON (a broken hook FAILS OPEN)
  16. the .ux/ scaffold holds (scripts/ux.py): its self-test detects every planted defect and scaffolds a
      throwaway project, the template tokens pass (roles, naming, computed contrast), theme.css matches
      them, the template brief parses
- 17. the shortcuts engine holds (scripts/shortcuts.py --selftest): store, migration, node ids against
-     vp.resolve, drift, refresh, index check and the state-block guard, one planted defect per rule (R7)
+ 17. the engines behind the hooks and the playbooks prove themselves: gov.py (routing, keys, recur),
+     returns.py (the return gate), idx.py (the exact index), shortcuts.py (the entry index, its prints and its
+     state block, R7 on idx's store), vp.py (the ledger and its drafts) and speed.py
+     (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
+     queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) each pass their own
+     --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
+     under the current version (migrate.py record --check)
+ 18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
+     the auto-mode settings file) and its self-test detects every planted defect
+ 19. the auto-mode profile (library/automode.json) is valid and the installer's self-test passes; WARN if its
+     entries are not installed (or are stale) in ~/.claude/settings.json
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -67,10 +76,11 @@ REQUIRED_WIRING = (
     ("SessionStart", "compact", "hook-resume.py"),
     ("UserPromptSubmit", "", "hook-verbs.py"),
     ("PreCompact", "", "hook-journal.py"), ("SubagentStop", "", "hook-journal.py"),
-    ("SessionEnd", "", "hook-shortcuts.py"),
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
+    ("SessionEnd", "", "hook-shortcuts.py"),
 )
 GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py"}
+MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
 FORBIDDEN_EVENTS = {"Stop": "R4.5: no Stop hook; the next-step line lives in each playbook"}
 
 results = []
@@ -114,6 +124,10 @@ def check_manifest():
         rec("FAIL", f"plugin.json name is {d.get('name')!r}, expected 'regency'")
     else:
         rec("OK", f"plugin.json: name=regency version={d.get('version', '?')}")
+    desc = d.get("description", "")
+    if len(desc) > MANIFEST_DESCRIPTION_MAX:
+        rec("FAIL", f"plugin.json description is {len(desc)} characters; an account install refuses more than "
+                    f"{MANIFEST_DESCRIPTION_MAX} ('Plugin description must be at most 500 characters')")
 
 
 def check_build():
@@ -287,8 +301,8 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-acts-guard.py": {"hook_event_name": "PreToolUse", "tool_name": "Write", "tool_input": {"file_path": "x/.scope/a.txt"}},
     "hook-lineage.py": {"hook_event_name": "PostToolUse", "tool_name": "Edit", "tool_input": {"file_path": "nowhere.txt"}},
     "hook-journal.py": {"hook_event_name": "PreCompact", "trigger": "auto"},
-    "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-shortcuts.py": {"hook_event_name": "SessionEnd", "reason": "other"},
+    "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
     "hook-gov.py": {"hook_event_name": "PostToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "suba-validator"},
                     "tool_response": "gov: order=G2 · mode=co · element=image · from=QA · to=RGN\nask: approve SPEC v3"},
@@ -349,19 +363,60 @@ def check_ux():
             rec("OK", f"ux {label}: {last}")
 
 
-def check_shortcuts():
-    s = ROOT / "scripts" / "shortcuts.py"
+def check_engines():
+    for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py"):
+        s = ROOT / "scripts" / name
+        if not s.is_file():
+            rec("FAIL", f"scripts/{name} is missing")
+            continue
+        r = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True, encoding="utf-8")
+        lines = [l for l in (r.stdout + r.stderr).strip().splitlines() if l.strip()]
+        if r.returncode != 0:
+            bad = [l for l in lines if l.startswith(("FAIL", "MISS"))] or lines[-1:]
+            rec("FAIL", f"{name}: " + " | ".join(bad[:3]))
+        else:
+            out = [l for l in r.stdout.strip().splitlines() if l.strip()]
+            rec("OK", f"{name}: {out[-1] if out else 'selftest ok'}")
+
+
+def check_history():
+    s = ROOT / "scripts" / "migrate.py"
+    r = subprocess.run([sys.executable, str(s), "record", "--check"], capture_output=True, text=True, encoding="utf-8")
+    out = (r.stdout + r.stderr).strip().splitlines()
+    rec("OK" if r.returncode == 0 else "FAIL", f"migrations: {out[-1] if out else 'record --check gave no answer'}")
+
+
+def check_headless():
+    s = ROOT / "scripts" / "headless.py"
     if not s.is_file():
-        return rec("FAIL", "scripts/shortcuts.py is missing")
-    with tempfile.TemporaryDirectory() as tmp:
-        env = dict(os.environ, REGENCY_HOOK_STATE=str(Path(tmp) / "state"))
-        r = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True,
-                           encoding="utf-8", env=env, cwd=tmp)
-    lines = [l for l in r.stdout.strip().splitlines() if l.strip()] or ["(no output)"]
-    if r.returncode != 0:
-        rec("FAIL", "shortcuts selftest: " + " | ".join([l for l in lines if l.startswith("MISS")][:3] or lines[-1:]))
+        return rec("FAIL", "scripts/headless.py is missing")
+    for arg in ("--selftest", "--check"):
+        r = subprocess.run([sys.executable, str(s), arg], capture_output=True, text=True, encoding="utf-8")
+        lines = (r.stdout + r.stderr).strip().splitlines() or ["no output"]
+        if r.returncode != 0:
+            rec("FAIL", f"headless {arg}: " + (" | ".join(l for l in lines if l.startswith(("MISS", "FAIL"))) or lines[-1]))
+        else:
+            rec("OK", f"headless {arg}: {lines[-1]}")
+
+
+def check_automode():
+    s = ROOT / "scripts" / "install-automode.py"
+    if not s.is_file():
+        return rec("FAIL", "scripts/install-automode.py is missing")
+    t = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True, encoding="utf-8")
+    if t.returncode != 0:
+        return rec("FAIL", "automode selftest: " + " | ".join(l for l in t.stdout.splitlines() if l.startswith("MISS")))
+    r = subprocess.run([sys.executable, str(s), "--check"], capture_output=True, text=True, encoding="utf-8")
+    lines = [l for l in (r.stdout + r.stderr).strip().splitlines() if l.strip()]
+    broken = [l for l in lines if l.startswith(("SOURCE", "SKIPPED"))]
+    if broken:
+        return rec("FAIL", "automode: " + " | ".join(broken))
+    off = [l for l in lines if not l.startswith("ok")]
+    if off:
+        rec("WARN", "auto-mode entries not (fully) installed on this machine: " + " | ".join(" ".join(l.split()) for l in off)
+            + "  -> python scripts/install-automode.py")
     else:
-        rec("OK", f"shortcuts: {lines[-1]}")
+        rec("OK", f"auto-mode entries installed and current in ~/.claude/settings.json ({len(lines)} list(s))")
 
 
 def check_rules():
@@ -427,13 +482,13 @@ def frontmatter_risks(path):
 
 def check_frontmatter():
     bad = []
-    for pat in ("skills/*/SKILL.md", "commands/**/*.md", "library/agents/*.md"):
+    for pat in ("skills/*/SKILL.md", "commands/**/*.md", "library/agents/*.md", "library/subagents/*/SKILL.md"):
         for p in sorted(ROOT.glob(pat)):
             bad += frontmatter_risks(p)
     for b in bad:
         rec("FAIL", "frontmatter: " + b)
     if not bad:
-        rec("OK", "frontmatter of skills, commands and agents is strictly parseable")
+        rec("OK", "frontmatter of skills, commands, agents and subagents is strictly parseable")
 
 
 def check_cli_validate():
@@ -459,7 +514,8 @@ def check_drafts():
 
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
-          check_conventions, check_hook_scripts, check_ux, check_shortcuts)
+          check_conventions, check_hook_scripts, check_ux, check_engines, check_history, check_headless,
+          check_automode)
 
 
 def main(argv):

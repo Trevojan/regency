@@ -1,0 +1,7 @@
+# The maintainer reviews every path. The lines below name what runs on installers' machines
+# or in CI, so the review request stays explicit if the first line ever changes.
+*                   @Trevojan
+/hooks/             @Trevojan
+/scripts/           @Trevojan
+/.claude-plugin/    @Trevojan
+/.github/           @Trevojan

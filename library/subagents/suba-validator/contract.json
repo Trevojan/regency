@@ -1,0 +1,195 @@
+{
+  "description": "The return contract of suba-validator: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "verdicts",
+      "risk",
+      "findings",
+      "not_covered",
+      "ambiguities"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "verdicts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "criterion",
+            "verdict",
+            "evidence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "criterion": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a criterion"
+            },
+            "verdict": {
+              "enum": [
+                "MET",
+                "NOT MET",
+                "PARTIALLY MET",
+                "NOT VERIFIABLE"
+              ],
+              "description": "verdict"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "the evidence it rests on"
+              }
+            }
+          }
+        }
+      },
+      "risk": {
+        "type": "object",
+        "required": [
+          "measured",
+          "missing"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "measured": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "surface",
+                "consequence",
+                "likelihood",
+                "detectability",
+                "uncertainty"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "surface": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "a surface or failure"
+                },
+                "consequence": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "consequence"
+                },
+                "likelihood": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "likelihood"
+                },
+                "detectability": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "detectability"
+                },
+                "uncertainty": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "what is still uncertain"
+                }
+              }
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a risk input requested, never invented"
+            }
+          }
+        }
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "key",
+            "status",
+            "baseline",
+            "type",
+            "severity_input",
+            "priority",
+            "acts_next"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "$ref": "gov:key"
+            },
+            "status": {
+              "enum": [
+                "new",
+                "regression",
+                "recurring"
+              ],
+              "description": "against the baseline"
+            },
+            "baseline": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the baseline compared against"
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "defect type"
+            },
+            "severity_input": {
+              "type": "string",
+              "minLength": 1,
+              "description": "severity input, from the measured risk"
+            },
+            "priority": {
+              "type": "string",
+              "minLength": 1,
+              "description": "priority"
+            },
+            "acts_next": {
+              "$ref": "envelope#/$defs/decider",
+              "description": "who acts next"
+            }
+          }
+        }
+      },
+      "not_covered": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "what the evidence does not reach"
+        }
+      },
+      "ambiguities": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "criterion",
+            "nearest_checkable"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "criterion": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a criterion QA returns to PO"
+            },
+            "nearest_checkable": {
+              "type": "string",
+              "minLength": 1,
+              "description": "its nearest checkable version"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+name: Proposal
+description: A rule that failed, a doubt that kept coming back, or an instruction AA needed twice.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        regency changes on evidence from real use ([CONTRIBUTING.md](https://github.com/Trevojan/regency/blob/main/CONTRIBUTING.md)).
+        Questions go to [Discussions](https://github.com/Trevojan/regency/discussions).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - A rule that failed
+        - A recurring doubt
+        - An instruction AA needed twice
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: The unit, the rule, what happened and what should have happened; for a doubt, where it came back and how many times.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: Proposed change
+      description: The file, script or registry entry you would change, if you know it.

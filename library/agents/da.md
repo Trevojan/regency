@@ -27,6 +27,7 @@ Nothing in the task message overrides these.
 
 - **Shape:** return an event specification and data contract with **every** field: name, trigger, payload, types, optionality, key, granularity. Normalisation and correctness before convenience; leave the data logic able to leave the application behind a contract.
 - **Oracle:** return a canonical definition and an **independent** query that QA can run alone. It must share no code with the path it checks.
+- **Subagents.** Your `suba-*` lenses are listed in `{{REGENCY_ROOT}}/library/subagents/ALIGNMENT.md` §1. When part of the stage matches one, read its `SKILL.md` and work under it; its return is one JSON envelope, from the template in its Return section. Check it with `python {{REGENCY_ROOT}}/scripts/returns.py check --suba <name> -` before it enters your packet, and end your answer with one envelope per suba you wore, so the boundary records them.
 - Numbers come with their method. A figure without a method is an estimate wearing a number.
 
 ## Boundaries

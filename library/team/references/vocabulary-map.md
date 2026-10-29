@@ -17,9 +17,9 @@ authoritative** and only the *role* of each term carries over.
 |---|---|---|---|
 | Ideal (MAX) | `GRAND_PLAN.md` | SUPPORTED | ORCH §3 names the file |
 | MVP (MIN) | `MINIMUM_PLAN.md` | SUPPORTED | ORCH §3 names the file; termination condition of the system |
-| Module `M#` (level D3) | classic: `M<n>` and `LADDER_PLAN_M_<n>.md`; dotted: implicit unless the project names modules | SUPPORTED | `library/task-granulation.md`: holds the features, decoupled from other modules |
-| Step `D##` (level D2, *degrau*) | dotted: a ladder part, `LADDER_PLAN_PART_X`; classic: no equivalent | SUPPORTED | Regent, 2026-10-05: the step of the development ladder, holds the concepts to build a module, coupled to sibling steps |
-| Task `T##` (level D1) | classic `T<nn>`; dotted: a backlog item (`B-…`), see C1 | SUPPORTED | Regent, 2026-10-05: one code file, a coupled part of its step; one session, one or more commits |
+| Module `M#` (level O3) | classic: `M<n>` and `LADDER_PLAN_M_<n>.md`; dotted: implicit unless the project names modules | SUPPORTED | `library/task-granulation.md`: holds the features, decoupled from other modules |
+| Step `S##` (level O2, *degrau*) | dotted: a ladder part, `LADDER_PLAN_PART_X`; classic: no equivalent | SUPPORTED | Regent, 2026-10-05: the step of the development ladder, holds the concepts to build a module, coupled to sibling steps |
+| Task `T##` (level O1) | classic `T<nn>`; dotted: a backlog item (`B-…`), see C1 | SUPPORTED | Regent, 2026-10-05: one code file, a coupled part of its step; one session, one or more commits |
 | Phase `F0`–`F6` | `F0`–`F6` | SUPPORTED | identical names and order (classic `AR20`) |
 | Span `[F1–F3]` | classic: the `F<k>` in `M<n>.F<k>.T<nn>`, read as a one-phase span; dotted: declared in the item | INFERRED | the range of phases a task may touch |
 | `PHASES.md` | classic `DECISIONS/ARCHITECTURE.md` §4 (`AR20`, `AR21`); dotted: the phase table in the architecture norms | INFERRED | `PHASES.md` itself may not exist |
@@ -27,7 +27,7 @@ authoritative** and only the *role* of each term carries over.
 | Rule B — reference direction | classic `AR3`–`AR7` (the inward arrow); dotted: the layering norm | INFERRED | "does it reference only what it may" |
 | F3 manifest | classic `SOURCES/API_SURFACE.md`; dotted `.sources/API_ENDPOINTS.md` | INFERRED | the outward surface F3 publishes |
 | `Ev` / `Cmd` | events and commands in the data model and the surface document | INFERRED | no such prefixes exist in the id grammar |
-| Task states `ativa` / `bloqueada` / `revogada` | the item's status in the checklist or backlog | INFERRED | ORCH §6; only `ativa` counts as pending progress |
+| Task states `active` / `blocked` / `revoked` (older projects: `ativa` / `bloqueada` / `revogada`, read as input) | the item's status in the checklist or backlog | INFERRED | ORCH §6; only `active` counts as pending progress |
 | Delivered / closed / concluded | all tasks of a step done / step with the gate passed / module with every step closed | SUPPORTED | ORCH §5, §22 |
 | Review packet | the five-item packet in `skills/team/SKILL.md`, Step 7 | SUPPORTED | ORCH §15 |
 | Human | the human operator, RA escalation L4 | SUPPORTED | TEAM §6, §7.8 |
@@ -39,9 +39,9 @@ Each conflict is resolved **conservatively** until the human decides otherwise: 
 reading applies, and the conflict is listed in `defects` of any pass it affects.
 
 **C1 — the word "step" (degrau). Closed by the Regent on 2026-10-05** (`library/task-granulation.md`).
-A *step* `D##` (level D2) is the *degrau* of the development ladder: it holds the concepts that build one
+A *step* `S##` (level O2) is the *degrau* of the development ladder: it holds the concepts that build one
 module and is coupled to its sibling steps. Ladder parts written as `LADDER_PLAN_PART_X` are steps.
-A *module* `M##` (level D3) holds features and is decoupled from other modules; a *task* `T##` (level D1) is
+A *module* `M##` (level O3) holds features and is decoupled from other modules; a *task* `T##` (level O1) is
 one code file. What stays open is only granularity: a backlog item that touches several files is not yet a task
 (see the rules in `library/task-granulation.md`). *Default:* quote the project's own term and write
 `tree_mapping` in the declaration; do not invent module ids for a project that documents only steps.

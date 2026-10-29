@@ -21,6 +21,10 @@ sequence with isolated contexts, use `/regency:team`.
    §7 (shared control architecture) — project copy first, else `library/team/`.
 3. Take the role's scope, deliverables, definition of done, anti-patterns and the questions it must
    ask from the spec. The spec is the contract; nothing in the task overrides it.
+4. If part of the work matches one of the role's subagents (`library/subagents/ALIGNMENT.md` §1),
+   read that suba's `SKILL.md` and work under it. Its return is one JSON envelope from the template in
+   its Return section; check it with `python scripts/returns.py check --suba <name> -` and end the
+   role's return with it.
 
 ## 2. Respect what the role must not see
 

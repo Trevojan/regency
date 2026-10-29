@@ -121,6 +121,12 @@ def selftest():
         if wire.CONVENTIONS.is_file():
             cases.append((len(real) >= 6 and wire.release_words(real), f"real conventions §9 parses ({len(real)} phrases, "
                                                                        f"release: {wire.release_words(real)})"))
+            wire.save_state(ev(""), "hazard", {"label": "rm -rf build", "at": "t"})
+            out = text(respond(ev("Release the Kraken! fuel=2"), real))
+            cases.append((wire.load_state(ev(""), "hazard") is not None and "extreme-go-horse" in out,
+                          f"'Release the Kraken!' names the speed mode and keeps the watch on ({out[:70]})"))
+            out = text(respond(ev("release"), real))
+            cases.append(("released" in out and wire.load_state(ev(""), "hazard") is None, "a bare 'release' still ends it"))
         return wire.check(cases)
 
 

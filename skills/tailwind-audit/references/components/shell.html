@@ -1,4 +1,4 @@
-<!-- lang: pt-BR -->
+<!-- lang: en-GB -->
 <!-- Body fragment: the reference dashboard page (norm §3), composed only from the canonical components.
      Render: python scripts/preview.py. Explanations stay in comments; visible text is sample data.
      Layout ids point to references/layout/<flex|grid|absolute>/SPEC.md. -->
@@ -7,18 +7,18 @@
      descendants (A06): menus opened from it must be popovers (A10), never `fixed` children. -->
 <header class="sticky top-0 z-30 h-16 border-b border-line bg-surface/95 backdrop-blur">
   <div class="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-    <a href="#" class="rounded-md text-base font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Vendas</a>
-    <nav class="hidden items-center gap-1 md:flex" aria-label="Principal">
-      <a href="#" aria-current="page" class="inline-flex h-9 items-center rounded-md bg-primary-50 px-3 text-sm font-medium text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Visão geral</a>
-      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Pedidos</a>
-      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Clientes</a>
-      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Relatórios</a>
+    <a href="#" class="rounded-md text-base font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Sales</a>
+    <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
+      <a href="#" aria-current="page" class="inline-flex h-9 items-center rounded-md bg-primary-50 px-3 text-sm font-medium text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Overview</a>
+      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Orders</a>
+      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Customers</a>
+      <a href="#" class="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Reports</a>
     </nav>
     <div class="flex shrink-0 items-center gap-2">
-      <button type="button" aria-label="Buscar" title="Buscar" class="inline-flex size-9 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+      <button type="button" aria-label="Search" title="Search" class="inline-flex size-9 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>
-      <span class="inline-flex size-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700" title="Ana Souza">AS</span>
+      <span class="inline-flex size-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700" title="Anna Southwood">AS</span>
     </div>
   </div>
 </header>
@@ -29,73 +29,73 @@
        One primary button, last on the right (norm §3.2). Controls in one row share the md height (§4.1). -->
   <section class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div class="min-w-0">
-      <h1 class="truncate text-2xl font-semibold tracking-tight text-ink">Visão geral</h1>
-      <p class="mt-1 text-sm text-ink-muted">Indicadores dos últimos 30 dias</p>
+      <h1 class="truncate text-2xl font-semibold tracking-tight text-ink">Overview</h1>
+      <p class="mt-1 text-sm text-ink-muted">Indicators for the last 30 days</p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
       <div class="relative">
-        <select aria-label="Período" class="block h-9 appearance-none rounded-md border border-line-strong bg-surface ps-3 pe-9 text-sm text-ink shadow-xs focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20">
-          <option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Este ano</option>
+        <select aria-label="Period" class="block h-9 appearance-none rounded-md border border-line-strong bg-surface ps-3 pe-9 text-sm text-ink shadow-xs focus:border-primary-600 focus:outline-2 focus:outline-primary-600/20">
+          <option>Last 30 days</option><option>Last 90 days</option><option>This year</option>
         </select>
         <svg class="pointer-events-none absolute inset-y-0 end-3 my-auto size-4 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
-        Exportar
+        Export
       </button>
       <button type="button" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 text-sm font-medium text-ink-inverse transition-colors duration-150 ease-standard hover:bg-primary-700 active:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">
         <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Novo relatório
+        New report
       </button>
     </div>
   </section>
 
   <!-- KPI row: responsive count 1 → 2 → 4 (G02). Each KPI: label bar (F01), value, delta with base (§4.6). -->
   <section aria-labelledby="kpis-title" class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-    <h2 id="kpis-title" class="sr-only">Indicadores</h2>
+    <h2 id="kpis-title" class="sr-only">Indicators</h2>
     <article data-component="kpi-card" class="rounded-lg border border-line bg-surface p-5">
       <div class="flex items-center justify-between gap-2">
-        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Receita total</p>
+        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Total revenue</p>
         <svg class="size-4 shrink-0 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       </div>
-      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink" title="R$ 487.312,40">R$ 487,3 mil</p>
+      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink" title="£487,312.40">£487.3k</p>
       <p class="mt-1 flex items-center gap-1 text-xs">
-        <span class="font-medium whitespace-nowrap text-success-700">▲ 12,5%</span>
-        <span class="truncate text-ink-subtle">vs. 30 dias anteriores</span>
+        <span class="font-medium whitespace-nowrap text-success-700">▲ 12.5%</span>
+        <span class="truncate text-ink-subtle">vs. previous 30 days</span>
       </p>
     </article>
     <article data-component="kpi-card" class="rounded-lg border border-line bg-surface p-5">
       <div class="flex items-center justify-between gap-2">
-        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Pedidos</p>
+        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Orders</p>
         <svg class="size-4 shrink-0 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M2 3h3l3 12h11l2-8H6.2"/></svg>
       </div>
-      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink">2.340</p>
+      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink">2,340</p>
       <p class="mt-1 flex items-center gap-1 text-xs">
-        <span class="font-medium whitespace-nowrap text-success-700">▲ 4,1%</span>
-        <span class="truncate text-ink-subtle">vs. 30 dias anteriores</span>
+        <span class="font-medium whitespace-nowrap text-success-700">▲ 4.1%</span>
+        <span class="truncate text-ink-subtle">vs. previous 30 days</span>
       </p>
     </article>
     <article data-component="kpi-card" class="rounded-lg border border-line bg-surface p-5">
       <div class="flex items-center justify-between gap-2">
-        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Ticket médio</p>
+        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Average order</p>
         <svg class="size-4 shrink-0 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
       </div>
-      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink" title="R$ 208,25">R$ 208</p>
+      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink" title="£208.25">£208</p>
       <p class="mt-1 flex items-center gap-1 text-xs">
-        <span class="font-medium whitespace-nowrap text-danger-700">▼ 2,1%</span>
-        <span class="truncate text-ink-subtle">vs. 30 dias anteriores</span>
+        <span class="font-medium whitespace-nowrap text-danger-700">▼ 2.1%</span>
+        <span class="truncate text-ink-subtle">vs. previous 30 days</span>
       </p>
     </article>
     <!-- "Up is bad" metric: the delta rises (▲) but is coloured danger, because the colour follows meaning. -->
     <article data-component="kpi-card" class="rounded-lg border border-line bg-surface p-5">
       <div class="flex items-center justify-between gap-2">
-        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Cancelamentos</p>
+        <p class="truncate text-xs font-medium uppercase tracking-wide text-ink-muted">Cancellations</p>
         <svg class="size-4 shrink-0 text-ink-subtle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </div>
-      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink">3,2%</p>
+      <p class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-ink">3.2%</p>
       <p class="mt-1 flex items-center gap-1 text-xs">
-        <span class="font-medium whitespace-nowrap text-danger-700">▲ 0,4 p.p.</span>
-        <span class="truncate text-ink-subtle">vs. 30 dias anteriores</span>
+        <span class="font-medium whitespace-nowrap text-danger-700">▲ 0.4 pp</span>
+        <span class="truncate text-ink-subtle">vs. previous 30 days</span>
       </p>
     </article>
   </section>
@@ -103,32 +103,32 @@
   <!-- Chart rows: 12-col grid with prefixed spans (G01), 8+4 then 6+6. Cards stretch to the row height and are
        flex columns with a flex-1 body (F04). Chart containers are empty fixed-height boxes (norm §9: no chart
        library); h-72 in both cards of a row, see components/README.md "Norm gaps". -->
-  <section aria-label="Gráficos" class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+  <section aria-label="Charts" class="grid grid-cols-1 gap-6 lg:grid-cols-12">
     <article data-component="card" class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-8">
       <header class="flex items-start justify-between gap-4 px-5 pt-5">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-semibold text-ink">Receita mensal (R$ mil)</h2>
-          <p class="mt-0.5 text-sm text-ink-muted">Últimos 12 meses</p>
+          <h2 class="truncate text-base font-semibold text-ink">Monthly revenue (£k)</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Last 12 months</p>
         </div>
       </header>
       <div class="flex-1 px-5 py-5"><div class="h-72 rounded-md bg-surface-muted" data-chart="receita-mensal"></div></div>
-      <footer class="border-t border-line px-5 py-3 text-xs text-ink-subtle">Receita líquida de devoluções · atualizado há 5 min</footer>
+      <footer class="border-t border-line px-5 py-3 text-xs text-ink-subtle">Revenue net of returns · updated 5 min ago</footer>
     </article>
     <article data-component="card" class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-4">
       <header class="flex items-start justify-between gap-4 px-5 pt-5">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-semibold text-ink">Vendas por canal</h2>
-          <p class="mt-0.5 text-sm text-ink-muted">Participação na receita</p>
+          <h2 class="truncate text-base font-semibold text-ink">Sales by channel</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Share of revenue</p>
         </div>
       </header>
       <div class="flex-1 px-5 py-5"><div class="h-72 rounded-md bg-surface-muted" data-chart="vendas-canal"></div></div>
-      <footer class="border-t border-line px-5 py-3 text-xs text-ink-subtle">Atualizado há 5 min</footer>
+      <footer class="border-t border-line px-5 py-3 text-xs text-ink-subtle">Updated 5 min ago</footer>
     </article>
     <article data-component="card" class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-6">
       <header class="flex items-start justify-between gap-4 px-5 pt-5">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-semibold text-ink">Pedidos por dia</h2>
-          <p class="mt-0.5 text-sm text-ink-muted">Últimos 30 dias</p>
+          <h2 class="truncate text-base font-semibold text-ink">Orders per day</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Last 30 days</p>
         </div>
       </header>
       <div class="flex-1 px-5 py-5"><div class="h-72 rounded-md bg-surface-muted" data-chart="pedidos-dia"></div></div>
@@ -136,8 +136,8 @@
     <article data-component="card" class="flex flex-col rounded-lg border border-line bg-surface lg:col-span-6">
       <header class="flex items-start justify-between gap-4 px-5 pt-5">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-semibold text-ink">Ticket médio (R$)</h2>
-          <p class="mt-0.5 text-sm text-ink-muted">Últimos 30 dias</p>
+          <h2 class="truncate text-base font-semibold text-ink">Average order (£)</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Last 30 days</p>
         </div>
       </header>
       <div class="flex-1 px-5 py-5"><div class="h-72 rounded-md bg-surface-muted" data-chart="ticket-medio"></div></div>
@@ -153,58 +153,58 @@
     <article data-component="card" class="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
       <header class="flex items-start justify-between gap-4 border-b border-line px-5 pt-5 pb-4">
         <div class="min-w-0">
-          <h2 id="pedidos-title" class="truncate text-base font-semibold text-ink">Pedidos recentes</h2>
-          <p class="mt-0.5 text-sm text-ink-muted">Pedidos pagos, enviados e cancelados</p>
+          <h2 id="pedidos-title" class="truncate text-base font-semibold text-ink">Recent orders</h2>
+          <p class="mt-0.5 text-sm text-ink-muted">Orders paid, shipped and cancelled</p>
         </div>
-        <a href="#" class="inline-flex h-8 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Ver todos</a>
+        <a href="#" class="inline-flex h-8 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">View all</a>
       </header>
       <div class="relative overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-surface-muted">
             <tr class="border-b border-line">
-              <th scope="col" class="h-10 px-4 text-start text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Cliente</th>
-              <th scope="col" class="h-10 px-4 text-start text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Pedido</th>
+              <th scope="col" class="h-10 px-4 text-start text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Customer</th>
+              <th scope="col" class="h-10 px-4 text-start text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Order</th>
               <th scope="col" class="h-10 px-4 text-start text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Status</th>
-              <th scope="col" class="h-10 px-4 text-end text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Valor</th>
-              <th scope="col" class="h-10 w-px px-4 whitespace-nowrap"><span class="sr-only">Ações</span></th>
+              <th scope="col" class="h-10 px-4 text-end text-xs font-medium uppercase tracking-wide whitespace-nowrap text-ink-muted">Amount</th>
+              <th scope="col" class="h-10 w-px px-4 whitespace-nowrap"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-line">
             <tr class="hover:bg-surface-muted">
-              <td class="h-12 max-w-64 truncate px-4 text-ink" title="Ana Souza Albuquerque de Oliveira">Ana Souza Albuquerque de Oliveira</td>
+              <td class="h-12 max-w-64 truncate px-4 text-ink" title="Anna Southwood-Albright of Oldfield">Anna Southwood-Albright of Oldfield</td>
               <td class="h-12 px-4 tabular-nums whitespace-nowrap text-ink-muted">#1042</td>
               <td class="h-12 px-4">
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-success-200 bg-success-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-success-700"><span class="size-1.5 rounded-full bg-success-600" aria-hidden="true"></span>Pago</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-success-200 bg-success-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-success-700"><span class="size-1.5 rounded-full bg-success-600" aria-hidden="true"></span>Paid</span>
               </td>
-              <td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 2.450,00</td>
+              <td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">£2,450.00</td>
               <td class="h-12 w-px px-4 whitespace-nowrap">
-                <button type="button" aria-label="Ações do pedido 1042" title="Ações" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                <button type="button" aria-label="Actions for order 1042" title="Actions" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
                   <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
                 </button>
               </td>
             </tr>
             <tr class="hover:bg-surface-muted">
-              <td class="h-12 max-w-64 truncate px-4 text-ink">Bruno Lima</td>
+              <td class="h-12 max-w-64 truncate px-4 text-ink">Bruno Lane</td>
               <td class="h-12 px-4 tabular-nums whitespace-nowrap text-ink-muted">#1043</td>
               <td class="h-12 px-4">
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-warning-200 bg-warning-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-warning-700"><span class="size-1.5 rounded-full bg-warning-600" aria-hidden="true"></span>Pendente</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-warning-200 bg-warning-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-warning-700"><span class="size-1.5 rounded-full bg-warning-600" aria-hidden="true"></span>Pending</span>
               </td>
-              <td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">R$ 1.180,00</td>
+              <td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink">£1,180.00</td>
               <td class="h-12 w-px px-4 whitespace-nowrap">
-                <button type="button" aria-label="Ações do pedido 1043" title="Ações" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                <button type="button" aria-label="Actions for order 1043" title="Actions" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
                   <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
                 </button>
               </td>
             </tr>
             <tr class="hover:bg-surface-muted">
-              <td class="h-12 max-w-64 truncate px-4 text-ink">Carla Dias</td>
+              <td class="h-12 max-w-64 truncate px-4 text-ink">Carla Dean</td>
               <td class="h-12 px-4 tabular-nums whitespace-nowrap text-ink-muted">#1044</td>
               <td class="h-12 px-4">
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-danger-200 bg-danger-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-danger-700"><span class="size-1.5 rounded-full bg-danger-600" aria-hidden="true"></span>Cancelado</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-danger-200 bg-danger-50 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-danger-700"><span class="size-1.5 rounded-full bg-danger-600" aria-hidden="true"></span>Cancelled</span>
               </td>
               <td class="h-12 px-4 text-end font-medium tabular-nums whitespace-nowrap text-ink-subtle">—</td>
               <td class="h-12 w-px px-4 whitespace-nowrap">
-                <button type="button" aria-label="Ações do pedido 1044" title="Ações" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                <button type="button" aria-label="Actions for order 1044" title="Actions" class="inline-flex size-8 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 ease-standard hover:bg-surface-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
                   <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
                 </button>
               </td>
@@ -213,11 +213,11 @@
         </table>
       </div>
       <!-- Pagination: bar (F01) with wrap below sm (F06). -->
-      <nav aria-label="Paginação" class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3">
-        <p class="text-sm text-ink-muted">Mostrando <span class="tabular-nums">1–25</span> de <span class="tabular-nums">2.340</span></p>
+      <nav aria-label="Pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3">
+        <p class="text-sm text-ink-muted">Showing <span class="tabular-nums">1–25</span> of <span class="tabular-nums">2,340</span></p>
         <div class="flex items-center gap-2">
-          <button type="button" disabled class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Anterior</button>
-          <button type="button" class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Próxima</button>
+          <button type="button" disabled class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Previous</button>
+          <button type="button" class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-line-strong bg-surface px-3 text-xs font-medium text-ink shadow-xs transition-colors duration-150 ease-standard hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50">Next</button>
         </div>
       </nav>
     </article>

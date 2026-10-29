@@ -13,9 +13,11 @@ disable-model-invocation: true
 
 "Proceed" means: **work the queue until a blocker or until it is empty** — not one task.
 
-## 0. First peek — the work ledger
+## 0. First peek — the version, then the work ledger
 
-Before anything else, see what is already going on: `python scripts/vp.py ongoing`, then
+Before anything else, `python scripts/migrate.py gate`: exit 1, say "I need to update this before going
+on" and offer `/regency:update`; exit 2, say "I can't go on: this project is on a newer regency" and stop.
+Then see what is already going on: `python scripts/vp.py ongoing`, then
 `python scripts/vp.py trace`, then reconcile as `library/conventions.md` §10 says (ghosts, orphan work,
 stale claims go to the Regent as questions). Never start a `backlog` item just because it is free: the
 queue decides what moves from `backlog` to `ongoing`. If the project keeps no ledger, say so once and
@@ -56,7 +58,7 @@ does the commits when the Regent asks.
 ## 3. Doubts and blockers
 
 - A doubt that does not block → add it to the project's open-questions queue
-  ("Questões em aberto ao Regente" or equivalent), and keep going with an explicit assumption.
+  ("Open, waiting for the Regent" in `.plan/README.md`, or the project's equivalent), and keep going with an explicit assumption.
 - A **blocker** (a decision only the Regent can take, a missing ratified norm, a failing gate you
   cannot fix in scope, work that would leave your scope or touch cloud/production/shared data)
   → add it to the queue **first in line**, then route around everything it touches and continue with

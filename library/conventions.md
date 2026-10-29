@@ -19,6 +19,8 @@ the harness has to fill gaps, the better both sides perform.
 - Script output is **sliced**: one finding or one subject per line or per short file, so a reader takes the
   slice it needs instead of reconstructing the whole. Slices are also the recovery path when something goes off.
 - When a prose instruction keeps being re-explained, that is the signal to turn it into code or a template.
+- "One Regent should be able and encouraged to use full potential of the Harness whenever a task may be
+  accomplished" (R11.14): a check, a command or a skill that exists is used before the same work is reasoned again.
 
 ## 1. People and labels
 
@@ -44,9 +46,13 @@ Choose by who the reply is for:
 | an enterprise / client project | the project's own language (PT-BR where the project is Brazilian) |
 
 When the Regent's message switches language, it is usually to reduce translation noise: follow it.
+**The app's own sources are English.** A template, a mould, a command, a playbook, a script or a sample
+never carries Portuguese; only inputs vary: what the Regent types, a project's own documents and data.
+Quote an input as it is, in backticks or double quotes; `scripts/conventions_check.py` fails on
+Portuguese anywhere else in this folder (§9 is the Regent's verbs, so it is input).
 Project glossaries beat habit: use the project's terms and never a word the glossary bans.
 User-facing text in a product is **terse and objective**, with no developer notes, annotations or
-explanations leaking into the screen. In Brazilian Portuguese write *sua/seu*, never *tua/teu*.
+explanations leaking into the screen. In Brazilian Portuguese write `sua`/`seu`, never `tua`/`teu`.
 Visual defects (borders, misplaced or misaligned elements) are what a client notices first: fix them
 before anything cosmetic or optional. The path-scoped copy of these lines is `library/rules/ui-text.md`.
 A project's frontend is documented in `<guidelines>/.ux/`, scaffolded by `/regency:ux-init` and started
@@ -74,7 +80,8 @@ from its brief; a UI rule changes there first, then in code.
 
 - **"Commit"** means small, split commits, each with a descriptive message: `feat`, `fix`, `docs`,
   `add`, `test`, kept apart (the Regent cannot follow 100% of generated code, so separation is the
-  review aid). Work stays on the branch/working tree in use; never create a worktree on your own.
+  review aid). Work stays on the branch/working tree in use; never create a worktree on your own. The
+  speed modes the Regent invokes open one per DV through the Agent tool (`library/team/SPEED_MODES.md` §2).
 - **"Commit and merge"** additionally merges the branches up to `main` following the project's
   documented branch contract. If the contract is not documented, ask before merging.
 - **The Regent pushes `main`.** An agent never pushes `main`/`master`, never force-pushes, never rewrites
@@ -82,6 +89,12 @@ from its brief; a UI rule changes there first, then in code.
   may push the *other* branches it touched (plain `git push -u origin <branch>`, no tags, no `--all`), and
   asks first when the project says pushing that branch triggers a pipeline or deploy. When `main` is ready,
   say so.
+- **Agents commit as Claude.** A commit an agent makes is authored `Claude <noreply@anthropic.com>`
+  (set for the repository only: `git config user.name Claude`, `git config user.email
+  noreply@anthropic.com`; never `--global`) and ends with the session's `Co-Authored-By:` trailer. The
+  Regent's name and address are never borrowed: an agent's commit under them shows as *Unverified* on the
+  host and hides whose work it is. A published commit with the wrong author stays as it is (no history
+  rewrite); the next one is right.
 - Stage only the files that belong to the work. Other uncommitted changes in the tree are the
   Regent's: leave them untouched and unstaged.
 - One step per commit, verification green at each step. Format-only differences (spaces,
@@ -98,6 +111,9 @@ layout, installing system software, and **anything that touches cloud, productio
 `scripts/hook-hazard.py` asks for the destructive ones before they run and, once one has reached the
 project, refuses file writes that no permit from the `po` or `qa` agent covers, until the Regent says a
 release verb (§9; `library/hooks.md` §2). The agent that needs a permit never grants it.
+In auto mode and in headless runs these lines reach the classifier through `library/automode.json`, and
+a headless run, which nobody can answer, reads every *ask first* as a denial it reports
+(`library/automation.md`).
 
 ## 6. Scope and ownership
 
@@ -125,6 +141,9 @@ release verb (§9; `library/hooks.md` §2). The agent that needs a permit never 
 - **Acts are never rewritten**: ladder plans, gate sheets (`GT-##`), opinions, closed Orders (`ORD-####`)
   and dated handoffs. Add a new one instead; `scripts/hook-acts-guard.py` refuses the rewrite. The
   path-scoped copy of this section is `library/rules/guideline-docs.md`.
+- New material goes to the **specific part** it belongs to (`library/layouts.md` §2), preferred over a
+  common-sense folder. A part that stays underused is reworked or cut, by the Regent's decision;
+  `/regency:health` reports it (`library/health.md`).
 - Do not create files nobody asked for. Smallest sufficient answer first; depth on request.
 
 ## 8. Reporting
@@ -151,22 +170,29 @@ command named in context, and a release verb ends the hazard watch. Edit the tab
 | handoff, retomada, resumo | close the stretch and hand the state over | `/regency:order:handoff` |
 | retome | reopen from the shortcuts index only | `/regency:order:resume` |
 | chame o TEAM | one orchestrated pass | `/regency:team` |
+| health check, checkup | every health check that applies here, one line per finding | `/regency:health` |
+| release the kraken, solte o kraken | two full teams, passes chained on the declared fuel; it is not a release verb | `/regency:team:extreme-go-horse` |
 | libere, release | end the hazard watch: file writes stop asking | `hook-hazard.py --clear` |
 
 ## 10. Returning to a repository
 
 Work resumes from **traces**, not from memory. On returning to a project:
 
+0. **The version gate**: `python scripts/migrate.py gate`. Exit 1: the project is behind the installed
+   regency, or carries no stamp — say "I need to update this before going on" and offer `/regency:update`;
+   nothing else writes into the project first. Exit 2: the project is on a newer regency — say "I can't go
+   on: this project is newer" and stop; the plugin is what must be updated (`library/migrations/README.md`).
 1. **First peek: the work ledger** (`.shortcuts/.virtual/ongoing.json`, `python scripts/vp.py ongoing`):
    what is `ongoing`, what is `review`, `blocked`, and what is merely `backlog`. The session already
-   opens with a one-line resume slice (ledger counts, STALE lines, latest Order, last checkpoint) from
-   `scripts/hook-resume.py`.
+   opens with a one-line resume slice (ledger counts, STALE lines, latest Order, last checkpoint, the entry
+   index's check and drift counts) from `scripts/hook-resume.py`; `python scripts/shortcuts.py peek` gives the
+   index whole with its live state in one call (`library/shortcuts.md`).
 2. **Gather every trace of agent work** (`python scripts/vp.py trace`): uncommitted files, unmerged
    branches, stashes, recent commits, recently touched guidelines, `STALE` lines, Orders, and the
    checkpoint journal (`python scripts/hook-journal.py --tail 20`).
 3. **Reconcile** the two (ghosts, orphan work, stale claims — `library/virtualpath.md` §3) and ask the
    Regent about anything that is a decision. Never adopt orphan work silently.
-4. Then read the project's entry index and go to the line.
+4. Then read the project's entry index (or the `peek` above) and go to the line.
 
 While working, keep the ledger true without asking: it is the agent's own index. Details of the model:
 `library/virtualpath.md` §3.
@@ -174,14 +200,14 @@ While working, keep the ledger true without asking: it is the agent's own index.
 ## 11. Task granulation
 
 The Regent breaks a solution into four levels named on a **Big-O** basis: **O4** the Solution (no
-nickname), **O3** Modules `M##` (decoupled features), **O2** Steps `D##` (the *degrau* of the development
+nickname), **O3** Modules `M##` (decoupled features), **O2** Steps `S##` (the *degrau* of the development
 ladder, dependent concepts) and **O1** Tasks `T##` (one code file). A task is conducted through seven
 fixed, numbered Phases **F0–F6**, bound to the Business Rules, and every commit builds. Full protocol:
 `library/task-granulation.md`.
 
 ## 12. Ids
 
-Every prefix regency uses — `M##.D##.T##`, `O1`–`O4`, `F0`–`F6`, `GT-##` (gates), `UX-UI-##` (UI rules),
+Every prefix regency uses — `M##.S##.T##`, `O1`–`O4`, `F0`–`F6`, `GT-##` (gates), `UX-UI-##` (UI rules),
 `ORD-####` (Orders), `C-##` (conflicts), the `RGN` labels — is defined once, with its grammar, in
 `library/ids.md`. A new id is added there before it is used; `scripts/conventions_check.py` validates
 the grammar.

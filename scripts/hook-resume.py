@@ -4,7 +4,7 @@
 Decision record R4.2. On startup, resume, clear and compact, for a project that has guidelines:
 
   regency resume · ledger 1 ongoing / 1 review / 1 blocked / 2 backlog · STALE 1 · latest Order ORD-0001
-  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.D01.T01) · first peek: shortcuts.py peek, vp.py trace
+  · last checkpoint 2026-10-09T20:10-03:00 Edit src/Page.razor (M01.S01.T01) · shortcuts check 0 · drift 0 · first peek: shortcuts.py peek, vp.py trace
 
 A project without guidelines gets nothing (the plugin is silent outside the Regent's projects).
 SessionStart plain output becomes context; this script answers with additionalContext JSON instead,
@@ -28,6 +28,8 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
+import idx  # noqa: E402  (summary(): the exact index, virtualpath §6)
+import migrate  # noqa: E402  (gate(): the project's stamp against the installed regency, migrations §2)
 import shortcuts  # noqa: E402  (summary_part(): index check and drift counts, R7)
 
 _spec = importlib.util.spec_from_file_location("hook_journal", HERE / "hook-journal.py")
@@ -47,7 +49,9 @@ def ledger_part(vdir):
     except ValueError:
         return "ledger UNREADABLE (vp.py ongoing)"
     counts = {s: sum(1 for it in items if it.get("state") == s) for s in STATES}
-    return "ledger " + " / ".join(f"{counts[s]} {s}" for s in STATES)
+    drafts = sum(1 for it in items if it.get("state") == "draft")
+    unverified = f" / {drafts} draft UNVERIFIED" if drafts else ""  # a speed mode's output (SPEED_MODES §6)
+    return "ledger " + " / ".join(f"{counts[s]} {s}" for s in STATES) + unverified
 
 
 def stale_count(g):
@@ -81,10 +85,14 @@ def line_for(repo, source=None):
         return None
     vdir = wire.virtual_dir(repo)
     stale = stale_count(g)
+    try:
+        code, version = migrate.gate(repo)
+    except (OSError, ValueError, KeyError):
+        code, version = 0, None
     return wire.one_line(f"regency resume{' after ' + source if source in ('compact', 'clear') else ''}",
-                         ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
-                         checkpoint_part(vdir), shortcuts.summary_part(shortcuts.locate(repo)),
-                         "first peek: shortcuts.py peek, vp.py trace")
+                         f"VERSION: {version}" if code else None, ledger_part(vdir), f"STALE {stale}" if stale else None, latest_order(g),
+                         checkpoint_part(vdir), idx.summary(vdir) if vdir else None,
+                         shortcuts.summary_part(shortcuts.locate(repo)), "first peek: shortcuts.py peek, vp.py trace")
 
 
 def respond(event):
@@ -112,8 +120,9 @@ def selftest():
             ("ledger 1 ongoing / 1 review / 1 blocked / 2 backlog" in out, "ledger counted by state"),
             ("STALE 1" in out, "STALE lines counted"),
             ("latest Order ORD-0001" in out, "latest Order named"),
-            ("shortcuts check " in out and "drift " in out, "shortcuts index and drift counted (R7)"),
             ("Edit src/Page.razor" in out, "last checkpoint read back"),
+            ("shortcuts check " in out and "no store yet (shortcuts.py index)" in out and "shortcuts.py peek" in out,
+             "shortcuts: the index checked; no store yet, so no drift claimed (R7)"),
             ("\n" not in out and len(out) <= wire.MAX_LINE, "one slice line, capped"),
             ("after compact" in text(respond({"hook_event_name": "SessionStart", "source": "compact", "cwd": str(root)})),
              "compaction is named"),
@@ -121,7 +130,27 @@ def selftest():
              "guidelines without .virtual: says so"),
             (respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(plain)}) is None,
              "no guidelines: silent"),
+            ("index absent (idx.py build)" in out, "no index: the line says how to build one"),
         ]
+        idx.build(root, root / ".guidelines/.shortcuts/.virtual", guidelines_only=True)
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append((re.search(r"index \d+ nodes", out) is not None, f"with an index: its size is named ({out[-90:]})"))
+        cases.append((re.search(r"shortcuts check \d+ · drift \d+", out) is not None, "with a store: drift counted"))
+        cases.append(("draft" not in out, "no draft item, no draft count"))
+        led = root / ".guidelines/.shortcuts/.virtual/ongoing.json"
+        data = json.loads(led.read_text(encoding="utf-8"))
+        data["items"].append({"id": "M04.S01.T01", "title": "f", "state": "draft", "where": ["branch:plumbing"]})
+        led.write_text(json.dumps(data), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("2 backlog / 1 draft UNVERIFIED" in out, f"drafts counted apart, marked unverified ({out[:90]})"))
+        cases.append(("VERSION: this project carries no regency stamp" in out, "an unstamped project is named first"))
+        stamp = root / ".guidelines" / migrate.STAMP
+        stamp.write_text(json.dumps({"schema": 1, "regency": migrate.installed()}), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("VERSION" not in out, "a project on the installed version says nothing about it"))
+        stamp.write_text(json.dumps({"schema": 1, "regency": "999.0"}), encoding="utf-8")
+        out = text(respond({"hook_event_name": "SessionStart", "source": "startup", "cwd": str(root)}))
+        cases.append(("newer than the installed" in out and "update the plugin" in out, "a newer project is named"))
         return wire.check([(ok, label) for ok, label in cases])
 
 

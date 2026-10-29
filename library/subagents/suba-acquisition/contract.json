@@ -1,0 +1,134 @@
+{
+  "description": "The return contract of suba-acquisition: the body of its envelope (envelope.schema.json, ALIGNMENT §10).",
+  "returns": {
+    "type": "object",
+    "required": [
+      "landed",
+      "structure",
+      "limits",
+      "unknowns"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "landed": {
+        "type": "object",
+        "required": [
+          "artefacts",
+          "watermark"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "artefacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "manifest",
+                "sha256"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "$ref": "envelope#/$defs/path",
+                  "description": "a landed payload"
+                },
+                "manifest": {
+                  "$ref": "envelope#/$defs/path",
+                  "description": "its manifest"
+                },
+                "sha256": {
+                  "$ref": "envelope#/$defs/sha256"
+                }
+              }
+            }
+          },
+          "watermark": {
+            "enum": [
+              "advanced",
+              "not-advanced"
+            ],
+            "description": "watermark"
+          }
+        }
+      },
+      "structure": {
+        "type": "object",
+        "required": [
+          "schema",
+          "profiles",
+          "drift"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "description": "path of the inferred schema, or an artefact name"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "profile"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "field"
+                },
+                "profile": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "its profile"
+                }
+              }
+            }
+          },
+          "drift": {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "quantified",
+                  "none",
+                  "no-baseline"
+                ],
+                "description": "drift against the baseline"
+              },
+              "detail": {
+                "type": "string",
+                "minLength": 1,
+                "description": "the drift, quantified"
+              }
+            }
+          }
+        }
+      },
+      "limits": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a rate, auth or availability limit"
+        }
+      },
+      "unknowns": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "an unknown"
+        }
+      }
+    }
+  }
+}
