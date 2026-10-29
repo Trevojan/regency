@@ -1,6 +1,6 @@
 ---
 name: team
-description: "Regency team pass. Declare, for one pass over one unit of work, whether the PO/DV/QA/DA team should act and who does what, then dispatch the role agents with isolated context, route their returns and stop at the human review packet. Speed modes: extreme-go-horse (two teams, passes chained on declared fuel) and just-in-time (draft a range, unverified, on plumbing). Use for /regency:team, /regency:team:declare|status|reopen|extreme-go-horse|just-in-time, a unit id such as M03.D02.T04, or when asked to 'call the team', 'run a pass', 'dispatch the agents', 'who does what next', 'should the team act', 'release the Kraken'. Works on any project that has guidelines (see library/layouts.md)."
+description: "Regency team pass. Declare, for one pass over one unit of work, whether the PO/DV/QA/DA team should act and who does what, then dispatch the role agents with isolated context, route their returns and stop at the human review packet. Speed modes: extreme-go-horse (two teams, passes chained on declared fuel) and just-in-time (draft a range, unverified, on plumbing). Use for /regency:team, /regency:team:declare|status|reopen|extreme-go-horse|just-in-time, a unit id such as M03.S02.T04, or when asked to 'call the team', 'run a pass', 'dispatch the agents', 'who does what next', 'should the team act', 'release the Kraken'. Works on any project that has guidelines (see library/layouts.md)."
 argument-hint: "[unit] | declare | status | reopen <unit> | extreme-go-horse [range] fuel=<n> | just-in-time <from> <to>"
 ---
 
@@ -60,14 +60,14 @@ around it.
 | Invocation | Meaning |
 |---|---|
 | `/regency:team` | the next unit: the first **active** task (state `active`) of the module in flight, per the checklist; `blocked` and `revoked` tasks are skipped |
-| `/regency:team M03.D02.T04` | that unit (the span is read from the task, e.g. `[F1–F3]`) |
+| `/regency:team M03.S02.T04` | that unit (the span is read from the task, e.g. `[F1–F3]`) |
 | `/regency:team:declare [unit]` (or `/regency:team declare`) | declare only; dispatch nothing |
 | `/regency:team:status` (or `/regency:team status`) | no new pass — report open packets, review queue, regime, returns in flight |
-| `/regency:team:reopen M03.D02.T04` (or `/regency:team reopen …`) | a reopening: new pass, fresh context, labelled as a reopening (`ORCHESTRATION.md` §6) |
+| `/regency:team:reopen M03.S02.T04` (or `/regency:team reopen …`) | a reopening: new pass, fresh context, labelled as a reopening (`ORCHESTRATION.md` §6) |
 | `/regency:team:extreme-go-horse [range] fuel=<n>\|fuel=all` | speed mode: two full teams, chained passes until the declared fuel runs out (§ *Speed modes*) |
-| `/regency:team:just-in-time M01.D01.T01 M03.D06.T09` | speed mode: draft every task of the range, DRAFT/UNVERIFIED on plumbing (§ *Speed modes*) |
+| `/regency:team:just-in-time M01.S01.T01 M03.S06.T09` | speed mode: draft every task of the range, DRAFT/UNVERIFIED on plumbing (§ *Speed modes*) |
 
-**Identifiers come from the tree, never from typing:** `M03` is a module, `M03.D02` its second step, `M03.D02.T04` the fourth task of that step, `[F1–F3]` the span the task declared. A code typed by hand diverges from the tree, and from then on the plan stops describing the repository. If the project still uses the classic grammar `M<n>.F<k>.T<nn>`, read `F<k>` as the span (`library/team/references/vocabulary-map.md`).
+**Identifiers come from the tree, never from typing:** `M03` is a module, `M03.S02` its second step, `M03.S02.T04` the fourth task of that step, `[F1–F3]` the span the task declared. A code typed by hand diverges from the tree, and from then on the plan stops describing the repository. If the project still uses the classic grammar `M<n>.F<k>.T<nn>`, read `F<k>` as the span (`library/team/references/vocabulary-map.md`).
 
 If the unit cannot be resolved from the arguments and the checklist, ask one closed question
 listing the candidates (a pop-up). Do not guess a unit. A unit may also arrive from an Order
@@ -322,7 +322,7 @@ ALWAYS emit this block first, whatever the decision:
 
 ```yaml
 pass:
-  unit: M03.D02.T04            # derived from the tree, or UNRESOLVED
+  unit: M03.S02.T04            # derived from the tree, or UNRESOLVED
   task_state: active | blocked | revoked
   reopening: false
   cites: BR7                   # the norm; ratified: true | false
@@ -352,7 +352,7 @@ pass:
 Then the events, one line each (TEAM §7.11):
 
 ```text
-EVENT DECISION_MADE M03.D02.T04 ORCH check-8
+EVENT DECISION_MADE M03.S02.T04 ORCH check-8
 ```
 
 Then at most five lines of prose: the decision, what decided it, and what the human needs to
@@ -366,7 +366,7 @@ name the artefact whose arrival would release the pass.
 ```yaml
 decision: HOLD
 decided_by: "check 1 — ORCHESTRATION §18, the queue is the ceiling"
-next: human decides on the M03.D02.T03 review packet
+next: human decides on the M03.S02.T03 review packet
 ```
 
 No stage is dispatched, including ones that look harmless. Dispatching into a full queue only

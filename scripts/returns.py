@@ -766,7 +766,7 @@ def selftest():
         return {f for f, _ in found}
 
     # ---- role packets
-    good_dv = ("gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.D02.T04\nask: verify\n"
+    good_dv = ("gov: order=G1 · mode=self · element=action · from=DV · to=QA · unit=M03.S02.T04\nask: verify\n"
                "```yaml\nchange_notes:\n  touched_paths: [src/a.py]\n  touched_phases: [F2]\n  surface_changed: false\n"
                "  rollback: revert commit 1a2b3c\n  new_tests: [test_split]\n```\nSUCCESS built, probes green, handed to QA")
     cases.append((check_stage(good_dv, st["dv.build"], states) == [], "stage: a sound DV build passes"))
@@ -798,7 +798,7 @@ def selftest():
         return c
 
     cases.append((run(3, {"$ref": "#/$defs/n"}).misses == [] and run(1, {"$ref": "#/$defs/n"}).misses, "$ref to local $defs"))
-    cases.append((run("M03.D02.T04", {"$ref": "ids:unit"}).misses == [] and run("M3", {"$ref": "ids:unit"}).misses,
+    cases.append((run("M03.S02.T04", {"$ref": "ids:unit"}).misses == [] and run("M3", {"$ref": "ids:unit"}).misses,
                   "ids:unit comes from library/ids.md"))
     cases.append((run("QA", {"$ref": "gov:role"}).misses == [] and run("XX", {"$ref": "gov:role"}).misses, "gov:role from gov.py"))
     cases.append((run(True, {"type": "integer"}).misses and run(2, {"type": "integer"}).misses == [], "a boolean is not an integer"))

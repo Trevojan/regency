@@ -84,11 +84,11 @@ A pointer inside a `⟨hole⟩` of the template is still unfilled and is not che
 | version | 2.3 |
 | regency | 2.12 |
 | ledger | 1 ongoing / 1 draft / 1 review / 1 blocked / 2 backlog (updated 2026-10-26) |
-| ongoing | M01.D01.T01 splitter → mutation round |
-| draft | M02.D01.T01 parser (UNVERIFIED) |
-| review | M01.D01.T02 board |
-| blocked | M01.D02.T01 ← RGN |
-| last checkpoint | 2026-10-26T11:40:02-03:00 Edit src/Board.cs (M01.D01.T01) |
+| ongoing | M01.S01.T01 splitter → mutation round |
+| draft | M02.S01.T01 parser (UNVERIFIED) |
+| review | M01.S01.T02 board |
+| blocked | M01.S02.T01 ← RGN |
+| last checkpoint | 2026-10-26T11:40:02-03:00 Edit src/Board.cs (M01.S01.T01) |
 | STALE | 1 |
 | latest Order | ORD-0003 |
 <!-- /shortcuts:state -->

@@ -39,7 +39,7 @@ def grammar(name):
 
 
 def unit_key(unit):
-    """Ladder order: the numbers of each segment, in position (M03.D02.T04 -> (3, 2, 4))."""
+    """Ladder order: the numbers of each segment, in position (M03.S02.T04 -> (3, 2, 4))."""
     return tuple(int(n) for n in re.findall(r"\d+", unit.split(" ")[0]))
 
 
@@ -278,48 +278,48 @@ def selftest():
 
     ok(fuel(["M01", "fuel=3"]) == ("3", None), "fuel=3 is three passes")
     ok(fuel(["fuel=ALL"]) == ("all", None), "fuel=all")
-    ok(fuel(["M01.D01.T01"])[1] == REFUSAL, "no fuel: the one-line refusal")
+    ok(fuel(["M01.S01.T01"])[1] == REFUSAL, "no fuel: the one-line refusal")
     ok(fuel(["fuel=0"])[0] is None, "fuel=0 refused")
     ok(fuel(["fuel=lots"])[0] is None, "fuel=lots refused")
     ok(fuel(["fuel=2", "fuel=3"])[0] is None, "fuel declared twice refused")
 
-    r, p = unit_range("M01.D01.T01", "M03.D06.T09")
+    r, p = unit_range("M01.S01.T01", "M03.S06.T09")
     ok(not p and r["modules"] == ["M01", "M02", "M03"], f"a range covers its modules: {r}")
-    ok(unit_range("M03.D01.T01", "M01.D01.T01")[1], "a range backwards is refused")
-    ok(unit_range("M1.D1.T1")[1], "a malformed id is refused")
+    ok(unit_range("M03.S01.T01", "M01.S01.T01")[1], "a range backwards is refused")
+    ok(unit_range("M1.S1.T1")[1], "a malformed id is refused")
     ok(not unit_range("M02")[1], "one module is a range")
 
-    cards = [{"unit": "M01.D01.T01", "file": "a.py"},
-             {"unit": "M01.D01.T02", "file": "b.py", "depends_on": ["M01.D01.T01"]},
-             {"unit": "M02.D01.T01", "file": "c.py"},
-             {"unit": "M02.D01.T02", "file": "d.py", "depends_on": ["M01.D01.T01"]},
-             {"unit": "M01.D02.T01", "file": "e.py"}]
+    cards = [{"unit": "M01.S01.T01", "file": "a.py"},
+             {"unit": "M01.S01.T02", "file": "b.py", "depends_on": ["M01.S01.T01"]},
+             {"unit": "M02.S01.T01", "file": "c.py"},
+             {"unit": "M02.S01.T02", "file": "d.py", "depends_on": ["M01.S01.T01"]},
+             {"unit": "M01.S02.T01", "file": "e.py"}]
     w, p = waves(cards)
-    ok(not p and w[0] == ["M01.D01.T01", "M02.D01.T01"], f"wave 1: independent, one per module: {w}")
+    ok(not p and w[0] == ["M01.S01.T01", "M02.S01.T01"], f"wave 1: independent, one per module: {w}")
     ok(all(len({module_of(u) for u in x}) == len(x) for x in w), "never two tasks of one module in a wave")
     pos = {u: i for i, x in enumerate(w) for u in x}
     ok(all(pos[d] < pos[c["unit"]] for c in cards for d in c.get("depends_on", [])), "every dependency in an earlier wave")
     ok(sum(len(x) for x in w) == 5, "every card drafted once")
-    ok(waves(cards + [{"unit": "M03.D01.T01", "file": "a.py"}])[1], "two cards on one file refused")
-    ok(waves([{"unit": "M01.D01.T01", "file": "a", "depends_on": ["M01.D01.T02"]},
-              {"unit": "M01.D01.T02", "file": "b", "depends_on": ["M01.D01.T01"]}])[1], "a cycle is named")
-    ok(waves([{"unit": "M01.D01.T01", "file": "a", "depends_on": ["M09.D01.T01"]}])[1], "a dependency with no card")
+    ok(waves(cards + [{"unit": "M03.S01.T01", "file": "a.py"}])[1], "two cards on one file refused")
+    ok(waves([{"unit": "M01.S01.T01", "file": "a", "depends_on": ["M01.S01.T02"]},
+              {"unit": "M01.S01.T02", "file": "b", "depends_on": ["M01.S01.T01"]}])[1], "a cycle is named")
+    ok(waves([{"unit": "M01.S01.T01", "file": "a", "depends_on": ["M09.S01.T01"]}])[1], "a dependency with no card")
 
     p1 = {"packet": 1, "mode": "extreme-go-horse", "run": "kraken-2026-10-28-1", "pass": 1,
-          "fuel": {"declared": "3", "used": 1}, "range": {"from": "M01.D01.T01", "to": "M02.D01.T05"},
+          "fuel": {"declared": "3", "used": 1}, "range": {"from": "M01.S01.T01", "to": "M02.S01.T05"},
           "teams": {"A": {"span": ["M01"], "models": {"dv": "sonnet", "qa": "opus"}},
                     "B": {"span": ["M02"], "models": {"dv": "sonnet", "qa": "opus"}}},
-          "tasks": [{"unit": "M01.D01.T01", "team": "A", "gate": "green", "verdict": "pass", "ledger": "review"},
-                    {"unit": "M02.D01.T01", "team": "B", "gate": "green", "verdict": "return", "ledger": "ongoing"},
-                    {"unit": "M02.D01.T02", "team": "B", "gate": "red", "verdict": "not-reviewed", "ledger": "ongoing"}],
-          "returns": [{"unit": "M02.D01.T01", "team": "B", "from": "QA", "key": "defect-a", "attempts": 1, "artefact": "r/1.md"},
-                      {"unit": "M02.D01.T02", "team": "B", "from": "gate", "key": "gate-red", "attempts": 1, "artefact": "r/2.log"}],
+          "tasks": [{"unit": "M01.S01.T01", "team": "A", "gate": "green", "verdict": "pass", "ledger": "review"},
+                    {"unit": "M02.S01.T01", "team": "B", "gate": "green", "verdict": "return", "ledger": "ongoing"},
+                    {"unit": "M02.S01.T02", "team": "B", "gate": "red", "verdict": "not-reviewed", "ledger": "ongoing"}],
+          "returns": [{"unit": "M02.S01.T01", "team": "B", "from": "QA", "key": "defect-a", "attempts": 1, "artefact": "r/1.md"},
+                      {"unit": "M02.S01.T02", "team": "B", "from": "gate", "key": "gate-red", "attempts": 1, "artefact": "r/2.log"}],
           "escalations": [], "seam": {"findings": []}}
     ok(check_packet(p1) == [], f"a sound first packet holds: {check_packet(p1)}")
     p2 = json.loads(json.dumps(p1))
     p2.update(**{"pass": 2, "fuel": {"declared": "3", "used": 2}})
-    p2["tasks"] = [{"unit": "M02.D01.T01", "team": "B", "gate": "green", "verdict": "pass", "ledger": "review"}]
-    p2["returns"] = [{"unit": "M02.D01.T02", "team": "B", "from": "gate", "key": "gate-red", "attempts": 2, "artefact": "r/3.log"}]
+    p2["tasks"] = [{"unit": "M02.S01.T01", "team": "B", "gate": "green", "verdict": "pass", "ledger": "review"}]
+    p2["returns"] = [{"unit": "M02.S01.T02", "team": "B", "from": "gate", "key": "gate-red", "attempts": 2, "artefact": "r/3.log"}]
     ok(check_packet(p2, p1) == [], f"a sound second packet holds: {check_packet(p2, p1)}")
 
     def miss(fn, text, base=p1, prev=None):
@@ -341,24 +341,24 @@ def selftest():
     miss(lambda k: k["tasks"][0].update(verdict="approved"), "verdict is one of")
     miss(lambda k: k["returns"][0].update(attempts=3), "a third failure is an escalation")
     miss(lambda k: k["returns"][0].update(artefact=""), "names no artefact")
-    miss(lambda k: k["escalations"].append({"unit": "M02.D01.T01", "attempts": 3, "to": "RGN"}), "both carried and escalated")
-    miss(lambda k: k["escalations"].append({"unit": "M02.D01.T09", "attempts": 2, "to": "RGN"}), "follows the third failure")
+    miss(lambda k: k["escalations"].append({"unit": "M02.S01.T01", "attempts": 3, "to": "RGN"}), "both carried and escalated")
+    miss(lambda k: k["escalations"].append({"unit": "M02.S01.T09", "attempts": 2, "to": "RGN"}), "follows the third failure")
     miss(lambda k: k.update(returns=[]), "was dropped", base=p2, prev=p1)
     miss(lambda k: k["returns"][0].update(attempts=1), "one more per pass", base=p2, prev=p1)
     miss(lambda k: k.update(**{"pass": 3}), "does not follow", base=p2, prev=p1)
 
     w1 = {"packet": 1, "mode": "just-in-time", "run": "jit-2026-10-28-1", "wave": 1,
-          "units": [{"unit": "M01.D01.T01", "file": "a.py", "ledger": "draft"},
-                    {"unit": "M02.D01.T01", "file": "c.py", "ledger": "draft"}],
+          "units": [{"unit": "M01.S01.T01", "file": "a.py", "ledger": "draft"},
+                    {"unit": "M02.S01.T01", "file": "c.py", "ledger": "draft"}],
           "gate": {"builds": True, "runs": True, "contract": False},
           "fix_notes": [{"id": "FX-1-1", "note": "Money is decimal in the contract"}], "applied_fix_notes": []}
     ok(check_packet(w1) == [], f"a sound wave holds: {check_packet(w1)}")
     w2 = json.loads(json.dumps(w1))
-    w2.update(wave=2, units=[{"unit": "M01.D01.T02", "file": "b.py", "ledger": "draft"}], fix_notes=[],
+    w2.update(wave=2, units=[{"unit": "M01.S01.T02", "file": "b.py", "ledger": "draft"}], fix_notes=[],
               applied_fix_notes=["FX-1-1"], gate={"builds": True, "runs": True, "contract": True})
     ok(check_packet(w2, w1) == [], f"a sound second wave holds: {check_packet(w2, w1)}")
     miss(lambda k: k["units"][0].update(ledger="review"), "ledger is 'draft'", base=w1)
-    miss(lambda k: k["units"].append({"unit": "M01.D01.T02", "file": "b.py", "ledger": "draft"}), "one task per module per wave", base=w1)
+    miss(lambda k: k["units"].append({"unit": "M01.S01.T02", "file": "b.py", "ledger": "draft"}), "one task per module per wave", base=w1)
     miss(lambda k: k["gate"].update(runs="yes"), "gate.runs", base=w1)
     miss(lambda k: k["gate"].update(accepted=True), "never accepts", base=w1)
     miss(lambda k: k.update(fix_notes=["FX-3-1"]), "is not FX-1-", base=w1)

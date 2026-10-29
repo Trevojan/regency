@@ -145,7 +145,7 @@ session end. Harmless shell commands and reads are not recorded.
 {"ts": "2026-10-09T20:28:20-03:00", "regency.event": "PostToolUse",
  "gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": "Edit", "gen_ai.tool.call.id": "toolu_…",
  "gen_ai.conversation.id": "<session>", "gen_ai.agent.name": "main",
- "regency.target": "src/Page.razor", "regency.unit": "M03.D02.T04"}
+ "regency.target": "src/Page.razor", "regency.unit": "M03.S02.T04"}
 ```
 
 Keys follow the OpenTelemetry GenAI semantic conventions so the file can be shipped to an OTel backend
@@ -157,7 +157,7 @@ After Jan Kooiman (*Modern Governance*, 1993, ed.; *Governing as Governance*, 20
 `suba-` returns opens with two lines:
 
 ```text
-gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.D02.T04
+gov: order=G2 · mode=co · element=image · from=QA · to=RGN · unit=M03.S02.T04
 ask: approve SPEC v3 (criterion C-04 untestable)
 ```
 

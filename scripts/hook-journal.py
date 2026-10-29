@@ -17,7 +17,7 @@ can be shipped to any OTel backend unchanged:
   gen_ai.operation.name  execute_tool | invoke_agent
   gen_ai.conversation.id session id      gen_ai.agent.name  agent type, or "main"
   gen_ai.tool.name / gen_ai.tool.call.id
-plus regency.event, regency.target (file or command head), regency.unit (M##.D##.T## when present).
+plus regency.event, regency.target (file or command head), regency.unit (M##.S##.T## when present).
 
 Modes:  (no args) hook · --selftest · --tail [N] (print the last N lines of this project's journal)
 Pure standard library, Python 3.8+.
@@ -162,16 +162,16 @@ def selftest():
         respond(post("Read", file_path=str(root / "src/Page.razor")))
         cases.append((len((vdir / JOURNAL).read_text(encoding="utf-8").splitlines()) == n,
                       "harmless shell and reads are not recorded"))
-        respond(post("Bash", command="git commit -m 'feat: M03.D02.T04 layout'"))
+        respond(post("Bash", command="git commit -m 'feat: M03.S02.T04 layout'"))
         got = last(vdir)
-        cases.append((got.get("regency.unit") == "M03.D02.T04", "git commit recorded with its unit"))
+        cases.append((got.get("regency.unit") == "M03.S02.T04", "git commit recorded with its unit"))
         respond(post("Bash", command="rm -rf build"))
         cases.append((last(vdir).get("regency.hazard") == "delete", "hazardous command tagged"))
         respond(dict(base, hook_event_name="SubagentStart", agent_type="qa", agent_id="a1"))
         cases.append((last(vdir).get("gen_ai.operation.name") == "invoke_agent"
                       and last(vdir).get("gen_ai.agent.name") == "qa", "subagent start recorded"))
-        respond(dict(base, hook_event_name="TaskCompleted", task_subject="M01.D01.T02 parser"))
-        cases.append((last(vdir).get("regency.unit") == "M01.D01.T02", "task completion recorded"))
+        respond(dict(base, hook_event_name="TaskCompleted", task_subject="M01.S01.T02 parser"))
+        cases.append((last(vdir).get("regency.unit") == "M01.S01.T02", "task completion recorded"))
         respond(dict(base, hook_event_name="PreCompact", trigger="auto"))
         cases.append((last(vdir).get("regency.event") == "PreCompact", "compaction checkpoint"))
         KEEP = 10

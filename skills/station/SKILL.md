@@ -23,7 +23,7 @@ Two layers, one script, `scripts/station.py`:
 ## Commands
 
 ```bash
-python <regency-root>/scripts/station.py check --unit M03.D02.T04   # the station gate; read-only
+python <regency-root>/scripts/station.py check --unit M03.S02.T04   # the station gate; read-only
 python <regency-root>/scripts/station.py gate [--task gate] [--log FILE]
 python <regency-root>/scripts/station.py scaffold            # print a proposed mise.toml
 python <regency-root>/scripts/station.py scaffold --write    # write it, only when no mise config exists

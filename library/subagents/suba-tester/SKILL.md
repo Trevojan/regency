@@ -68,7 +68,7 @@ missing field and any field the contract does not name.
   "envelope": 1,
   "suba": "suba-tester",
   "via": "owner",
-  "unit": "<unit, e.g. M03.D02.T04 [F1–F3]>",
+  "unit": "<unit, e.g. M03.S02.T04 [F1–F3]>",
   "gov": {
     "order": "<G1 | G2 | G3>",
     "mode": "self",
@@ -82,7 +82,7 @@ missing field and any field the contract does not name.
     "strategy": {
       "surfaces": [{"surface": "<a surface>", "technique": "<its technique>", "reason": "<why that technique>"}],
       "invariants": [{"invariant": "<an invariant worth defending>", "criterion": "<the criterion it defends>"}],
-      "coherence": [{"step": "<a delivered step, e.g. M03.D02.T04 [F1–F3]>", "case": "<the live case it keeps>"}],
+      "coherence": [{"step": "<a delivered step, e.g. M03.S02.T04 [F1–F3]>", "case": "<the live case it keeps>"}],
       "deferred": [{"what": "<not covered>", "why": "<why it was deferred>"}]
     },
     "evidence": {

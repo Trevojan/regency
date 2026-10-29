@@ -200,14 +200,14 @@ While working, keep the ledger true without asking: it is the agent's own index.
 ## 11. Task granulation
 
 The Regent breaks a solution into four levels named on a **Big-O** basis: **O4** the Solution (no
-nickname), **O3** Modules `M##` (decoupled features), **O2** Steps `D##` (the *degrau* of the development
+nickname), **O3** Modules `M##` (decoupled features), **O2** Steps `S##` (the *degrau* of the development
 ladder, dependent concepts) and **O1** Tasks `T##` (one code file). A task is conducted through seven
 fixed, numbered Phases **F0–F6**, bound to the Business Rules, and every commit builds. Full protocol:
 `library/task-granulation.md`.
 
 ## 12. Ids
 
-Every prefix regency uses — `M##.D##.T##`, `O1`–`O4`, `F0`–`F6`, `GT-##` (gates), `UX-UI-##` (UI rules),
+Every prefix regency uses — `M##.S##.T##`, `O1`–`O4`, `F0`–`F6`, `GT-##` (gates), `UX-UI-##` (UI rules),
 `ORD-####` (Orders), `C-##` (conflicts), the `RGN` labels — is defined once, with its grammar, in
 `library/ids.md`. A new id is added there before it is used; `scripts/conventions_check.py` validates
 the grammar.
