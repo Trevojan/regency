@@ -28,7 +28,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / ".claude-plugin" / "plugin.json"
-SHIPPED = [".claude-plugin", "CLAUDE.md", "README.md", "commands", "hooks", "library", "scripts", "skills"]
+SHIPPED = [".claude-plugin", "CLAUDE.md", "README.md", "LICENSE", "commands", "hooks", "library", "scripts", "skills"]
+REPO_ONLY = {"CONTRIBUTING.md"}  # the repository's own pages; a .plugin does not need them
 SKIP_DIRS = {"__pycache__", ".git", "node_modules"}
 SKIP_FILES = {".DS_Store", "Thumbs.db"}
 SKIP_SUFFIXES = {".pyc", ".pyo", ".plugin"}
@@ -106,7 +107,7 @@ def main():
         found.append("generated files are out of date: run python scripts/build.py (" + build_report + ")")
 
     stray = sorted(p.name for p in ROOT.iterdir() if p.name not in SHIPPED
-                   and p.name not in {"discard", "dist"} and not p.name.startswith("."))
+                   and p.name not in {"discard", "dist"} | REPO_ONLY and not p.name.startswith("."))
     for name in stray:
         print(f"note  not shipped (outside the allowlist): {name}")
     print(f"plugin {manifest.get('name')} {manifest.get('version')} · {len(files)} files · {len(skills)} skills")
