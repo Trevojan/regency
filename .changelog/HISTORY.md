@@ -6,9 +6,9 @@ one, the section says which.
 
 ---
 
-## 4.0
+## 3.1
 
-2026-10-29 · branch `plumbing` · record R15 · `+a`: a major rule reinterpreted (R5.2's hazard watch)
+2026-10-29 · branch `plumbing` · record R15 · `+b`: a content change on 3.0 (the Regent: "this is no major update")
 
 The Regent: "we need to get rid of the hazard watch. it is actually weighting as a headache"; "management of
 connectors and permissions became also part of Regent's work. what if automatizing it too?"; a Judge, "JD.md",

@@ -38,7 +38,7 @@ One line per version: the decision, not the file list. Detail in [`HISTORY.md`](
 
 | version | what it decided |
 |---|---|
-| **4.0** | the Judge: the Regent's grants (where, how, session / repo / machine / a named file) answer the hazard hook's ask ahead of time; nothing locks the session after a destructive step |
+| **3.1** | the Judge: the Regent's grants (where, how, session / repo / machine / a named file) answer the hazard hook's ask ahead of time; nothing locks the session after a destructive step |
 | **3.0** | domain packs: any Claude Code plugin or skill adopted as it is, switched on per project, its hooks run only once the Regent ratifies them; a pack adds guards, never removes one |
 | **2.13** | the public face: purpose description, the `S##` step, an SDK-style homepage, MIT, community files and CI, this folder; one line of history, old branches archived |
 | **2.12** | one line of work: four split copies consolidated; R7's shortcuts on idx's one store; health checks version and copies |
