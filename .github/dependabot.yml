@@ -1,0 +1,11 @@
+# regency has no Python dependencies. Dependabot watches the Actions the workflows pin by SHA
+# and opens version updates on plumbing, the first branch of the contract.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: plumbing
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "fix(ci)"

@@ -1,0 +1,30 @@
+# The harness checks itself: generated files in sync, then doctor (every self-test, the wiring,
+# portability, the conventions). Read-only token, no secrets, one action pinned to a full commit SHA.
+# Runs from forks wait for the maintainer's approval (Settings → Actions → General).
+name: doctor
+
+on:
+  pull_request:
+  push:
+    branches: [main, testing, "plumbing*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: doctor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  doctor:
+    name: doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Generated files are in sync
+        run: python3 scripts/build.py --check
+      - name: doctor
+        run: python3 scripts/doctor.py
