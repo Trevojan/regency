@@ -8,7 +8,7 @@ one, the section says which.
 
 ## 2.13
 
-2026-10-29 · branch `plumbing`, merged up to `testing` and `main` · record R13
+2026-10-29 · branch `plumbing`, merged up to `testing`; `main` on the Regent's push · record R13
 
 **Added**
 
@@ -41,8 +41,9 @@ one, the section says which.
 **Lines of work joined.** Git held two histories with no common root: `main` (2.2 baseline, 2.3) and
 `plumbing` (2.4) on one; 2.8 → 2.13 on the other. A merge commit on `plumbing` joined them with 2.13's tree
 whole, after checking that every 2.3 addition is in 2.13 verbatim or superseded and that 2.4 is superseded by
-2.12's port. `testing` was created from it and `main` fast-forwarded to it. The branches `regency-2.10`,
-`plumbing-2.12` and `plumbing-2.13` retired as tags `archive/<name>`.
+2.12's port. `testing` was created from it; `main`, an ancestor of the joined line, takes it on the Regent's
+push. The branches `regency-2.10`, `plumbing-2.12` and `plumbing-2.13` retire as tags `archive/<name>`
+(`CHECKPOINT.md` lists their tips).
 
 **Proof.** doctor 0 fail (30 WARN: old level names in `library/orders/` and `library/team/`, suba alignment
 stamps, machine-side installs); conventions selftest with the `steps` and `changelog` defects planted; guard-push

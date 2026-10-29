@@ -80,8 +80,9 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N13 | the Regent's local folder still holds work on 2.4 | switch it to `plumbing` after discarding, or keep until accepted |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
-Closed with 2.13: N12 (the old branches merged and archived), N15 (where 2.13 landed), N16 (`main` shows the
-homepage), N17 (community files).
+Closed with 2.13: N12 (the old branches merged into one line; their retirement is the Regent's act,
+`CHECKPOINT.md`), N15 (where 2.13 landed), N17 (community files). N16 (`main` shows the homepage) closes with
+the Regent's merge of `testing` into `main`.
 
 ## Candidates seen while building
 
