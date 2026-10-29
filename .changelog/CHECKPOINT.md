@@ -1,4 +1,4 @@
-# Checkpoint · regency 4.0 · 2026-10-29
+# Checkpoint · regency 3.1 · 2026-10-29
 
 Rewritten in place each time the version moves or the state below changes. The road to here is in
 [`HISTORY.md`](HISTORY.md); the road ahead in [`ROADMAP.md`](ROADMAP.md).
@@ -7,13 +7,13 @@ Rewritten in place each time the version moves or the state below changes. The r
 
 | Where | Version | Note |
 |---|---|---|
-| `library/registry.json`, `.claude-plugin/plugin.json` | 4.0 | doctor fails when they differ |
-| the Regent's folder, branch `plumbing` | 4.0 | built there through the device bridge; on GitHub after the Regent's push |
+| `library/registry.json`, `.claude-plugin/plugin.json` | 3.1 | doctor fails when they differ |
+| the Regent's folder, branch `plumbing` | 3.1 | built there through the device bridge; on GitHub after the Regent's push |
 | GitHub `plumbing`, `testing`, `main` | 3.0 | all three at `b4ec8cb` |
-| a release tag | none yet | `v3.0` can go out from `main` now; the README's pinned install on `plumbing` points at `v4.0` |
+| a release tag | none yet | `v3.0` can go out from `main` now; the README's pinned install on `plumbing` points at `v3.1` |
 | the Claude account | last seen 3.0 | a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
 
-## What 4.0 added
+## What 3.1 added
 
 The Judge (`library/judge.md`): the Regent's grants say where and how a delete, discard, history rewrite or
 worktree change may run without regency's ask, for this session, the repository (`JD.md`), this machine or a
@@ -39,7 +39,7 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 
 ## Next, in order
 
-1. The Regent pushes `plumbing` (4.0) from the folder; CI runs doctor there, then `testing` and `main` follow.
+1. The Regent pushes `plumbing` (3.1) from the folder; CI runs doctor there, then `testing` and `main` follow.
 2. Publish the release `main` holds, with its `.plugin` attached, and test the pinned install line.
 3. Re-install the role agents (`python scripts/install-agents.py`): the `po` and `qa` contracts changed.
 4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
