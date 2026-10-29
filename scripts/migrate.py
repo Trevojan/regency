@@ -38,6 +38,7 @@ GUIDELINE_PROBES = (".guidelines", "Docs/.guidelines", "docs/.guidelines")  # li
 STAMP = ".shortcuts/regency.json"
 KINDS = ("mkdir", "rename", "move", "delete", "rewrite", "create", "replace", "beside", "stamp")
 UPDATE_PLUGIN = "claude plugin marketplace update regency, then claude plugin update regency@regency"
+BEFORE = re.compile(r"^[\w-]+\.py$")  # a step's `before`: one of regency's own scripts, run first
 
 
 # ---------- versions, fingerprints, places ---------------------------------------------------------
@@ -112,6 +113,19 @@ def forbidden(rel):
     kind = act_kind(Path(rel).name)
     if kind:
         return f"an act ({kind[0] if isinstance(kind, tuple) else kind}) is never rewritten"
+    return None
+
+
+def before_refused(op, root):
+    """Why a step's `before` may not run, or None. It names one of regency's own scripts and its arguments
+    (["shortcuts.py", "migrate"]); the script is run with --repo <project> right before the operation."""
+    cmd = op.get("before")
+    if cmd is None:
+        return None
+    if not isinstance(cmd, list) or not cmd or not all(isinstance(a, str) for a in cmd) or not BEFORE.match(cmd[0]):
+        return "before: not one of regency's scripts"
+    if not (Path(root) / "scripts" / cmd[0]).is_file():
+        return f"before: scripts/{cmd[0]} is not in this regency"
     return None
 
 
@@ -199,7 +213,7 @@ def plan(start, root=ROOT):
     ops, refused = [], []
 
     def add(op):
-        why = forbidden(op["path"]) or (forbidden(op["to"]) if op.get("to") else None)
+        why = forbidden(op["path"]) or (forbidden(op["to"]) if op.get("to") else None) or before_refused(op, root)
         (refused if why else ops).append(dict(op, refused=why) if why else op)
 
     # 1. the explicit steps of every version after the stamp (all of them for an unstamped project)
@@ -313,6 +327,15 @@ def apply(start, plan_id, root=ROOT):
     lines = []
     for op in pl["ops"]:
         p = g / op["path"]
+        if op.get("before"):
+            name, *args = op["before"]
+            r = subprocess.run([sys.executable, str(Path(root) / "scripts" / name), *args, "--repo", str(repo)],
+                               cwd=str(repo), capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                tail = (r.stderr or r.stdout).strip().splitlines()[-1:] or ["no output"]
+                return 2, lines + [f"stopped at {op['n']}: {name} {' '.join(args)} exited {r.returncode} ({tail[0][:120]}); "
+                                   "the operations above are in the tree, git restore undoes them"]
+            lines.append(f"ran   {op['n']:>3}  before   {name} {' '.join(args)}")
         if op["op"] == "mkdir":
             p.mkdir(parents=True, exist_ok=True)
         elif op["op"] == "rename":
@@ -359,7 +382,8 @@ def record(root=ROOT, check_only=False):
     missing = sorted(k for k, fp in now.items() if have.get(k) != fp)
     if check_only:
         if missing:
-            return 1, (f"history.json lacks {len(missing)} template fingerprint(s) of {version} ({missing[0]} ...): "
+            more = f" and {len(missing) - 1} more" if len(missing) > 1 else ""
+            return 1, (f"history.json lacks {len(missing)} template fingerprint(s) of {version} ({missing[0]}{more}): "
                        "run python scripts/migrate.py record")
         return 0, f"history.json holds the {len(now)} templates of {version}"
     hist["versions"][version] = dict(sorted(now.items()))
@@ -380,6 +404,12 @@ def selftest():
         tmp = Path(tmp)
         reg = tmp / "regency"
         (reg / "library" / "migrations").mkdir(parents=True)
+        (reg / "scripts").mkdir()
+        (reg / "scripts" / "probe.py").write_text(
+            "import sys\nfrom pathlib import Path\nrepo = Path(sys.argv[sys.argv.index('--repo') + 1])\n"
+            "(repo / '.guidelines/.shortcuts/.virtual/imported.txt').write_text(sys.argv[1], encoding='utf-8')\n",
+            encoding="utf-8")
+        (reg / "scripts" / "fail.py").write_text("import sys\nsys.exit('cannot import')\n", encoding="utf-8")
         tpl = reg / "library" / "templates" / "guidelines"
         for rel, text in {"README.md": "root readme\n", ".guidelines/.plan/README.md": "plan v2\n",
                           ".guidelines/.decisions/README.md": "decisions v2\n",
@@ -395,11 +425,16 @@ def selftest():
             "2.1": {"guidelines/.guidelines/.plan/README.md": old_plan}}}), encoding="utf-8")
         (reg / "library" / "migrations" / "steps.json").write_text(json.dumps({"schema": 1, "steps": [
             {"to": "2.5", "ops": [{"op": "rename", "path": ".plan/OLD_NAME.md", "to": ".plan/NEW_NAME.md", "why": "renamed"},
-                                  {"op": "delete", "path": ".shortcuts/.virtual/fingerprints.json", "why": "moved to a cache"},
+                                  {"op": "delete", "path": ".shortcuts/.virtual/fingerprints.json", "why": "moved to a cache",
+                                   "before": ["probe.py", "imported"]},
+                                  {"op": "delete", "path": ".plan/OLD_TOO.md", "why": "planted: a foreign before",
+                                   "before": ["../../evil.py"]},
                                   {"op": "rewrite", "path": ".shortcuts/.virtual/ongoing.json",
                                    "replace": [["\"schema\": 1", "\"schema\": 2"]], "why": "ledger schema 2"},
                                   {"op": "delete", "path": ".orders/ORD-0001/ORD-0001.xml", "why": "planted: an act"},
                                   {"op": "delete", "path": ".scope/raw.md", "why": "planted: the Regent's material"}]},
+            {"to": "2.11", "ops": [{"op": "delete", "path": ".plan/NEW_NAME.md", "why": "planted: a failing before",
+                                    "before": ["fail.py"]}]},
             {"to": "3.0", "ops": [{"op": "mkdir", "path": ".future", "why": "beyond the installed version"}]}]}),
             encoding="utf-8")
         (reg / "library" / "registry.json").write_text('{"version": "2.10"}', encoding="utf-8")
@@ -408,7 +443,7 @@ def selftest():
 
         proj = tmp / "proj"
         g = proj / ".guidelines"
-        for rel, text in {".plan/README.md": "plan v1\n", ".plan/OLD_NAME.md": "x\n",
+        for rel, text in {".plan/README.md": "plan v1\n", ".plan/OLD_NAME.md": "x\n", ".plan/OLD_TOO.md": "y\n",
                           ".decisions/README.md": "our own decisions\n", ".shortcuts/README.md": "our index\n",
                           ".shortcuts/.virtual/fingerprints.json": "{}\n", ".shortcuts/.virtual/ongoing.json": "{\"schema\": 1}\n",
                           ".orders/ORD-0001/ORD-0001.xml": "<o/>\n", ".scope/raw.md": "raw\n"}.items():
@@ -432,6 +467,8 @@ def selftest():
         refused = {op["path"]: op["refused"] for op in pl["refused"]}
         ok("act" in (refused.get(".orders/ORD-0001/ORD-0001.xml") or ""), "an act is refused")
         ok(".scope" in (refused.get(".scope/raw.md") or ""), ".scope/ is refused")
+        ok("before" in (refused.get(".plan/OLD_TOO.md") or ""), "a before that is not one of regency's scripts is refused")
+        ok(any("[first: probe.py imported]" in l for l in show(pl)), "the plan shows what runs first")
         ok(pl["id"] and pl["id"] == plan(proj, reg)["id"], "the plan id is stable")
 
         code, lines = apply(proj, pl["id"], reg)
@@ -449,9 +486,12 @@ def selftest():
             (g / ".plan" / "scratch.md").unlink()
             ok(apply(proj, "UPD-00000000", reg)[0] == 2, "a stale plan id is refused")
             code, lines = apply(proj, pl["id"], reg)
-            ok(code == 0 and len(lines) == len(pl["ops"]), f"the plan runs ({len(lines)} ops)")
+            done = [l for l in lines if l.startswith("done")]
+            ok(code == 0 and len(done) == len(pl["ops"]), f"the plan runs ({len(done)} ops)")
             ok((g / ".plan" / "NEW_NAME.md").is_file() and not (g / ".plan" / "OLD_NAME.md").exists(), "renamed on disk")
             ok(not (g / ".shortcuts/.virtual/fingerprints.json").exists(), "deleted on disk")
+            ok((g / ".shortcuts/.virtual/imported.txt").is_file()
+               and any("before   probe.py imported" in l for l in lines), "a step's before ran first")
             ok("\"schema\": 2" in (g / ".shortcuts/.virtual/ongoing.json").read_text(), "rewritten on disk")
             ok((g / ".plan/README.md").read_text() == "plan v2\n", "replaced with the new template")
             ok((g / ".decisions/README.md").read_text() == "our own decisions\n", "the project's text is untouched")
@@ -467,6 +507,13 @@ def selftest():
             (reg / "library" / "registry.json").write_text('{"version": "2.11"}', encoding="utf-8")
             kinds = [(op["op"], op["path"]) for op in plan(proj, reg)["ops"]]
             ok(("beside", ".plan/README.md.template") in kinds, "edited after its stamp: beside, not replace")
+            git("add", "-A")
+            git("commit", "-qm", "ours")
+            code, lines = apply(proj, plan(proj, reg)["id"], reg)
+            ok(code == 2 and "stopped at" in lines[-1] and (g / ".plan/NEW_NAME.md").is_file(),
+               "a failing before stops the plan before its operation")
+            git("checkout", "-q", "--", ".")
+            git("clean", "-qfd")
             (reg / "library" / "registry.json").write_text('{"version": "2.9"}', encoding="utf-8")
             code, line = gate(proj, reg)
             ok(code == 2 and "update the plugin" in line, f"a newer project stops the older plugin ({line[:50]})")
@@ -496,7 +543,8 @@ def show(pl):
         return lines + ["nothing to do: the project fits"]
     for op in pl["ops"]:
         target = f" -> {op['to']}" if op.get("to") else ""
-        lines.append(f"{op['n']:>3}  {op['op']:<8} {op['path']}{target}   ({op.get('why', '')})")
+        first = f"   [first: {' '.join(op['before'])}]" if op.get("before") else ""
+        lines.append(f"{op['n']:>3}  {op['op']:<8} {op['path']}{target}   ({op.get('why', '')}){first}")
     for op in pl["refused"]:
         lines.append(f"  -  refused  {op['op']} {op['path']}   ({op['refused']})")
     lines.append(f"plan {pl['id']}: {len(pl['ops'])} operation(s); apply with: migrate.py apply --yes {pl['id']}")

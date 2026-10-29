@@ -68,7 +68,11 @@ When a version changes what a project must hold beyond its templates:
    | `rewrite` | `path`, `replace`: `[[old, new], …]` literal pairs | the file holds at least one `old` |
 
    Every op carries a `why`. A rewrite is only for a file regency owns (a ledger shape, a generated block):
-   the project's prose is never a target.
+   the project's prose is never a target. An op may also carry `before`: `["<script>.py", "<arg>", …]`, one
+   of regency's own scripts, run with `--repo <project>` right before the op; a non-zero exit stops the plan
+   there (what already ran stays in the tree, and git undoes it). Use it when an op would lose what a script
+   must carry first: 2.12 runs `shortcuts.py migrate` (the old `fingerprints.json` into the one store) before
+   deleting that file. The plan shows it as `[first: …]`; a `before` naming anything else is refused.
 2. When a template changed, run `python scripts/migrate.py record` after the version bump: it files the
    templates' fingerprints under the new version in `history.json`. `scripts/doctor.py` fails while one is
    missing.
