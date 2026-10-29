@@ -248,6 +248,9 @@ same value; doctor fails when they differ. A project behind the installed versio
 anything writes into it; a project ahead of it stops the session until the plugin is updated
 (`library/migrations/README.md`).
 
+Every version, the decisions behind it, the roadmap and where the work stands live in
+[`.changelog/`](.changelog/README.md): start with `CHECKPOINT.md`.
+
 ## Development
 
 ```bash

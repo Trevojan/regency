@@ -217,7 +217,8 @@ reversible. The installers never overwrite a file they did not create.
 ```text
 regency/
 ├── .claude-plugin/        plugin.json, marketplace.json (the folder is its own marketplace)
-├── .github/assets/        the README banner (an SVG; not shipped in the .plugin)
+├── .changelog/            CHECKPOINT, ROADMAP, HISTORY: the road so far for a model with no context
+├── .github/               community files, CI, the banner and the mark (not shipped in the .plugin)
 ├── CLAUDE.md              read by Claude Code when opened here
 ├── README.md              the repository's homepage
 ├── CONTRIBUTING.md        how a change is proposed and checked (not shipped in the .plugin)
