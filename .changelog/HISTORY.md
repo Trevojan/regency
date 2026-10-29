@@ -6,6 +6,47 @@ one, the section says which.
 
 ---
 
+## 3.0
+
+2026-10-29 · branch `plumbing` · record R14 · `+a`: a major rule invented
+
+The Regent: packs living in regency itself, and accepting incoming plugins, "could save rework and re-proposal by a
+sum of hours"; "as an open-source Harness, it must be the most flexible and the most adaptable as possible. If there
+is a limit, we may study together to break it."
+
+**Added**
+
+- **Packs** (`library/packs.md`, `scripts/packs.py`, `/regency:pack`): what regency becomes in one domain, a folder
+  with `pack.json` and its files. Two layers, the Regent's choice: regency's public `packs/` (an open-source license
+  required) and a project's `<guidelines>/.packs/` (R14.2). A project pack shadows a public one with its id.
+- **Adoption**: `packs.py adopt <folder | git url>` copies a Claude Code plugin or skill verbatim under
+  `upstream/` and maps it: skills and commands to playbooks, agents, hooks one per handler, MCP servers. Everything
+  it cannot bring (LSP, output styles, themes, monitors, settings, `bin/` on PATH, prompt and http hooks, Stop hooks)
+  is listed with its reason, never dropped. The license and the source's tree fingerprint are recorded.
+- **Activation and consent in the project** (`<guidelines>/.packs/active.json`): `activate` makes a pack's
+  playbooks runnable; `ratify` without `--yes` is the review of each hook's exact command; with `--yes` it is the
+  Regent's consent at the pack's tree fingerprint, and `hook-hazard.py` asks on that call (kind `consent`, T5). Any
+  change to the pack's files makes its hooks STALE (R14.1).
+- **The dispatcher** (`scripts/hook-packs.py`), wired on six events: runs the ratified hooks of active packs as
+  Claude Code would and merges their answers. Deny beats ask; allow and a rewritten tool input are dropped (a pack
+  adds a guard, never removes one); exit 2 blocks; a crash or timeout is reported. Its fast path stats one file and
+  exits when no pack is active: +7.8 ms over a bare Python start (measured on Linux, after a first cut at +44 ms).
+- regency's own checks (doctor's paths, portability and parse; the conventions) skip `packs/*/upstream/`: an
+  adopted source keeps its own project's rules. `packs` ships in the `.plugin`.
+
+**Limits met and passed.** Claude Code loads a plugin's parts once per install, for every project, from inside the
+plugin, and every registered skill costs always-on tokens. regency now reads packs at run time instead: one router
+skill and one dispatcher, so packs cost no always-on tokens and switch on per project.
+
+**Proof.** packs 38/38, hook-packs 23/23, hook-hazard 81/81, conventions 36/36; 11 of 12 planted mutants caught, the
+twelfth equivalent (unratified hooks are filtered twice); doctor 0 fail. `glyph-markup` adopted into a stand-in for
+Glyph Explorer: upstream byte-identical to the source, its own test suite giving the same result there as on an
+untouched copy. regency 2.13 itself planned as an incoming plugin: 17 playbooks, 43 commands, 16 hooks, 5 hooks
+listed as not dispatched. Always-on cost: +190 tokens (+4.5%, characters ÷ 4 of names, descriptions and hints),
+after cutting the command's generated aliases from six to two (`adopt`, `run`; it was +430).
+
+---
+
 ## 2.13
 
 2026-10-29 · branch `plumbing`, merged up to `testing`; `main` on the Regent's push · record R13

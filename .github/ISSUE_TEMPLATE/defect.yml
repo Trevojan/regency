@@ -12,7 +12,7 @@ body:
     attributes:
       label: regency version
       description: The `version` in `.claude-plugin/plugin.json`.
-      placeholder: "2.13"
+      placeholder: "3.0"
     validations:
       required: true
   - type: input
