@@ -105,6 +105,9 @@ layout, installing system software, and **anything that touches cloud, productio
 `scripts/hook-hazard.py` asks for the destructive ones before they run and, once one has reached the
 project, refuses file writes that no permit from the `po` or `qa` agent covers, until the Regent says a
 release verb (§9; `library/hooks.md` §2). The agent that needs a permit never grants it.
+In auto mode and in headless runs these lines reach the classifier through `library/automode.json`, and
+a headless run, which nobody can answer, reads every *ask first* as a denial it reports
+(`library/automation.md`).
 
 ## 6. Scope and ownership
 

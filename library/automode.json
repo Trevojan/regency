@@ -1,0 +1,29 @@
+{
+  "_about": "The Regent's auto-mode profile: a Claude Code settings fragment, used as is. Headless runs pass this file with --settings (scripts/headless.py); interactive sessions get its entries merged into ~/.claude/settings.json by scripts/install-automode.py. Claude Code never reads autoMode from a project's .claude/settings*.json. Every list keeps \"$defaults\" (a list without it discards the built-in rules); every other entry opens with 'Regency ', which is how the installer tells its entries from yours. Rules: library/automation.md section 1.",
+  "autoMode": {
+    "environment": [
+      "$defaults",
+      "Regency organization: one human, the Regent (RGN), drives the work with the regency toolkit, a portable folder of playbooks, specifications and standard-library Python scripts. Primary use: software development of application code, UX, diagrams, database and migration rules, and data visualisation. Cloud accounts, IAM, secrets, build, deploy and infrastructure belong to their owners: the agent reads and advises there, and writes only an exact command the Regent quoted.",
+      "Regency toolkit folder: the folder that holds CLAUDE.md, library/registry.json, library/conventions.md and scripts/doctor.py is the Regent's own toolkit, trusted like the working repository. Reading it from any project, and running its scripts (doctor.py, build.py --check, vp.py, station.py check or line, gov.py queue or fit, conventions_check.py, hook-journal.py --tail, hook-resume.py --print, any script's --selftest) is routine local tooling, not scope escalation.",
+      "Regency project memory: each project keeps its memory in a guidelines folder (.guidelines/ or the project's equivalent), with the work ledger at .shortcuts/.virtual/ongoing.json and the checkpoint journal beside it. Reading and updating the ledger and the guidelines at the end of a task is routine work inside the trusted repo."
+    ],
+    "allow": [
+      "$defaults",
+      "Regency toolkit reads: reading files in the regency toolkit folder and running its read-only scripts from another working directory, as described in the environment, is allowed."
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Regency staging [must name: the files]: staging or committing files the session did not change. Other uncommitted changes in the tree are the Regent's and stay untouched and unstaged.",
+      "Regency branch layout [must name: the worktree or branch change]: creating or removing git worktrees, or renaming or deleting branches, when the Regent did not ask for that change.",
+      "Regency merge to main [must name: the merge]: merging any branch into main or master when the project documents no branch contract, or when the Regent did not ask for a merge.",
+      "Regency installs [must name: the package or tool]: installing system software (sudo, apt-get, brew, winget, choco, scoop) or changing a pinned toolchain (mise install, mise use, mise lock), including official one-line toolchain installers: in the Regent's projects this rule takes precedence over the Toolchain Bootstrap exception.",
+      "Regency cloud writes [must name: the exact command, quoted by the Regent]: any cloud CLI call that creates, changes or deletes something (kubectl, helm, terraform, gcloud, aws, az, gsutil, bq, doctl, oci and similar) runs only when the Regent's current message quotes that exact command, flags and region included. A verb that is not clearly a read counts as a write."
+    ],
+    "hard_deny": [
+      "$defaults",
+      "Regency main branch: pushing to main or master in any form (a refspec such as HEAD:main or src:master included), force-pushing any branch, pushing tags or all branches at once, or rewriting published history. The Regent pushes main; this overrides the Git Push Destination exception and no message clears it for the agent.",
+      "Regency acts: rewriting or deleting an existing act (ladder plans LADDER_*, gate sheets GT-## and GATE_*, opinions, closed Orders ORD-####, dated handoffs), or writing anything under a .scope/ folder. A new act is written beside the old one instead.",
+      "Regency trust: running mise trust, mise trust --all or mise untrust. Trusting a toolchain configuration is the Regent's ratification."
+    ]
+  }
+}
