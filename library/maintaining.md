@@ -24,6 +24,19 @@ way. Read before changing the plugin's structure. Commands for routine maintenan
 | Subagents inherit the user-level `CLAUDE.md` | an `@` import of `library/conventions.md` there reaches the role agents too |
 | Tool limits in an agent's frontmatter are real for edit tools; a shell can still write files | QA's read-only contract is behavioural when it has a shell; PO has no shell at all |
 
+## Auto mode and headless facts (Claude Code 2.1.302, docs read 2026-10-17)
+
+| Fact | Consequence here |
+|---|---|
+| `autoMode` is read from `~/.claude/settings.json`, managed settings and `--settings`, never from a project's `.claude/settings*.json` | the profile is `library/automode.json`: installed by `scripts/install-automode.py`, passed by `scripts/headless.py` |
+| A list in `autoMode` without `"$defaults"` replaces every built-in rule of that list | the installer validates the source and creates every list with `"$defaults"` first |
+| The built-in *Git Push Destination* rule allows pushing the default branch | `hard_deny` carries the main-branch rule |
+| `--permission-prompts none` denies whatever would prompt and removes `AskUserQuestion` | the `work` profile uses it; doubts go in the reply |
+| In `dontAsk`, the built-in read-only command set still runs | the `read` profile lists no git commands of its own |
+| A slash command in a `-p` prompt read from stdin is expanded (seen live: `headless.py status`) | the runner sends every prompt on stdin |
+| `claude` installed by npm on Windows is a `.cmd` shim, so its arguments pass through `cmd.exe` | no free text on the command line; the runner refuses an argument `cmd.exe` would reparse |
+| `/auto-mode-setup` writes a machine-specific `environment` list to `~/.claude/settings.json`, without `"$defaults"` | the installer keeps that list as it is and appends regency's entries |
+
 ## Hook facts (Claude Code hooks reference, read 2026-10-09)
 
 Not yet seen live on the Regent's machine: confirm each row in a session before relying on it beyond
@@ -81,6 +94,7 @@ did not create (`--check`, `--uninstall`, `--force` keeps a `.bak`).
 | plugin hooks | `hooks/hooks.json` → `scripts/` (`library/hooks.md`) | none: ship with the plugin |
 | `~/.claude/agents/{po,dv,qa,da}.md` | `library/agents/` | `scripts/install-agents.py` |
 | `~/.claude/rules/*.md` | `library/rules/` | `scripts/install-rules.py` |
+| `autoMode` entries opening with `Regency ` in `~/.claude/settings.json` | `library/automode.json` | `scripts/install-automode.py` |
 | `~/.claude/CLAUDE.md` (one import) | `library/templates/user-CLAUDE.md` | by hand: copy it, replace `{{REGENCY_ROOT}}` with this folder's path |
 | push guard without the plugin | `scripts/guard-push.py --snippet` | by hand, into `~/.claude/settings.json` |
 | hazard watch state | written by `scripts/hook-hazard.py` | none: `$CLAUDE_PLUGIN_DATA/sessions/`, or the system temp folder |

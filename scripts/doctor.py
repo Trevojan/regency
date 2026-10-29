@@ -33,6 +33,10 @@ Checks
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
+ 18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
+     the auto-mode settings file) and its self-test detects every planted defect
+ 19. the auto-mode profile (library/automode.json) is valid and the installer's self-test passes; WARN if its
+     entries are not installed (or are stale) in ~/.claude/settings.json
 
 Pure standard library, Python 3.8+. Reads only; writes nothing (hook self-tests write to temp dirs).
 """
@@ -379,6 +383,39 @@ def check_history():
     rec("OK" if r.returncode == 0 else "FAIL", f"migrations: {out[-1] if out else 'record --check gave no answer'}")
 
 
+def check_headless():
+    s = ROOT / "scripts" / "headless.py"
+    if not s.is_file():
+        return rec("FAIL", "scripts/headless.py is missing")
+    for arg in ("--selftest", "--check"):
+        r = subprocess.run([sys.executable, str(s), arg], capture_output=True, text=True, encoding="utf-8")
+        lines = (r.stdout + r.stderr).strip().splitlines() or ["no output"]
+        if r.returncode != 0:
+            rec("FAIL", f"headless {arg}: " + (" | ".join(l for l in lines if l.startswith(("MISS", "FAIL"))) or lines[-1]))
+        else:
+            rec("OK", f"headless {arg}: {lines[-1]}")
+
+
+def check_automode():
+    s = ROOT / "scripts" / "install-automode.py"
+    if not s.is_file():
+        return rec("FAIL", "scripts/install-automode.py is missing")
+    t = subprocess.run([sys.executable, str(s), "--selftest"], capture_output=True, text=True, encoding="utf-8")
+    if t.returncode != 0:
+        return rec("FAIL", "automode selftest: " + " | ".join(l for l in t.stdout.splitlines() if l.startswith("MISS")))
+    r = subprocess.run([sys.executable, str(s), "--check"], capture_output=True, text=True, encoding="utf-8")
+    lines = [l for l in (r.stdout + r.stderr).strip().splitlines() if l.strip()]
+    broken = [l for l in lines if l.startswith(("SOURCE", "SKIPPED"))]
+    if broken:
+        return rec("FAIL", "automode: " + " | ".join(broken))
+    off = [l for l in lines if not l.startswith("ok")]
+    if off:
+        rec("WARN", "auto-mode entries not (fully) installed on this machine: " + " | ".join(" ".join(l.split()) for l in off)
+            + "  -> python scripts/install-automode.py")
+    else:
+        rec("OK", f"auto-mode entries installed and current in ~/.claude/settings.json ({len(lines)} list(s))")
+
+
 def check_rules():
     s = ROOT / "scripts" / "install-rules.py"
     if not s.is_file():
@@ -474,7 +511,8 @@ def check_drafts():
 
 CHECKS = (check_manifest, check_build, check_skills, check_paths, check_absolute_paths, check_parse, check_guard,
           check_agents, check_frontmatter, check_cli_validate, check_drafts, check_hooks, check_rules,
-          check_conventions, check_hook_scripts, check_ux, check_engines, check_history)
+          check_conventions, check_hook_scripts, check_ux, check_engines, check_history, check_headless,
+          check_automode)
 
 
 def main(argv):

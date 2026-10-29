@@ -296,6 +296,8 @@ python scripts/build.py     # after editing library/registry.json or a suba's co
 python scripts/doctor.py    # before sharing; exit code 1 means something is broken
 python scripts/migrate.py record   # after a version bump that changed a template: file its fingerprints
 python scripts/package.py   # after a version bump: dist/<name>-<version>.plugin for way 7
+python scripts/install-automode.py   # the Regent's auto-mode entries into ~/.claude/settings.json
+python scripts/headless.py           # the headless routes; library/automation.md
 ```
 
 regency is versioned `a.b`: `+b` for a content change, `+a` for a major rule finished, reinterpreted or
