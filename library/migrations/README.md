@@ -11,10 +11,10 @@ Only what regency wrote. Everything else is the project's, and the project's tex
 
 | Owned | How an update treats it |
 |---|---|
-| a **refresh** file of a scaffold (`scaffolds.json`): an axis README, a `.ux/` foundation or pattern | untouched since regency wrote it → **replaced** by the new text; edited by the project → the new text goes **beside** it as `<name>.template`, to merge by hand; missing where its folder exists → **created** |
+| a **refresh** file of a scaffold (`scaffolds.json`): an axis README, a `.ux/` foundation or pattern | untouched since regency wrote it → **replaced** by the new text; edited by the project → the new text goes **beside** it as `<name>.template`, to merge by hand; merged, the `.template` deleted and `migrate.py merged <path>` run → left alone until a newer template ships; missing where its folder exists → **created** |
 | a **seed** of a scaffold: the root README, CLAUDE.md, CHANGELOG, the entry index, the ledger, the brief, the tokens | never touched: written once, then the project's |
 | a path a **step** names (`steps.json`) | renamed, moved, deleted or rewritten exactly as the step says |
-| the **stamp**, `<guidelines>/.shortcuts/regency.json` | rewritten last: the version, the fingerprints of the files that hold regency's current text, the history of updates |
+| the **stamp**, `<guidelines>/.shortcuts/regency.json` | rewritten last: the version, the fingerprints of the files that hold regency's current text, the template text each hand merge took in (`merged`), the history of updates |
 
 Never touched, whatever a step says: an act (an Order, a gate sheet, a ladder plan, an opinion, a dated
 handoff — the acts guard's own table), anything under `.scope/`, anything outside the guidelines root.

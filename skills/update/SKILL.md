@@ -32,7 +32,7 @@ asks once. Run every command from inside the project.
    got dirty) means: plan again and ask again.
 6. **Check.** `python <regency>/scripts/migrate.py check` must exit 0.
 7. **Ledger.** One item, state `review`: `regency update <from> -> <to>`, `where` the changed files and
-   the plan id, `next` "merge the `.template` files by hand" when there are any.
+   the plan id, `next` "merge the `.template` files by hand, then `migrate.py merged`" when there are any.
 8. **Report** in the shape below. Commit nothing; offer `/regency:arrange-cycle-commit`.
 
 ```text
@@ -41,6 +41,14 @@ Replaced  7 untouched files     Beside  1 (.plan/README.md.template — merge by
 Renamed   0  Deleted 0  Rewritten 0  Created 0  Refused 0
 Stamp     .guidelines/.shortcuts/regency.json -> 2.10   check: fits
 ```
+
+## After merging by hand
+
+Merge each `.template` into its file in the project's own language (regency's sources are English, the
+project's prose is not), delete the `.template`, then record it:
+`python <regency>/scripts/migrate.py merged <path>...` (guidelines-relative, or the `.template` path). The stamp
+keeps that text's fingerprint, so `check` passes and the plan stops putting it beside the file; a newer
+template goes beside it again. A `.template` deleted without the record comes back on the next plan.
 
 ## `plan` and `check` alone
 
