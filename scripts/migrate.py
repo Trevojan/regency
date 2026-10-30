@@ -14,6 +14,8 @@ never rewritten.
                                           run that plan: the id must match a fresh plan, the tree must be a
                                           clean git repository (every step revertible); then stamp
   migrate.py check  [--from DIR]          the project fits: stamp agrees and no operation is pending
+  migrate.py merged PATH... [--from DIR]  record that a .template was merged by hand and deleted: the plan stops
+                                          putting that text beside PATH; a newer template goes beside it again
   migrate.py stamp  [--from DIR]          record the installed version and the files regency just wrote
                                           (run by /regency:init and /regency:ux-init right after scaffolding)
   migrate.py record [--check]             maintainers: file the current templates' fingerprints under the
@@ -261,6 +263,8 @@ def plan(start, root=ROOT):
                 side = p.with_name(p.name + ".template")
                 if side.is_file() and fingerprint(side) == want:
                     continue
+                if stamp.get("merged", {}).get(mapped) == want:  # this text was merged by hand already
+                    continue
                 add({"op": "beside", "path": mapped + ".template", "source": f"{scaffold}/{rel}",
                      "why": "edited by the project: the new version goes beside it to merge by hand"})
     # 3. the stamp, last
@@ -301,12 +305,51 @@ def write_stamp(g, root, history=None):
             if p and p.is_file() and fingerprint(p) == fingerprint(body):
                 files[mapped] = fingerprint(body)
     stamp = {"schema": 1, "regency": installed(root), "updated": datetime.date.today().isoformat(),
-             "files": dict(sorted(files.items())), "history": list(old.get("history", []))}
+             "files": dict(sorted(files.items()))}
+    merged = {k: v for k, v in old.get("merged", {}).items() if k not in files}
+    if merged:
+        stamp["merged"] = dict(sorted(merged.items()))
+    stamp["history"] = list(old.get("history", []))
     if history:
         stamp["history"].append(history)
+    save_stamp(g, stamp)
+    return stamp
+
+
+def save_stamp(g, stamp):
     (g / STAMP).parent.mkdir(parents=True, exist_ok=True)
     (g / STAMP).write_text(json.dumps(stamp, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return stamp
+
+
+def merged(start, paths, root=ROOT):
+    """(code, lines). The Regent merged regency's text into an edited file by hand and deleted the .template: the
+    stamp keeps that text's fingerprint under 'merged', so the plan stops putting it beside the file again."""
+    repo = repo_root(start)
+    g = guidelines_root(repo)
+    if g is None:
+        return 2, ["no guidelines here: nothing to record"]
+    stamp = read_stamp(g)
+    if not stamp or stamp.get("unreadable"):
+        return 2, ["no readable stamp: run /regency:update first"]
+    want = {mapped: fingerprint(body) for s in scaffold_files(root).values() if (g / s["present_if"]).is_dir()
+            for mapped, policy, body in s["files"].values() if mapped and policy != "seed"}
+    prefix = g.relative_to(repo).as_posix().lower() + "/"
+    record, lines = dict(stamp.get("merged", {})), []
+    for raw in paths:
+        rel = raw.replace("\\", "/")
+        rel = rel[len(prefix):] if rel.lower().startswith(prefix) else rel
+        rel = rel[:-len(".template")] if rel.endswith(".template") else rel
+        if rel not in want:
+            return 2, [f"{raw}: not a file regency refreshes here (a seed or the project's own): nothing to record"]
+        if not (g / rel).is_file():
+            return 2, [f"{rel}: missing: run /regency:update, it creates the file"]
+        if (g / (rel + ".template")).exists():
+            return 2, [f"{rel}.template is still there: merge it, delete it, then record"]
+        record[rel] = want[rel]
+        lines.append(f"merged  {rel}   (regency's text {want[rel]})")
+    stamp["merged"] = dict(sorted(record.items()))
+    save_stamp(g, stamp)
+    return 0, lines
 
 
 def apply(start, plan_id, root=ROOT):
@@ -502,6 +545,20 @@ def selftest():
                and st["history"][-1]["plan"] == pl["id"], "stamped with the version, the files and the plan")
             ok(gate(proj, reg)[0] == 0, "after the update the gate agrees")
             ok(check(proj, reg)[0] == 0 and not [o for o in plan(proj, reg)["ops"]], "a second plan is empty")
+            ok(merged(proj, [".decisions/README.md"], reg)[0] == 2, "a merge with the .template still there is refused")
+            (g / ".decisions/README.md.template").unlink()
+            ok(("beside", ".decisions/README.md.template") in [(o["op"], o["path"]) for o in plan(proj, reg)["ops"]],
+               "a .template deleted without a record comes back")
+            ok(merged(proj, [".shortcuts/README.md"], reg)[0] == 2, "a seed has nothing to merge")
+            ok(merged(proj, [".guidelines/.decisions/README.md.template"], reg)[0] == 0 and check(proj, reg)[0] == 0,
+               "a recorded merge ends the .template")
+            write_stamp(g, reg)
+            ok(read_stamp(g).get("merged", {}).get(".decisions/README.md") == fingerprint(b"decisions v2\n"),
+               "a new stamp keeps the merges")
+            (tpl / ".guidelines/.decisions/README.md").write_text("decisions v3\n", encoding="utf-8")
+            ok(("beside", ".decisions/README.md.template") in [(o["op"], o["path"]) for o in plan(proj, reg)["ops"]],
+               "a newer template goes beside a merged file again")
+            (tpl / ".guidelines/.decisions/README.md").write_text("decisions v2\n", encoding="utf-8")
             (g / ".plan/README.md").write_text("plan v2, then ours\n", encoding="utf-8")
             (reg / "library" / "templates" / "guidelines" / ".guidelines/.plan/README.md").write_text("plan v3\n", encoding="utf-8")
             (reg / "library" / "registry.json").write_text('{"version": "2.11"}', encoding="utf-8")
@@ -577,6 +634,14 @@ def main(argv):
     if cmd == "check":
         code, line = check(start)
         print(line)
+        return code
+    if cmd == "merged":
+        paths = [a for i, a in enumerate(rest) if a != "--from" and (i == 0 or rest[i - 1] != "--from")]
+        if not paths:
+            print("merged needs the path of each file whose .template was merged by hand")
+            return 2
+        code, lines = merged(start, paths)
+        print("\n".join(lines))
         return code
     if cmd == "stamp":
         repo = repo_root(start)
