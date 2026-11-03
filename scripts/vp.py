@@ -36,7 +36,8 @@ import sys
 import time
 from pathlib import Path
 
-SKIP = {".git", "node_modules", ".venv", "bin", "obj", "dist", "build", "discard", ".obsidian"}
+SKIP = {".git", "node_modules", ".venv", "bin", "obj", "dist", "build", "discard", ".obsidian",
+        "templates"}  # templates: scaffold seeds such as regency's library/templates, never a project's own
 
 
 def find_manifest(start):
@@ -433,6 +434,10 @@ def selftest():
                 return subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
                                        "-c", "commit.gpgsign=false", *a], capture_output=True, text=True)
             g("init", "-q", "-b", "main")
+            seed = repo / "library" / "templates" / "guidelines" / ".guidelines" / ".shortcuts" / ".virtual"
+            seed.mkdir(parents=True)  # after init: discovery stops at .git, never globs the temp folder's parents
+            (seed / "manifesto.json").write_text('{"virtual_context": []}', encoding="utf-8")
+            cases.append((virtual_dir({"from": str(repo)}) == vdir, "a scaffold seed under templates/ is never the ledger"))
             g("add", "-A")
             g("commit", "-qm", "base")
             g("checkout", "-qb", "plumbing")
