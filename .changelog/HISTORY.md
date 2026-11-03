@@ -6,6 +6,34 @@ one, the section says which.
 
 ---
 
+## 3.2
+
+2026-11-03 · branch `plumbing` · `+b`: a content change on 3.1 (the Regent's pop-up: "Commit as 3.2")
+
+The Regent: "are there something missing in origin/main? i think a lot got outdated"; then "update the
+/regency:virtualpath and start building". Answers (pop-up): `plumbing` merged up to `main` (the Regent pushed it);
+the pre-3.0 stash dropped; this folder's own ledger at the root's `.shortcuts/`.
+
+**Added**
+
+- **This folder's work ledger** (`.shortcuts/.virtual/ongoing.json`): ROADMAP's and CHECKPOINT's queue as items
+  that point back at their rows. Read by `vp.py` alone; the hooks and `/regency:health` read a `.guidelines/` root.
+
+**Fixed**
+
+- **`vp.py`** took the scaffold seed in `library/templates/` (its `manifesto.json`) for the ledger in this folder: a
+  write there would have shipped to every project `/regency:init` scaffolds. `templates` joins the skipped names.
+- **UTF-8 on Windows**: a pipe speaks cp1252, so four doctor checks crashed on `§` and `⟨`, a hook's `§` reached
+  Claude Code as `�`, and a hook read UTF-8 input as mojibake. `hook_wire` sets UTF-8 on stdin, stdout and stderr
+  for every script that imports it; `doctor.py` sets `PYTHONIOENCODING` for its children.
+- **`hook-packs.py`**: under `shell=True` on Windows a timeout killed `cmd.exe` only, and the wait lasted as long as
+  the hook (a 1 s cut took 6 s). A pack hook now runs in its own process group; a timeout ends the tree.
+
+**Proof.** vp 13/13, hook-packs 23/23 on three runs, shortcuts 43/43 in a cp1252 console; doctor 0 fail in a plain
+cp1252 console on the Regent's machine (four crashes and one fail before).
+
+---
+
 ## 3.1
 
 2026-10-29 · branch `plumbing` · record R15 · `+b`: a content change on 3.0 (the Regent: "this is no major update")

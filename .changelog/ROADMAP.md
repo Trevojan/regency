@@ -76,6 +76,7 @@ decision.
 | 2.13 | the public repository: homepage, community, CI, this changelog |
 | 3.0 | domain packs: any plugin adopted as it is, per project, hooks on the Regent's consent |
 | 3.1 | the Judge: the Regent's grants replace the hazard watch |
+| 3.2 | Windows consoles: UTF-8 hook streams, pack hooks cut on time; this folder's own ledger |
 
 ## Queued from the book
 
@@ -105,7 +106,7 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N3 | two records both numbered R5 (cloud CLIs; normalise) | rename one by R11.2's rule |
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
-| N11 | a second account install (`regency~g2`, 2.10) | remove it, or keep it on purpose |
+| N11 | three installs on this machine (2026-11-03): `regency` 3.0, `regency~g2` and `regency~g3` 3.1, each loading its hooks | keep one, or keep a second on purpose |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
 Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
@@ -119,7 +120,7 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   the original build plan renames them; doctor warns on each.
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
 - The required status check `doctor` on `main`: the workflow passed there at `8427d0b`.
-- The `v3.1` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
+- The `v3.2` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
 - This folder's own ledger (`.shortcuts/.virtual/ongoing.json`) is read by `vp.py` alone: the hooks and
   `/regency:health` find a ledger under a `.guidelines/` root only (`hook_wire.virtual_dir`), and a `.guidelines/`
   here would make the folder an unstamped project for the version gate.

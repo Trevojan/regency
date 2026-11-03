@@ -4,15 +4,15 @@
   "updated": "2026-11-03",
   "items": [
     {"id": "vp-seed", "title": "vp.py takes the scaffold seed in library/templates for the ledger", "state": "review", "who": "DV", "since": "2026-11-03",
-     "where": ["branch:plumbing", "scripts/vp.py"], "next": "the Regent's review; vp.py --selftest 13/13", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
+     "where": ["branch:plumbing", "scripts/vp.py"], "next": "the Regent reviews 3.2 on main (vp.py --selftest 13/13)", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "win-utf8", "title": "doctor crashes four checks in a cp1252 console", "state": "review", "who": "DV", "since": "2026-11-03",
-     "where": ["branch:plumbing", "scripts/doctor.py"], "next": "the Regent's review; doctor 0 fail in a cp1252 console", "source": ".changelog/CHECKPOINT.md#health"},
+     "where": ["branch:plumbing", "scripts/doctor.py"], "next": "the Regent reviews 3.2 on main (doctor 0 fail in a cp1252 console)", "source": ".changelog/CHECKPOINT.md#health"},
     {"id": "win-timeout", "title": "hook-packs self-test: a hook past its timeout is not cut in time on Windows", "state": "review", "who": "DV", "since": "2026-11-03",
-     "where": ["branch:plumbing", "scripts/hook-packs.py"], "next": "the Regent's review; hook-packs --selftest 23/23, three runs", "source": ".changelog/CHECKPOINT.md#health"},
+     "where": ["branch:plumbing", "scripts/hook-packs.py"], "next": "the Regent reviews 3.2 on main (hook-packs --selftest 23/23, three runs)", "source": ".changelog/CHECKPOINT.md#health"},
 
-    {"id": "release-3.1", "title": "publish v3.1 from main with the .plugin attached; test the pinned install", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
+    {"id": "release", "title": "publish the release main holds (v3.2) with the .plugin attached; test the pinned install", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "doctor-required", "title": "doctor as a required check on main", "state": "backlog", "who": "RGN", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
-    {"id": "install-3.1", "title": "install 3.1 on the account; re-install the role agents", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
+    {"id": "install", "title": "keep one install of 3.2 (machine and account); re-install the role agents", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "judge-live", "title": "first live grant: where the pop-up's answers arrive", "state": "backlog", "source": ".changelog/ROADMAP.md#the-judge-the-next-limits"},
     {"id": "levels-rename", "title": "the 25 old D1-D4 level names in library/orders/ and library/team/", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "suba-restamp", "title": "re-read and re-stamp suba-strategy and suba-research", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
@@ -38,7 +38,7 @@
     {"id": "N3", "title": "two records numbered R5", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N4", "title": "the record's machine-side pending block", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N10", "title": "seventeen silent exception handlers in the scripts", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
-    {"id": "N11", "title": "a second account install (regency~g2)", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
+    {"id": "N11", "title": "three installs on this machine: regency 3.0, ~g2 and ~g3 3.1", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N14", "title": "the old step letter in projects' ledgers, Orders and trailers", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"}
   ]
 }

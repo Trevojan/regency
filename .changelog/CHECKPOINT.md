@@ -1,4 +1,4 @@
-# Checkpoint · regency 3.1 · 2026-11-02
+# Checkpoint · regency 3.2 · 2026-11-03
 
 Rewritten in place each time the version moves or the state below changes. The road to here is in
 [`HISTORY.md`](HISTORY.md); the road ahead in [`ROADMAP.md`](ROADMAP.md).
@@ -7,18 +7,19 @@ Rewritten in place each time the version moves or the state below changes. The r
 
 | Where | Version | Note |
 |---|---|---|
-| `library/registry.json`, `.claude-plugin/plugin.json` | 3.1 | doctor fails when they differ |
-| GitHub `plumbing`, `testing`, `main` | 3.1 | all three at `8427d0b`; doctor green in CI on each |
-| the Regent's folder, `plumbing` | 3.1 and the Windows fixes | in review, uncommitted (the ledger's `review` items) |
-| a release tag | none yet | `v3.1` can go out from `main` now; the README's pinned install points at `v3.1` |
-| the Claude account (synced plugin) | 3.0 | `health.py copies` flags it; a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
+| `library/registry.json`, `.claude-plugin/plugin.json` | 3.2 | doctor fails when they differ |
+| the Regent's folder: `plumbing`, `testing`, `main` | 3.2 | `main` waits for the Regent's push |
+| GitHub `plumbing`, `testing` | 3.2 | the same commit as the folder's `main` |
+| GitHub `main` | 3.1 | at `8427d0b` until the Regent pushes; doctor green in CI there |
+| a release tag | none yet | `v3.2` goes out from `main` once pushed; the README's pinned install points at `v3.2` |
+| this machine's installs | 3.0, 3.1, 3.1 | `regency`, `regency~g2`, `regency~g3`: each loads its hooks, so 3.0's hazard watch still fires; keep one (N11) |
 
-## What 3.1 added
+## What 3.2 added
 
-The Judge (`library/judge.md`): the Regent's grants say where and how a delete, discard, history rewrite or
-worktree change may run without regency's ask, for this session, the repository (`JD.md`), this machine or a
-file the Regent names. Each act is judged when it happens; nothing locks the session. Only the Regent grants, by
-a `grant:` line or the Judge's pop-up; a store changed outside the hooks is STALE until the Regent ratifies it.
+Windows consoles work as they are: `hook_wire` puts every hook's stdin, stdout and stderr on UTF-8 (a cp1252 pipe
+garbled `§` into `�` and crashed four doctor checks), and a pack hook past its timeout ends with everything it
+started. This folder keeps its own work ledger (`.shortcuts/.virtual/ongoing.json`), and `vp.py` no longer reads the
+scaffold seed in `library/templates/` as one.
 
 ## Branches
 
@@ -39,9 +40,10 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 
 ## Next, in order
 
-1. The Regent reviews the Windows fixes on `plumbing` (the ledger's `review` items) and names their version.
+1. The Regent pushes `main` (3.2); CI runs doctor there.
 2. Publish the release `main` holds, with its `.plugin` attached, and test the pinned install line.
-3. Re-install the role agents (`python scripts/install-agents.py`): the `po` and `qa` contracts changed.
+3. Keep one install of 3.2 on this machine and the account (N11), and re-install the role agents
+   (`python scripts/install-agents.py`): the `po` and `qa` contracts changed in 3.1.
 4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
 5. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
 

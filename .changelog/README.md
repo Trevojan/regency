@@ -38,6 +38,7 @@ One line per version: the decision, not the file list. Detail in [`HISTORY.md`](
 
 | version | what it decided |
 |---|---|
+| **3.2** | Windows as a first-class console (UTF-8 on every hook stream, pack hooks cut on time); this folder keeps its own work ledger |
 | **3.1** | the Judge: the Regent's grants (where, how, session / repo / machine / a named file) answer the hazard hook's ask ahead of time; nothing locks the session after a destructive step |
 | **3.0** | domain packs: any Claude Code plugin or skill adopted as it is, switched on per project, its hooks run only once the Regent ratifies them; a pack adds guards, never removes one |
 | **2.13** | the public face: purpose description, the `S##` step, an SDK-style homepage, MIT, community files and CI, this folder; one line of history, old branches archived |
