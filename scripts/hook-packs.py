@@ -136,6 +136,7 @@ import fnmatch  # noqa: E402  - below the fast path on purpose
 import json  # noqa: E402
 import re  # noqa: E402
 import shlex  # noqa: E402
+import signal  # noqa: E402
 import subprocess  # noqa: E402
 import tempfile  # noqa: E402
 import time  # noqa: E402
@@ -239,13 +240,33 @@ def run_one(pk, item, payload, repo, budget):
             p.stdin.write(payload.encode("utf-8"))
             p.stdin.close()
             return 0, "", "", "async"
-        r = subprocess.run(argv, shell=shell, input=payload, capture_output=True, text=True, encoding="utf-8",
-                           errors="replace", env=env, cwd=str(repo), timeout=timeout)
-        return r.returncode, r.stdout, r.stderr, ""
-    except subprocess.TimeoutExpired:
-        return None, "", "", f"timed out after {timeout:g}s"
+        group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+        p = subprocess.Popen(argv, shell=shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             text=True, encoding="utf-8", errors="replace", env=env, cwd=str(repo), **group)
+        try:
+            out, err = p.communicate(payload, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            end_tree(p)
+            return None, "", "", f"timed out after {timeout:g}s"
+        return p.returncode, out, err, ""
     except OSError as e:
         return None, "", "", f"could not start ({e.strerror or e})"
+
+
+def end_tree(p):
+    """Kill a timed-out hook with everything it started: killing the shell alone leaves the hook holding the
+    pipes, and the wait for them lasts as long as the hook (seen on Windows, where cmd.exe never execs)."""
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], capture_output=True, timeout=10)
+        else:
+            os.killpg(p.pid, signal.SIGKILL)
+    except (OSError, subprocess.TimeoutExpired):
+        p.kill()  # the tree is gone already, or taskkill is missing: the direct child at least
+    try:
+        p.communicate(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass  # a descendant that left the group keeps its pipes; the timeout is reported all the same
 
 
 def merge(event, results):
