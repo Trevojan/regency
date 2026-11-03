@@ -553,7 +553,10 @@ def main(argv):
     if sys.version_info < (3, 8):
         print("FAIL python 3.8+ required")
         return 1
-    only = {a[len("--only="):] for a in argv if a.startswith("--only=")}
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    os.environ["PYTHONIOENCODING"] = "utf-8"  # every check decodes its child as UTF-8, whatever the console's code page
+    only ={a[len("--only="):] for a in argv if a.startswith("--only=")}
     for fn in CHECKS:
         if not only or fn.__name__[len("check_"):] in only:
             try:

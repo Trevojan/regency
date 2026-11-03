@@ -28,6 +28,9 @@ import tempfile
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # an installed plugin runs from a cache that may be read-only
+for _stream in (sys.stdin, sys.stdout, sys.stderr):  # Claude Code speaks UTF-8; a Windows pipe defaults to the code page
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 GUIDELINE_ROOTS = (".guidelines", "Docs/.guidelines", "docs/.guidelines")
 WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
