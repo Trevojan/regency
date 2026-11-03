@@ -1,4 +1,4 @@
-# Checkpoint · regency 3.1 · 2026-10-29
+# Checkpoint · regency 3.1 · 2026-11-02
 
 Rewritten in place each time the version moves or the state below changes. The road to here is in
 [`HISTORY.md`](HISTORY.md); the road ahead in [`ROADMAP.md`](ROADMAP.md).
@@ -8,10 +8,11 @@ Rewritten in place each time the version moves or the state below changes. The r
 | Where | Version | Note |
 |---|---|---|
 | `library/registry.json`, `.claude-plugin/plugin.json` | 3.1 | doctor fails when they differ |
-| the Regent's folder, branch `plumbing` | 3.1 | built there through the device bridge; on GitHub after the Regent's push |
-| GitHub `plumbing`, `testing`, `main` | 3.0 | all three at `b4ec8cb` |
-| a release tag | none yet | `v3.0` can go out from `main` now; the README's pinned install on `plumbing` points at `v3.1` |
-| the Claude account | last seen 3.0 | a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
+| the Regent's folder: `plumbing`, `testing`, `main` | 3.1 | built through the device bridge; `main` waits for the Regent's push |
+| GitHub `plumbing`, `testing` | 3.1 | the same commit as the folder's `main` |
+| GitHub `main` | 3.0 | at `b4ec8cb` until the Regent pushes |
+| a release tag | none yet | `v3.1` goes out from `main` once pushed; the README's pinned install points at `v3.1` |
+| the Claude account (synced plugin) | 3.0 | `health.py copies` flags it; a cloud session can install `regency-<version>.plugin` built by `python scripts/package.py` |
 
 ## What 3.1 added
 
@@ -29,9 +30,10 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 
 ## Health
 
-- `python scripts/doctor.py` on the Regent's machine: 0 fail besides `claude plugin validate`, which the device
-  bridge's binary cannot run; the warnings are the old level names in `library/orders/` and `library/team/`, the
-  two proposal subas and the machine-side installs.
+- `python scripts/doctor.py` on the Regent's machine (2026-11-02, `PYTHONUTF8=1`; a cp1252 console crashes four
+  checks without it): 1 fail, `hook-packs.py --selftest` "a hook past its timeout is cut and reported", the same
+  file since 3.0 and green in CI; the warnings are the old level names in `library/orders/` and `library/team/`,
+  the two proposal subas and the machine-side installs.
 - CI: `.github/workflows/doctor.yml` runs `build.py --check` and doctor on pull requests and on pushes to
   `main`, `testing` and `plumbing*`; it passed on `main` at `b4ec8cb`.
 - The repository is public. Its hardening is the Regent's in GitHub's settings: rulesets on `main` and the release
@@ -39,7 +41,7 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 
 ## Next, in order
 
-1. The Regent pushes `plumbing` (3.1) from the folder; CI runs doctor there, then `testing` and `main` follow.
+1. The Regent pushes `main` (3.1) from the folder; CI runs doctor there.
 2. Publish the release `main` holds, with its `.plugin` attached, and test the pinned install line.
 3. Re-install the role agents (`python scripts/install-agents.py`): the `po` and `qa` contracts changed.
 4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
