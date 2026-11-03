@@ -108,7 +108,7 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N11 | a second account install (`regency~g2`, 2.10) | remove it, or keep it on purpose |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
-Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, kept in a stash) and
+Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
 N16 (`main` took `testing`). Closed with 2.13: N12 (the old branches merged into one line; their retirement is the Regent's act,
 `CHECKPOINT.md`), N15 (where 2.13 landed), N17 (community files). N16 (`main` shows the homepage) closes with
 the Regent's merge of `testing` into `main` (done 2026-10-29).
@@ -118,6 +118,8 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
-- The required status check `doctor` on `main`, once the workflow has run there.
-- A release for the version `main` holds, with the `.plugin` attached: `v3.0` now, `v3.1` once `main` takes it;
-  the README's pinned install points at `v3.1` on `plumbing`.
+- The required status check `doctor` on `main`: the workflow passed there at `8427d0b`.
+- The `v3.1` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
+- This folder's own ledger (`.shortcuts/.virtual/ongoing.json`) is read by `vp.py` alone: the hooks and
+  `/regency:health` find a ledger under a `.guidelines/` root only (`hook_wire.virtual_dir`), and a `.guidelines/`
+  here would make the folder an unstamped project for the version gate.

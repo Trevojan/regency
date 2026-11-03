@@ -64,8 +64,13 @@ the self-tests. The consequences are in `library/hooks.md` §6.
   hides the result. Load a copy with a renamed plugin and a tagged deny reason, then look for the tag.
 - The hazard hook asks before `rm`. A live test that cleans up its own scratch folder runs without asking
   once the Regent granted it: `grant: delete <absolute scratch path>/** -- test clean-up` (`library/judge.md`).
-- Run `doctor.py` with `PYTHONUTF8=1` on Windows: under the cp1252 console the hook wire check and the
-  `ux brief` check crash on `§` and `⟨` before they test anything.
+- A Windows pipe speaks the code page (cp1252), never UTF-8: a script that prints `§` or `⟨` into one crashes,
+  and a hook's `§` reached Claude Code as `�` (seen live 2026-11-02, 3.0's hazard watch). `hook_wire` sets
+  UTF-8 on stdin, stdout and stderr for every script that imports it; `doctor.py` sets `PYTHONIOENCODING`
+  for its children. A new script that prints outside the wire does the same.
+- Under `shell=True` on Windows a timeout kills `cmd.exe` only: the command keeps the pipes and the wait
+  lasts as long as it runs (a 1 s cut took 6 s). `hook-packs.py` ends the whole tree (`taskkill /T`, a
+  process group on POSIX).
 - Hook self-tests build their project with `hook_wire.build_fixture` in a temp folder and point session
   state at `REGENCY_HOOK_STATE`; never run a self-test against a real project.
 

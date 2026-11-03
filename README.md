@@ -243,8 +243,7 @@ Full hook reference: [`library/hooks.md`](library/hooks.md).
 | git | any recent | version gate, lineage, commits, the `copies` check |
 | mise | optional | gate tasks for `/regency:station` |
 
-Verified on Linux and Windows. On a Windows console, run doctor with `PYTHONUTF8=1`
-(`library/maintaining.md`).
+Verified on Linux and Windows, on any console code page (`library/maintaining.md`).
 
 ## Versioning
 
