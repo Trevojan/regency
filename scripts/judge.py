@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """judge.py - the Judge (JD): the Regent's grants, where and how a hazardous act may run without asking.
 
-hook-hazard.py asks the Regent before the hazardous local acts (conventions §5). A grant answers that ask
-ahead of time, for named places and one or more kinds of act:
+hook-hazard.py asks the Regent before the hazardous local acts (conventions §5), and guard-push.py denies a
+push to main. A grant answers them ahead of time, for named places and one or more kinds of act:
 
   how      delete, discard, history, layout             the kinds hook-hazard.py asks about and a grant may cover
+           push                                         guard-push.py's denial; stands alone, where is main or master
   where    globs relative to the repository root        `Herança/**` (the folder itself too), `build/*.log`;
            or absolute                                   `**` is the whole repository; `*` crosses folders
   scope    session   this session only                  <state>/sessions/<sid>.grants.json
@@ -15,9 +16,9 @@ ahead of time, for named places and one or more kinds of act:
 
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
 path (git reset --hard, git rebase, git branch -D) or a path no script can resolve ("$d", a glob, a 'cd'
-to an unknown place) needs `**`. Never grantable, so they keep asking or denying: installing system
-software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6), pack consent (T5)
-and a push to main (guard-push.py).
+to an unknown place) needs `**`. A push grant names its branch; deleting that branch, --all, --mirror and a
+'+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
+software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
 Only the Regent grants (conventions §1): a 'grant:' line in a message of theirs (hook-verbs.py) or their
 answer to the Judge's pop-up (hook-judge.py). This script has no command that adds a grant. A file store is
@@ -47,12 +48,12 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hook_wire as wire  # noqa: E402
 
-KINDS = ("delete", "discard", "history", "layout")
+KINDS = ("delete", "discard", "history", "layout", "push")
+PUSH_BRANCHES = ("main", "master")  # what guard-push.py denies; every other branch pushes with no grant
 NOT_ASKED = {"edit", "write", "move", "rename", "create"}
 NEVER = {"install": "installing system software always asks (conventions §5)",
          "cloud": "a cloud write runs only on the exact command the Regent quotes (conventions §6)",
-         "consent": "consent to run a pack's hooks is the Regent's alone, each time (T5)",
-         "push": "a push to main is the Regent's (guard-push.py)"}
+         "consent": "consent to run a pack's hooks is the Regent's alone, each time (T5)"}
 SCOPE_WORDS = {"session": "session", "this session": "session", "repo": "repo", "repository": "repo",
                "this repo": "repo", "machine": "machine", "this machine": "machine", "permanent": "machine"}
 LETTER = {"session": "S", "repo": "R", "machine": "M", "path": "P"}
@@ -140,6 +141,12 @@ def parse_spec(text):
     where = [t.strip("`") for t in tokens if t.strip("`")]
     if not where:
         raise ValueError("no place: name the globs the grant covers ('**' is the whole repository)")
+    if "push" in how:
+        if set(how) != {"push"}:
+            raise ValueError("a push grant stands alone: its place is a branch, not a path")
+        for g in where:
+            if g not in PUSH_BRANCHES:
+                raise ValueError(f"'{g}': a push grant names main or master, no glob (other branches need no grant)")
     for g in where:
         if "|" in g:
             raise ValueError(f"'{g}': a glob holds no '|'")
@@ -318,7 +325,7 @@ def stale(repo):
 
 def covers(event, repo, kind, paths):
     """The grant that lets this act run without asking, or None. paths: absolute paths, None for one no script
-    could resolve; an empty list means the act names no path."""
+    could resolve; an empty list means the act names no path. A push names its branch instead of a path."""
     if kind not in KINDS or paths is None:
         return None
     want = ["**" if p is None else relative(p, repo) for p in paths] or ["**"]
@@ -333,6 +340,8 @@ def covers(event, repo, kind, paths):
 
 def propose(kind, paths, repo):
     """The grant line the Judge puts before the Regent for an act no grant covers."""
+    if kind == "push":
+        return f"grant: push {' '.join(paths)} for session -- <why>"
     globs = []
     for p in paths or [None]:
         r = "**" if p is None else relative(p, repo)
@@ -416,7 +425,7 @@ def main(argv):
         return 0
     if mode == "check" and len(args) >= 3:
         kind = args[1]
-        paths = [Path(os.path.normpath(str(Path.cwd() / a))) for a in args[2:]]
+        paths = args[2:] if kind == "push" else [Path(os.path.normpath(str(Path.cwd() / a))) for a in args[2:]]
         g = covers({}, repo, kind, paths)
         print(f"covered by {line(g)}" if g else f"no file grant covers it; the Judge proposes: {propose(kind, paths, repo)}")
         return 0 if g else 1
@@ -531,6 +540,15 @@ def selftest():
                       and revoke(ev, root, "JD-S99") is None, "revoke removes one grant; an unknown id removes nothing"))
         cases.append((revoke(ev, root, "JD-M01").startswith("machine") and state(machine_store()) == "absent"
                       and covers(ev2, root, "layout", []) is None, "revoking from a store keeps it ratified"))
+        cases.append((parse_spec("push main for repo -- y")["how"] == ["push"], "a push grant names main"))
+        cases.append(("names main or master" in err("push ** -- y") and "names main or master" in err("push feat -- y"),
+                      "a push grant takes no glob and no other branch"))
+        cases.append(("stands alone" in err("push, delete main -- y"), "a push grant is not a path grant"))
+        record(ev, root, "push main -- the re-authored history", "Regent: message")
+        cases.append((covers(ev, root, "push", ["main"]) is not None and covers(ev, root, "push", ["master"]) is None
+                      and covers(ev2, root, "push", ["main"]) is None and covers(ev, other, "push", ["main"]) is None,
+                      "a push grant covers its branch, in its session and its repository"))
+        cases.append((propose("push", ["main"], root) == "grant: push main for session -- <why>", "the push proposal line"))
         cases.append((is_store(store) and is_store(record_file()) and is_store(Path(tmp) / "notes" / "GRANTS.md")
                       and not is_store(root / "README.md"), "the stores only the Regent's words change"))
         cases.append((propose("delete", [folder, root / "a.txt"], root) == "grant: delete Herança/** a.txt for session -- <why>"

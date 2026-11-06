@@ -3,6 +3,8 @@
 
 Why: "the Regent pushes main" must hold even when an agent forgets it (library/conventions.md §4).
 Pushes of any OTHER branch pass. Only the protected branch names are guarded, on every remote.
+A `push` grant of the Regent's that names the branch lets a push onto it through (library/judge.md §2).
+Deleting it, --all, --mirror and a '+' refspec stay denied, and a failed lookup reads as no grant.
 
 Modes
   (no args)          hook mode: reads the PreToolUse JSON on stdin, answers on stdout
@@ -29,8 +31,10 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 PROTECTED = {"main", "master"}
 SEPARATORS = set(";|&\n()`{}")
 SHELLS = {"bash", "sh", "zsh", "dash", "powershell", "pwsh", "cmd", "eval", "env"}
@@ -180,6 +184,22 @@ def norm(ref):
     return ref[len("refs/heads/"):] if ref.startswith("refs/heads/") else ref
 
 
+def no_grant(branch, cwd):
+    return False
+
+
+def regent_grant(event):
+    """The Judge's lookup for this event: (branch, cwd) -> covered. Any failure reads as no grant: the denial stands."""
+    def covered(branch, cwd):
+        try:
+            import hook_wire as wire
+            import judge
+            return judge.covers(event, wire.repo_root(Path(cwd)), "push", [branch]) is not None
+        except Exception:
+            return False
+    return covered
+
+
 def flag_names(tok):
     """The flags one token sets, as git's option parser reads it: a long flag or a unique prefix of one (--del is
     --delete), or a cluster of short ones (-fd), which ends at -o because the rest of the token is its value."""
@@ -195,7 +215,7 @@ def flag_names(tok):
     return names
 
 
-def judge_push(args, cwd, current, upstream):
+def judge_push(args, cwd, current, upstream, granted=no_grant):
     """Return ('deny'|'ask'|'allow', reason) for one push."""
     flags, pos, i = set(), [], 0
     while i < len(args):
@@ -221,6 +241,8 @@ def judge_push(args, cwd, current, upstream):
         cur = current(cwd)
         up = upstream(cwd)
         if cur in PROTECTED or up in PROTECTED:
+            if all(granted(b, cwd) for b in {cur, up} & PROTECTED):
+                return "allow", ""
             return "deny", f"a bare push from '{cur or '?'}' (upstream '{up or '?'}') pushes the protected branch"
         if not cur:
             return "ask", "cannot tell which branch a bare push would send"
@@ -240,17 +262,19 @@ def judge_push(args, cwd, current, upstream):
         if not dst and ":" in s:
             return "ask", f"empty push destination in '{spec}'"
         if norm(dst) in PROTECTED:
-            return "deny", f"'{spec}' pushes to the protected branch '{norm(dst)}'"
+            # a grant covers a push onto the branch, never its deletion or a '+' force
+            if delete or not src or spec.startswith("+") or not granted(norm(dst), cwd):
+                return "deny", f"'{spec}' pushes to the protected branch '{norm(dst)}'"
     return "allow", ""
 
 
-def decide(command, hook_cwd, current=real_current, upstream=real_upstream):
+def decide(command, hook_cwd, current=real_current, upstream=real_upstream, granted=no_grant):
     worst = ("allow", "")
     for cwd_override, args in git_pushes(command):
         cwd = cwd_override if cwd_override else hook_cwd
         if cwd_override and hook_cwd and not os.path.isabs(cwd_override):
             cwd = os.path.join(hook_cwd, cwd_override)
-        verdict = judge_push(args, cwd, current, upstream)
+        verdict = judge_push(args, cwd, current, upstream, granted)
         if verdict[0] == "deny":
             return verdict
         if verdict[0] == "ask" and worst[0] == "allow":
@@ -259,7 +283,8 @@ def decide(command, hook_cwd, current=real_current, upstream=real_upstream):
 
 
 MESSAGE = ("Pushing to {branch} is the Regent's act (regency conventions §4): {why}. "
-           "Push your own branch instead, or ask the Regent to push main.")
+           "Push your own branch instead, or ask the Regent to push main. "
+           "Only a `push` grant of the Regent's lifts this (library/judge.md §2).")
 
 
 def hook():
@@ -270,7 +295,7 @@ def hook():
     cmd = (data.get("tool_input") or {}).get("command", "")
     if not cmd or "push" not in cmd:
         return 0
-    verdict, why = decide(cmd, data.get("cwd") or os.getcwd())
+    verdict, why = decide(cmd, data.get("cwd") or os.getcwd(), granted=regent_grant(data))
     if verdict == "allow":
         return 0
     reason = MESSAGE.format(branch="main/master", why=why) if verdict == "deny" else f"Unclear push target: {why}. Confirm before pushing."
@@ -346,15 +371,69 @@ CASES = [  # command, current branch, upstream branch, expected
     ("git push -uo main origin feat", "feat", "feat", "allow"),
 ]
 
+GRANTED = [  # the same decision with a `push` grant of main in force
+    ("git push origin main", "feat", "feat", "allow"),
+    ("git push --force-with-lease origin plumbing testing main", "feat", "feat", "allow"),  # hook-hazard.py asks
+    ("git push", "main", "main", "allow"),
+    ("git push", "feat", "main", "allow"),
+    ("git push origin HEAD:main", "feat", "feat", "allow"),
+    ("git push origin master", "feat", "feat", "deny"),
+    ("git push origin main master", "feat", "feat", "deny"),
+    ("git push", "master", "master", "deny"),
+    ("git push origin +main", "feat", "feat", "deny"),
+    ("git push origin +feat:main", "feat", "feat", "deny"),
+    ("git push origin --delete main", "feat", "feat", "deny"),
+    ("git push origin :main", "feat", "feat", "deny"),
+    ("git push --all", "feat", "feat", "deny"),
+    ("git push --mirror origin", "feat", "feat", "deny"),
+    ("git push origin $BRANCH", "feat", "feat", "ask"),
+    ("git push --del origin main", "feat", "feat", "deny"),
+    ("git push --de origin main", "feat", "feat", "deny"),
+    ("git push -fd origin main", "feat", "feat", "deny"),
+    ("git push -df origin main", "feat", "feat", "deny"),
+    ("git push -ud origin main", "feat", "feat", "deny"),
+    ("git push --al origin", "feat", "feat", "deny"),
+    ("git push --mir origin", "feat", "feat", "deny"),
+    ("git push --force-with-lease=main:abc origin main", "feat", "feat", "allow"),  # hook-hazard.py asks
+    ("git push -fu origin main", "feat", "feat", "allow"),  # hook-hazard.py asks
+    ("git push -odn origin main", "feat", "feat", "allow"),  # a push option, so a real push the grant covers
+]
+
+
+def lookup_cases():
+    """The real lookup: a grant judge.py recorded opens main in its session and its repository only."""
+    import hook_wire as wire
+    import judge
+    with tempfile.TemporaryDirectory() as tmp:
+        os.environ["REGENCY_HOOK_STATE"] = str(Path(tmp) / "state")
+        os.environ["REGENCY_JUDGE_HOME"] = str(Path(tmp) / "home")
+        os.environ.pop("REGENCY_JD", None)
+        root, other = wire.build_fixture(Path(tmp) / "proj"), wire.build_fixture(Path(tmp) / "other")
+        ev, ev2 = {"session_id": "s1"}, {"session_id": "s2"}
+        judge.record(ev, root, "push main -- the re-authored history", "Regent: message")
+        covered = regent_grant(ev)
+        return [(covered("main", root), "the Regent's grant covers its branch"),
+                (not covered("master", root), "and no other"),
+                (not regent_grant(ev2)("main", root), "a session grant stays in its session"),
+                (not covered("main", other), "a session grant stays in its repository"),
+                (not covered("main", None), "a failed lookup reads as no grant")]
+
 
 def selftest():
     bad = 0
-    for cmd, cur, up, want in CASES:
-        got, why = decide(cmd, ".", current=lambda c, cur=cur: cur, upstream=lambda c, up=up: up)
-        if got != want:
+    for table, granted in ((CASES, no_grant), (GRANTED, lambda b, c: b == "main")):
+        for cmd, cur, up, want in table:
+            got, why = decide(cmd, ".", current=lambda c, cur=cur: cur, upstream=lambda c, up=up: up, granted=granted)
+            if got != want:
+                bad += 1
+                print(f"MISMATCH  want {want:5} got {got:5}  {cmd!r}  ({why})")
+    looked_up = lookup_cases()
+    for ok, label in looked_up:
+        if not ok:
             bad += 1
-            print(f"MISMATCH  want {want:5} got {got:5}  {cmd!r}  ({why})")
-    print(f"guard-push selftest: {len(CASES) - bad}/{len(CASES)} ok")
+            print(f"MISMATCH  lookup: {label}")
+    total = len(CASES) + len(GRANTED) + len(looked_up)
+    print(f"guard-push selftest: {total - bad}/{total} ok")
     return 1 if bad else 0
 
 
