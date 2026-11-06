@@ -1,6 +1,6 @@
 ---
 name: judge
-description: "Regency Judge (JD): the Regent's grants - where and how a hazardous act (delete, discard, history, layout) may run without asking, for this session, the repository, this machine or a file the Regent names. Lists them, puts new ones to the Regent in one pop-up, revokes, ratifies on the Regent's word. Use for /regency:judge, 'manage this folder', 'what may run here', 'stop asking me about X'."
+description: "Regency Judge (JD): the Regent's grants - where and how a hazardous act (delete, discard, history, layout, push) may run without asking, for this session, the repository, this machine or a file the Regent names. Lists them, puts new ones to the Regent in one pop-up, revokes, ratifies on the Regent's word. Use for /regency:judge, 'manage this folder', 'what may run here', 'stop asking me about X'."
 argument-hint: "[list | <folders or task> | revoke <id> | ratify]"
 ---
 
@@ -14,8 +14,8 @@ argument-hint: "[list | <folders or task> | revoke <id> | ratify]"
 
 | Part | Values |
 |---|---|
-| how | `delete`, `discard`, `history`, `layout` |
-| where | globs relative to the repository root (`Herança/**` covers the folder too; `**` is the whole repository), or absolute |
+| how | `delete`, `discard`, `history`, `layout`; `push`, on a line of its own, answers `scripts/guard-push.py`'s denial |
+| where | globs relative to the repository root (`Herança/**` covers the folder too; `**` is the whole repository), or absolute; a `push` names `main` or `master`, no glob |
 | scope | `session` · `repo` (`<guidelines>/JD.md`, travels with the repository) · `machine` (`~/.claude/regency/JD.md`) · a `.md` path the Regent names |
 | why | required |
 
@@ -25,7 +25,7 @@ Judge's pop-up or from a line the Regent sends: `grant: <how>[,<how>] <where>...
 ## Commands
 
 ```bash
-python <regency-root>/scripts/judge.py list                 # file grants in force here; STALE stores named
+python <regency-root>/scripts/judge.py list                 # grants in force here, this session's too; STALE stores named
 python <regency-root>/scripts/judge.py check <kind> <path>  # which grant covers an act, or the line to propose
 python <regency-root>/scripts/judge.py revoke <id>          # narrowing needs nobody
 python <regency-root>/scripts/judge.py ratify               # the review of each STALE store; records nothing
@@ -69,8 +69,9 @@ it standing, narrow the proposal, add the why, and run step 3.
 
 - Write or edit a `JD.md`, `judge.json` or a session's grants, by tool or by shell. The hooks deny it; a store
   changed any other way goes STALE.
-- Propose a grant for installs, destructive SQL, docker prunes, disk tools, cloud writes, pack consent or a push to
-  main: they are never granted.
+- Propose a grant for installs, destructive SQL, docker prunes, disk tools, cloud writes or pack consent: they are
+  never granted.
+- Propose a `push` grant unless the Regent asked for one: it lets an agent push `main` with no typed command.
 - Read a grant into the Regent's silence, or widen a grant the Regent narrowed.
 
 ## Report

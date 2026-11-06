@@ -30,7 +30,7 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 |---|---|---|---|---|
 | `SessionStart` | `startup\|resume\|clear\|compact` | `hook-resume.py` | recorder | one resume line (R4.2) |
 | `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted and the Regent's `grant:` lines; a ratify verb ratifies changed grant stores; routes a Regent verb |
-| `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master |
+| `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master, unless a `push` grant names it |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write and a shell write to a grant store; `ask` destructive and layout unless a grant covers every path (`library/judge.md`), install, consent |
 | `PreToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-acts-guard.py` | guard | `deny` `.scope/`, acts, a hand edit of the shortcuts state block (R7), lock slices, banned names, a grant store (`JD.md`, `judge.json`; R15) |
 | `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the one store (`shortcuts.record`); re-index the file (`scripts/idx.py`); STALE under the slices whose governed nodes changed (R4.3, R12) |
@@ -46,7 +46,8 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 
 ### Push to main — `guard-push.py`
 
-Unchanged: the Regent pushes `main` (conventions §4). 45-case table.
+The Regent pushes `main` (conventions §4): denied, unless a `push` grant of the Regent's names the branch (`library/judge.md`
+§2). A grant never covers deleting it, `--all`, `--mirror` or a `+` refspec, and a failed lookup reads as no grant. Flags are read as git reads them: a unique prefix (`--del`), a short cluster (`-fd`). 89-case table.
 
 **What a guard reads.** Both shell guards scan the command a shell would run: `guard_push.data_only` takes
 out heredoc bodies that are only data before splitting. A body stays when a shell reads it (`bash <<'EOF'`,
@@ -102,7 +103,7 @@ Each `ask` above is judged when it happens, and nothing locks the session after 
 `discard`, `history` or `layout` act runs without asking when **one grant of the Regent's covers every path it
 names** (`judge.covers`); otherwise it asks, and the ask carries the grant line the Judge would propose. A `cd`
 earlier in the chain moves where the later paths resolve. Installs, destructive SQL, docker prunes, disk tools,
-cloud writes and consent are never granted. Grants come only from the Regent: a `grant:` line in a message
+cloud writes and consent are never granted. `guard-push.py` reads one more kind, `push`. Grants come only from the Regent: a `grant:` line in a message
 (`hook-verbs.py`) or an answer to the Judge's pop-up (`hook-judge.py`). Where they live, STALE stores and
 ratification: `library/judge.md`.
 
