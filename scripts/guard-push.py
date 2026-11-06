@@ -18,10 +18,11 @@ Hook answers (exit code is always 0 so the JSON decides):
 
 What it understands: git push in a chain (&&, ||, ;, |, newlines, $( ), backticks), `git -C dir push`,
 `git -c k=v push`, a full path to git.exe, env-var prefixes, `bash -c "..."` / `powershell -Command "..."`,
-refspecs (src:dst, +src, HEAD, refs/heads/x), --delete, --all, --mirror, --dry-run, flags as git reads
-them (a unique prefix such as --del, a short cluster such as -fd), and a bare `git push` (resolved from
-the current branch and its upstream).
-What it does NOT understand: git aliases (`git p`), scripts that push internally, `gh pr merge`.
+refspecs (src:dst, +src, HEAD, refs/heads/x, heads/x), --delete, --all, --mirror, --dry-run, flags as git
+reads them (a unique prefix such as --del, a short cluster such as -fd), and a bare `git push` (resolved
+from the current branch and its upstream).
+What it does NOT understand: git aliases (`git p`), scripts that push internally, `gh pr merge`, a push
+that configuration widens (`push.default=matching`, `remote.<name>.mirror`).
 A missing/broken script FAILS OPEN in Claude Code, so run --selftest after moving this folder.
 
 Pure standard library, Python 3.8+.
@@ -180,8 +181,8 @@ def real_upstream(cwd):
 # ---------- decision ---------------------------------------------------------------------------
 
 def norm(ref):
-    ref = ref.lstrip("+")
-    return ref[len("refs/heads/"):] if ref.startswith("refs/heads/") else ref
+    """The branch a destination lands on: git also matches heads/main against refs/heads/main."""
+    return re.sub(r"^(?:refs/)?heads/", "", ref.lstrip("+"))
 
 
 def no_grant(branch, cwd):
@@ -369,6 +370,9 @@ CASES = [  # command, current branch, upstream branch, expected
     ("git push -o dn origin main", "feat", "feat", "deny"),
     ("git push -o main origin feat", "feat", "feat", "allow"),
     ("git push -uo main origin feat", "feat", "feat", "allow"),
+    ("git push origin feat:heads/main", "feat", "feat", "deny"),
+    ("git push origin HEAD:heads/master", "feat", "feat", "deny"),
+    ("git push origin heads/main", "feat", "feat", "deny"),
 ]
 
 GRANTED = [  # the same decision with a `push` grant of main in force
@@ -397,6 +401,8 @@ GRANTED = [  # the same decision with a `push` grant of main in force
     ("git push --force-with-lease=main:abc origin main", "feat", "feat", "allow"),  # hook-hazard.py asks
     ("git push -fu origin main", "feat", "feat", "allow"),  # hook-hazard.py asks
     ("git push -odn origin main", "feat", "feat", "allow"),  # a push option, so a real push the grant covers
+    ("git push origin feat:heads/main", "feat", "feat", "allow"),
+    ("git push origin +feat:heads/main", "feat", "feat", "deny"),
 ]
 
 
