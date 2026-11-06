@@ -69,9 +69,10 @@ Only the Regent (conventions §1). Two ways in, both read by hooks from sources 
 
 1. **A `grant:` line** in a message of the Regent's (`UserPromptSubmit`, `hook-verbs.py`):
    `grant: delete, discard Herança/** for repo -- the old layout goes`. Every line that opens with `grant:` counts,
-   in any message length; a quoted line (`> grant:`) does not. It fails closed: a message holding a `<pasted_content`
-   tag records none, whatever its tags, and nothing counts from a message's first `<system-reminder` to its last close.
-   The hook says how many lines it did not read. This way works on every surface.
+   in any message length; a quoted, listed or fenced line does not. Only the Regent's own words count, so nothing a tag
+   encloses does: a reminder, a subagent's report, a command's output, from a block's first opening to its last closing,
+   and a harness tag left open takes the rest of the message. It fails closed: a message holding a `<paste…` tag records
+   none. The hook says how many lines it did not read. This way works on every surface.
 2. **The Judge's pop-up** (`hook-judge.py`): one `AskUserQuestion` question per grant, header `JD grant`, the grant
    in one backtick span, options `Session` · `Repo` · `This machine` · `No` (a typed `.md` path picks a file). The
    grant text is the agent's proposal, read by the Regent before answering; the scope is the Regent's pick. A Judge
@@ -106,9 +107,10 @@ fingerprint. No local check can stop it (conventions §5).
 
 | Fact | Consequence here |
 |---|---|
-| `UserPromptSubmit` carries the Regent's text; some surfaces prepend `<system-reminder>` blocks | `hook_wire.regent_text` strips them before grant lines are read |
+| `UserPromptSubmit` carries the Regent's text; some surfaces prepend `<system-reminder>` blocks | `hook_wire.regent_text` reads only what no tag encloses, from a block's first opening to its last closing; verbs, cloud confirmations and grant lines all read through it, and `judge.grant_lines` also drops fenced blocks |
 | A hook's environment has `CLAUDE_PLUGIN_DATA`, where session grants live; a shell's has only `CLAUDE_CODE_SESSION_ID` | `judge.shell_event` finds the session's file under `~/.claude/plugins/data/` |
-| How a paste reaches the prompt a hook receives | **not yet seen live**: `judge.grant_lines` reads nothing from a message holding `<pasted_content`, so the tag's exact form does not matter; a surface that passes a paste with no tag at all leaves its grant lines readable |
+| A subagent's report fires `UserPromptSubmit` too, with a `prompt` that opens `<agent-message from="…">` and every line of the report indented (seen live, 2026-11-06) | it is no message of the Regent's: it ends no pass, and what it holds confirms and grants nothing |
+| How a paste reaches the prompt a hook receives | **not yet seen live**: `judge.grant_lines` reads nothing from a message holding a `<paste…` tag, so its exact form does not matter; a surface that passes a paste with no tag at all leaves its grant lines readable |
 | `PreToolUse` runs before the permission component fills `AskUserQuestion` answers | answers present at `PreToolUse` came from the agent: denied |
 | Where a surface puts the answers at `PostToolUse` | **not yet seen live**: read from `tool_input.answers`, then `tool_response.answers`, then a `"question"="answer"` text; when none arrives the hook names the typed line instead |
 | A `PreToolUse` hook's silence approves nothing | a grant never overrides Claude Code's own permissions |

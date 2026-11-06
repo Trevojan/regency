@@ -240,14 +240,44 @@ def regent_verbs():
         return []
 
 
-HARNESS_BLOCK = re.compile(r"<system-reminder>.*?</system-reminder>", re.S)
+HARNESS_TAG = (r"system[-_]reminder|agent-message|task-notification|teammate-message|user-prompt-submit-hook|"
+               r"past(?:e|ed)[\w-]*|bash-[\w-]+|local-command-[\w-]+|command-[\w-]+|ide_\w+")
+TAG_OPEN = re.compile(r"<([A-Za-z][\w:.-]*)(?:\s[^<>]*)?>")
+HARNESS_OPEN = re.compile(rf"(?i)(?:{HARNESS_TAG})$")
+HARNESS_CLOSE = re.compile(rf"(?i)</(?:{HARNESS_TAG})(?:\s[^<>]*)?>")
 
 
 def regent_text(prompt):
-    """The Regent's own words: some surfaces prepend <system-reminder> blocks (a timezone line, context) to
-    the prompt a hook receives. They are the harness's, never the Regent's, so a verb can open the message
-    behind them and a command quoted inside them confirms nothing."""
-    return HARNESS_BLOCK.sub("", prompt or "").strip()
+    """The Regent's own words. What a tag encloses is someone else's: a reminder, a paste, a command's output, a subagent's
+    report (it reaches UserPromptSubmit as <agent-message>). So a block goes from its name's first opening to its last
+    closing, which a planted closing tag cannot end early; text the Regent typed between two blocks of one name goes too.
+    A harness tag left open takes the rest of the message, one closed with no opening takes what came before it, and any
+    other tag left open stays, because '<why>' is how people write a placeholder. Every doubt reads less as theirs: a verb,
+    a confirmation or a grant is lost and asked for again, never gained."""
+    text, typed, at, open_only = prompt or "", [], 0, set()
+    while True:
+        m = TAG_OPEN.search(text, at)
+        if not m:
+            typed.append(text[at:])
+            break
+        tag = m.group(1).lower()
+        last = None
+        if tag not in open_only:
+            for last in re.finditer(rf"(?i)</{re.escape(tag)}(?:\s[^<>]*)?>", text[m.end():]):
+                pass
+        if last:
+            typed.append(text[at:m.start()])
+            at = m.end() + last.end()
+        elif HARNESS_OPEN.match(tag):
+            typed.append(text[at:m.start()])
+            break
+        else:
+            open_only.add(tag)
+            typed.append(text[at:m.end()])
+            at = m.end()
+    text = "".join(typed)
+    orphans = list(HARNESS_CLOSE.finditer(text))
+    return (text[orphans[-1].end():] if orphans else text).strip()
 
 
 def opening_verb(prompt, table):
