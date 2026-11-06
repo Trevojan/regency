@@ -176,7 +176,7 @@ def classify_words(w):
 
 
 RM_COMMANDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd", "remove-item", "ri"}
-CD_COMMANDS = {"cd", "pushd", "chdir", "set-location", "sl"}
+CD_COMMANDS = {"cd", "pushd", "popd", "chdir", "set-location", "sl", "push-location", "pop-location"}
 UNGRANTABLE = {"dd", "mkfs", "format", "diskpart", "docker"} | SQL_CLIENTS  # data outside files: never granted
 
 
@@ -201,18 +201,22 @@ def operands(args):
 
 
 def git_folder(args, here):
-    """Where a git command runs: its global -C, read against the folder the chain has reached."""
-    j = 0
+    """Where a git command runs: each global -C read against the last, as git does; None when --git-dir or --work-tree
+    says it runs somewhere no script here follows."""
+    j, where = 0, here
     while j < len(args) and args[j].startswith("-"):
         if args[j] == "-C" and j + 1 < len(args):
-            return resolve(args[j + 1], here)
+            where = resolve(args[j + 1], where)
+        if args[j].split("=")[0] in ("--git-dir", "--work-tree"):
+            return None
         j += 2 if args[j] in guard_push.GIT_VALUE_OPTS else 1
-    return here
+    return where
 
 
 def act_paths(kind, label, w, here, root=None):
-    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable. A git act
-    that names no path is judged where it runs: `**` is this repository, and an unknown folder is covered by no grant."""
+    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable. A git act is
+    judged where it runs: what it names resolves against that folder, `**` is this repository, and an unknown folder is
+    covered by no grant."""
     if name(w[0]) in ("sudo", "doas"):
         w = words(w[1:])
     cmd, args = name(w[0]), w[1:]
@@ -222,18 +226,18 @@ def act_paths(kind, label, w, here, root=None):
         return [resolve(a, here) for a in operands(args)]
     if cmd == "find":
         return [resolve((operands(args) or ["."])[0], here)]
-    if cmd == "git" and label in ("git checkout -- <paths>", "git restore", "git clean -f"):
+    if cmd != "git":
+        return []
+    where = git_folder(args, here)
+    if where is None:
+        return None
+    if label in ("git checkout -- <paths>", "git restore", "git clean -f"):
         verb = next((i for i, a in enumerate(args) if a in ("checkout", "restore", "clean")), None)
         rest = args[verb + 1:] if verb is not None else []
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
-        return [resolve(a, here) for a in paths]
-    if cmd == "git" and root is not None:
-        where = git_folder(args, here)
-        if where is None:
-            return None
-        if wire.repo_root(where) != wire.repo_root(root):
-            return [where]
-    return []
+        if paths:
+            return [resolve(a, where) for a in paths]
+    return [] if root is None or wire.repo_root(where) == wire.repo_root(root) else [where]
 
 
 def acts(command, cwd, depth=0, root=None):
@@ -521,6 +525,24 @@ def selftest():
                       "'**' never reaches another repository, by 'cd' or by -C"))
         cases.append((verdict(respond(ev("PreToolUse", 'cd "$X" && git push --force origin feat', sid="s5"))) == "ask",
                       "after a 'cd' to an unknown place no grant covers a git act"))
+        wire.build_fixture(Path(tmp) / "other")
+        for how in ("delete ** -- this repository", "discard ** -- this repository", "history ** -- this repository"):
+            grant(how, sid="s7")
+        grant("discard sub/** -- this repository", sid="s8")
+        for cmd in ("git -C ../other clean -fd", "cd ../other && git clean -fdx", "git -C ../other checkout -- .", "git -C ../other restore .",
+                    "git -C ../other restore sub/f", "git -C . -C ../other push -f origin side", "git -C .. -C other clean -fd",
+                    "Push-Location ../other; git push -f origin side", "pushd ../other && git reset --hard", "git --git-dir=../other/.git clean -fd",
+                    "git --work-tree ../other clean -fd", 'cd "$X" && git checkout -- f', 'cd "$X" && git clean -fd'):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' stays in this repository: {cmd}"))
+        for cmd in ("git clean -fd", "git -C . clean -fd", "git checkout -- .", "git restore src/a.cs", "git -C ../proj push -f origin side",
+                    "git -C .. -C proj reset --hard", "pushd . && git reset --hard"):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and covers it: {cmd}"))
+        cases.append((verdict(respond(ev("PreToolUse", "git -C ../other checkout -- sub/f", sid="s8"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "git checkout -- sub/f", sid="s8"))) == "allow"
+                      and verdict(respond(ev("PreToolUse", "git -C sub checkout -- f", sid="s8"))) == "allow",
+                      "a relative glob reads paths from where git runs"))
+        cases.append((verdict(respond(ev("PreToolUse", "pushd ../other && popd && git reset --hard", sid="s7"))) == "ask",
+                      "after a popd nothing here knows the folder"))
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"

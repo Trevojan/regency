@@ -26,7 +26,9 @@ Ids: `JD-S##` (session), `JD-R##` (repo), `JD-M##` (machine), `JD-P##` (a file t
 
 **Covered** means: every path the act names matches a glob of **one** grant of its kind. An act that names no path
 (`git reset --hard`, `git rebase`, `git branch -D`) and a path no script can resolve (`"$d"`, a glob, a `cd` to an
-unknown place) need `**`. A `cd` earlier in the chain moves where the later paths resolve.
+unknown place) need `**`. A `cd` earlier in the chain moves where the later paths resolve. A git act is judged where it
+runs, through its `-C` too: `**` and every relative glob stop at this repository, and a git act in a folder no script can
+know (`cd "$X"`, `--git-dir`) is covered by no grant.
 
 **Never granted**, so they keep asking or denying whatever a grant says: installing system software, destructive SQL,
 docker prunes and disk tools (data outside files), cloud writes (conventions §6) and pack consent (T5). `edit` and
