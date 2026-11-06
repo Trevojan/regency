@@ -21,11 +21,11 @@ never "latest": to run one of those for a session, use `claude --plugin-dir <pat
    ```bash
    claude plugin list --json              # the entries whose id opens regency@: version, scope, notes
    claude plugin marketplace list --json  # where a marketplace install comes from: repo, ref
-   gh release list -R Trevojan/regency --json tagName,isLatest,isDraft,isPrerelease
+   gh release list -R Trevojan/regency --exclude-drafts --exclude-pre-releases --json tagName,isLatest
    ```
 
    The newest release is the row with `isLatest`; its version is the tag without the `v`. `gh` missing or
-   failing is a blocker to report, never "no release": only `[]` means none. An entry noted as not loaded is not
+   failing is a blocker to report, never "no release": only a list with no `isLatest` row means none. An entry noted as not loaded is not
    the install in force. When the regency root is not the entry's `installPath`, say that this session runs from
    that root (`--plugin-dir`), not from the install.
 
@@ -46,7 +46,7 @@ never "latest": to run one of those for a session, use `claude --plugin-dir <pat
    | Install | Route |
    |---|---|
    | `synced`: the account's | Two ways; the pop-up offers both. **The account:** the CLI has no upload, so in a new, empty folder: `gh release download v<want> -R Trevojan/regency -p regency-<want>.plugin -D <folder>`, then `gh release verify-asset v<want> <folder>/regency-<want>.plugin -R Trevojan/regency`. Give the Regent the file's full path: they install it on the account (README, path 7). Never open or run the file. **This machine only:** the no-install route below; a `user` install takes precedence over the account's copy, which cloud sessions keep reading. |
-   | `user` or `local`: a marketplace | `gh release verify v<want> -R Trevojan/regency`, then `claude plugin marketplace remove <marketplace>`, `claude plugin marketplace add Trevojan/regency#v<want>`, `claude plugin install regency@regency -s <scope>`. `plugin update` never moves a pinned install and `add` refuses a second ref under one name, so it takes all three; `remove` uninstalls the plugin until `install` brings it back. A marketplace on a path or a branch stops following it: the pop-up says so. |
+   | `user` or `local`: a marketplace | `gh release verify v<want> -R Trevojan/regency`, then `claude plugin marketplace remove <marketplace>`, `claude plugin marketplace add Trevojan/regency#v<want>`, `claude plugin install regency@regency -s <scope>`. `plugin update` never moves a pinned install and `add` refuses a second ref under one name, so it takes all three. `remove` uninstalls the plugin, guards included, until `install` brings it back, and deletes its saved data (session grants, cloud confirmations, heartbeats): the pop-up says so. A marketplace on a path or a branch stops following it: the pop-up says that too. |
    | `project` | Declared in that repository's `.claude/settings.json`, so it is the team's: report it and stop. |
    | no install | The marketplace route without `remove`, with `-s user`. |
 
@@ -54,8 +54,9 @@ never "latest": to run one of those for a session, use `claude --plugin-dir <pat
    move*. With several entries, it names each and the one that moves. Read the free text too. No yes, no move.
 
 5. **Move.** Run the route's commands in order, one per call. A failure ends the route, a failed verification
-   included: report what it printed, hand nothing over, and never retry another way. A session keeps the copy it
-   started with, so nothing changes until a restart.
+   included: report what it printed, hand nothing over, and never retry another way. A failure after `remove` leaves
+   no guard installed: say that first, and give the Regent the `add` and `install` lines for the source step 1 showed.
+   A session keeps the copy it started with, so nothing changes until a restart.
 
 6. **Machine pieces.** A plugin update moves none of them, and these checks write nothing:
 
