@@ -8,11 +8,10 @@ Rewritten in place each time the version moves or the state below changes. The r
 | Where | Version | Note |
 |---|---|---|
 | `library/registry.json`, `.claude-plugin/plugin.json` | 3.3 | doctor fails when they differ |
-| the Regent's folder: `plumbing`, `testing`, `main` | 3.3 | one commit, its history re-authored as Trevojan; waits for the Regent's force-push |
-| GitHub `plumbing`, `testing` | 3.3 | the same files as the folder's `main`, under the old authors until the force-push |
-| GitHub `main` | 3.1 | at `8427d0b` until the force-push; doctor green in CI there |
-| a release tag | none yet | `v3.3` goes out from `main` once pushed; the README's pinned install points at `v3.3` |
-| this machine's installs | 3.1 | `regency~g3` is the only live copy (`health.py copies`, 2026-11-06), behind this folder's 3.3 (N11) |
+| the Regent's folder and GitHub: `testing`, `main` | 3.3 | `954e691`: 64 commits, none authored by Claude; force-pushed 2026-11-06 |
+| `plumbing` | 3.3, ahead | the Regent's own line, the `push` grant, `/regency:latest` and the flag-reading fixes, on top of `954e691`; doctor green, waiting on one QA pass |
+| a release tag | none yet | the README's pinned install points at `v3.3`, which does not exist; immutable releases are off, and `/regency:latest` verifies against them |
+| this machine's installs | 3.3 label | `regency@regency` from this folder's working tree, user scope (2026-11-06), so it runs the uncommitted work; it takes precedence over the account's `regency~g3` 3.1, which stays on disk (N11) |
 | the at-work fork | 3.2, 3.1 | holds nothing this folder lacks: its two new commits are picked here, under Trevojan |
 
 ## What 3.3 added
@@ -34,18 +33,22 @@ the old author.
 - `python scripts/doctor.py` on the Regent's machine (Windows, 2026-11-06): 0 fail; the 29 warnings are the 25 old
   level names, the two proposal subas and two machine-side installs (path-scoped rules, auto-mode entries).
 - CI: `.github/workflows/doctor.yml` runs `build.py --check` and doctor on pull requests and on pushes to
-  `main`, `testing` and `plumbing*`; it last passed on `main` at 3.1.
+  `main`, `testing` and `plumbing*`; it last passed on all three at 3.3 (2026-11-06).
 - The repository is public. Its hardening is the Regent's in GitHub's settings: rulesets on `main` and the release
   tags, the `doctor` check required on `main`, private vulnerability reporting, secret scanning, Discussions.
+- `main`'s ruleset `main-tain` refuses force-pushes, merge commits and unsigned commits. The re-authored history is
+  unsigned and holds one merge (`053f97d`), so a push of `main` passes only by the Regent's admin bypass (N18).
 
 ## Next, in order
 
-1. The Regent force-pushes the re-authored branches: `git push --force-with-lease origin plumbing testing main`
-   (their admin role bypasses `main`'s ruleset); CI runs doctor there.
-2. Publish the release `main` holds, with its `.plugin` attached, and test the pinned install line.
-3. Keep one install of 3.3 on this machine and the account (N11).
-4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
-5. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
+1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
+2. One QA pass on `plumbing`'s guard, hazard hook and Judge diff; accept or refuse; bump to 3.4; merge up to `main`.
+3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
+   `/regency:latest` moves this machine to the tag; test the pinned install line.
+4. Keep one install on this machine and the account (N11).
+5. First pop-up grant: confirm where its answers arrive (`library/judge.md` §7). A `grant:` line ran live on 2026-11-06.
+6. Issue #2, Sleepy Runs (`ROADMAP.md`, candidates).
+7. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
 
 ## How to resume here
 

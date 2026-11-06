@@ -107,8 +107,9 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N3 | two records both numbered R5 (cloud CLIs; normalise) | rename one by R11.2's rule |
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
-| N11 | installs on this machine (2026-11-06): one live, `regency~g3` 3.1, behind this folder's 3.3; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
+| N11 | installs on this machine (2026-11-06): `regency@regency` from this folder's working tree is live and shadows the account's `regency~g3` 3.1, which cloud sessions still read; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
+| N18 | `main`'s ruleset wants signed commits and a linear history; the re-authored history is unsigned and holds one merge (`053f97d`), so every push of `main` bypasses it | sign from now on and re-sign the history, or drop those two rules |
 
 Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
 N16 (`main` took `testing`). Closed with 2.13: N12 (the old branches merged into one line; their retirement is the Regent's act,
@@ -134,3 +135,7 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   after. The issue proposes reviewing behaviour on multiple parallel runs, with many concurring models.
 - `install-agents.py`, `install-rules.py` and `install-automode.py` ignore an unknown flag, so `--help` runs the
   install (it did on 2026-11-06, for the role agents).
+- `package.py` builds from the working tree as it stands and checks only the generated files, so a dirty tree ships
+  under the version in force, one version naming two contents. `/regency:latest` never builds, so it does not close this.
+- `health.py copies` says each installed copy loads its skills and hooks, but a synced copy shadowed by a local install
+  does not load (2026-11-06): it reads the disk, not `claude plugin list`.
