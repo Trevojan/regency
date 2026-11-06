@@ -9,7 +9,7 @@
 
 <p align="center">
 <!-- regency:badges:begin -->
-  <a href="#versioning"><img alt="version: 3.2" src="https://img.shields.io/badge/regency-3.2-00D7FF?style=flat-square&labelColor=000000"></a>
+  <a href="#versioning"><img alt="version: 3.3" src="https://img.shields.io/badge/regency-3.3-00D7FF?style=flat-square&labelColor=000000"></a>
   <a href="#api-surface"><img alt="commands: 64" src="https://img.shields.io/badge/commands-64-A66CFF?style=flat-square&labelColor=000000"></a>
   <a href="#api-surface"><img alt="skills: 19" src="https://img.shields.io/badge/skills-19-8FD3FF?style=flat-square&labelColor=000000"></a>
 <!-- regency:badges:end -->
@@ -86,9 +86,9 @@ claude plugin install regency@regency
 From GitHub, pinned to a release:
 
 ```bash
-claude plugin marketplace add Trevojan/regency#v3.2
+claude plugin marketplace add Trevojan/regency#v3.3
 claude plugin install regency@regency
-gh release verify v3.2         # the release is immutable and attested
+gh release verify v3.3         # the release is immutable and attested
 ```
 
 > [!IMPORTANT]

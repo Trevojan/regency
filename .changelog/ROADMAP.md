@@ -77,6 +77,7 @@ decision.
 | 3.0 | domain packs: any plugin adopted as it is, per project, hooks on the Regent's consent |
 | 3.1 | the Judge: the Regent's grants replace the hazard watch |
 | 3.2 | Windows consoles: UTF-8 hook streams, pack hooks cut on time; this folder's own ledger |
+| 3.3 | the Regent authors, Claude [Model] co-authors; a `.template` merged by hand is recorded |
 
 ## Queued from the book
 
@@ -106,7 +107,7 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N3 | two records both numbered R5 (cloud CLIs; normalise) | rename one by R11.2's rule |
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
-| N11 | installs on this machine (2026-11-06): one live, `regency~g3` 3.1, behind this folder's 3.2; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
+| N11 | installs on this machine (2026-11-06): one live, `regency~g3` 3.1, behind this folder's 3.3; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
 Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
@@ -119,8 +120,8 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
-- The required status check `doctor` on `main`: the workflow passed there at `8427d0b`.
-- The `v3.2` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
+- The required status check `doctor` on `main`: the workflow last passed there at 3.1.
+- The `v3.3` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
 - This folder's own ledger (`.shortcuts/.virtual/ongoing.json`) is read by `vp.py` alone: the hooks and
   `/regency:health` find a ledger under a `.guidelines/` root only (`hook_wire.virtual_dir`), and a `.guidelines/`
   here would make the folder an unstamped project for the version gate.

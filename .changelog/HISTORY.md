@@ -6,6 +6,35 @@ one, the section says which.
 
 ---
 
+## 3.3
+
+2026-11-06 · branch `plumbing` · `+b`: a content change on 3.2 (the Regent's pop-up: "Commit as 3.3, merge up")
+
+The Regent: "i have been updating through cloud sessions and now need to assemble the changes"; "the authoring is
+Regent + Claude [Model]". Answers (pop-up): commit as 3.3 and merge up to `main`; the 36 published commits authored
+`Claude` are re-authored as Trevojan, prepared in this folder and force-pushed by the Regent. Files, dates, messages
+and the `Co-Authored-By:` trailers stay as they were.
+
+**Added**
+
+- **`migrate.py merged`**: a `.template` merged by hand and deleted is recorded in the stamp, so the plan stops putting
+  it back and `check` passes; a newer template goes beside the file again. `/regency:update` gains "After merging by
+  hand". Picked from the at-work fork, where it sat on `main` only.
+
+**Changed**
+
+- **The Regent authors, Claude co-authors** (conventions §4, `/regency:arrange-cycle-commit`, `CONTRIBUTING.md`): the
+  author is the identity git resolves, the trailer names the model, and a commit picked from another of the Regent's
+  identities lands under this repository's. Replaces R12.6 ("Agents commit as Claude").
+
+**Queued, not fixed** (`ROADMAP.md`): issue #2 (Sleepy Runs), the two miscounts in `vp.py trace`, the installers' unknown
+flag.
+
+**Proof.** migrate 44/44; doctor 0 fail in a Windows console on the Regent's machine; every re-authored commit compared
+with its original for files, dates, message and shape.
+
+---
+
 ## 3.2
 
 2026-11-03 · branch `plumbing` · `+b`: a content change on 3.1 (the Regent's pop-up: "Commit as 3.2")
