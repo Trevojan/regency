@@ -59,7 +59,11 @@ def respond(event, table=None):
         parts.append(f"grant stores ratified by the Regent ('{row[0]}'): {len(done)}" if done else "no grant store to ratify")
     elif row:
         parts.append(f"Regent verb '{row[0]}' = {row[1]} -> {row[2]} (conventions §9)")
-    for spec in judge.grant_lines(prompt):
+    unread = judge.unread_lines(event.get("prompt"))
+    if unread:
+        parts.append(f"{unread} grant line(s) not read: a message holding pasted content, or text inside harness blocks, "
+                     "records none; send the line alone")
+    for spec in judge.grant_lines(event.get("prompt")):
         try:
             gid, where = judge.record(event, repo, spec, "Regent: message")
             g = judge.parse_spec(spec)
