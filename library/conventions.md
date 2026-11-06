@@ -98,12 +98,14 @@ from its brief; a UI rule changes there first, then in code.
   may push the *other* branches it touched (plain `git push -u origin <branch>`, no tags, no `--all`), and
   asks first when the project says pushing that branch triggers a pipeline or deploy. When `main` is ready,
   say so.
-- **Agents commit as Claude.** A commit an agent makes is authored `Claude <noreply@anthropic.com>`
-  (set for the repository only: `git config user.name Claude`, `git config user.email
-  noreply@anthropic.com`; never `--global`) and ends with the session's `Co-Authored-By:` trailer. The
-  Regent's name and address are never borrowed: an agent's commit under them shows as *Unverified* on the
-  host and hides whose work it is. A published commit with the wrong author stays as it is (no history
-  rewrite); the next one is right.
+- **The Regent authors, Claude co-authors** (the Regent, 2026-11-06). A commit an agent makes keeps the identity
+  git resolves on that machine as its author and ends with the session's trailer,
+  `Co-Authored-By: Claude <Model> <noreply@anthropic.com>`, so the host shows the Regent and the model together. An
+  agent sets no identity of its own: no `git config user.name`, no `-c user.name`, no `--author`. A repository
+  still set to `Claude <noreply@anthropic.com>` has that override removed, for that repository only, and the report
+  says so. When git resolves no identity, or only Claude's, ask the Regent. A commit picked from a line under another
+  of the Regent's identities lands under this repository's, with its date and message kept. A published commit with
+  another author stays as it is and the next one is right: only the Regent's own force-push replaces published history.
 - **Merging: update, never retrocede** (the Regent, 2026-10-29). When two lines of work meet, the better
   resource stays, whichever side it came from; newer by date is not better by itself. Keep what improves
   performance, efficiency or a bottleneck; drop what is useless, already made by existing means, or

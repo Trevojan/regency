@@ -42,7 +42,7 @@ proves nothing.
 ## Commits and branches
 
 - Small commits, split by kind: `feat`, `fix`, `docs`, `add`, `test`. Each commit builds and passes doctor.
-- An agent's commit is authored `Claude <noreply@anthropic.com>` and ends with its `Co-Authored-By:` trailer.
+- An agent's commit keeps the git identity of the person running it as author and ends with a `Co-Authored-By:` trailer naming the model.
 - Branch contract: `plumbing` (first code) → `testing` (validation) → `main` (docs and the reviewed merge).
 - Only the maintainer pushes `main`. No force-push, no rewrite of published history (`scripts/guard-push.py`).
 

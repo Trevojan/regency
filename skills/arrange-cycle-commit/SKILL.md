@@ -25,10 +25,11 @@ Run `git status` and `git branch --show-current`. Stop and say so if this is not
 2. **Whose changes are these?** List every modified/untracked file. Group them into: (a) work done in
    this session, (b) everything else. Stage only (a). Files in (b) belong to the Regent: leave them
    untouched and unstaged, and name them in the report. If a file mixes both, ask.
-3. **Commit as Claude** (`library/conventions.md` §4). `git config user.email` must read
-   `noreply@anthropic.com`; if it does not, set `git config user.name Claude` and
-   `git config user.email noreply@anthropic.com` for this repository only, never `--global`, and say so
-   in the report. Never commit under the Regent's name or address.
+3. **The Regent authors, Claude co-authors** (`library/conventions.md` §4). The author is the identity git
+   resolves here (`git var GIT_AUTHOR_IDENT`); set none of your own. If this repository's config overrides it with
+   `noreply@anthropic.com`, remove the override (`git config --local --unset user.name`,
+   `git config --local --unset user.email`) and say so in the report. If git then resolves no identity, or only
+   Claude's, ask.
 
 ## 1. Split
 
@@ -51,7 +52,8 @@ Format-only differences ride with the commit that touched the lines.
 For every commit: stage exactly its files (`git add <paths>`, never `-A`/`.`), run the project's
 verification command if it is quick and available, then commit with a message that states **what
 changed and why**, in the project's language and commit style (read `git log` for it). Body in
-detail for anything non-obvious. End the message with the attribution line the harness requires.
+detail for anything non-obvious. End the message with the attribution line the harness gives,
+`Co-Authored-By: Claude <Model> <noreply@anthropic.com>`.
 
 Never use `--no-verify`, never amend a commit that is not yours from this run, never rewrite
 history, never create a worktree.
