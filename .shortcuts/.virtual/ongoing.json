@@ -3,8 +3,8 @@
   "schema": 1,
   "updated": "2026-11-06",
   "items": [
-    {"id": "grant-latest", "title": "the Regent's own line, the push grant, /regency:latest, flags read as git reads them", "state": "ongoing", "who": "DV", "since": "2026-11-06",
-     "where": ["branch:plumbing", "scripts/guard-push.py", "scripts/hook-hazard.py", "scripts/judge.py", "skills/latest/SKILL.md"], "next": "one QA pass; the PO accepts or refuses on its opinion", "source": ".changelog/CHECKPOINT.md#next-in-order"},
+    {"id": "grant-latest", "title": "the Regent's own line, the push grant, /regency:latest, the push guard on real refs (hook-refs.py)", "state": "ongoing", "who": "DV", "since": "2026-11-06",
+     "where": ["branch:plumbing", "scripts/guard-push.py", "scripts/hook-refs.py", "scripts/hook-hazard.py", "scripts/judge.py", "skills/latest/SKILL.md"], "next": "QA's second pass, against the forms it landed on 3326385; the PO accepts or refuses on its opinion", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "vp-seed", "title": "vp.py takes the scaffold seed in library/templates for the ledger", "state": "review", "who": "DV", "since": "2026-11-03",
      "where": ["branch:plumbing", "scripts/vp.py"], "next": "the Regent reviews 3.3 on main (vp.py --selftest 13/13)", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "win-utf8", "title": "doctor crashes four checks in a cp1252 console", "state": "review", "who": "DV", "since": "2026-11-03",

@@ -9,7 +9,7 @@ Rewritten in place each time the version moves or the state below changes. The r
 |---|---|---|
 | `library/registry.json`, `.claude-plugin/plugin.json` | 3.3 | doctor fails when they differ |
 | the Regent's folder and GitHub: `testing`, `main` | 3.3 | `954e691`: 64 commits, none authored by Claude; force-pushed 2026-11-06 |
-| `plumbing` | 3.3, ahead | the Regent's own line, the `push` grant, `/regency:latest` and the flag-reading fixes, on top of `954e691`; doctor green, waiting on one QA pass |
+| `plumbing` | 3.3, ahead | the Regent's own line, the `push` grant, `/regency:latest`, the flag-reading fixes and `hook-refs.py`, on top of `954e691`; QA refused `3326385` on the guards, and this work answers that; doctor green, waiting on QA's second pass |
 | a release tag | none yet | the README's pinned install points at `v3.3`, which does not exist; immutable releases are off, and `/regency:latest` verifies against them |
 | this machine's installs | 3.3 label | `regency@regency` from this folder's working tree, user scope (2026-11-06), so it runs the uncommitted work; it takes precedence over the account's `regency~g3` 3.1, which stays on disk (N11) |
 | the at-work fork | 3.2, 3.1 | holds nothing this folder lacks: its two new commits are picked here, under Trevojan |
@@ -24,7 +24,7 @@ putting it back.
 
 The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing` takes the agents' first code,
 `testing` the last validated pass, `main` the docs and the reviewed merge. Agents push `plumbing` and
-`testing`; `scripts/guard-push.py` denies an agent's push to `main`. The superseded branches are retired as
+`testing`; `scripts/guard-push.py` and `scripts/hook-refs.py` refuse an agent's push to `main` with no `push` grant. The superseded branches are retired as
 `archive/regency-2.10`, `archive/plumbing-2.12` and `archive/plumbing-2.13`; the last two keep their commits under
 the old author.
 
@@ -42,7 +42,7 @@ the old author.
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. One QA pass on `plumbing`'s guard, hazard hook and Judge diff; accept or refuse; bump to 3.4; merge up to `main`.
+2. QA's second pass on `plumbing`, against the forms it landed on `3326385`; accept or refuse; bump to 3.4; merge up to `main`.
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
    `/regency:latest` moves this machine to the tag; test the pinned install line.
 4. Keep one install on this machine and the account (N11).

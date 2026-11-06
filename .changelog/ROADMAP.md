@@ -139,3 +139,11 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   under the version in force, one version naming two contents. `/regency:latest` never builds, so it does not close this.
 - `health.py copies` says each installed copy loads its skills and hooks, but a synced copy shadowed by a local install
   does not load (2026-11-06): it reads the disk, not `claude plugin list`.
+- `hook-verbs.py` records a cloud command quoted inside pasted content as confirmed, against conventions §6 (QA,
+  2026-11-06). It needs its own unit.
+- `ratify grants` shows a count, not the rows: a `push` row that arrived outside the hooks opens `main` for every session
+  of the repository on that one verb (QA, 2026-11-06).
+- `hook-refs.py` writes no stub beside another `pre-push` or under `core.hooksPath`: a way to chain them, and
+  `/regency:station` reporting it.
+- `hook-hazard.py` reads force from text, so a wrapped or continued force-push outside `main` is not asked about. It also
+  asks on `--force --no-force`, and the push guard denies `--no-dry-run -n`: both err toward stopping (QA, 2026-11-06).
