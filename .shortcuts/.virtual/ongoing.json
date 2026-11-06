@@ -1,7 +1,7 @@
 {
   "_about": "regency's own work: the first peek on returning to this folder (python scripts/vp.py ongoing). It points, never copies: the detail is in .changelog/. The hooks and /regency:health read a project's .guidelines/ only, so this ledger is read by vp.py alone.",
   "schema": 1,
-  "updated": "2026-11-03",
+  "updated": "2026-11-06",
   "items": [
     {"id": "vp-seed", "title": "vp.py takes the scaffold seed in library/templates for the ledger", "state": "review", "who": "DV", "since": "2026-11-03",
      "where": ["branch:plumbing", "scripts/vp.py"], "next": "the Regent reviews 3.2 on main (vp.py --selftest 13/13)", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
@@ -9,13 +9,21 @@
      "where": ["branch:plumbing", "scripts/doctor.py"], "next": "the Regent reviews 3.2 on main (doctor 0 fail in a cp1252 console)", "source": ".changelog/CHECKPOINT.md#health"},
     {"id": "win-timeout", "title": "hook-packs self-test: a hook past its timeout is not cut in time on Windows", "state": "review", "who": "DV", "since": "2026-11-03",
      "where": ["branch:plumbing", "scripts/hook-packs.py"], "next": "the Regent reviews 3.2 on main (hook-packs --selftest 23/23, three runs)", "source": ".changelog/CHECKPOINT.md#health"},
+    {"id": "migrate-merged", "title": "migrate.py merged: a .template merged by hand is recorded in the stamp (picked from the at-work fork)", "state": "review", "who": "DV", "since": "2026-11-06",
+     "where": ["branch:plumbing", "scripts/migrate.py"], "next": "the Regent reviews it (migrate --selftest 44/44)", "source": ".changelog/CHECKPOINT.md#version-in-force"},
+    {"id": "authoring", "title": "commits: the Regent as author, Claude [Model] as co-author", "state": "review", "who": "DV", "since": "2026-11-06",
+     "where": ["library/conventions.md", "skills/arrange-cycle-commit/SKILL.md", "CONTRIBUTING.md"], "next": "the Regent reviews the rule; other sessions read it after the next install", "source": ".changelog/CHECKPOINT.md#version-in-force"},
 
     {"id": "release", "title": "publish the release main holds (v3.2) with the .plugin attached; test the pinned install", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "doctor-required", "title": "doctor as a required check on main", "state": "backlog", "who": "RGN", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
-    {"id": "install", "title": "keep one install of 3.2 (machine and account); re-install the role agents", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
+    {"id": "install", "title": "keep one install of 3.2 (machine and account)", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "judge-live", "title": "first live grant: where the pop-up's answers arrive", "state": "backlog", "source": ".changelog/ROADMAP.md#the-judge-the-next-limits"},
     {"id": "levels-rename", "title": "the 25 old D1-D4 level names in library/orders/ and library/team/", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "suba-restamp", "title": "re-read and re-stamp suba-strategy and suba-research", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
+    {"id": "vp-stale-count", "title": "vp.py trace counts the format example in library/hooks.md as a STALE line", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
+    {"id": "vp-touched-count", "title": "vp.py trace lists every recently touched file in this folder as a guideline", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
+    {"id": "sleepy-runs", "title": "a team pass spent about 2 h framing before any code (issue #2, Sleepy Runs)", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
+    {"id": "install-args", "title": "the three installers ignore an unknown flag: --help runs the install", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "step-04", "title": "/regency:briefing", "state": "backlog", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
     {"id": "step-05", "title": "task granulation as a command (doctrine only today)", "state": "backlog", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
     {"id": "step-11", "title": "/regency:solution:end-to-end", "state": "backlog", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
@@ -38,7 +46,7 @@
     {"id": "N3", "title": "two records numbered R5", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N4", "title": "the record's machine-side pending block", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N10", "title": "seventeen silent exception handlers in the scripts", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
-    {"id": "N11", "title": "three installs on this machine: regency 3.0, ~g2 and ~g3 3.1", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
+    {"id": "N11", "title": "one live install on this machine: regency~g3 3.1, behind this folder's 3.2", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
     {"id": "N14", "title": "the old step letter in projects' ledgers, Orders and trailers", "state": "blocked", "blocked_by": "RGN", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"}
   ]
 }

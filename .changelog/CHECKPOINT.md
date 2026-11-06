@@ -1,4 +1,4 @@
-# Checkpoint · regency 3.2 · 2026-11-03
+# Checkpoint · regency 3.2 · 2026-11-06
 
 Rewritten in place each time the version moves or the state below changes. The road to here is in
 [`HISTORY.md`](HISTORY.md); the road ahead in [`ROADMAP.md`](ROADMAP.md).
@@ -12,7 +12,7 @@ Rewritten in place each time the version moves or the state below changes. The r
 | GitHub `plumbing`, `testing` | 3.2 | the same commit as the folder's `main` |
 | GitHub `main` | 3.1 | at `8427d0b` until the Regent pushes; doctor green in CI there |
 | a release tag | none yet | `v3.2` goes out from `main` once pushed; the README's pinned install points at `v3.2` |
-| this machine's installs | 3.0, 3.1, 3.1 | `regency`, `regency~g2`, `regency~g3`: each loads its hooks, so 3.0's hazard watch still fires; keep one (N11) |
+| this machine's installs | 3.1 | `regency~g3` is the only live copy (`health.py copies`, 2026-11-06), behind this folder's 3.2 (N11) |
 
 ## What 3.2 added
 
@@ -42,8 +42,7 @@ The contract is `plumbing` → `testing` → `main` (conventions §4): `plumbing
 
 1. The Regent pushes `main` (3.2); CI runs doctor there.
 2. Publish the release `main` holds, with its `.plugin` attached, and test the pinned install line.
-3. Keep one install of 3.2 on this machine and the account (N11), and re-install the role agents
-   (`python scripts/install-agents.py`): the `po` and `qa` contracts changed in 3.1.
+3. Keep one install of 3.2 on this machine and the account (N11).
 4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
 5. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
 

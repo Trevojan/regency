@@ -106,7 +106,7 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N3 | two records both numbered R5 (cloud CLIs; normalise) | rename one by R11.2's rule |
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
-| N11 | three installs on this machine (2026-11-03): `regency` 3.0, `regency~g2` and `regency~g3` 3.1, each loading its hooks | keep one, or keep a second on purpose |
+| N11 | installs on this machine (2026-11-06): one live, `regency~g3` 3.1, behind this folder's 3.2; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
 Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
@@ -124,3 +124,12 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
 - This folder's own ledger (`.shortcuts/.virtual/ongoing.json`) is read by `vp.py` alone: the hooks and
   `/regency:health` find a ledger under a `.guidelines/` root only (`hook_wire.virtual_dir`), and a `.guidelines/`
   here would make the folder an unstamped project for the version gate.
+- `vp.py trace` counts the format example in `library/hooks.md` as a STALE line waiting for the Regent: this
+  folder's guidelines root is the repository root, so the scan reads every Markdown file here.
+- `vp.py trace` lists every recently touched file in this folder as a guideline (179 on 2026-11-06, `scripts/` and
+  `.github/` among them), from the same root.
+- [Issue #2, "Team's Sleepy Runs"](https://github.com/Trevojan/regency/issues/2) (the Regent, 2026-11-05): at work, a
+  team pass spent about 2 h on framing and challenge loops before any code, when the user wanted build first, review
+  after. The issue proposes reviewing behaviour on multiple parallel runs, with many concurring models.
+- `install-agents.py`, `install-rules.py` and `install-automode.py` ignore an unknown flag, so `--help` runs the
+  install (it did on 2026-11-06, for the role agents).
