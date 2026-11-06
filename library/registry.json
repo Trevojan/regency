@@ -192,6 +192,19 @@
       ]
     },
     {
+      "id": "latest",
+      "skill": "latest",
+      "summary": "Bring this machine's installed regency to the newest GitHub release, never to a branch or a working tree: read how it is installed, then move it on one yes, or hand over the verified .plugin when the install is the account's. Never moves back, never edits an installed copy.",
+      "args": "[check]",
+      "subs": [
+        {
+          "id": "check",
+          "summary": "Is the install on the newest release? The two versions and the machine-level pieces a plugin update leaves behind. Changes nothing.",
+          "args": ""
+        }
+      ]
+    },
+    {
       "id": "pack",
       "skill": "pack",
       "summary": "Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks.",

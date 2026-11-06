@@ -10,8 +10,8 @@
 <p align="center">
 <!-- regency:badges:begin -->
   <a href="#versioning"><img alt="version: 3.3" src="https://img.shields.io/badge/regency-3.3-00D7FF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="commands: 64" src="https://img.shields.io/badge/commands-64-A66CFF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="skills: 19" src="https://img.shields.io/badge/skills-19-8FD3FF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="commands: 66" src="https://img.shields.io/badge/commands-66-A66CFF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="skills: 20" src="https://img.shields.io/badge/skills-20-8FD3FF?style=flat-square&labelColor=000000"></a>
 <!-- regency:badges:end -->
   <a href="#requirements"><img alt="Claude Code 2.1.201 or later" src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.201-00D7FF?style=flat-square&labelColor=000000&logo=claude&logoColor=00D7FF"></a>
   <a href="#requirements"><img alt="Python 3.8 or later, standard library only" src="https://img.shields.io/badge/python-3.8%2B%20%C2%B7%20stdlib-0B7A3E?style=flat-square&labelColor=000000&logo=python&logoColor=8FD3FF"></a>
@@ -94,7 +94,8 @@ gh release verify v3.3         # the release is immutable and attested
 > [!IMPORTANT]
 > Pin a release tag. A pinned install never moves with `main`. Auto-update stays off until you turn it on
 > (`/plugin` → Marketplaces), and an installed copy changes only when `.claude-plugin/plugin.json` changes
-> its `version`. The only official source is `Trevojan/regency`.
+> its `version`. The only official source is `Trevojan/regency`. `/regency:latest` moves an install to the
+> newest release.
 
 > [!NOTE]
 > Cloud sessions do not load local plugins. Download `regency-<version>.plugin` from
@@ -207,6 +208,7 @@ Every command, generated from `library/registry.json`; each name links to its pl
 | [`/regency:init`](skills/init/SKILL.md) | Scaffold the .guidelines/ structure, CLAUDE.md and README in a project. | — |
 | [`/regency:ux-init`](skills/ux-init/SKILL.md) | Scaffold the project's complete frontend documentation into the .ux/ folder of the guidelines root. | — |
 | [`/regency:update`](skills/update/SKILL.md) | Bring a project to the installed regency. | `plan` `check` |
+| [`/regency:latest`](skills/latest/SKILL.md) | Bring this machine's installed regency to the newest GitHub release, never to a branch or a working tree. | `check` |
 | [`/regency:pack`](skills/pack/SKILL.md) | Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks. | `adopt` `run` |
 | [`/regency:virtualpath`](skills/virtualpath/SKILL.md) | Query the code-to-norm lineage registry and the work ledger. | `code` `slice` `stale` `ongoing` `trace` `drafts` |
 | [`/regency:tailwind-audit`](skills/tailwind-audit/SKILL.md) | Audit, fix or build a Tailwind frontend against a design-system norm. | — |
