@@ -16,8 +16,9 @@ Hook answers (exit code is always 0 so the JSON decides):
 
 What it understands: git push in a chain (&&, ||, ;, |, newlines, $( ), backticks), `git -C dir push`,
 `git -c k=v push`, a full path to git.exe, env-var prefixes, `bash -c "..."` / `powershell -Command "..."`,
-refspecs (src:dst, +src, HEAD, refs/heads/x), --delete, --all, --mirror, --dry-run, and a bare
-`git push` (resolved from the current branch and its upstream).
+refspecs (src:dst, +src, HEAD, refs/heads/x), --delete, --all, --mirror, --dry-run, flags as git reads
+them (a unique prefix such as --del, a short cluster such as -fd), and a bare `git push` (resolved from
+the current branch and its upstream).
 What it does NOT understand: git aliases (`git p`), scripts that push internally, `gh pr merge`.
 A missing/broken script FAILS OPEN in Claude Code, so run --selftest after moving this folder.
 
@@ -34,6 +35,10 @@ PROTECTED = {"main", "master"}
 SEPARATORS = set(";|&\n()`{}")
 SHELLS = {"bash", "sh", "zsh", "dash", "powershell", "pwsh", "cmd", "eval", "env"}
 TAKES_VALUE = {"-o", "--push-option", "--receive-pack", "--exec", "--repo"}
+PUSH_FLAGS = ("--all", "--atomic", "--branches", "--delete", "--dry-run", "--exec", "--follow-tags", "--force",
+              "--force-if-includes", "--force-with-lease", "--ipv4", "--ipv6", "--mirror", "--no-dry-run", "--no-verify",
+              "--porcelain", "--progress", "--prune", "--push-option", "--quiet", "--receive-pack",
+              "--recurse-submodules", "--repo", "--set-upstream", "--signed", "--tags", "--thin", "--verbose", "--verify")
 GIT_VALUE_OPTS = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
 
@@ -175,22 +180,36 @@ def norm(ref):
     return ref[len("refs/heads/"):] if ref.startswith("refs/heads/") else ref
 
 
+def flag_names(tok):
+    """The flags one token sets, as git's option parser reads it: a long flag or a unique prefix of one (--del is
+    --delete), or a cluster of short ones (-fd), which ends at -o because the rest of the token is its value."""
+    if tok.startswith("--"):
+        name = tok.split("=", 1)[0]
+        hits = [f for f in PUSH_FLAGS if f.startswith(name)]
+        return {hits[0] if len(hits) == 1 and name not in PUSH_FLAGS else name}
+    names = set()
+    for c in tok[1:]:
+        names.add(f"-{c}")
+        if c == "o":
+            break
+    return names
+
+
 def judge_push(args, cwd, current, upstream):
     """Return ('deny'|'ask'|'allow', reason) for one push."""
     flags, pos, i = set(), [], 0
-    delete = False
     while i < len(args):
         a = args[i]
         if a.startswith("-") and a != "-":
-            flags.add(a.split("=", 1)[0])
-            if a in ("-d", "--delete"):
-                delete = True
-            if a in TAKES_VALUE and "=" not in a:
+            names = flag_names(a)
+            flags |= names
+            if names & TAKES_VALUE and "=" not in a and (a.startswith("--") or a.endswith("o")):
                 i += 1
         else:
             pos.append(a)
         i += 1
-    if flags & {"--dry-run", "-n"}:
+    delete = bool(flags & {"-d", "--delete"})
+    if flags & {"--dry-run", "-n"} and "--no-dry-run" not in flags:
         return "allow", ""
     if flags & {"--mirror", "--all", "--branches"}:
         return "deny", "pushes every branch, which includes main"
@@ -310,6 +329,21 @@ CASES = [  # command, current branch, upstream branch, expected
     ("cat <<'EOF' | sh\ngit push origin main\nEOF", "feat", "feat", "deny"),
     ("cat > out.txt <<EOF\n$(git push origin main)\nEOF", "feat", "feat", "deny"),
     ("cat > notes.md <<EOF\ngit push origin main opens this line, as text\nEOF", "feat", "feat", "allow"),
+    # flags as git reads them, each form run against a real bare remote on 2026-11-06
+    ("git push --del origin main", "feat", "feat", "deny"),
+    ("git push -fd origin main", "feat", "feat", "deny"),
+    ("git push --al origin", "feat", "feat", "deny"),
+    ("git push --br origin", "feat", "feat", "deny"),
+    ("git push --mir origin", "feat", "feat", "deny"),
+    ("git push --m origin", "feat", "feat", "deny"),
+    ("git push --dry origin main", "feat", "feat", "allow"),
+    ("git push -un origin main", "feat", "feat", "allow"),
+    ("git push -nd origin main", "feat", "feat", "allow"),
+    ("git push --dry-run --no-dry-run origin main", "feat", "feat", "deny"),
+    ("git push -odn origin main", "feat", "feat", "deny"),
+    ("git push -o dn origin main", "feat", "feat", "deny"),
+    ("git push -o main origin feat", "feat", "feat", "allow"),
+    ("git push -uo main origin feat", "feat", "feat", "allow"),
 ]
 
 

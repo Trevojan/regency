@@ -130,8 +130,10 @@ def classify_git(args):
         return "delete", f"git stash {rest[0]}"
     if verb in ("rebase", "filter-branch", "filter-repo"):
         return "history", f"git {verb}"
-    if verb == "push" and flags & {"-f", "--force", "--force-with-lease", "--force-if-includes"}:
-        return "history", "git push --force"
+    if verb == "push":
+        names = {n for f in rest if f.startswith("-") and f != "-" for n in guard_push.flag_names(f)}
+        if names & {"-f", "--force", "--force-with-lease", "--force-if-includes"} or any(f.startswith("+") for f in rest):
+            return "history", "git push --force"
     if verb == "worktree" and rest[:1] and rest[0] in ("add", "remove", "prune", "move"):
         return "layout", f"git worktree {rest[0]}"
     if verb == "reflog" and rest[:1] == ["expire"]:
@@ -362,6 +364,13 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
     ("git stash list", "allow"),
     ("git rebase -i HEAD~3", "ask"),
     ("git push --force-with-lease origin feat", "ask"),
+    ("git push --force-with-lease=feat:abc origin feat", "ask"),
+    ("git push --force-w origin feat", "ask"),
+    ("git push -fu origin feat", "ask"),
+    ("git push -uf origin feat", "ask"),
+    ("git push origin +feat", "ask"),
+    ("git push -of origin feat", "allow"),
+    ("git push -o f origin feat", "allow"),
     ("git push -u origin feat", "allow"),
     ("git worktree add ../w feat", "ask"),
     ("git commit -m 'rm -rf everything'", "allow"),
