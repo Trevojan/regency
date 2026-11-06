@@ -27,7 +27,7 @@ changed any other way (a pull, a hand edit, an agent's shell) reads STALE and gr
 says 'ratify grants' (conventions §9) or approves `judge.py ratify --yes`, which hook-hazard.py asks for.
 
 Modes:
-  list   [--repo DIR]                     the file grants that reach this repository; STALE stores named
+  list   [--repo DIR]                     the grants that reach this repository, this session's too; STALE stores named
   check  <kind> <path>... [--repo DIR]    the grant that covers the act, or the grant line the Judge proposes
   revoke <id> [--repo DIR]                remove one grant (narrowing needs nobody)
   ratify [--yes] [--repo DIR]             without --yes: the review of each STALE store; with it: record them
@@ -410,32 +410,47 @@ def line(g):
     return f"{g['id']} · {', '.join(g['how'])} · {', '.join(g['where'])} · {g['store']} · {g['why']}"
 
 
+def shell_event():
+    """The session a shell inside Claude Code belongs to, and the folder its hooks keep grants in, so list, check and
+    revoke reach this session's grants too. A hook's own environment names that folder; a shell's does not."""
+    sid = os.environ.get("CLAUDE_CODE_SESSION_ID")
+    if not sid:
+        return {}
+    event = {"session_id": sid}
+    if not (os.environ.get("REGENCY_HOOK_STATE") or os.environ.get("CLAUDE_PLUGIN_DATA")):
+        name = f"{wire.session_key(event)}.grants.json"
+        found = sorted((Path.home() / ".claude" / "plugins" / "data").glob(f"*/sessions/{name}"))
+        if found:
+            os.environ["REGENCY_HOOK_STATE"] = str(found[0].parent.parent)
+    return event
+
+
 def main(argv):
     repo_arg = argv[argv.index("--repo") + 1] if "--repo" in argv else None
     repo = wire.repo_root(Path(repo_arg) if repo_arg else Path.cwd())
     args = [a for i, a in enumerate(argv) if a != "--repo" and (i == 0 or argv[i - 1] != "--repo")]
     mode = args[0] if args else "list"
     if mode == "list":
-        found = grants({}, repo)
+        found = grants(shell_event(), repo)
         for g in found:
             print(line(g))
         for p in stale(repo):
             print(f"STALE {p}: grants nothing until the Regent says 'ratify grants'")
-        print(f"judge: {len(found)} file grant(s) for {repo}; session grants live with the session's hooks")
+        print(f"judge: {len(found)} grant(s) for {repo}")
         return 0
     if mode == "check" and len(args) >= 3:
         kind = args[1]
         paths = args[2:] if kind == "push" else [Path(os.path.normpath(str(Path.cwd() / a))) for a in args[2:]]
-        g = covers({}, repo, kind, paths)
-        print(f"covered by {line(g)}" if g else f"no file grant covers it; the Judge proposes: {propose(kind, paths, repo)}")
+        g = covers(shell_event(), repo, kind, paths)
+        print(f"covered by {line(g)}" if g else f"no grant covers it; the Judge proposes: {propose(kind, paths, repo)}")
         return 0 if g else 1
     if mode == "revoke" and len(args) == 2:
         try:
-            where = revoke({}, repo, args[1])
+            where = revoke(shell_event(), repo, args[1])
         except ValueError as e:
             print(f"not revoked: {e}")
             return 1
-        print(f"revoked {args[1]} from {where}" if where else f"{args[1]}: no file grant has this id")
+        print(f"revoked {args[1]} from {where}" if where else f"{args[1]}: no grant has this id")
         return 0 if where else 1
     if mode == "ratify":
         out = ratify(repo, yes="--yes" in args)
@@ -556,6 +571,16 @@ def selftest():
         if os.name != "nt":
             cases.append((matches("Herança/old", "Herança\\**".replace("\\", "/")) and norm("a\\b") == "a/b",
                           "backslashes read as slashes"))
+        data = Path(tmp) / "hm" / ".claude" / "plugins" / "data" / "regency-regency"
+        os.environ.update(REGENCY_HOOK_STATE=str(data), HOME=str(Path(tmp) / "hm"), USERPROFILE=str(Path(tmp) / "hm"),
+                          CLAUDE_CODE_SESSION_ID="s9")
+        os.environ.pop("CLAUDE_PLUGIN_DATA", None)
+        gid, _ = record({"session_id": "s9"}, root, "push main -- the session's own", "Regent: message")
+        del os.environ["REGENCY_HOOK_STATE"]
+        cases.append((covers(shell_event(), root, "push", ["main"]) is not None
+                      and revoke(shell_event(), root, gid) == "this session"
+                      and covers(shell_event(), root, "push", ["main"]) is None,
+                      "a shell in the session finds its grants and revokes them"))
         return wire.check(cases)
 
 
