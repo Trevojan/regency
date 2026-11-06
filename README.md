@@ -225,7 +225,7 @@ the playbook and follow it as a plain file.
 
 | Guarantee | Enforced by |
 |---|---|
-| An agent's push to `main` or `master` is refused, on its text and again on the refs git really sends, unless a grant of the Regent's names that branch; no grant covers deleting it. This stops an agent that forgets, not one set on evading it with your credentials | `scripts/guard-push.py`, `scripts/hook-refs.py`, `scripts/judge.py` |
+| An agent's push to `main` or `master` is refused, on its text and again on the refs git really sends, in every repository a session opened inside one reaches, unless a grant of the Regent's names that branch; no grant covers deleting it. This stops an agent that forgets, not one set on evading it with your credentials (`library/hooks.md` §2) | `scripts/guard-push.py`, `scripts/hook-refs.py`, `scripts/judge.py` |
 | A cloud CLI write runs only if the Regent quoted that exact command in the current turn; reads pass | `scripts/hook-hazard.py`, `scripts/hook-verbs.py` |
 | A delete, discard, history rewrite or worktree change asks first, unless a grant of the Regent's covers every path it names; grants come from the Regent's own message or pop-up | `scripts/hook-hazard.py`, `scripts/judge.py`, `scripts/hook-verbs.py`, `scripts/hook-judge.py` |
 | Closed acts (Orders, gate sheets, ladder plans, dated handoffs) are never rewritten; `.scope/` is read-only | `scripts/hook-acts-guard.py` |

@@ -30,8 +30,6 @@ Pure standard library, Python 3.8+.
 import importlib.util
 import os
 import re
-import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -45,9 +43,6 @@ import judge  # noqa: E402  (the Regent's grants, R15)
 _spec = importlib.util.spec_from_file_location("guard_push", HERE / "guard-push.py")
 guard_push = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(guard_push)  # one tokenizer for every shell guard
-_spec = importlib.util.spec_from_file_location("hook_refs", HERE / "hook-refs.py")
-hook_refs = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(hook_refs)  # the pre-push check has to be where a push is about to run
 
 SHELLS = guard_push.SHELLS
 INSTALLERS = {"apt", "apt-get", "yum", "dnf", "pacman", "zypper", "brew", "choco", "winget", "scoop", "snap"}
@@ -262,25 +257,6 @@ def acts(command, cwd, depth=0, root=None):
     return out
 
 
-def push_folders(command, cwd, depth=0):
-    """Where the pushes of a chain run, nested shells included: the pre-push check has to be there before they do."""
-    out, here = [], Path(cwd) if cwd else None
-    for seg in guard_push.segments(guard_push.data_only(command)):
-        if depth < 3 and seg and name(seg[0]) in SHELLS:
-            for t in seg[1:]:
-                if " " in t:
-                    out += push_folders(t, here, depth + 1)
-        w = words(seg)
-        if w and name(w[0]) in CD_COMMANDS:
-            target = operands(w[1:])
-            here = resolve(target[0], here) if target and target[0] != "-" else None
-        elif w and name(w[0]) == "git" and "push" in w:
-            where = git_folder(w[1:], here)
-            if where is not None:
-                out.append(where)
-    return out
-
-
 def findings(command, depth=0):
     """Every finding in a command, nested shells included: [(kind, label)]."""
     return [(k, lbl) for k, lbl, _ in acts(command, None, depth)]
@@ -358,9 +334,6 @@ def respond(event):
         return None
     command = wire.tool_input(event).get("command", "")
     cwd = event.get("cwd") or os.getcwd()
-    if "push" in command:
-        for where in push_folders(command, cwd):
-            hook_refs.install(where)
     found_all = acts(command, cwd)
     writes = [label for kind, label, _ in found_all if kind == "cloud-write"]
     missing = [c for c in writes if c not in confirmed(event)]
@@ -548,12 +521,6 @@ def selftest():
                       "'**' never reaches another repository, by 'cd' or by -C"))
         cases.append((verdict(respond(ev("PreToolUse", 'cd "$X" && git push --force origin feat', sid="s5"))) == "ask",
                       "after a 'cd' to an unknown place no grant covers a git act"))
-        if shutil.which("git"):
-            sibling = Path(tmp) / "sibling"
-            subprocess.run(["git", "init", "-q", str(sibling)], capture_output=True)
-            respond(ev("PreToolUse", f"cd {sibling.as_posix()} && git push origin main"))
-            cases.append((hook_refs.MARK in (sibling / ".git" / "hooks" / "pre-push").read_text(encoding="utf-8"),
-                          "a push about to run in another repository finds the pre-push check there"))
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"

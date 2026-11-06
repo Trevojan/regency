@@ -193,6 +193,8 @@ def check_absolute_paths():
         r = rel(p)
         if p.suffix.lower() in {".zip", ".skill", ".png", ".jpg", ".gif", ".pdf"}:
             continue
+        if r == ".claude/settings.local.json":  # this machine's own file, never committed: scripts/hook-refs.py keeps a path there
+            continue
         text = p.read_text(encoding="utf-8-sig", errors="replace")
         for pat in ABS_PATTERNS:
             m = pat.search(text)

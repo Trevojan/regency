@@ -134,7 +134,7 @@ Regent grants: a `grant:` line in a message of theirs, or their answer to the Ju
 Installing system software, destructive SQL, cloud writes and pack consent are never granted. A `push` grant names
 `main` or `master` and is the only thing that lifts `scripts/guard-push.py` and `scripts/hook-refs.py`. **What these guards
 promise** (the Regent, 2026-11-06): they stop an agent that forgets. They do not stop one set on evading them with the
-Regent's credentials, and no local check can.
+Regent's credentials, and no local check can; what stays out is named in `library/hooks.md` §2.
 In auto mode and in headless runs these lines reach the classifier through `library/automode.json`, and
 a headless run, which nobody can answer, reads every *ask first* as a denial it reports
 (`library/automation.md`).

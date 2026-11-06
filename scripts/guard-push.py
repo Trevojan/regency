@@ -21,8 +21,9 @@ What it understands: git push in a chain (&&, ||, ;, |, newlines, $( ), backtick
 refspecs (src:dst, +src, HEAD, refs/heads/x, heads/x), --delete, --all, --mirror, --dry-run, flags as git
 reads them (a unique prefix such as --del, a short cluster such as -fd), and a bare `git push` (resolved
 from the current branch and its upstream).
-It reads a command's text before it runs. hooks/hooks.json fires it only on a command that opens with git,
-so a wrapper such as `bash -c "git push ..."` or `git.exe` never reaches it, whatever the table says.
+It reads a command's text before it runs, and hooks/hooks.json fires it only when Claude Code's `if: git *` matches:
+`cd x && git push ...` and `bash -c "git push ..."` reached it in a live session (2.1.302), but nothing here decides
+what that filter lets through, so no row of the table says a given form gets this far.
 What it does NOT read: a chain that changes branch first, revisions with braces, line continuations,
 redirects glued to a word, substitutions, git aliases (`git p`), scripts that push internally, `gh pr
 merge`, a push that configuration widens (`push.default=matching`, `remote.<name>.mirror`).
