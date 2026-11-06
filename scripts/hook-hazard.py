@@ -132,7 +132,7 @@ def classify_git(args):
         return "history", f"git {verb}"
     if verb == "push":
         names = {n for f in rest if f.startswith("-") and f != "-" for n in guard_push.flag_names(f)}
-        if names & {"-f", "--force", "--force-with-lease", "--force-if-includes"} or any(f.startswith("+") for f in rest):
+        if names & {"-f", "--force", "--force-with-lease", "--force-if-includes", "--mirror"} or any(f.startswith("+") for f in rest):
             return "history", "git push --force"
     if verb == "worktree" and rest[:1] and rest[0] in ("add", "remove", "prune", "move"):
         return "layout", f"git worktree {rest[0]}"
@@ -200,8 +200,19 @@ def operands(args):
     return out
 
 
-def act_paths(kind, label, w, here):
-    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable."""
+def git_folder(args, here):
+    """Where a git command runs: its global -C, read against the folder the chain has reached."""
+    j = 0
+    while j < len(args) and args[j].startswith("-"):
+        if args[j] == "-C" and j + 1 < len(args):
+            return resolve(args[j + 1], here)
+        j += 2 if args[j] in guard_push.GIT_VALUE_OPTS else 1
+    return here
+
+
+def act_paths(kind, label, w, here, root=None):
+    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable. A git act
+    that names no path is judged where it runs: `**` is this repository, and an unknown folder is covered by no grant."""
     if name(w[0]) in ("sudo", "doas"):
         w = words(w[1:])
     cmd, args = name(w[0]), w[1:]
@@ -216,18 +227,25 @@ def act_paths(kind, label, w, here):
         rest = args[verb + 1:] if verb is not None else []
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
         return [resolve(a, here) for a in paths]
+    if cmd == "git" and root is not None:
+        where = git_folder(args, here)
+        if where is None:
+            return None
+        if wire.repo_root(where) != wire.repo_root(root):
+            return [where]
     return []
 
 
-def acts(command, cwd, depth=0):
+def acts(command, cwd, depth=0, root=None):
     """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves
     where the later segments of the chain resolve their paths."""
     out, here = [], Path(cwd) if cwd else None
+    root = root or here
     for seg in guard_push.segments(guard_push.data_only(command)):
         if depth < 3 and seg and name(seg[0]) in SHELLS:
             for t in seg[1:]:
                 if " " in t:
-                    out += acts(t, here, depth + 1)
+                    out += acts(t, here, depth + 1, root)
         w = words(seg)
         if w and name(w[0]) in CD_COMMANDS:
             target = operands(w[1:])
@@ -235,7 +253,7 @@ def acts(command, cwd, depth=0):
             continue
         f = classify_words(w)
         if f:
-            out.append((f[0], f[1], act_paths(f[0], f[1], w, here)))
+            out.append((f[0], f[1], act_paths(f[0], f[1], w, here, root)))
     return out
 
 
@@ -369,6 +387,8 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
     ("git push -fu origin feat", "ask"),
     ("git push -uf origin feat", "ask"),
     ("git push origin +feat", "ask"),
+    ("git push --mirror origin", "ask"),
+    ("git push -ofoo --mirror origin", "ask"),
     ("git push -of origin feat", "allow"),
     ("git push -o f origin feat", "allow"),
     ("git push -u origin feat", "allow"),
@@ -492,6 +512,15 @@ def selftest():
         cases.append((verdict(respond(ev("PreToolUse", "git reset --hard", sid="s3"))) == "allow"
                       and verdict(respond(ev("PreToolUse", "git checkout -- src/a.cs", sid="s3"))) == "allow",
                       "a repo grant of '**' covers every discard, in every session"))
+        grant("history ** -- this repository only", sid="s5")
+        cases.append((verdict(respond(ev("PreToolUse", "git push --force origin feat", sid="s5"))) == "allow"
+                      and verdict(respond(ev("PreToolUse", "git -C . push --force origin feat", sid="s5"))) == "allow",
+                      "a history grant of '**' covers a force in this repository"))
+        cases.append((verdict(respond(ev("PreToolUse", "cd ../other && git push --force origin feat", sid="s5"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "git -C ../other push --force origin feat", sid="s5"))) == "ask",
+                      "'**' never reaches another repository, by 'cd' or by -C"))
+        cases.append((verdict(respond(ev("PreToolUse", 'cd "$X" && git push --force origin feat', sid="s5"))) == "ask",
+                      "after a 'cd' to an unknown place no grant covers a git act"))
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"
