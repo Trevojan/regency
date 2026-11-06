@@ -162,7 +162,8 @@ line at most. Full reference: `library/hooks.md`.
 
 | Hook | When | What it does |
 |---|---|---|
-| `guard-push.py` | before a git command | denies a push to `main`/`master` in any form |
+| `guard-push.py` | before a git command | reads the command's text and denies a push to `main`/`master`, unless a `push` grant names the branch |
+| `hook-refs.py` | session start, and git's `pre-push` in an agent's shell | writes a stub to `.git/hooks/pre-push`, then refuses the refs git is really sending to `main`/`master` with no `push` grant; never touches the Regent's own terminal or GitHub Desktop |
 | `hook-hazard.py` | before a shell command | lets cloud reads run; denies a cloud write unless the Regent quoted that exact command in this pass; asks before deleting, discarding, force or history rewrites, worktree layout, system installs, unless a grant of the Regent's covers every path the act names (`library/judge.md`); denies a shell write to a grant store |
 | `hook-acts-guard.py` | before a file write | denies writes in `.scope/` and to a grant store (`JD.md`, `judge.json`), rewrites of acts (Orders, gates, ladder plans, opinions, dated handoffs), a hand edit of the entry index's generated state block, changes under a `lock` slice, and new names with banned tokens |
 | `hook-lineage.py` | after a file write | records the file's fingerprint in the one store (`index.sqlite`), re-indexes it, and writes a STALE line under each norm slice whose governed nodes changed |
@@ -174,7 +175,7 @@ line at most. Full reference: `library/hooks.md`.
 | `hook-judge.py` | before / after the Judge's pop-up | denies a Judge question that arrives answered; records the grant of each question the Regent answered with a scope |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
-the hooks are silent. A guard whose script cannot start blocks its call (`onFailure: block`, Claude Code
+the hooks are silent, apart from `hook-refs.py`'s stub. A guard whose script cannot start blocks its call (`onFailure: block`, Claude Code
 2.1.295 and later); a recorder, or a guard on an older version, fails open — so `scripts/doctor.py` runs
 every hook's self-test and feeds each one a real event. Without the plugin (ways 4 and 5),
 `python scripts/guard-push.py --snippet` prints the push guard's settings block for this machine.

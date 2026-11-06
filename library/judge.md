@@ -6,7 +6,7 @@ Playbook: `/regency:judge`.
 
 ## 1. The idea
 
-A **grant** is a standing answer the Regent gives ahead of time to `hook-hazard.py`'s ask or `guard-push.py`'s denial
+A **grant** is a standing answer the Regent gives ahead of time to `hook-hazard.py`'s ask or the push guards' denial
 of `main`, for named places and kinds of act. Each act is judged when it happens, against the grants in force then; nothing locks the session after
 a destructive step, and a path outside the project (a scratch clone in a temp folder) is judged where it really is.
 
@@ -17,7 +17,7 @@ whether an act is covered is decided by `judge.covers()`, a script.
 
 | Part | Rule |
 |---|---|
-| **how** | `delete`, `discard`, `history`, `layout`: the kinds `hook-hazard.py` asks about and a grant may cover; `push`: `guard-push.py`'s denial of `main` (below) |
+| **how** | `delete`, `discard`, `history`, `layout`: the kinds `hook-hazard.py` asks about and a grant may cover; `push`: the push guards' denial of `main` (below) |
 | **where** | globs relative to the repository root, or absolute. `X/**` covers the folder `X` itself; `*` crosses folders; `**` is the whole repository and never reaches outside it; a relative glob holds no `..` |
 | **scope** | where the grant lives (§3); the narrowest, `session`, when the Regent names none |
 | **why** | required: a grant without a reason grants nothing |
@@ -34,10 +34,11 @@ docker prunes and disk tools (data outside files), cloud writes (conventions §6
 
 **A `push` grant** (the Regent, 2026-11-06) lets an agent push `main` or `master` in that repository, on any remote,
 whether or not the Regent typed the command, for as long as the grant lasts: `grant: push main for session -- <why>`.
-It names the branch and stands alone: no glob, no other kind on its line, and other branches need no grant. It never
-covers deleting the branch, `--all`, `--mirror` or a `+` refspec. A force flag still gets `hook-hazard.py`'s ask unless
-a `history` grant of `**` covers it. Where the auto-mode profile is installed or a headless run passes it, its
-`hard_deny` (`library/automode.json`) still refuses the push. An agent proposes one only when the Regent asks for it.
+It names the branch and stands alone: no glob, no other kind on its line, and other branches need no grant. Both push
+guards read it (`library/hooks.md` §2). It never covers deleting the branch. `guard-push.py` also refuses `--all`,
+`--mirror` and a `+` refspec under it, and `hook-refs.py` refuses a forced update unless a `history` grant of `**` covers
+it too. Where the auto-mode profile is installed or a headless run passes it, its `hard_deny`
+(`library/automode.json`) still refuses the push. An agent proposes one only when the Regent asks for it.
 
 A grant removes **regency's** ask only. Claude Code's own permission rules, its permission mode and the auto-mode
 classifier still decide the call (a hook's silence approves nothing).
@@ -66,8 +67,9 @@ Only the Regent (conventions §1). Two ways in, both read by hooks from sources 
 
 1. **A `grant:` line** in a message of the Regent's (`UserPromptSubmit`, `hook-verbs.py`):
    `grant: delete, discard Herança/** for repo -- the old layout goes`. Every line that opens with `grant:` counts,
-   in any message length; a line inside a harness `<system-reminder>` or a `<pasted_content>` block never does. This
-   way works on every surface.
+   in any message length; a quoted line (`> grant:`) does not. It fails closed: a message holding a `<pasted_content`
+   tag records none, whatever its tags, and nothing counts from a message's first `<system-reminder` to its last close.
+   The hook says how many lines it did not read. This way works on every surface.
 2. **The Judge's pop-up** (`hook-judge.py`): one `AskUserQuestion` question per grant, header `JD grant`, the grant
    in one backtick span, options `Session` · `Repo` · `This machine` · `No` (a typed `.md` path picks a file). The
    grant text is the agent's proposal, read by the Regent before answering; the scope is the Regent's pick. A Judge
@@ -93,9 +95,10 @@ the session reaches that session's grants too.
   is not a reader (`cat`, `grep`, …), a `git` read or `add`/`commit`, or `judge.py` itself.
 - The fingerprint catches the rest: a file store changed past the guards goes STALE.
 
-These are behavioural limits for an agent with a shell, like QA's read-only contract (`library/maintaining.md`): a
-determined shell can still write `judge.json` itself. The guards make that a refused act the Regent sees, never a
-silent one.
+These are behavioural limits for an agent with a shell, like QA's read-only contract (`library/maintaining.md`). They
+stop an agent that forgets, and a refused act is one the Regent sees. A determined shell can still write `judge.json` or
+a session's grants, or pipe a made-up event into `hook-verbs.py`, and nothing sees that: a session's store has no
+fingerprint. No local check can stop it (conventions §5).
 
 ## 7. Facts relied on
 
@@ -103,7 +106,7 @@ silent one.
 |---|---|
 | `UserPromptSubmit` carries the Regent's text; some surfaces prepend `<system-reminder>` blocks | `hook_wire.regent_text` strips them before grant lines are read |
 | A hook's environment has `CLAUDE_PLUGIN_DATA`, where session grants live; a shell's has only `CLAUDE_CODE_SESSION_ID` | `judge.shell_event` finds the session's file under `~/.claude/plugins/data/` |
-| How a paste reaches the prompt a hook receives | **not yet seen live**: `judge.grant_lines` drops `<pasted_content…>` blocks; a surface that passes a paste without those tags leaves its grant lines readable |
+| How a paste reaches the prompt a hook receives | **not yet seen live**: `judge.grant_lines` reads nothing from a message holding `<pasted_content`, so the tag's exact form does not matter; a surface that passes a paste with no tag at all leaves its grant lines readable |
 | `PreToolUse` runs before the permission component fills `AskUserQuestion` answers | answers present at `PreToolUse` came from the agent: denied |
 | Where a surface puts the answers at `PostToolUse` | **not yet seen live**: read from `tool_input.answers`, then `tool_response.answers`, then a `"question"="answer"` text; when none arrives the hook names the typed line instead |
 | A `PreToolUse` hook's silence approves nothing | a grant never overrides Claude Code's own permissions |

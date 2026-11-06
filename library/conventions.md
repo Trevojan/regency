@@ -94,8 +94,8 @@ from its brief; a UI rule changes there first, then in code.
   - `main` — the docs and the latest merge from `testing`: where the Regent judges whether the work is
     done or needs better guidance. The Regent pushes it (below).
 - **The Regent pushes `main`.** An agent pushes `main`/`master` only under a `push` grant of the Regent's (§5,
-  `library/judge.md`), and never force-pushes or rewrites published history outside the Regent's own line (§5); a hook
-  (`scripts/guard-push.py`) enforces the first. `/regency:arrange-cycle-commit`
+  `library/judge.md`), and force-pushes or rewrites published history only on the Regent's own line or a `history` grant
+  (§5); two hooks (`scripts/guard-push.py`, `scripts/hook-refs.py`) enforce the first. `/regency:arrange-cycle-commit`
   may push the *other* branches it touched (plain `git push -u origin <branch>`, no tags, no `--all`), and
   asks first when the project says pushing that branch triggers a pipeline or deploy. When `main` is ready,
   say so.
@@ -132,7 +132,9 @@ session, the repository (`JD.md`), this machine or a file the Regent names (`lib
 Regent grants: a `grant:` line in a message of theirs, or their answer to the Judge's pop-up
 (`/regency:judge`). Nothing locks the session after a destructive step; each act is judged when it happens.
 Installing system software, destructive SQL, cloud writes and pack consent are never granted. A `push` grant names
-`main` or `master` and is the only way past `scripts/guard-push.py`.
+`main` or `master` and is the only thing that lifts `scripts/guard-push.py` and `scripts/hook-refs.py`. **What these guards
+promise** (the Regent, 2026-11-06): they stop an agent that forgets. They do not stop one set on evading them with the
+Regent's credentials, and no local check can.
 In auto mode and in headless runs these lines reach the classifier through `library/automode.json`, and
 a headless run, which nobody can answer, reads every *ask first* as a denial it reports
 (`library/automation.md`).

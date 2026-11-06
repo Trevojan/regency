@@ -19,7 +19,8 @@ Two kinds:
 
 **Adoption gate.** Recorders write only in a project that already has `<guidelines>/.shortcuts/.virtual/`.
 They never create guideline folders (`library/layouts.md` §1). Outside the Regent's projects the plugin
-is silent.
+is silent. The one write that is not a recorder's: `hook-refs.py` puts its stub in `.git/hooks`, never in the guidelines,
+in any repository a session works in.
 
 **No Stop hook (R4.5).** The next-step line lives in each playbook. `SubagentStop` is wired only to the
 journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
@@ -29,6 +30,8 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | Event | Matcher | Script | Kind | Answer |
 |---|---|---|---|---|
 | `SessionStart` | `startup\|resume\|clear\|compact` | `hook-resume.py` | recorder | one resume line (R4.2) |
+| `SessionStart` | `startup\|resume\|clear\|compact` | `hook-refs.py` | guard's stub | writes `.git/hooks/pre-push`, or rewrites its own; one context line when it wrote it, or when another hook or `core.hooksPath` keeps it out |
+| git's `pre-push` | an agent's shell | `hook-refs.py --pre-push` | guard | refuses the refs git is sending: `main`/`master` with no `push` grant, any deletion of them, a forced update with no `history` grant of `**` |
 | `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted and the Regent's `grant:` lines; a ratify verb ratifies changed grant stores; routes a Regent verb |
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master, unless a `push` grant names it |
 | `PreToolUse` | `Bash`, `PowerShell` | `hook-hazard.py` | guard | `deny` an unconfirmed cloud write and a shell write to a grant store; `ask` destructive and layout unless a grant covers every path (`library/judge.md`), install, consent |
@@ -44,10 +47,28 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 
 ## 2. Guards
 
-### Push to main — `guard-push.py`
+### Push to main — `guard-push.py`, then `hook-refs.py`
 
-The Regent pushes `main` (conventions §4): denied, unless a `push` grant of the Regent's names the branch (`library/judge.md`
-§2). A grant never covers deleting it, `--all`, `--mirror` or a `+` refspec, and a failed lookup reads as no grant. Flags and branches are read as git reads them: a unique prefix (`--del`), a short cluster (`-fd`), `heads/main`. 94-case table.
+The Regent pushes `main` (conventions §4). Two guards hold that, and together they stop an agent that forgets; neither
+stops one set on evading them with the Regent's credentials (the Regent, 2026-11-06).
+
+`guard-push.py` reads the command's text before it runs and answers at once: denied, unless a `push` grant of the Regent's
+names the branch (`library/judge.md` §2). A grant never covers deleting it, `--all`, `--mirror` or a `+` refspec, and a
+failed lookup reads as no grant. Flags and branches are read as git reads them: a unique prefix (`--del`), a short cluster
+(`-fd`), `heads/main`; `--no-verify` asks. 110-case table. It fires only on a command that opens with git, and it reads
+text, so a chain that changes branch first, a wrapper, a line continuation, braces or a substitution go past it.
+
+`hook-refs.py` stands behind it, on git's own `pre-push` hook, which is told the refs being sent once all of that is
+resolved. `SessionStart` writes a stub to `.git/hooks/pre-push`, and `hook-hazard.py` does the same where a push is about
+to run (a `cd`, a `-C`). The stub passes at once in a shell Claude Code did not start (no `CLAUDE_CODE_SESSION_ID`, no
+`CLAUDECODE`), so the Regent's terminal and GitHub Desktop are untouched. In an agent's shell, landing on `main` or
+`master` needs a `push` grant, deleting one never passes, a forced update also needs a `history` grant of `**`, and any
+failure refuses. Its self-test runs real git on a throwaway remote.
+
+What stays out, named so nobody reads more into this: `--no-verify` once the Regent answers yes to its ask,
+`-c core.hooksPath=`, `git send-pack`; a repository with another `pre-push` or with `core.hooksPath` set, where the stub is
+never written and a context line says so; a push through `--git-dir` or `GIT_DIR` into a repository with no stub. Whether
+a `!` command's shell carries those variables is not yet seen; if it does, a `!` push of `main` needs a grant too.
 
 **What a guard reads.** Both shell guards scan the command a shell would run: `guard_push.data_only` takes
 out heredoc bodies that are only data before splitting. A body stays when a shell reads it (`bash <<'EOF'`,
@@ -103,7 +124,7 @@ Each `ask` above is judged when it happens, and nothing locks the session after 
 `discard`, `history` or `layout` act runs without asking when **one grant of the Regent's covers every path it
 names** (`judge.covers`); otherwise it asks, and the ask carries the grant line the Judge would propose. A `cd`
 earlier in the chain moves where the later paths resolve. Installs, destructive SQL, docker prunes, disk tools,
-cloud writes and consent are never granted. `guard-push.py` reads one more kind, `push`. Grants come only from the Regent: a `grant:` line in a message
+cloud writes and consent are never granted. `guard-push.py` and `hook-refs.py` read one more kind, `push`. Grants come from the Regent: a `grant:` line in a message
 (`hook-verbs.py`) or an answer to the Judge's pop-up (`hook-judge.py`). Where they live, STALE stores and
 ratification: `library/judge.md`.
 
@@ -260,6 +281,7 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<guidelines>/JD.md`, `~/.claude/regency/JD.md`, named grant files | verbs, judge — never by hand unless ratified | hazard (`judge.covers`), `judge.py list` | project (`JD.md`, committed) or machine |
 | `~/.claude/regency/judge.json` | verbs, judge, `judge.py ratify --yes` | every grant check (fingerprints, sources) | machine, outside any repository |
 | `<state>/sessions/<session>.cloud.json` | verbs | hazard | machine, outside any repository |
+| `.git/hooks/pre-push` (the stub, marked `regency:hook-refs`) | `hook-refs.py` (`SessionStart`), hazard (where a push is about to run) | git, on every push | the clone, untracked; never replaces a hook it did not write |
 | `<state>/heartbeats/<script>.<event>` | every hook (`hook_wire.serve`) | `health.py hooks` | machine, outside any repository |
 | `<guidelines>/.packs/active.json` | `packs.py` (activate, ratify) — never a hook | `hook-packs.py`, `packs.py` | project |
 | `<state>/packs/tree-<key>.json` | `hook-packs.py` (fingerprint cache) | `hook-packs.py` | machine, outside any repository |

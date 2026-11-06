@@ -225,9 +225,9 @@ the playbook and follow it as a plain file.
 
 | Guarantee | Enforced by |
 |---|---|
-| A push to `main` or `master` is denied in any form, unless a grant of the Regent's names that branch; deleting it, `--all`, `--mirror` and a `+` refspec stay denied | `scripts/guard-push.py`, `scripts/judge.py` |
+| An agent's push to `main` or `master` is refused, on its text and again on the refs git really sends, unless a grant of the Regent's names that branch; no grant covers deleting it. This stops an agent that forgets, not one set on evading it with your credentials | `scripts/guard-push.py`, `scripts/hook-refs.py`, `scripts/judge.py` |
 | A cloud CLI write runs only if the Regent quoted that exact command in the current turn; reads pass | `scripts/hook-hazard.py`, `scripts/hook-verbs.py` |
-| A delete, discard, history rewrite or worktree change asks first, unless a grant of the Regent's covers every path it names; only the Regent grants | `scripts/hook-hazard.py`, `scripts/judge.py`, `scripts/hook-verbs.py`, `scripts/hook-judge.py` |
+| A delete, discard, history rewrite or worktree change asks first, unless a grant of the Regent's covers every path it names; grants come from the Regent's own message or pop-up | `scripts/hook-hazard.py`, `scripts/judge.py`, `scripts/hook-verbs.py`, `scripts/hook-judge.py` |
 | Closed acts (Orders, gate sheets, ladder plans, dated handoffs) are never rewritten; `.scope/` is read-only | `scripts/hook-acts-guard.py` |
 | Every write re-fingerprints the file and marks governing norm slices `STALE` | `scripts/hook-lineage.py` |
 | Every subagent return is validated against its contract before it is routed | `scripts/hook-gov.py`, `scripts/returns.py` |
