@@ -21,8 +21,12 @@ What it understands: git push in a chain (&&, ||, ;, |, newlines, $( ), backtick
 refspecs (src:dst, +src, HEAD, refs/heads/x, heads/x), --delete, --all, --mirror, --dry-run, flags as git
 reads them (a unique prefix such as --del, a short cluster such as -fd), and a bare `git push` (resolved
 from the current branch and its upstream).
-What it does NOT understand: git aliases (`git p`), scripts that push internally, `gh pr merge`, a push
-that configuration widens (`push.default=matching`, `remote.<name>.mirror`).
+It reads a command's text before it runs. hooks/hooks.json fires it only on a command that opens with git,
+so a wrapper such as `bash -c "git push ..."` or `git.exe` never reaches it, whatever the table says.
+What it does NOT read: a chain that changes branch first, revisions with braces, line continuations,
+redirects glued to a word, substitutions, git aliases (`git p`), scripts that push internally, `gh pr
+merge`, a push that configuration widens (`push.default=matching`, `remote.<name>.mirror`).
+hook-refs.py stands behind it, on the refs git really sends (library/hooks.md §2).
 A missing/broken script FAILS OPEN in Claude Code, so run --selftest after moving this folder.
 
 Pure standard library, Python 3.8+.
@@ -41,8 +45,8 @@ SEPARATORS = set(";|&\n()`{}")
 SHELLS = {"bash", "sh", "zsh", "dash", "powershell", "pwsh", "cmd", "eval", "env"}
 TAKES_VALUE = {"-o", "--push-option", "--receive-pack", "--exec", "--repo"}
 PUSH_FLAGS = ("--all", "--atomic", "--branches", "--delete", "--dry-run", "--exec", "--follow-tags", "--force",
-              "--force-if-includes", "--force-with-lease", "--ipv4", "--ipv6", "--mirror", "--no-dry-run", "--no-verify",
-              "--porcelain", "--progress", "--prune", "--push-option", "--quiet", "--receive-pack",
+              "--force-if-includes", "--force-with-lease", "--ipv4", "--ipv6", "--mirror", "--no-dry-run", "--no-tags",
+              "--no-verify", "--porcelain", "--progress", "--prune", "--push-option", "--quiet", "--receive-pack",
               "--recurse-submodules", "--repo", "--set-upstream", "--signed", "--tags", "--thin", "--verbose", "--verify")
 GIT_VALUE_OPTS = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
@@ -224,8 +228,8 @@ def judge_push(args, cwd, current, upstream, granted=no_grant):
         if a.startswith("-") and a != "-":
             names = flag_names(a)
             flags |= names
-            if names & TAKES_VALUE and "=" not in a and (a.startswith("--") or a.endswith("o")):
-                i += 1
+            if names & TAKES_VALUE and "=" not in a and (a.startswith("--") or a.index("o") == len(a) - 1):
+                i += 1  # the next token is its value, unless a short -o already holds one (-ofoo)
         else:
             pos.append(a)
         i += 1
@@ -234,20 +238,21 @@ def judge_push(args, cwd, current, upstream, granted=no_grant):
         return "allow", ""
     if flags & {"--mirror", "--all", "--branches"}:
         return "deny", "pushes every branch, which includes main"
+    passed = ("ask", "--no-verify skips the pre-push check") if "--no-verify" in flags else ("allow", "")
     has_repo = "--repo" in flags
     refspecs = pos if has_repo else pos[1:]
     if not refspecs:
-        if flags & {"--tags"} and not flags & {"--follow-tags"}:
-            return "allow", ""  # tags only
+        if flags & {"--tags"} and not flags & {"--follow-tags", "--no-tags"}:
+            return passed  # tags only
         cur = current(cwd)
         up = upstream(cwd)
         if cur in PROTECTED or up in PROTECTED:
             if all(granted(b, cwd) for b in {cur, up} & PROTECTED):
-                return "allow", ""
+                return passed
             return "deny", f"a bare push from '{cur or '?'}' (upstream '{up or '?'}') pushes the protected branch"
         if not cur:
             return "ask", "cannot tell which branch a bare push would send"
-        return "allow", ""
+        return passed
     for spec in refspecs:
         if re.search(r"[$%*{}]", spec):
             return "ask", f"cannot resolve the push target '{spec}'"
@@ -266,7 +271,7 @@ def judge_push(args, cwd, current, upstream, granted=no_grant):
             # a grant covers a push onto the branch, never its deletion or a '+' force
             if delete or not src or spec.startswith("+") or not granted(norm(dst), cwd):
                 return "deny", f"'{spec}' pushes to the protected branch '{norm(dst)}'"
-    return "allow", ""
+    return passed
 
 
 def decide(command, hook_cwd, current=real_current, upstream=real_upstream, granted=no_grant):
@@ -299,7 +304,7 @@ def hook():
     verdict, why = decide(cmd, data.get("cwd") or os.getcwd(), granted=regent_grant(data))
     if verdict == "allow":
         return 0
-    reason = MESSAGE.format(branch="main/master", why=why) if verdict == "deny" else f"Unclear push target: {why}. Confirm before pushing."
+    reason = MESSAGE.format(branch="main/master", why=why) if verdict == "deny" else f"{why}. Confirm before pushing."
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
                                               "permissionDecision": verdict,
                                               "permissionDecisionReason": reason}}))
@@ -373,6 +378,16 @@ CASES = [  # command, current branch, upstream branch, expected
     ("git push origin feat:heads/main", "feat", "feat", "deny"),
     ("git push origin HEAD:heads/master", "feat", "feat", "deny"),
     ("git push origin heads/main", "feat", "feat", "deny"),
+    ("git push -ofoo origin main", "feat", "feat", "deny"),
+    ("git push -oo origin main", "feat", "feat", "deny"),
+    ("git push -uoo origin main", "feat", "feat", "deny"),
+    ("git push -oo origin :master", "feat", "feat", "deny"),
+    ("git push -d -ofoo origin master", "feat", "feat", "deny"),
+    ("git push -ofoo --mirror origin", "feat", "feat", "deny"),
+    ("git push --tags --no-tags", "main", "main", "deny"),
+    ("git push --tag --no-ta origin", "main", "main", "deny"),
+    ("git push --no-verify origin feat", "feat", "feat", "ask"),
+    ("git push --no-verify origin main", "feat", "feat", "deny"),
 ]
 
 GRANTED = [  # the same decision with a `push` grant of main in force
@@ -403,6 +418,10 @@ GRANTED = [  # the same decision with a `push` grant of main in force
     ("git push -odn origin main", "feat", "feat", "allow"),  # a push option, so a real push the grant covers
     ("git push origin feat:heads/main", "feat", "feat", "allow"),
     ("git push origin +feat:heads/main", "feat", "feat", "deny"),
+    ("git push -ofoo origin main", "feat", "feat", "allow"),
+    ("git push -ofoo --mirror origin", "feat", "feat", "deny"),
+    ("git push", "master", "main", "deny"),
+    ("git push --no-verify origin main", "feat", "feat", "ask"),
 ]
 
 
@@ -418,11 +437,20 @@ def lookup_cases():
         ev, ev2 = {"session_id": "s1"}, {"session_id": "s2"}
         judge.record(ev, root, "push main -- the re-authored history", "Regent: message")
         covered = regent_grant(ev)
+
+        def wire_answer(sid):
+            event = {"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "git push origin main"},
+                     "session_id": sid, "cwd": str(root)}
+            r = subprocess.run([sys.executable, __file__], input=json.dumps(event), capture_output=True, text=True, encoding="utf-8")
+            return r.stdout.strip()
+
         return [(covered("main", root), "the Regent's grant covers its branch"),
                 (not covered("master", root), "and no other"),
                 (not regent_grant(ev2)("main", root), "a session grant stays in its session"),
                 (not covered("main", other), "a session grant stays in its repository"),
-                (not covered("main", None), "a failed lookup reads as no grant")]
+                (not covered("main", None), "a failed lookup reads as no grant"),
+                (wire_answer("s1") == "", "on the wire, the hook lets a granted push through"),
+                ('"deny"' in wire_answer("s2"), "on the wire, the hook denies it to another session")]
 
 
 def selftest():
