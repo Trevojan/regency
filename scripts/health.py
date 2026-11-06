@@ -474,7 +474,7 @@ def copies(rep, root=ROOT, home=None):
                                       "nor any branch holds: its source lives only in the install")
         elif vkey(c["version"]) < vkey(here):
             rep.add("INFO", "copies", f"installed {c['label']} {c['version']} is behind this folder's {here}: "
-                                      "update it once this version ships (library/maintaining.md)")
+                                      "/regency:latest moves it once this version is released")
     if refs is None:
         rep.add("UNCHECKED", "copies", f"{root.name}: not a git repository, so its branches cannot be compared")
     else:

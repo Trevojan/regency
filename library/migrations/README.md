@@ -39,13 +39,9 @@ The session's resume line names a mismatch before anything is asked (`scripts/ho
 ## 3. Where the new version comes from
 
 The migrations ship **inside the plugin**: a project is brought to the regency that is installed, which is
-the one that will rule it. A project newer than the plugin means the plugin is behind: update the plugin
-from its marketplace (the regency repository), never the project from the network.
-
-```bash
-claude plugin marketplace update regency
-claude plugin update regency@regency
-```
+the one that will rule it. A project newer than the plugin means the plugin is behind: `/regency:latest`
+moves the plugin to the newest release by the route its install allows; the project is never updated from
+the network.
 
 ## 4. One yes
 

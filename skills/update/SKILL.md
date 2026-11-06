@@ -17,8 +17,8 @@ asks once. Run every command from inside the project.
 ## Procedure
 
 1. **Gate.** `python <regency>/scripts/migrate.py gate`.
-   - exit 2 (the project is newer): stop. Say so in its words and give the two plugin commands from
-     `library/migrations/README.md` §3. Never move a project back.
+   - exit 2 (the project is newer): stop. Say so in its words and offer `/regency:latest`. Never move a
+     project back.
    - exit 0 (agree): say "the project fits regency `<version>`", run `check`, and stop.
    - exit 1 (behind or unstamped): go on.
 2. **Plan.** `python <regency>/scripts/migrate.py plan`. Show it as it prints: one numbered line per

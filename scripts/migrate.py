@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parent.parent
 GUIDELINE_PROBES = (".guidelines", "Docs/.guidelines", "docs/.guidelines")  # library/layouts.md §1
 STAMP = ".shortcuts/regency.json"
 KINDS = ("mkdir", "rename", "move", "delete", "rewrite", "create", "replace", "beside", "stamp")
-UPDATE_PLUGIN = "claude plugin marketplace update regency, then claude plugin update regency@regency"
+UPDATE_PLUGIN = "/regency:latest"
 BEFORE = re.compile(r"^[\w-]+\.py$")  # a step's `before`: one of regency's own scripts, run first
 
 
