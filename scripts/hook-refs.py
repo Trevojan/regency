@@ -7,20 +7,24 @@ been resolved, so nothing here reads a command (library/hooks.md §2).
 
 Where it lives, the Regent's call (2026-11-06): in the repository, nothing machine-wide.
 
-  <git folder>/regency-hooks/   pre-push, and a forwarder per other hook, so the repository's own hooks still run
-  .claude/settings.local.json   env: core.hooksPath through GIT_CONFIG_*, which only what Claude Code starts inherits
+  <git folder>/regency-hooks/pre-push   the check
+  .claude/settings.local.json           env: GIT_CONFIG_*, which only what Claude Code starts inherits
 
-So the Regent's own terminal and GitHub Desktop never see this folder, nothing goes in .git/hooks (where Git LFS needs the
-one pre-push slot), and the setting follows that session's shells into every repository they touch, however they get there.
+Those variables name the check as a hook in git's configuration (hook.regency.*): it runs beside the repository's own hooks
+and costs a commit nothing. A git that does not know such hooks gets core.hooksPath instead, and a forwarder per other hook,
+so the repository's own hooks still run; that costs process starts on every hook, and `git lfs install` refuses under it.
 
-  SessionStart   writes both, and rewrites them when the plugin moved. It merges into the settings file and never takes a
-                 GIT_CONFIG_* another tool set; one context line when it wrote them or could not.
+Either way the Regent's own terminal and GitHub Desktop never see it, nothing goes in .git/hooks (where Git LFS needs the one
+pre-push slot), and the setting follows that session's shells into every repository they touch, however they get there.
+
+  SessionStart   writes both, and rewrites them when the plugin moved or git changed. It merges into the settings file and
+                 never takes a GIT_CONFIG_* another tool set; one context line when it wrote them or could not.
   --pre-push     what the hook runs when main or master is among the refs. A push onto one needs a `push` grant for that
                  branch; deleting one never passes; a forced update also needs a `history **` grant. Any failure refuses.
                  A shell with neither session variable is no agent's: it passes.
 
-What it promises: it stops an agent that forgets. --no-verify, -c core.hooksPath=, a scrubbed environment and git send-pack
-skip it. An agent set on evading the guards with the Regent's credentials is out of reach of any local check (conventions §5).
+What it promises: it stops an agent that forgets. --no-verify, a scrubbed environment and git send-pack skip it. An agent set
+on evading the guards with the Regent's credentials is out of reach of any local check (conventions §5).
 
 Modes:  (no args) hook · --pre-push <remote> <url> · --install [dir] · --check [dir] · --uninstall [dir] · --selftest
 Pure standard library, Python 3.8+.
@@ -48,6 +52,10 @@ ZERO = re.compile(r"^0+$")
 BRANCH = "refs/heads/"
 SESSION_VARS = ("CLAUDE_CODE_SESSION_ID", "CLAUDECODE")
 ENV_COUNT, ENV_KEY, ENV_VALUE = "GIT_CONFIG_COUNT", "GIT_CONFIG_KEY_0", "GIT_CONFIG_VALUE_0"
+ENV_KEY_1, ENV_VALUE_1 = "GIT_CONFIG_KEY_1", "GIT_CONFIG_VALUE_1"
+ENV_NAMES = (ENV_COUNT, ENV_KEY, ENV_VALUE, ENV_KEY_1, ENV_VALUE_1)
+EVENT_KEY, COMMAND_KEY, PATH_KEY = "hook.regency.event", "hook.regency.command", "core.hooksPath"
+OURS = {("2", EVENT_KEY), ("1", PATH_KEY)}
 FORWARDED = ("applypatch-msg", "pre-applypatch", "post-applypatch", "pre-commit", "pre-merge-commit", "prepare-commit-msg",
              "commit-msg", "post-commit", "pre-rebase", "post-checkout", "post-merge", "pre-auto-gc", "post-rewrite",
              "sendemail-validate", "pre-receive", "update", "post-receive", "post-update")
@@ -57,40 +65,52 @@ $(git config --type=path --show-scope --get-all core.hooksPath 2>/dev/null)
 EOF
 [ -n "$dir" ] || dir=$(git rev-parse --git-common-dir)/hooks
 """
-FORWARD = f"""#!/bin/sh
-{MARK}: runs the repository's own hook, wherever its configuration keeps it. Only the session's setting does not count.
-name=$1; shift
-{REAL_HOOKS}[ -x "$dir/$name" ] && exec "$dir/$name" "$@"
-exit 0
-"""
 
 
 # ---------- the files ----------------------------------------------------------------------------
 
-def pre_push_hook(script=None, python=None):
+def pre_push_hook(configured, script=None, python=None):
+    """The check; under core.hooksPath it is the only pre-push git runs, so it also hands git's lines on."""
     script = shlex.quote(Path(script or __file__).resolve().as_posix())
     python = shlex.quote(Path(python or sys.executable).as_posix())
-    return ("#!/bin/sh\n"
-            f"{MARK}: scripts/hook-refs.py writes this file and rewrites it when the plugin moves.\n"
-            "input=$(cat)\n"
-            'case "$input" in *refs/heads/main*|*refs/heads/master*)\n'
-            f"  if [ -f {script} ] && [ -f {python} ]; then\n"
-            f"""    printf '%s\\n' "$input" | {python} {script} --pre-push "$@" || exit 1\n"""
-            '  elif [ -n "$CLAUDE_CODE_SESSION_ID$CLAUDECODE" ]; then\n'
-            '    echo "regency: the check on main and master cannot start, so this push is refused; open a new session, or push from your own terminal" >&2\n'
-            "    exit 1\n"
-            "  fi;;\n"
-            "esac\n"
-            f"{REAL_HOOKS}"
-            """if [ -x "$dir/pre-push" ]; then printf '%s\\n' "$input" | "$dir/pre-push" "$@"; exit $?; fi\n"""
-            """if grep -qs 'filter=lfs' .gitattributes; then printf '%s\\n' "$input" | git lfs pre-push "$@"; exit $?; fi\n"""
-            "exit 0\n")
+    check = ("#!/bin/sh\n"
+             f"{MARK}: scripts/hook-refs.py writes this file and rewrites it when the plugin moves.\n"
+             "input=$(cat)\n"
+             'case "$input" in *refs/heads/main*|*refs/heads/master*)\n'
+             "  rc=127\n"
+             f"""  [ ! -f {script} ] || {{ printf '%s\\n' "$input" | {python} {script} --pre-push "$@"; rc=$?; }}\n"""
+             '  case "$rc:$CLAUDE_CODE_SESSION_ID$CLAUDECODE" in\n'
+             "    0:*|126:|127:) ;;\n"
+             '    126:*|127:*) echo "regency: the check on main and master cannot start, so this push is refused. Open a new session; if regency was removed, take GIT_CONFIG_* out of .claude/settings.local.json" >&2; exit 1;;\n'
+             "    *) exit 1;;\n"
+             "  esac;;\n"
+             "esac\n")
+    if configured:
+        return check + "exit 0\n"
+    return (check + REAL_HOOKS
+            + """if [ -x "$dir/pre-push" ]; then printf '%s\\n' "$input" | "$dir/pre-push" "$@"; exit $?; fi\n"""
+            + """if grep -qs 'filter=lfs' .gitattributes; then printf '%s\\n' "$input" | git lfs pre-push "$@"; exit $?; fi\n"""
+            + "exit 0\n")
 
 
-def hook_files():
-    files = {"pre-push": pre_push_hook(), "forward.sh": FORWARD}
-    files.update({name: f'#!/bin/sh\nexec sh "$(dirname "$0")/forward.sh" {name} "$@"\n' for name in FORWARDED})
+def forwarder(name):
+    return (f"#!/bin/sh\n{MARK}: runs the repository's own hook, wherever its configuration keeps it. Only the session's setting "
+            f'does not count.\n{REAL_HOOKS}[ -x "$dir/{name}" ] && exec "$dir/{name}" "$@"\nexit 0\n')
+
+
+def hook_files(configured):
+    files = {"pre-push": pre_push_hook(configured)}
+    if not configured:
+        files.update({name: forwarder(name) for name in FORWARDED})
     return files
+
+
+def wanted_env(hooks, configured):
+    """The variables that put the check in force. A hook file that is gone stops nothing: --uninstall, or a deleted repository."""
+    if not configured:
+        return {ENV_COUNT: "1", ENV_KEY: PATH_KEY, ENV_VALUE: hooks.as_posix()}
+    hook = shlex.quote((hooks / "pre-push").as_posix())
+    return {ENV_COUNT: "2", ENV_KEY: EVENT_KEY, ENV_VALUE: "pre-push", ENV_KEY_1: COMMAND_KEY, ENV_VALUE_1: f"[ ! -f {hook} ] || {hook}"}
 
 
 def executable(path, text):
@@ -105,6 +125,11 @@ def git(cwd, *args):
     except (OSError, subprocess.SubprocessError):
         return None
     return r.stdout.strip() if r.returncode == 0 else None
+
+
+def configured_hooks(cwd):
+    """True when this git runs hooks named in its configuration. Asked of git itself: an older one would ignore them in silence."""
+    return "regency" in (git(cwd, "-c", f"{EVENT_KEY}=pre-push", "-c", f"{COMMAND_KEY}=x", "hook", "list", "pre-push") or "")
 
 
 def where(cwd):
@@ -132,12 +157,12 @@ def write_settings(path, data):
 
 def foreign(env):
     """True when these variables already carry some other configuration."""
-    return env.get(ENV_COUNT, "1") != "1" or env.get(ENV_KEY, "core.hooksPath") != "core.hooksPath"
+    return (ENV_COUNT in env or ENV_KEY in env) and (env.get(ENV_COUNT), env.get(ENV_KEY)) not in OURS
 
 
-def survey(cwd):
+def survey(cwd, configured=None):
     """(state, detail, owed files, owed settings): 'written' or 'rewritten' when something is owed, else 'current',
-    'occupied', 'unreadable' or 'absent'. Changes nothing."""
+    'occupied', 'unreadable' or 'absent'. Changes nothing. An owed file with no text is one to remove."""
     place = where(cwd)
     if place is None:
         return "absent", f"{cwd} is not a working repository", {}, None
@@ -151,24 +176,31 @@ def survey(cwd):
         return "occupied", f"{ENV_COUNT} is already set for something else", {}, None
     if git(cwd, "ls-files", "--error-unmatch", SETTINGS) is not None:
         return "occupied", f"{settings} is tracked, and it would hold a machine's path", {}, None
-    owed = {n: t for n, t in hook_files().items() if not (hooks / n).is_file() or (hooks / n).read_bytes() != t.encode("utf-8")}
-    want = {ENV_COUNT: "1", ENV_KEY: "core.hooksPath", ENV_VALUE: hooks.as_posix()}
-    new = None if all(env.get(k) == v for k, v in want.items()) else dict(data, env=dict(env, **want))
+    configured = configured_hooks(cwd) if configured is None else configured
+    detail, files = f"{hooks} ({'a hook in git config' if configured else 'core.hooksPath, with forwarders'})", hook_files(configured)
+    owed = {n: t for n, t in files.items() if not (hooks / n).is_file() or (hooks / n).read_bytes() != t.encode("utf-8")}
+    if hooks.is_dir():
+        owed.update({f.name: None for f in hooks.iterdir() if f.name not in files})
+    want = dict({k: v for k, v in env.items() if k not in ENV_NAMES}, **wanted_env(hooks, configured))
+    new = None if want == env else dict(data, env=want)
     if not owed and new is None:
-        return "current", str(hooks), {}, None
-    return ("written" if new is not None or not (hooks / "pre-push").is_file() else "rewritten"), str(hooks), owed, new
+        return "current", detail, {}, None
+    return ("written" if new is not None or not (hooks / "pre-push").is_file() else "rewritten"), detail, owed, new
 
 
-def install(cwd):
+def install(cwd, configured=None):
     """Write what is owed; returns (state, detail). Merges into the settings file; never takes what another tool set."""
-    state, detail, owed, new = survey(cwd)
+    state, detail, owed, new = survey(cwd, configured)
     if state not in ("written", "rewritten"):
         return state, detail
     common, prefix = where(cwd)
     hooks = common / FOLDER
     hooks.mkdir(parents=True, exist_ok=True)
     for name, text in owed.items():
-        executable(hooks / name, text)
+        if text is None:
+            (hooks / name).unlink()
+        else:
+            executable(hooks / name, text)
     if new is not None:
         write_settings(Path(cwd) / SETTINGS, new)
     if git(cwd, "check-ignore", "-q", SETTINGS) is None:  # the file holds a machine's path: it never shows in a commit
@@ -187,8 +219,8 @@ def uninstall(cwd):
     hooks, settings, gone = place[0] / FOLDER, Path(cwd) / SETTINGS, []
     data = read_settings(settings)
     env = data.get("env", {})
-    if env.get(ENV_VALUE) == hooks.as_posix():
-        env = {k: v for k, v in env.items() if k not in (ENV_COUNT, ENV_KEY, ENV_VALUE)}
+    if hooks.as_posix() in f"{env.get(ENV_VALUE, '')} {env.get(ENV_VALUE_1, '')}":
+        env = {k: v for k, v in env.items() if k not in ENV_NAMES}
         write_settings(settings, {k: v for k, v in dict(data, env=env).items() if k != "env" or env})
         gone.append(str(settings))
     if (hooks / "pre-push").is_file() and MARK in (hooks / "pre-push").read_text(encoding="utf-8"):
@@ -217,12 +249,26 @@ def refused(lines, may_push, may_force, descends):
     return None
 
 
+def repository():
+    """The repository a push leaves from, as git sees it and as a grant names it: --git-dir and GIT_DIR lead away from the
+    folder the hook runs in, a linked worktree is its own folder, and a bare repository has no parent project."""
+    found = git(Path.cwd(), "rev-parse", "--absolute-git-dir")
+    if not found:
+        return wire.repo_root(Path.cwd())
+    path = Path(found)
+    if path.name == ".git":
+        return path.parent
+    if path.parent.name == "worktrees" and (path / "gitdir").is_file():
+        return Path((path / "gitdir").read_text(encoding="utf-8").strip()).parent
+    return path
+
+
 def pre_push():
     if not any(os.environ.get(v) for v in SESSION_VARS):
         return 0
     try:
         lines = [tuple(l.rsplit(None, 3)) for l in sys.stdin.read().splitlines() if l.strip()]
-        event, repo = judge.shell_event(), wire.repo_root(Path.cwd())
+        event, repo = judge.shell_event(), repository()
         why = refused(lines, lambda b: judge.covers(event, repo, "push", [b]) is not None,
                       lambda: judge.covers(event, repo, "history", []) is not None,
                       lambda old, new: git(Path.cwd(), "merge-base", "--is-ancestor", old, new) is not None)
@@ -299,35 +345,52 @@ def install_cases(tmp):
     run(base, "init", "-q", str(fresh))
     plain = base / "plain"
     plain.mkdir()
+    configured = configured_hooks(fresh)
     cases.append((install(plain)[0] == "absent", "not a repository: nothing written"))
     settings, hooks = fresh / SETTINGS, fresh / ".git" / FOLDER
+
+    def env_of(path=settings):
+        return json.loads(path.read_text(encoding="utf-8"))["env"]
+
+    def names_hooks(env):
+        return hooks.as_posix() in " ".join(env.values())
+
     cases.append((survey(fresh)[0] == "written" and not settings.exists() and not hooks.exists(), "--check's survey writes nothing"))
     settings.parent.mkdir()
     settings.write_text('{"permissions": {"allow": ["Read"]}, "env": {"KEEP": "1"}}', encoding="utf-8")
     out = respond({"hook_event_name": "SessionStart", "cwd": str(fresh)})
     data = json.loads(settings.read_text(encoding="utf-8"))
-    cases.append(("wrote" in str(out) and MARK in (hooks / "pre-push").read_text(encoding="utf-8")
-                  and data["env"][ENV_KEY] == "core.hooksPath" and Path(data["env"][ENV_VALUE]) == hooks,
-                  "SessionStart writes the hooks and the setting, and says so"))
+    cases.append(("wrote" in str(out) and MARK in (hooks / "pre-push").read_text(encoding="utf-8") and names_hooks(data["env"]),
+                  "SessionStart writes the hook and the setting, and says so"))
     cases.append((data["permissions"] == {"allow": ["Read"]} and data["env"]["KEEP"] == "1", "what was in the settings stays"))
     cases.append((not (fresh / ".git" / "hooks" / "pre-push").exists(), "nothing goes in .git/hooks, where LFS needs the slot"))
     cases.append((run(fresh, "status", "--short").stdout.strip() == "", "the settings file never shows in git status"))
     cases.append((respond({"hook_event_name": "SessionStart", "cwd": str(fresh)}) is None and survey(fresh)[0] == "current",
                   "already there: silent, and --check says current"))
+    cases.append((respond({"hook_event_name": "PreCompact", "cwd": str(fresh)}) is None, "other events: ignored"))
     (fresh / "sub" / "deep").mkdir(parents=True)
     out = respond({"hook_event_name": "SessionStart", "cwd": str(fresh / "sub" / "deep")})
     nested = fresh / "sub" / "deep" / SETTINGS
-    cases.append(("wrote" in str(out) and Path(json.loads(nested.read_text(encoding="utf-8"))["env"][ENV_VALUE]) == hooks
-                  and run(fresh, "status", "--short").stdout.strip() == "",
-                  "opened in a subfolder: the setting goes where Claude Code reads it, the hooks stay in the git folder, and git status stays clean"))
-    cases.append((set(uninstall(fresh / "sub" / "deep")) == {str(hooks), str(nested.resolve())} or not hooks.exists(), "--uninstall from there takes out both"))
-    cases.append((install(fresh)[0] == "written" and survey(fresh)[0] == "current", "the next session puts the hooks back"))
-    cases.append((respond({"hook_event_name": "PreCompact", "cwd": str(fresh)}) is None, "other events: ignored"))
-    (hooks / "pre-push").write_text(pre_push_hook(script="/gone/hook-refs.py"), encoding="utf-8")
-    cases.append((respond({"hook_event_name": "SessionStart", "cwd": str(fresh)}) is None and (hooks / "pre-push").read_bytes() == pre_push_hook().encode("utf-8"),
+    cases.append(("wrote" in str(out) and names_hooks(env_of(nested)) and run(fresh, "status", "--short").stdout.strip() == "",
+                  "opened in a subfolder: the setting goes where Claude Code reads it, the hook stays in the git folder, and git status stays clean"))
+    cases.append((set(uninstall(fresh / "sub" / "deep")) == {str(hooks), str(nested)} and not hooks.exists(), "--uninstall from there takes out both"))
+    cases.append((install(fresh)[0] == "written" and survey(fresh)[0] == "current", "the next session puts the hook back"))
+    (hooks / "pre-push").write_text(pre_push_hook(configured, script="/gone/hook-refs.py"), encoding="utf-8")
+    cases.append((respond({"hook_event_name": "SessionStart", "cwd": str(fresh)}) is None
+                   and (hooks / "pre-push").read_bytes() == pre_push_hook(configured).encode("utf-8"),
                   "the hook is rewritten, silently, when the plugin moved"))
     settings.write_text(settings.read_text(encoding="utf-8").replace(hooks.as_posix(), "/moved"), encoding="utf-8")
     cases.append((survey(fresh)[0] == "written", "the setting is rewritten when the repository moved"))
+    install(fresh, configured=False)
+    env = env_of()
+    cases.append((env[ENV_KEY] == PATH_KEY and env[ENV_VALUE] == hooks.as_posix() and ENV_KEY_1 not in env and (hooks / "pre-commit").is_file()
+                  and survey(fresh, configured=False)[0] == "current", "a git with no hooks in configuration gets core.hooksPath and the forwarders"))
+    install(fresh, configured=True)
+    env = env_of()
+    cases.append((env[ENV_COUNT] == "2" and env[ENV_KEY] == EVENT_KEY and names_hooks(env) and [f.name for f in hooks.iterdir()] == ["pre-push"]
+                  and survey(fresh, configured=True)[0] == "current", "a git that knows them gets the hook in configuration, and the forwarders leave"))
+    install(fresh, configured=False)
+    cases.append((ENV_KEY_1 not in env_of(), "going back leaves nothing of the other way behind"))
     install(fresh)
     cases.append((set(uninstall(fresh)) == {str(hooks), str(settings)} and not hooks.exists()
                   and json.loads(settings.read_text(encoding="utf-8")) == {"permissions": {"allow": ["Read"]}, "env": {"KEEP": "1"}},
@@ -342,8 +405,10 @@ def install_cases(tmp):
     cases.append(("no pre-push check" in str(out) and settings.read_text(encoding="utf-8") == "{ not json",
                   "a settings file it cannot read is left alone, and says so"))
     settings.unlink()
-    saved = {k: os.environ.get(k) for k in (ENV_COUNT, ENV_KEY, ENV_VALUE)}
+    saved = {k: os.environ.get(k) for k in ENV_NAMES}
     os.environ.update({ENV_COUNT: "1", ENV_KEY: "a.b", ENV_VALUE: "c"})
+    os.environ.pop(ENV_KEY_1, None)
+    os.environ.pop(ENV_VALUE_1, None)
     cases.append((survey(fresh)[0] == "occupied", "so is a GIT_CONFIG_* the session already has from elsewhere"))
     for k, v in saved.items():
         os.environ.pop(k, None) if v is None else os.environ.update({k: v})
@@ -353,9 +418,9 @@ def install_cases(tmp):
     return cases
 
 
-def real_git_cases(tmp):
+def real_git_cases(tmp, configured):
     """Real git on a throwaway bare remote: the refs, not the text. Every form is one that got past the text guard."""
-    fix, cases = Path(tmp).resolve() / "fix", []
+    fix, cases = Path(tmp).resolve() / f"fix{int(configured)}", []
     fix.mkdir()
     remote, work, other = fix / "remote.git", fix / "work", fix / "other"
     run(fix, "init", "-q", "--bare", "-b", "main", str(remote))
@@ -374,15 +439,14 @@ def real_git_cases(tmp):
         run(work, "checkout", "-q", branch)
         commit(work, name)
     run(work, "checkout", "-q", "feat")
-    install(work)
+    install(work, configured)
     hooks = work / ".git" / FOLDER
 
     state, home = fix / "state", fix / "home"
-    agent = dict(os.environ, CLAUDE_CODE_SESSION_ID="s1", REGENCY_HOOK_STATE=str(state), REGENCY_JUDGE_HOME=str(home))
-    for k in ("CLAUDE_PLUGIN_DATA", "CLAUDE_CONFIG_DIR", "REGENCY_JD"):
-        agent.pop(k, None)
-    regent = {k: v for k, v in agent.items() if k not in SESSION_VARS and k not in (ENV_COUNT, ENV_KEY, ENV_VALUE)}
-    agent.update({ENV_COUNT: "1", ENV_KEY: "core.hooksPath", ENV_VALUE: hooks.as_posix()})
+    regent = {k: v for k, v in os.environ.items() if k not in SESSION_VARS and not k.startswith("GIT_CONFIG_")
+              and k not in ("CLAUDE_PLUGIN_DATA", "CLAUDE_CONFIG_DIR", "REGENCY_JD")}
+    regent.update(REGENCY_HOOK_STATE=str(state), REGENCY_JUDGE_HOME=str(home))
+    agent = dict(regent, CLAUDE_CODE_SESSION_ID="s1", **wanted_env(hooks, configured))
 
     def tips():
         return run(remote, "for-each-ref", "--format=%(refname) %(objectname)", "refs/heads").stdout
@@ -437,7 +501,9 @@ def real_git_cases(tmp):
                   "so is a bare clone"))
     cases.append((lands("push", "origin", "feat"), "another branch still lands"))
     inherited = {k: v for k, v in agent.items() if k not in SESSION_VARS}
-    cases.append((lands("push", "origin", "main", env=inherited), "a shell with the folder but no session variable is no agent's: it lands"))
+    cases.append((lands("push", "origin", "main", env=inherited), "a shell with the setting but no session variable is no agent's: it lands"))
+    if configured:
+        cases.append((not lands("-c", "core.hooksPath=/dev/null", "push", "origin", "main"), "a hook in configuration is not skipped by -c core.hooksPath="))
 
     judge.record({"session_id": "s1"}, work, "push main -- planted for the test", "Regent: message")
     cases.append((lands("push", "origin", "main"), "under a push grant, main lands"))
@@ -445,6 +511,14 @@ def real_git_cases(tmp):
     cases.append((not lands("push", "origin", "master"), "under a grant of main, master is refused"))
     cases.append((not lands("push", "origin", "main", env=dict(agent, CLAUDE_CODE_SESSION_ID="s2")), "a session grant stays in its session"))
     cases.append((not lands("push", "origin", "HEAD", cwd=other), "and in its repository"))
+    cases.append((not lands("--git-dir", str(other / ".git"), "push", "origin", "HEAD"), "--git-dir does not carry it into another one"))
+    cases.append((not lands("push", "up", "main", cwd=fix / "bare.git", env=dict(agent, CLAUDE_PROJECT_DIR=str(work))),
+                  "nor does a bare clone count as the session's project"))
+    tree = fix / "tree"
+    run(work, "worktree", "add", "-q", "-b", "tree", str(tree), "main")
+    cases.append((not lands("push", "origin", "HEAD:main", cwd=tree), "a linked worktree is its own folder: a grant in the main checkout stops short of it"))
+    judge.record({"session_id": "s1"}, tree, "push main -- planted for the test", "Regent: message")
+    cases.append((lands("push", "origin", "HEAD:main", cwd=tree), "granted there, it lands"))
 
     run(remote, "update-ref", "refs/heads/main", run(work, "rev-parse", "main").stdout.strip())
     rewound = run(work, "rev-parse", "main~1").stdout.strip()
@@ -467,14 +541,17 @@ def real_git_cases(tmp):
     cases.append((not lands("push", "origin", "main", env=twin), "two stores for one session: the check refuses"))
 
     for gone in ({"script": "/gone/hook-refs.py"}, {"python": "/gone/python"}):
-        (hooks / "pre-push").write_text(pre_push_hook(**gone), encoding="utf-8")
+        (hooks / "pre-push").write_text(pre_push_hook(configured, **gone), encoding="utf-8")
         cases.append((not lands("push", "origin", "main") and lands("push", "origin", "feat") and lands("push", "origin", "main", env=inherited),
                       f"a hook whose {next(iter(gone))} is gone refuses main in an agent's shell, and only there, and only main"))
-    install(work)
-    return cases + project_hook_cases(fix, work, agent, regent, remote)
+    (hooks / "pre-push").unlink()
+    cases.append((lands("push", "origin", "feat"), "with the hook itself gone (--uninstall, a deleted repository), nothing is stopped"))
+    install(work, configured)
+    tag = "hook in configuration" if configured else "core.hooksPath"
+    return [(ok, f"[{tag}] {label}") for ok, label in cases + project_hook_cases(fix, work, agent, regent, remote, configured)]
 
 
-def project_hook_cases(fix, work, agent, regent, remote):
+def project_hook_cases(fix, work, agent, regent, remote, configured):
     """The repository's own hooks keep running in an agent's shell, and its Git LFS is left alone in the Regent's."""
     cases = []
     own = work / ".git" / "hooks"
@@ -527,13 +604,15 @@ def project_hook_cases(fix, work, agent, regent, remote):
     plain = fix / "lfsplain"
     run(fix, "clone", "-q", str(remote), "lfsplain", env=regent)
     run(plain, "checkout", "-q", "main", env=regent)
-    if run(plain, "config", "--get", "filter.lfs.clean", env=agent).stdout.strip():  # Git for Windows sets the filters system-wide
+    installed = run(plain, "lfs", "install", "--local", env=agent).returncode == 0
+    cases.append((installed == configured, "in an agent's shell, git lfs install works with a hook in configuration and refuses under core.hooksPath"))
+    if installed or run(plain, "config", "--get", "filter.lfs.clean", env=agent).stdout.strip():  # Git for Windows sets the filters system-wide
         run(plain, "lfs", "track", "*.dat", env=agent)
         (plain / "y.dat").write_bytes(b"\x01" * 2048)
         run(plain, "add", ".gitattributes", "y.dat", env=agent)
         run(plain, "commit", "-q", "-m", "lfs2", env=agent)
         run(plain, "push", "origin", "HEAD:feat2", env=agent)
-        cases.append((len(stored()) == 2, "tracked and pushed by an agent with no LFS hook installed, the object still reaches the remote"))
+        cases.append((len(stored()) == 2, "tracked and pushed by an agent, the object reaches the remote"))
     return cases
 
 
@@ -544,7 +623,12 @@ def selftest():
         os.environ["REGENCY_HOOK_STATE"] = str(Path(tmp) / "state0")
         cases = pure_cases()
         if shutil.which("git"):
-            cases += install_cases(tmp) + real_git_cases(tmp)
+            cases += install_cases(tmp) + real_git_cases(tmp, False)
+            run(tmp, "init", "-q", "known")
+            if configured_hooks(Path(tmp) / "known"):
+                cases += real_git_cases(tmp, True)
+            else:
+                print("hook-refs: this git has no hooks in configuration: those cases did not run")
         else:
             print("hook-refs: git is not on PATH: the real-git cases did not run")
         return wire.check(cases)

@@ -19,8 +19,8 @@ Two kinds:
 
 **Adoption gate.** Recorders write only in a project that already has `<guidelines>/.shortcuts/.virtual/`.
 They never create guideline folders (`library/layouts.md` §1). Outside the Regent's projects the plugin
-is silent. The one write that is not a recorder's: `hook-refs.py` writes `<git folder>/regency-hooks/` and three `env` keys
-in `.claude/settings.local.json`, never in the guidelines, in the repository a session opens in.
+is silent. The one write that is not a recorder's: `hook-refs.py` writes `<git folder>/regency-hooks/` and its
+`GIT_CONFIG_*` keys in `.claude/settings.local.json`, never in the guidelines, in the repository a session opens in.
 
 **No Stop hook (R4.5).** The next-step line lives in each playbook. `SubagentStop` is wired only to the
 journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
@@ -30,7 +30,7 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | Event | Matcher | Script | Kind | Answer |
 |---|---|---|---|---|
 | `SessionStart` | `startup\|resume\|clear\|compact` | `hook-resume.py` | recorder | one resume line (R4.2) |
-| `SessionStart` | `startup\|resume\|clear\|compact` | `hook-refs.py` | guard's setup | writes `<git folder>/regency-hooks/` and `core.hooksPath` in the `env` of `.claude/settings.local.json`, or rewrites them; one context line when it wrote them, or when another `GIT_CONFIG_*`, a tracked or unreadable file keeps them out |
+| `SessionStart` | `startup\|resume\|clear\|compact` | `hook-refs.py` | guard's setup | writes `<git folder>/regency-hooks/` and the `GIT_CONFIG_*` that put it in force in the `env` of `.claude/settings.local.json`, or rewrites them; one context line when it wrote them, or when another `GIT_CONFIG_*`, a tracked or unreadable file keeps them out |
 | git's `pre-push` | an agent's shell | `hook-refs.py --pre-push` | guard | refuses the refs git is sending: `main`/`master` with no `push` grant, any deletion of them, a forced update with no `history` grant of `**` |
 | `UserPromptSubmit` | — | `hook-verbs.py` | recorder | opens a pass: records the cloud writes the Regent quoted and the Regent's `grant:` lines; a ratify verb ratifies changed grant stores; routes a Regent verb |
 | `PreToolUse` | `Bash`, `PowerShell` (`if: git *`) | `guard-push.py` | guard | `deny` a push to main/master, unless a `push` grant names it |
@@ -59,36 +59,42 @@ failed lookup reads as no grant. Flags and branches are read as git reads them: 
 `cd x && git push` and `bash -c "git push"` did in a live session, and it reads text, so a chain that changes branch first,
 an alias, a line continuation, braces or a substitution go past it.
 
-`hook-refs.py` stands behind it, on git's own `pre-push` hook, which is told the refs being sent once all of that is
+`hook-refs.py` stands behind it, on git's own `pre-push` event, which is told the refs being sent once all of that is
 resolved. It lives in the repository, nothing machine-wide (the Regent, 2026-11-06): `SessionStart` writes
-`<git folder>/regency-hooks/` and sets `core.hooksPath` through `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_0` and
-`GIT_CONFIG_VALUE_0` in the `env` of the session folder's `.claude/settings.local.json`, which `.git/info/exclude` keeps out
-of git.
+`<git folder>/regency-hooks/pre-push`, and `GIT_CONFIG_*` variables that name it as a hook in git's configuration
+(`hook.regency.event`, `hook.regency.command`), in the `env` of the session folder's `.claude/settings.local.json`, which
+`.git/info/exclude` keeps out of git.
 
 - **Only what Claude Code starts sees it.** The Regent's terminal and GitHub Desktop read neither file, and nothing goes in
   `.git/hooks`, where Git LFS needs the one `pre-push` slot.
 - **It follows the shell, not the repository.** A `cd`, a `-C`, `--git-dir`, a clone made in the same line, an alias or a
   script all reach the same hook, in whichever repository the push runs. A new session has it from its first command.
-- **The repository's own hooks still run.** A forwarder per other hook runs what its `core.hooksPath` (local, or the
-  Regent's `~/.gitconfig`) or `.git/hooks` holds, and `pre-push` hands git's lines on after its check, or to
-  `git lfs pre-push` when `.gitattributes` names LFS and no hook does.
+- **The repository's own hooks run as they always did.** git runs a hook in its configuration beside `.git/hooks` and a
+  repository's `core.hooksPath`, each with git's lines on stdin; if any fails, the push stops. `git lfs install` works in an
+  agent's shell, and a commit costs what it cost.
+- **A git with no such hooks would ignore them in silence**, so `hook-refs.py` asks git first (`git hook list`). The answer
+  no gets `core.hooksPath` instead, with a forwarder per other hook that runs the repository's own, from its
+  `core.hooksPath`, the Regent's `~/.gitconfig` or `.git/hooks`, and a `pre-push` that hands git's lines on, or to
+  `git lfs pre-push` when `.gitattributes` names LFS and no hook does. That way costs: on Windows a commit went from 80 to
+  520 ms and a rebase of 20 commits from 0.6 to 8.9 s. Under it `git lfs install` exits 2 (other installers that check
+  `core.hooksPath`, such as `pre-commit`, may refuse too: run them in your own terminal), and `reference-transaction`,
+  `post-index-change`, `push-to-checkout` and `proc-receive` are not forwarded.
 - **The check.** Landing on `main` or `master` needs a `push` grant, deleting one never passes, a forced update also needs
-  a `history` grant of `**`, and any failure refuses. A shell with neither `CLAUDE_CODE_SESSION_ID` nor `CLAUDECODE` is no
-  agent's and passes. With its script or Python gone, the hook refuses `main` and `master` in an agent's shell and nothing
-  else. `python scripts/hook-refs.py --uninstall` takes out what it wrote, and only that; `--check` says what is owed.
+  a `history` grant of `**`, and any failure refuses. A grant counts in the repository git is pushing from, so `--git-dir`
+  does not carry it elsewhere. A shell with neither `CLAUDE_CODE_SESSION_ID` nor `CLAUDECODE` is no agent's and passes.
+  With its script or Python gone, the hook refuses `main` and `master` in an agent's shell and nothing else, and says how
+  out: a new session rewrites it, and with regency removed the `GIT_CONFIG_*` keys come out by hand.
+  `python scripts/hook-refs.py --uninstall` takes out what it wrote, and only that; `--check` says what is owed.
 
 Its self-test runs real git on a throwaway remote.
 
 What stays out, named so nobody reads more into this:
 
-- What skips any hook: `--no-verify` (the text guard asks on the forms it can read), `-c core.hooksPath=`, `git send-pack`,
-  `env -u GIT_CONFIG_COUNT`, `env -i`. What is no `git push`: `gh pr merge`, the API.
+- What skips any hook: `--no-verify` (the text guard asks on the forms it can read), `git send-pack`,
+  `env -u GIT_CONFIG_COUNT`, `env -i`. What overrides this one by name: `-c hook.regency.enabled=false` and the other
+  `-c hook.regency.*`; on the `core.hooksPath` way, `-c core.hooksPath=`. What is no `git push`: `gh pr merge`, the API.
 - Where the setting is not: a session opened outside a repository; a settings file that is tracked, unreadable or holding
   another `GIT_CONFIG_*`, where a context line says so.
-- `git lfs install` exits 2 under the setting (seen live), and other installers that check `core.hooksPath`, such as
-  `pre-commit`, may refuse too: run them in your own terminal. `git lfs track` and a push work.
-- Hooks not forwarded, for speed or because their presence changes what git does: `reference-transaction`,
-  `post-index-change`, `push-to-checkout`, `proc-receive`.
 - A terminal started from an agent's shell inherits the setting and the session variables, so it reads as an agent's.
   Whether a `!` command's shell carries them is not yet seen; if it does, a `!` push of `main` needs a grant too.
 
