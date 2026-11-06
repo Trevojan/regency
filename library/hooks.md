@@ -47,7 +47,7 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 ### Push to main — `guard-push.py`
 
 The Regent pushes `main` (conventions §4): denied, unless a `push` grant of the Regent's names the branch (`library/judge.md`
-§2). A grant never covers deleting it, `--all`, `--mirror` or a `+` refspec, and a failed lookup reads as no grant. Flags are read as git reads them: a unique prefix (`--del`), a short cluster (`-fd`). 89-case table.
+§2). A grant never covers deleting it, `--all`, `--mirror` or a `+` refspec, and a failed lookup reads as no grant. Flags and branches are read as git reads them: a unique prefix (`--del`), a short cluster (`-fd`), `heads/main`. 94-case table.
 
 **What a guard reads.** Both shell guards scan the command a shell would run: `guard_push.data_only` takes
 out heredoc bodies that are only data before splitting. A body stays when a shell reads it (`bash <<'EOF'`,

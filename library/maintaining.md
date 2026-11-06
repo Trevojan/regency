@@ -36,7 +36,7 @@ way. Read before changing the plugin's structure. Commands for routine maintenan
 | `gh release verify` and `gh release verify-asset` | **not yet run**: regency has no release (2026-11-06) |
 | A session's hooks read their scripts from the cached folder at each call: a reinstall under the same version label was in force after only `/reload-skills` | a guard can change under a running session; bump the version for anything but a deliberate, temporary load |
 | `/reload-plugins` left a synced copy as it was on disk after an update on another machine | whether a full restart syncs it is **not yet seen** |
-| `git push` takes a unique prefix of a long flag and a cluster of short ones: `--mir` is `--mirror`, `-fd` deletes, `-odn` is a push option and a real push | `guard-push.flag_names` reads them as git does; every form in its table ran against a real bare remote |
+| `git push` takes a unique prefix of a long flag and a cluster of short ones: `--mir` is `--mirror`, `-fd` deletes, `-odn` is a push option and a real push. A destination `heads/main` lands on `refs/heads/main` | `guard-push.flag_names` and `norm` read them as git does; every form in its table ran against a real bare remote |
 | With GitHub Desktop running, a local branch reset behind its upstream came back by itself: reflog `pull: fast-forward`, no checkout, one second after `FETCH_HEAD` | a reset of a published branch lasts until the next fetch, so re-point and force-push in one go |
 
 ## Auto mode and headless facts (Claude Code 2.1.302, docs read 2026-10-17)
