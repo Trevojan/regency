@@ -99,7 +99,8 @@ the self-tests. The consequences are in `library/hooks.md` §6.
   state at `REGENCY_HOOK_STATE`; never run a self-test against a real project.
 - On Windows, `open(path, "a")` and `os.O_APPEND` are a seek to the end, then a write: parallel processes
   overwrite each other's lines (8 writers × 40 lines kept 71–114 of 320; one `os.write` per line kept 270;
-  seen 2026-11-07). `hook-journal.py` orders its appends with a lock directory.
+  seen 2026-11-07). A read and rewrite loses more: 3 parallel `gov.record` calls kept 1 entry of 3. Every
+  hook-written file that two hooks can write at once goes through `hook_wire.holding`.
 
 ## Decisions
 

@@ -204,8 +204,9 @@ compaction and session end. Harmless shell commands, reads and writes outside th
 message, memory, scratch) are not recorded.
 
 Parallel async hooks append at once, and on Windows an append is a seek then a write, so two of them
-overwrite each other. Each append and trim takes `<virtual>/.journal.lock` (an empty directory, invisible to
-git); after 3 s without it the line is written anyway and the trim waits (R4.5).
+overwrite each other. Each append and trim takes the file's lock, `hook_wire.holding`: an empty directory
+beside it (`.checkpoints.jsonl.lock`), invisible to git. After 3 s without it the line is written anyway and the
+trim waits (R4.5). The governance files take the same lock around each read and rewrite.
 
 ```json
 {"ts": "2026-10-09T20:28:20-03:00", "regency.event": "PostToolUse",
