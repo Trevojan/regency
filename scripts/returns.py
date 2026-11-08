@@ -629,9 +629,10 @@ def record(vdir, rows):
     if not vdir or not rows:
         return
     p = Path(vdir) / LOG
-    lines = p.read_text(encoding="utf-8").splitlines() if p.is_file() else []
-    lines += [json.dumps(r, ensure_ascii=False) for r in rows]
-    wire.atomic_write(p, "\n".join(lines[-KEEP:]) + "\n")
+    with wire.holding(p):
+        lines = p.read_text(encoding="utf-8").splitlines() if p.is_file() else []
+        lines += [json.dumps(r, ensure_ascii=False) for r in rows]
+        wire.atomic_write(p, "\n".join(lines[-KEEP:]) + "\n")
 
 
 def read_log(vdir):
@@ -880,6 +881,26 @@ def selftest():
         record(tmp, [row(info, [], "dv", "s1")])
         cases.append((read_log(tmp)[0]["regency.keys"] == info["keys"] and "body" not in json.dumps(read_log(tmp)[0]),
                       "the log keeps metadata, never the body"))
+        import threading
+        import time
+        real, others = wire.atomic_write, []
+
+        def between(path, text):  # a parallel hook logs after this one read the file, before it replaces it
+            if not others:
+                others.append(threading.Thread(target=record, args=(tmp, [row(info, [], "qa", "s2")])))
+                others[-1].start()
+                time.sleep(0.1)
+            real(path, text)
+
+        wire.atomic_write = between
+        try:
+            record(tmp, [row(info, [], "dv", "s1")])
+        finally:
+            for t in others:
+                t.join()
+            wire.atomic_write = real
+        cases.append((len(read_log(tmp)) == 3 and not list(Path(tmp).glob(".*.lock")),
+                      f"a line logged while another rewrites the log survives it ({len(read_log(tmp))} lines)"))
     return wire.check(cases)
 
 

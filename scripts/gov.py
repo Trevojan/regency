@@ -241,9 +241,10 @@ def record(vdir, decision, agent=None, session=None):
     entry = {"ts": wire.now(), "gen_ai.agent.name": agent or "main", "gen_ai.conversation.id": session,
              **{f"gov.{k}": v for k, v in decision.items() if k not in ("problems", "reasons") and v}}
     p = Path(vdir) / QUEUE
-    lines = p.read_text(encoding="utf-8").splitlines() if p.is_file() else []
-    lines.append(json.dumps(entry, ensure_ascii=False))
-    wire.atomic_write(p, "\n".join(lines[-KEEP:]) + "\n")
+    with wire.holding(p):  # parallel agent calls record at once (a team pass, the speed modes)
+        lines = p.read_text(encoding="utf-8").splitlines() if p.is_file() else []
+        lines.append(json.dumps(entry, ensure_ascii=False))
+        wire.atomic_write(p, "\n".join(lines[-KEEP:]) + "\n")
     remember(vdir, entry)
     return entry
 
@@ -264,29 +265,30 @@ def read_keys(vdir):
 
 def remember(vdir, entry, count=True):
     """Fold one recorded packet into gov-keys.json; count=False adds the occurrence without counting a packet."""
-    agg = read_keys(vdir)
-    if agg is None:
-        print(f"gov.py: {KEYS} is unreadable; left untouched, this packet not counted", file=sys.stderr)
-        return
-    pid = entry.get("gen_ai.conversation.id") or "?"
-    key = entry.get("gov.key")
-    passes = agg["passes"]
-    if not passes or passes[-1]["id"] != pid:
-        known = next((x for x in passes if x["id"] == pid), None)
-        if known:
-            passes.remove(known)
-        passes.append(known or {"id": pid, "packets": 0, "keyed": 0})
-    current = passes[-1]
-    if count:
-        current["packets"] += 1
-        current["keyed"] += 1 if key else 0
-    if key:
-        occ = agg["keys"].setdefault(key, [])
-        occ.append({"ts": entry.get("ts"), "pass": pid, "unit": entry.get("gov.unit"),
-                    "element": entry.get("gov.element"), "route": entry.get("gov.route")})
-        agg["keys"][key] = occ[-KEEP_PER_KEY:]
-    agg["passes"] = passes[-KEEP_PASSES:]
-    wire.atomic_write(Path(vdir) / KEYS, json.dumps(agg, ensure_ascii=False, indent=1) + "\n")
+    with wire.holding(Path(vdir) / KEYS):
+        agg = read_keys(vdir)
+        if agg is None:
+            print(f"gov.py: {KEYS} is unreadable; left untouched, this packet not counted", file=sys.stderr)
+            return
+        pid = entry.get("gen_ai.conversation.id") or "?"
+        key = entry.get("gov.key")
+        passes = agg["passes"]
+        if not passes or passes[-1]["id"] != pid:
+            known = next((x for x in passes if x["id"] == pid), None)
+            if known:
+                passes.remove(known)
+            passes.append(known or {"id": pid, "packets": 0, "keyed": 0})
+        current = passes[-1]
+        if count:
+            current["packets"] += 1
+            current["keyed"] += 1 if key else 0
+        if key:
+            occ = agg["keys"].setdefault(key, [])
+            occ.append({"ts": entry.get("ts"), "pass": pid, "unit": entry.get("gov.unit"),
+                        "element": entry.get("gov.element"), "route": entry.get("gov.route")})
+            agg["keys"][key] = occ[-KEEP_PER_KEY:]
+        agg["passes"] = passes[-KEEP_PASSES:]
+        wire.atomic_write(Path(vdir) / KEYS, json.dumps(agg, ensure_ascii=False, indent=1) + "\n")
 
 
 def note(vdir, key, unit=None, element="action", session=None):
@@ -564,6 +566,31 @@ def selftest():
         cases.append((rep["packets"] == 1 and rep["keyed"] == 0 and [c["key"] for c in rep["candidates"]]
                       == ["return-build-change-notes-rollback"] and "Not A Slug" not in read_keys(tmp)["keys"],
                       "note() counts a shape miss as a finding, never as a packet; a bad key is dropped"))
+    import threading
+    import time
+    for target in (QUEUE, KEYS):
+        with tempfile.TemporaryDirectory() as tmp:
+            record(tmp, route(G1), session="t1")
+            real, others = wire.atomic_write, []
+
+            def between(path, text, tmp=tmp, target=target):  # a parallel hook records after this one read the file
+                if Path(path).name == target and not others:
+                    others.append(threading.Thread(target=record, args=(tmp, route(G1)), kwargs={"session": "t2"}))
+                    others[-1].start()
+                    time.sleep(0.1)
+                real(path, text)
+
+            wire.atomic_write = between
+            try:
+                record(tmp, route(G1), session="t1")
+            finally:
+                for t in others:
+                    t.join()
+                wire.atomic_write = real
+            queue = (Path(tmp) / QUEUE).read_text(encoding="utf-8").splitlines()
+            packets = sum(x["packets"] for x in read_keys(tmp)["passes"])
+            cases.append((len(queue) == 3 and packets == 3 and not list(Path(tmp).glob(".*.lock")),
+                          f"a record made while another rewrites {target} survives it ({len(queue)} lines, {packets} packets)"))
     return wire.check(cases)
 
 
