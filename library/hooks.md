@@ -198,9 +198,14 @@ stays exact and the hook's own write never reads as drift.
 
 ### Journal — `hook-journal.py`
 
-`<virtual>/checkpoints.jsonl`, append-only, trimmed to the latest 200 lines. One line per file write,
-git state change, hazardous command, subagent start/stop, task created/completed, compaction and
-session end. Harmless shell commands and reads are not recorded.
+`<virtual>/checkpoints.jsonl`, append-only, trimmed to the latest 200 lines. One line per file write
+inside the repository, git state change, hazardous command, subagent start/stop, task created/completed,
+compaction and session end. Harmless shell commands, reads and writes outside the repository (a commit
+message, memory, scratch) are not recorded.
+
+Parallel async hooks append at once, and on Windows an append is a seek then a write, so two of them
+overwrite each other. Each append and trim takes `<virtual>/.journal.lock` (an empty directory, invisible to
+git); after 3 s without it the line is written anyway and the trim waits (R4.5).
 
 ```json
 {"ts": "2026-10-09T20:28:20-03:00", "regency.event": "PostToolUse",
@@ -304,7 +309,7 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<virtual>/index.sqlite` — nodes | lineage (one file per write, once built), `idx.py build`, `shortcuts.py index` | `idx.py`, lineage, resume, `shortcuts.py drift` | project — a cache, gitignored by `<virtual>/.gitignore` |
 | `<virtual>/index.sqlite` — prints | lineage, `shortcuts.py` (`record`, `index`, `refresh`) | `shortcuts.py drift`, `check`, `peek`; resume | the same file (R12: one store) |
 | `.shortcuts/README.md` state block | shortcuts (`SessionEnd`, handoff) | every returning agent | project |
-| `<virtual>/checkpoints.jsonl` | journal | resume, handoff | project |
+| `<virtual>/checkpoints.jsonl` | journal | resume, handoff, `health.py hooks` | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |
 | `<virtual>/gov-keys.json` | gov (per-key aggregate, not trimmed with the queue) | `gov.py recur`, the Regent | project |
 | `<virtual>/returns.jsonl` | gov (one line per suba envelope, metadata only, trimmed to 500) | `returns.py show`, the Regent | project |
@@ -320,7 +325,10 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<state>/packs/data/<pack>/` | a pack's own hooks (`${CLAUDE_PLUGIN_DATA}`) | the same pack | machine, outside any repository |
 
 `<virtual>` is `<guidelines>/.shortcuts/.virtual/`. `checkpoints.jsonl` and the governance files are tracked
-in git with the ledger (R5.3); `index.sqlite` is a gitignored cache any clone rebuilds with
+in git with the ledger (R5.3), and a project's ignore rules leave the journal tracked: this section is where that
+rule lives, and a project's ignore file points here. The journal is written for every session, so it is nobody's
+work: `/regency:arrange-cycle-commit` commits it last and alone without asking, and `vp.py trace` and
+`migrate.py apply` name a tree dirty only with it in one line (the Regent, 2026-11-07). `index.sqlite` is a gitignored cache any clone rebuilds with
 `shortcuts.py index` (R7.2, R12 — it replaces the tracked `fingerprints.json`, which `/regency:update` to 2.12
 imports and then retires); the session files never leave the machine.
 

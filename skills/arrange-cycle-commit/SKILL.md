@@ -24,7 +24,11 @@ Run `git status` and `git branch --show-current`. Stop and say so if this is not
    committing on the current branch needs no such answer.
 2. **Whose changes are these?** List every modified/untracked file. Group them into: (a) work done in
    this session, (b) everything else. Stage only (a). Files in (b) belong to the Regent: leave them
-   untouched and unstaged, and name them in the report. If a file mixes both, ask.
+   untouched and unstaged, and name them in the report. If a file mixes both, ask. The hooks journal
+   (`<guidelines>/.shortcuts/.virtual/checkpoints.jsonl`) is in neither group and is never asked about:
+   `hook-journal.py` writes it for every session. Commit it last, alone, as a `chore` in the project's
+   commit style (`library/hooks.md` §4). Its own hook writes a line for that commit, so the tree shows it
+   again at once; it rides with the next cycle.
 3. **The Regent authors, Claude co-authors** (`library/conventions.md` §4). The author is the identity git
    resolves here (`git var GIT_AUTHOR_IDENT`); set none of your own. If this repository's config overrides it with
    `noreply@anthropic.com`, remove the override (`git config --local --unset user.name`,
@@ -93,6 +97,7 @@ After the commits and merges, push **the branches this run touched, except `main
 
 ```text
 Commits   <n>   – <hash> <subject> (one line each)
+Journal   <hash> the hooks journal, alone (or omit the line when it was clean)
 Merged    <branch> → <branch> … (or "none: <why>")
 Held      <n> unverified draft(s) on plumbing: <units> (or omit the line when vp.py drafts exits 0)
 Verified  <command> → green | red <where>

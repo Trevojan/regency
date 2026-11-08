@@ -97,6 +97,9 @@ the self-tests. The consequences are in `library/hooks.md` §6.
   process group on POSIX).
 - Hook self-tests build their project with `hook_wire.build_fixture` in a temp folder and point session
   state at `REGENCY_HOOK_STATE`; never run a self-test against a real project.
+- On Windows, `open(path, "a")` and `os.O_APPEND` are a seek to the end, then a write: parallel processes
+  overwrite each other's lines (8 writers × 40 lines kept 71–114 of 320; one `os.write` per line kept 270;
+  seen 2026-11-07). `hook-journal.py` orders its appends with a lock directory.
 
 ## Decisions
 

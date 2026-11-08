@@ -25,7 +25,8 @@ asks once. Run every command from inside the project.
    operation, the refused ones, the plan id. Group nothing and drop nothing.
 3. **Clean tree.** `apply` refuses uncommitted changes and a folder that is not a git repository. If the
    tree is dirty, say which files, and offer `/regency:arrange-cycle-commit` first; do not stash or commit
-   the Regent's work yourself.
+   the Regent's work yourself. The hooks journal is not work: a tree dirty only with it passes, and
+   `apply` names it in one `note` line.
 4. **One yes.** One pop-up: "Apply plan `<id>` — `<n>` operations (replace, beside, create, rename, delete,
    rewrite, stamp)?", options *Apply* and *Do not apply*. Read the free text too. No yes, no apply.
 5. **Apply.** `python <regency>/scripts/migrate.py apply --yes <id>`. A refusal (the plan changed, the tree
