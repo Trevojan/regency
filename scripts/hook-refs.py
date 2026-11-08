@@ -42,8 +42,13 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import hook_wire as wire  # noqa: E402
-import judge  # noqa: E402  (the Regent's grants, R15)
+try:
+    import hook_wire as wire  # noqa: E402
+    import judge  # noqa: E402  (the Regent's grants, R15)
+except Exception:  # noqa: BLE001 - half a plugin: the hook reads 127 as a check that cannot start
+    if sys.argv[1:2] == ["--pre-push"]:
+        sys.exit(127)
+    raise
 
 MARK = "# regency:hook-refs"
 FOLDER = "regency-hooks"
@@ -76,7 +81,8 @@ def pre_push_hook(configured, script=None, python=None):
     check = ("#!/bin/sh\n"
              f"{MARK}: scripts/hook-refs.py writes this file and rewrites it when the plugin moves.\n"
              "input=$(cat)\n"
-             'case "$input" in *refs/heads/main*|*refs/heads/master*)\n'
+             'case "$input" in *" refs/heads/main "*|*" refs/heads/master "*)\n'  # the ref it lands on: <local ref> <id> <remote ref> <id>
+
              "  rc=127\n"
              f"""  [ ! -f {script} ] || {{ printf '%s\\n' "$input" | {python} {script} --pre-push "$@"; rc=$?; }}\n"""
              '  case "$rc:$CLAUDE_CODE_SESSION_ID$CLAUDECODE" in\n'
@@ -89,7 +95,8 @@ def pre_push_hook(configured, script=None, python=None):
         return check + "exit 0\n"
     return (check + REAL_HOOKS
             + """if [ -x "$dir/pre-push" ]; then printf '%s\\n' "$input" | "$dir/pre-push" "$@"; exit $?; fi\n"""
-            + """if grep -qs 'filter=lfs' .gitattributes; then printf '%s\\n' "$input" | git lfs pre-push "$@"; exit $?; fi\n"""
+            + """if command -v git-lfs >/dev/null 2>&1 && { grep -qs 'filter=lfs' .gitattributes || [ -d "$(git rev-parse --git-common-dir)/lfs" ]; }; then"""
+            + """ printf '%s\\n' "$input" | git lfs pre-push "$@"; exit $?; fi\n"""
             + "exit 0\n")
 
 
@@ -188,6 +195,11 @@ def survey(cwd, configured=None):
     return ("written" if new is not None or not (hooks / "pre-push").is_file() else "rewritten"), detail, owed, new
 
 
+def exclude_line(prefix):
+    """The settings file in .git/info/exclude; a folder's name is no glob there."""
+    return "/" + re.sub(r"([\\*?\[])", r"\\\1", prefix) + SETTINGS
+
+
 def install(cwd, configured=None):
     """Write what is owed; returns (state, detail). Merges into the settings file; never takes what another tool set."""
     state, detail, owed, new = survey(cwd, configured)
@@ -207,23 +219,40 @@ def install(cwd, configured=None):
         exclude = common / "info" / "exclude"
         exclude.parent.mkdir(parents=True, exist_ok=True)
         with exclude.open("a", encoding="utf-8") as f:
-            f.write(f"\n/{prefix}{SETTINGS}\n")
+            f.write(f"\n{exclude_line(prefix)}\n")
     return state, detail
 
 
+def held(hooks):
+    """True when this shell names that folder in core.hooksPath: with it gone, its git would run no hook of any repository."""
+    return os.environ.get(ENV_KEY) == PATH_KEY and os.environ.get(ENV_VALUE) == hooks.as_posix()
+
+
 def uninstall(cwd):
-    """Take out what install wrote and nothing else; returns what left. ValueError when the settings do not read."""
+    """Take out what install wrote and nothing else; returns what left. ValueError when the settings do not read. The hook
+    folder stays while this shell holds it."""
     place = where(cwd)
     if place is None:
         return []
     hooks, settings, gone = place[0] / FOLDER, Path(cwd) / SETTINGS, []
     data = read_settings(settings)
     env = data.get("env", {})
-    if hooks.as_posix() in f"{env.get(ENV_VALUE, '')} {env.get(ENV_VALUE_1, '')}":
+    ours = (wanted_env(hooks, True)[ENV_VALUE_1], wanted_env(hooks, False)[ENV_VALUE])
+    if env.get(ENV_VALUE) in ours or env.get(ENV_VALUE_1) in ours:
         env = {k: v for k, v in env.items() if k not in ENV_NAMES}
-        write_settings(settings, {k: v for k, v in dict(data, env=env).items() if k != "env" or env})
+        kept = {k: v for k, v in dict(data, env=env).items() if k != "env" or env}
+        if kept:
+            write_settings(settings, kept)
+        else:
+            settings.unlink()
+            if not any(settings.parent.iterdir()):
+                settings.parent.rmdir()
         gone.append(str(settings))
-    if (hooks / "pre-push").is_file() and MARK in (hooks / "pre-push").read_text(encoding="utf-8"):
+        exclude, line = place[0] / "info" / "exclude", f"\n{exclude_line(place[1])}\n"
+        text = exclude.read_text(encoding="utf-8") if exclude.is_file() else ""
+        if line in text:
+            wire.atomic_write(exclude, text.replace(line, "", 1))  # install appended exactly this
+    if (hooks / "pre-push").is_file() and MARK in (hooks / "pre-push").read_text(encoding="utf-8") and not held(hooks):
         shutil.rmtree(hooks, ignore_errors=True)
         gone.append(str(hooks))
     return gone
@@ -356,6 +385,28 @@ def install_cases(tmp):
         return hooks.as_posix() in " ".join(env.values())
 
     cases.append((survey(fresh)[0] == "written" and not settings.exists() and not hooks.exists(), "--check's survey writes nothing"))
+    said = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--check", str(fresh)], capture_output=True, text=True, encoding="utf-8")
+    cases.append(("owed" in said.stdout and "written" not in said.stdout and said.returncode == 1, "--check says what is owed, not that it wrote it"))
+    exclude = fresh / ".git" / "info" / "exclude"
+    before = exclude.read_bytes() if exclude.is_file() else None
+    install(fresh)
+    cases.append(("/.claude/settings.local.json" in exclude.read_text(encoding="utf-8"), "the settings file goes in .git/info/exclude when nothing ignores it"))
+    uninstall(fresh)
+    cases.append((not settings.parent.exists() and not hooks.exists() and (exclude.read_bytes() if exclude.is_file() else None) == before,
+                  "--uninstall leaves a repository as it found it: no settings file, no .claude, no exclude line"))
+    for folder in ("Herança d'agua x", "a[1]b") + (() if os.name == "nt" else ("x*y?",)):  # Windows refuses * and ? in a name
+        odd = base / folder
+        run(base, "init", "-q", str(odd))
+        (odd / "sub[1]").mkdir()
+        for at in (odd, odd / "sub[1]"):
+            install(at)
+            install(at)
+        lines = (odd / ".git" / "info" / "exclude").read_text(encoding="utf-8").count(SETTINGS)
+        cases.append((run(odd, "status", "--short").stdout.strip() in ("", "?? sub[1]/") and lines == 2, f"a folder named {folder}: git status stays clean, one exclude line each"))
+        uninstall(odd / "sub[1]")
+        uninstall(odd)
+        cases.append((not (odd / SETTINGS).exists() and not (odd / "sub[1]" / SETTINGS).exists() and not (odd / ".git" / FOLDER).exists(),
+                      f"a folder named {folder}: --uninstall takes all of it"))
     settings.parent.mkdir()
     settings.write_text('{"permissions": {"allow": ["Read"]}, "env": {"KEEP": "1"}}', encoding="utf-8")
     out = respond({"hook_event_name": "SessionStart", "cwd": str(fresh)})
@@ -373,7 +424,7 @@ def install_cases(tmp):
     nested = fresh / "sub" / "deep" / SETTINGS
     cases.append(("wrote" in str(out) and names_hooks(env_of(nested)) and run(fresh, "status", "--short").stdout.strip() == "",
                   "opened in a subfolder: the setting goes where Claude Code reads it, the hook stays in the git folder, and git status stays clean"))
-    cases.append((set(uninstall(fresh / "sub" / "deep")) == {str(hooks), str(nested)} and not hooks.exists(), "--uninstall from there takes out both"))
+    cases.append((set(uninstall(fresh / "sub" / "deep")) == {str(hooks), str(nested)} and not hooks.exists() and not nested.exists(), "--uninstall from there takes out both"))
     cases.append((install(fresh)[0] == "written" and survey(fresh)[0] == "current", "the next session puts the hook back"))
     (hooks / "pre-push").write_text(pre_push_hook(configured, script="/gone/hook-refs.py"), encoding="utf-8")
     cases.append((respond({"hook_event_name": "SessionStart", "cwd": str(fresh)}) is None
@@ -415,6 +466,11 @@ def install_cases(tmp):
     settings.write_text("{}", encoding="utf-8")
     run(fresh, "add", "-f", SETTINGS)
     cases.append((survey(fresh)[0] == "occupied", "a tracked settings file is left alone: it would hold a machine's path"))
+    blocked = base / "blocked"
+    run(base, "init", "-q", str(blocked))
+    (blocked / ".claude").write_text("a file", encoding="utf-8")
+    said = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--install", str(blocked)], capture_output=True, text=True, encoding="utf-8")
+    cases.append(("could not be written" in said.stdout and "Traceback" not in said.stderr and said.returncode == 1, "--install says so when it cannot write, with no traceback"))
     return cases
 
 
@@ -507,6 +563,7 @@ def real_git_cases(tmp, configured):
 
     judge.record({"session_id": "s1"}, work, "push main -- planted for the test", "Regent: message")
     cases.append((lands("push", "origin", "main"), "under a push grant, main lands"))
+    cases.append((lands("push", "origin", "HEAD@{0 hours ago}:main"), "from a revision with spaces in it, too: git's line still reads"))
     cases.append((not lands("push", "origin", ":main"), "under a push grant, deleting main is refused"))
     cases.append((not lands("push", "origin", "master"), "under a grant of main, master is refused"))
     cases.append((not lands("push", "origin", "main", env=dict(agent, CLAUDE_CODE_SESSION_ID="s2")), "a session grant stays in its session"))
@@ -542,8 +599,16 @@ def real_git_cases(tmp, configured):
 
     for gone in ({"script": "/gone/hook-refs.py"}, {"python": "/gone/python"}):
         (hooks / "pre-push").write_text(pre_push_hook(configured, **gone), encoding="utf-8")
-        cases.append((not lands("push", "origin", "main") and lands("push", "origin", "feat") and lands("push", "origin", "main", env=inherited),
+        cases.append((not lands("push", "origin", "main") and lands("push", "origin", "feat") and lands("push", "origin", "main", env=inherited)
+                      and lands("push", "origin", "feat:mainline") and lands("push", "origin", "main:feat2") and lands("push", "origin", "feat:master-copy"),
                       f"a hook whose {next(iter(gone))} is gone refuses main in an agent's shell, and only there, and only main"))
+    half = fix / "half"
+    half.mkdir()
+    shutil.copy(str(Path(__file__).resolve()), str(half / "hook-refs.py"))
+    (hooks / "pre-push").write_text(pre_push_hook(configured, script=half / "hook-refs.py"), encoding="utf-8")
+    said = run(work, "push", "origin", "main", env=agent).stderr
+    cases.append((not lands("push", "origin", "main") and lands("push", "origin", "main", env=inherited) and "cannot start" in said and "Traceback" not in said,
+                  "a script that fails on import refuses main the same way, with the way out, and only in an agent's shell"))
     (hooks / "pre-push").unlink()
     cases.append((lands("push", "origin", "feat"), "with the hook itself gone (--uninstall, a deleted repository), nothing is stopped"))
     install(work, configured)
@@ -562,6 +627,13 @@ def project_hook_cases(fix, work, agent, regent, remote, configured):
     run(work, "push", "origin", "feat", env=agent)
     cases.append(((work / ".git" / "ran-pre-commit").exists(), "the repository's pre-commit still runs"))
     cases.append(("refs/heads/feat" in (work / ".git" / "ran-pre-push").read_text(encoding="utf-8"), "its pre-push still runs, with git's lines on stdin"))
+    executable(own / "pre-commit", "#!/bin/sh\necho ran > .git/ran-after\n")
+    said = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--uninstall", str(work)], env=agent, capture_output=True, text=True, encoding="utf-8").stdout
+    commit(work, "n0", env=agent)
+    cases.append(((work / ".git" / "ran-after").exists() and (configured or "stays" in said),
+                  "--uninstall in a shell that still holds the setting leaves the repository's hooks running"))
+    install(work, configured)
+    executable(own / "pre-commit", "#!/bin/sh\necho ran > .git/ran-pre-commit\n")
     executable(own / "pre-push", "#!/bin/sh\ncat >/dev/null\nexit 1\n")
     commit(work, "n2", env=agent)
     cases.append((run(work, "push", "origin", "feat", env=agent).returncode != 0, "and when it fails, the push stops"))
@@ -613,14 +685,27 @@ def project_hook_cases(fix, work, agent, regent, remote, configured):
         run(plain, "commit", "-q", "-m", "lfs2", env=agent)
         run(plain, "push", "origin", "HEAD:feat2", env=agent)
         cases.append((len(stored()) == 2, "tracked and pushed by an agent, the object reaches the remote"))
+        deep = fix / "lfsdeep"
+        run(fix, "clone", "-q", str(remote), "lfsdeep", env=regent)
+        run(deep, "checkout", "-q", "main", env=regent)
+        (deep / "assets").mkdir()
+        (deep / "assets" / ".gitattributes").write_text("*.dat filter=lfs diff=lfs merge=lfs -text\n", encoding="utf-8")
+        (deep / "assets" / "z.dat").write_bytes(b"\x02" * 2048)
+        run(deep, "add", "assets", env=agent)
+        run(deep, "commit", "-q", "-m", "lfs3", env=agent)
+        run(deep, "push", "origin", "HEAD:feat3", env=agent)
+        cases.append((len(stored()) == 3, "when only a subfolder's .gitattributes names LFS, the object reaches the remote"))
     return cases
 
 
 def selftest():
     tmp = tempfile.mkdtemp(prefix="hook-refs-")
-    saved = {k: os.environ.get(k) for k in ("REGENCY_HOOK_STATE", "REGENCY_JUDGE_HOME")}
+    saved = {k: os.environ.get(k) for k in ("REGENCY_HOOK_STATE", "REGENCY_JUDGE_HOME", "XDG_CONFIG_HOME", "GIT_CONFIG_GLOBAL")}
     try:
         os.environ["REGENCY_HOOK_STATE"] = str(Path(tmp) / "state0")
+        # the machine's own ignore file could hide what the exclude line has to do
+        (Path(tmp) / "no-gitconfig").write_text("", encoding="utf-8")
+        os.environ.update(XDG_CONFIG_HOME=str(Path(tmp) / "no-xdg"), GIT_CONFIG_GLOBAL=str(Path(tmp) / "no-gitconfig"))
         cases = pure_cases()
         if shutil.which("git"):
             cases += install_cases(tmp) + real_git_cases(tmp, False)
@@ -648,11 +733,19 @@ def main(argv):
         if argv[0] == "--uninstall":
             try:
                 print("hook-refs: took out " + (", ".join(uninstall(here)) or "nothing"))
-                return 0
             except ValueError as e:
                 print(f"hook-refs: {SETTINGS} does not read, so nothing was taken out: {e}")
                 return 1
-        state, detail = install(here) if argv[0] == "--install" else survey(here)[:2]
+            place = where(here)
+            if place and held(place[0] / FOLDER) and (place[0] / FOLDER).is_dir():
+                print(f"hook-refs: {place[0] / FOLDER} stays: this shell names it in core.hooksPath, and with it gone this shell's git would "
+                      "run no hook of any repository. Run this again from a new session")
+            return 0
+        try:
+            state, detail = install(here) if argv[0] == "--install" else survey(here)[:2]
+        except OSError as e:
+            print(f"hook-refs: it could not be written ({e})")
+            return 1
         owed = argv[0] == "--check" and state in ("written", "rewritten")
         print(f"hook-refs: {'owed' if owed else state}: {detail}")
         return 0 if state == "current" or (argv[0] == "--install" and state in ("written", "rewritten")) else 1
