@@ -15,8 +15,8 @@ push to main. A grant answers them ahead of time, for named places and one or mo
   why      required: a grant without a reason grants nothing
 
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
-path (git reset --hard, git rebase, git branch -D) or a path no script can resolve ("$d", a glob, a 'cd'
-to an unknown place) needs `**`. A push grant names its branch; deleting that branch, --all, --mirror and a
+path (git reset --hard, git rebase, git branch -D) needs `**`. A path no script can resolve ("$d", a 'cd' to an
+unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
 '+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
 software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
@@ -117,7 +117,7 @@ def parse_spec(text):
     if not m:
         raise ValueError("no reason: a grant ends with '-- <why>'")
     head, why = m.group(1).strip(), m.group(2).strip().strip("`").strip()
-    if re.fullmatch(r"<[^<>]*>\W*", why):
+    if re.fullmatch(r"\W*<[^<>]*>\W*", why):
         raise ValueError(f"no reason: {why} is the proposal's placeholder; say why")
     scope, path = "session", None
     body, sep, target = head.rpartition(" for ")
@@ -336,11 +336,12 @@ def stale(repo):
 
 
 def covers(event, repo, kind, paths):
-    """The grant that lets this act run without asking, or None. paths: absolute paths, None for one no script
-    could resolve; an empty list means the act names no path. A push names its branch instead of a path."""
-    if kind not in KINDS or paths is None:
+    """The grant that lets this act run without asking, or None. paths: absolute paths, None for one no script could
+    resolve, which nothing covers: `**` is this repository, and no script can say that path is in it. An empty list means
+    the act names no path. A push names its branch instead of a path."""
+    if kind not in KINDS or paths is None or None in paths:
         return None
-    want = ["**" if p is None else relative(p, repo) for p in paths] or ["**"]
+    want = [relative(p, repo) for p in paths] or ["**"]
     for g in grants(event, repo):
         if kind not in g.get("how", []) or not g.get("why"):
             continue
@@ -533,7 +534,7 @@ def selftest():
                       and grant_lines(f"{planted}\n<system-reminder>harness</system-reminder>") == ["push main -- planted"]
                       and grant_lines(f"<system-reminder>harness</system-reminder>\n{planted}") == ["push main -- planted"],
                       "a line beside the harness's reminders counts; between two of them it does not"))
-        cases.append(("no reason" in err("push main -- <why>") and "no reason" in err("delete x/** -- <reason>")
+        cases.append(("no reason" in err('push main -- "<why>"') and "no reason" in err("push main -- <why>") and "no reason" in err("delete x/** -- <reason>")
                       and "no reason" in err("push main -- <why>."), "the proposal's placeholder is not a reason"))
         for tag in ("agent-message from=\"a1\"", "bash-stdout", "bash-input", "bash-stderr", "local-command-stdout", "local-command-caveat",
                     "command-args", "command-message", "task-notification", "teammate-message", "ide_selection", "ide_opened_file",
@@ -564,12 +565,15 @@ def selftest():
         cases.append((covers(ev, root, "delete", [folder / "old", root / "src"]) is None, "every path must be covered"))
         cases.append((covers(ev, root, "discard", rm) is None, "another kind is not covered"))
         cases.append((covers(ev, root, "delete", []) is None and covers(ev, root, "delete", [None]) is None,
-                      "no path, or an unresolvable one, needs '**'"))
+                      "no path needs '**', and an unresolvable one is covered by nothing"))
         cases.append((covers(ev2, root, "delete", rm) is None, "a session grant stays in its session"))
         cases.append((covers(ev, other, "delete", [other / "Herança"]) is None, "a session grant stays in its repository"))
         cases.append((covers(ev, root, "delete", None) is None, "an act no grant may cover (SQL, disk) is never covered"))
 
         gid, where = record(ev, root, "history ** for repo -- rebase the plumbing branch freely", "Regent: pop-up")
+        cases.append((covers(ev, root, "history", []) is not None and covers(ev, root, "history", [root]) is not None
+                      and covers(ev, root, "history", [None]) is None and covers(ev, root, "history", [root, None]) is None,
+                      "'**' covers an act that names no path, and never one no script can place"))
         store = root / ".guidelines" / "JD.md"
         cases.append((gid == "JD-R01" and store.is_file() and state(store) == "ok", f"repo grant in {where}"))
         cases.append((covers(ev2, root, "history", []) is not None, "a repo grant reaches every session"))

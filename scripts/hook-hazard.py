@@ -12,8 +12,10 @@ PreToolUse   classify every command segment:
                consent       packs.py / judge.py ratify --yes                     ask (the Regent's alone, T5)
                grant store   a shell command that writes a JD.md, judge.json or   deny: only the Regent's words
                              session grants                                       change them (library/judge.md)
-             A 'cd' earlier in the chain moves where later paths resolve; a path no script can resolve
-             ("$d", a glob) needs a grant of '**'.
+             A 'cd' earlier in the chain moves where later paths resolve. A grant opens only what this reader can place:
+             a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no grant, '**' included.
+
+It reads text, so what it does not read it does not ask about: an alias, a script, a word a substitution prints.
 
 A pass is the work between two messages of the Regent. hook-verbs.py records, at each message, the
 cloud commands the Regent quoted (in backticks, a code block, or on a line of their own); only those
@@ -74,11 +76,26 @@ WRITE_PREFIXES = ("create-", "delete-", "put-", "update-", "remove-", "terminate
                   "untag-", "revoke-", "authorize-", "copy-", "restore-", "upload-", "reset-", "replace-")
 
 
+ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+WRAPPERS = {"env", "eval", "command", "builtin", "exec", "time", "nohup", "nice", "xargs", "!", "if", "elif", "then", "else",
+            "while", "until", "do"}  # what may stand before a command and leave it the same command
+WRAPPER_VALUE = {"-u", "-n", "-a", "-C", "-S", "-I", "-L", "-P", "-d", "-s"}
+
+
 def words(seg):
-    """The segment without its leading env assignments (FOO=1 cmd ...)."""
+    """The command a segment runs: what stands before it goes (FOO=1, env, command, time, a shell's `do` or `then`)."""
     out = list(seg)
-    while out and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", out[0]):
-        out.pop(0)
+    while out:
+        if ASSIGNMENT.match(out[0]):
+            out.pop(0)
+        elif name(out[0]) in WRAPPERS:
+            wrapper = name(out.pop(0))
+            while out and out[0].startswith("-"):
+                if wrapper == "command" and out[0] in ("-v", "-V"):
+                    return []  # `command -v rm` names rm and runs nothing
+                out = out[2:] if out[0] in WRAPPER_VALUE else out[1:]
+        else:
+            break
     return out
 
 
@@ -109,7 +126,7 @@ def cloud_mode(cmd, args):
 # ---------- local hazards ----------------------------------------------------------------------
 
 def classify_git(args):
-    a, j = args, 0
+    a, j = [re.split(r"\d*[<>]", t, 1)[0] for t in args], 0  # a redirect glued to a word is not part of it
     while j < len(a) and a[j].startswith("-"):  # git global options
         j += 2 if a[j] in guard_push.GIT_VALUE_OPTS else 1
     if j >= len(a):
@@ -178,12 +195,21 @@ def classify_words(w):
 RM_COMMANDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd", "remove-item", "ri"}
 CD_COMMANDS = {"cd", "pushd", "popd", "chdir", "set-location", "sl", "push-location", "pop-location"}
 UNGRANTABLE = {"dd", "mkfs", "format", "diskpart", "docker"} | SQL_CLIENTS  # data outside files: never granted
+GLOB = re.compile(r"[*?\[]")
+GIT_MOVED = re.compile(r"(?i)\bGIT_(?:DIR|WORK_TREE|COMMON_DIR)\b|\bcore\.worktree\b")  # an export or $env: is no segment to read
+SUBSTITUTION = re.compile(r"\$\(|`|<\(")  # what it prints joins the line, and nothing here knows what that is
 
 
 def resolve(arg, here):
-    """The absolute path a shell would act on, or None when no script can know it ($d, a glob, an unknown cwd)."""
-    if here is None or re.search(r"[$%*?{]", arg):
+    """The absolute path a shell would act on, or None when no script can know it ($d, an unknown cwd). A glob reads as the
+    folder its literal part leads to, since what it expands to stays under that unless it climbs out after the glob."""
+    if here is None or re.search(r"[$%{]", arg):
         return None
+    glob = GLOB.search(arg)
+    if glob:
+        if ".." in re.split(r"[\\/]", arg[glob.start():]):
+            return None
+        arg = re.match(r"^(?:.*[\\/])?", arg[:glob.start()]).group(0) or "."
     m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
     p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
     return Path(os.path.normpath(str(p if p.is_absolute() else Path(here) / p)))
@@ -214,50 +240,59 @@ def git_folder(args, here):
 
 
 def act_paths(kind, label, w, here, root=None):
-    """The paths an act names, for a grant to cover: [] names none (it needs '**'); None = never grantable. A git act is
-    judged where it runs: what it names resolves against that folder, `**` is this repository, and an unknown folder is
-    covered by no grant."""
+    """The paths an act names, for a grant to cover: [] names none (it needs '**'); a None in the list is one no script can
+    know, which no grant covers; None = never grantable. A git act is judged where it runs: what it names resolves against
+    that folder, and `**` is this repository, the one whose .git is on the way up from there."""
     if name(w[0]) in ("sudo", "doas"):
         w = words(w[1:])
     cmd, args = name(w[0]), w[1:]
     if kind not in judge.KINDS or cmd in UNGRANTABLE or cmd.startswith("mkfs."):
         return None
     if cmd in RM_COMMANDS:
-        return [resolve(a, here) for a in operands(args)]
+        return [resolve(a, here) for a in operands(args)] or [None]
     if cmd == "find":
-        return [resolve((operands(args) or ["."])[0], here)]
+        stop = next((i for i, a in enumerate(args) if a.startswith(("-", "!"))), len(args))
+        return [resolve(a, here) for a in args[:stop]] or [here]
     if cmd != "git":
         return []
     where = git_folder(args, here)
     if where is None:
-        return None
+        return [None]
     if label in ("git checkout -- <paths>", "git restore", "git clean -f"):
         verb = next((i for i, a in enumerate(args) if a in ("checkout", "restore", "clean")), None)
         rest = args[verb + 1:] if verb is not None else []
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
         if paths:
             return [resolve(a, where) for a in paths]
-    return [] if root is None or wire.repo_root(where) == wire.repo_root(root) else [where]
+    top = next((p for p in [where] + list(where.parents) if (p / ".git").exists()), None)
+    return [] if root is None or top == root else [where]
 
 
 def acts(command, cwd, depth=0, root=None):
-    """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves
-    where the later segments of the chain resolve their paths."""
+    """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves where the later
+    segments of the chain resolve their paths, and a line this reader cannot place leaves a None for no grant to cover."""
     out, here = [], Path(cwd) if cwd else None
     root = root or here
-    for seg in guard_push.segments(guard_push.data_only(command)):
-        if depth < 3 and seg and name(seg[0]) in SHELLS:
+    text = re.sub(r"\\\r?\n", " ", guard_push.data_only(command))
+    for seg in guard_push.segments(text):
+        w = words(seg)
+        if depth < 3 and any(name(t) in SHELLS for t in seg[:1] + w[:1]):
             for t in seg[1:]:
                 if " " in t:
                     out += acts(t, here, depth + 1, root)
-        w = words(seg)
         if w and name(w[0]) in CD_COMMANDS:
-            target = operands(w[1:])
-            here = resolve(target[0], here) if target and target[0] != "-" else None
+            target = [t for t in operands(w[1:]) if t.lower() != "/d"]  # cmd's cd /d <folder>
+            # a 'cd' inside ( ) ends with it, and which ones those are is more than this reader follows
+            here = None if "(" in text or not target or target[0] == "-" else resolve(target[0], here)
             continue
         f = classify_words(w)
         if f:
-            out.append((f[0], f[1], act_paths(f[0], f[1], w, here, root)))
+            paths = act_paths(f[0], f[1], w, here, root)
+            before = seg[:len(seg) - len(w)]
+            blind = SUBSTITUTION.search(text) or any(name(t) == "xargs" or t.split("=")[0] in ("-C", "--chdir") for t in before)
+            out.append((f[0], f[1], [None] if blind and paths is not None else paths))
+    if GIT_MOVED.search(text):
+        out = [(k, lbl, [None] if lbl.startswith("git ") and ps is not None else ps) for k, lbl, ps in out]
     return out
 
 
@@ -338,7 +373,8 @@ def respond(event):
         return None
     command = wire.tool_input(event).get("command", "")
     cwd = event.get("cwd") or os.getcwd()
-    found_all = acts(command, cwd)
+    repo = wire.repo_root(Path(cwd))
+    found_all = acts(command, cwd, root=repo)
     writes = [label for kind, label, _ in found_all if kind == "cloud-write"]
     missing = [c for c in writes if c not in confirmed(event)]
     if missing:
@@ -354,13 +390,14 @@ def respond(event):
         return wire.permission("ask", f"consent: '{local[0][1]}' widens what runs without asking (a pack's hooks, or a "
                                       "grant store that changed). Only the Regent approves it, after reading the review "
                                       "the same command prints without --yes (T5)")
-    repo = wire.repo_root(Path(cwd))
     open_ = [(k, lbl, ps) for k, lbl, ps in local if not judge.covers(event, repo, k, ps)]
     if not open_:
         return None
     kind, label, paths = open_[0]
     reason = f"{kind}: '{label}' needs the Regent's yes (conventions §5)"
-    if paths is not None:
+    if paths is not None and None in paths:
+        reason += ". No script can tell where it lands, so no grant covers it"
+    elif paths is not None:
         reason += f". No grant covers it; the Judge proposes '{judge.propose(kind, paths, repo)}' (/regency:judge)"
     stale = judge.stale(repo)
     if stale:
@@ -446,6 +483,31 @@ TABLE = [  # command, expected PreToolUse verdict with no confirmation
     ("bq query 'delete from t where 1=1'", "deny"),
     ("cd infra && terraform destroy", "deny"),
     ('bash -c "kubectl delete ns web"', "deny"),
+    # what stands before a command, and a line broken in two, leave it the same command
+    ('for d in build dist; do rm -rf "$d"; done', "ask"),
+    ("if [ -d build ]; then rm -rf build; fi", "ask"),
+    ("while false; do rm -rf build; done", "ask"),
+    ("if true; then git reset --hard; fi", "ask"),
+    ("! rm -rf build", "ask"),
+    ("time rm -rf build", "ask"),
+    ("command rm -rf build", "ask"),
+    ("nice -n 5 rm -rf build", "ask"),
+    ("xargs rm -rf < list.txt", "ask"),
+    ("env git clean -fd", "ask"),
+    ("env -u HOME git clean -fd", "ask"),
+    ("git \\\n clean -fd", "ask"),
+    ("git push \\\n--force origin feat", "ask"),
+    ("command git push -f origin feat", "ask"),
+    ("nohup git push -f origin feat", "ask"),
+    ("exec git push -f origin feat", "ask"),
+    ("eval git push -f origin feat", "ask"),
+    ("echo feat | xargs git push -f origin", "ask"),
+    ("git push --force>/dev/null origin feat", "ask"),
+    ("git --config-env x.y=HOME clean -fd", "ask"),
+    ("git --attr-source HEAD clean -fd", "ask"),
+    ("FOO=1 bash -c 'rm -rf dist'", "ask"),
+    ("command -v rm", "allow"),
+    ("time ls", "allow"),
 ]
 
 
@@ -455,6 +517,7 @@ def selftest():
         os.environ["REGENCY_JUDGE_HOME"] = str(Path(tmp) / "home")
         os.environ.pop("REGENCY_JD", None)
         root = wire.build_fixture(Path(tmp) / "proj")
+        os.environ["CLAUDE_PROJECT_DIR"] = str(root)  # a real hook always has it, and repo_root falls back on it
 
         def ev(phase, cmd, sid="s1", tool="Bash", cwd=None):
             return {"hook_event_name": phase, "tool_name": tool, "session_id": sid, "cwd": str(cwd or root),
@@ -541,8 +604,37 @@ def selftest():
                       and verdict(respond(ev("PreToolUse", "git checkout -- sub/f", sid="s8"))) == "allow"
                       and verdict(respond(ev("PreToolUse", "git -C sub checkout -- f", sid="s8"))) == "allow",
                       "a relative glob reads paths from where git runs"))
-        cases.append((verdict(respond(ev("PreToolUse", "pushd ../other && popd && git reset --hard", sid="s7"))) == "ask",
+        cases.append((verdict(respond(ev("PreToolUse", "pushd ../other && popd && git reset --hard", sid="s7"))) == "ask"
+                      and verdict(respond(ev("PreToolUse", "cd src && popd && rm -rf ../build"))) == "ask",
                       "after a popd nothing here knows the folder"))
+        bare = Path(tmp) / "bare.git"
+        (bare / "objects").mkdir(parents=True)
+        for cmd in ("GIT_DIR=../other/.git GIT_WORK_TREE=../other git clean -fd", "GIT_WORK_TREE=../other git clean -fd",
+                    "GIT_DIR=../other/.git git push -f origin side", "GIT_DIR=../other/.git git branch -D x", "GIT_DIR=../other/.git git reset --hard",
+                    "export GIT_DIR=../other/.git GIT_WORK_TREE=../other; git clean -fd", "env GIT_WORK_TREE=../other git clean -fd",
+                    "$env:GIT_DIR='../other/.git'; $env:GIT_WORK_TREE='../other'; git clean -fd", "git -c core.worktree=../other clean -fd",
+                    "GIT_DIR=../other/.git bash -c 'git clean -fd'", "env -C ../other git clean -fd", "env --chdir=../other git clean -fd",
+                    "git -C /tmp/x/other clean -fd", "cd /tmp/x/other && git clean -fdx", "git -C /tmp/x/other reset --hard",
+                    "git -C /tmp/x/other push -f origin side", "git -C /tmp/x/other branch -D x",
+                    "git -C ../bare.git branch -D x", "cd ../bare.git && git branch -D x", "git -C ../bare.git update-ref -d refs/heads/feat",
+                    'cmd /c "cd /d ..\\other && git clean -fd"', "builtin cd ../other && git clean -fd", "command cd ../other && git clean -fd",
+                    "cd ../other && command git clean -fd", "cd ../other && env git clean -fd", "command git -C ../other reset --hard",
+                    "git \\\n -C ../other clean -fd", "cd ../other && git \\\n clean -fd", "git --config-env x.y=HOME -C ../other clean -fd",
+                    "for d in ../other; do git -C $d clean -fd; done", 'X=../other; rm -rf "$X"', "rm -rf ../oth*", 'rm -rf "$PWD/../other"',
+                    "rm -rf $(pwd)/../other", "rm -rf sub $(pwd)/../other", "rm -rf `pwd`/../other", "rm -rf */../../other", "rm -rf {a,../other}",
+                    "find ../oth* -delete", "find . ../other -delete", 'find "$PWD/../other/sub" -delete', "Remove-Item -Recurse -Force ../oth*",
+                    '$x="../other"; Remove-Item -Recurse -Force $x', "Remove-Item -Path:../other -Recurse", 'X=../other; cd "$X" && rm -rf sub',
+                    "(cd src); rm -rf ../x", "xargs rm -rf < list.txt", "cat list | xargs rm -rf"):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' opens nothing it cannot place: {cmd}"))
+        for cmd in ("rm -rf build*", "rm -rf src/*.log", "rm -rf src build", "find src -delete", "find . -name x -delete",
+                    "for d in a b; do git clean -fd; done", "git \\\n clean -fd", "command git clean -fd", "if true; then git reset --hard; fi"):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and still covers what it can: {cmd}"))
+        for cmd in ("GIT_WORK_TREE=../other git clean -fd sub", "GIT_DIR=../other/.git GIT_WORK_TREE=../other git restore sub/f"):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s8"))) == "ask", f"nor does a relative glob: {cmd}"))
+        for cmd in ("git branch -D x", "git update-ref -d refs/heads/x", "rm -rf x"):
+            cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7", cwd=bare))) == "ask", f"a session moved to a folder outside: {cmd}"))
+        out = respond(ev("PreToolUse", 'rm -rf "$X"', sid="s7"))
+        cases.append(("no grant covers it" in reason(out) and "proposes" not in reason(out), "and it says so, proposing no grant that would not cover it"))
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"

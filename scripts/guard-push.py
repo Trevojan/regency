@@ -49,7 +49,7 @@ PUSH_FLAGS = ("--all", "--atomic", "--branches", "--delete", "--dry-run", "--exe
               "--force-if-includes", "--force-with-lease", "--ipv4", "--ipv6", "--mirror", "--no-dry-run", "--no-tags",
               "--no-verify", "--porcelain", "--progress", "--prune", "--push-option", "--quiet", "--receive-pack",
               "--recurse-submodules", "--repo", "--set-upstream", "--signed", "--tags", "--thin", "--verbose", "--verify")
-GIT_VALUE_OPTS = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
+GIT_VALUE_OPTS = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--config-env", "--attr-source"}
 
 
 # ---------- tokenising -------------------------------------------------------------------------
