@@ -42,8 +42,6 @@ hazard = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(hazard)
 
 JOURNAL = "checkpoints.jsonl"
-LOCK = ".journal.lock"     # an empty directory: git never shows it
-LOCK_WAIT, LOCK_STALE = 3.0, 10.0  # seconds: wait for the lock, then write without it; older is a killed hook's
 KEEP = 200
 GIT_STATE = {"commit", "merge", "checkout", "switch", "branch", "tag", "stash", "reset", "rebase", "revert",
              "cherry-pick", "push", "pull", "am", "apply", "restore", "clean", "worktree"}
@@ -105,43 +103,17 @@ def record(event, repo):
     return {k: v for k, v in line.items() if v not in (None, "")}
 
 
-def locked(lock):
-    """Take the journal's lock (a directory: mkdir is atomic on every platform); False after LOCK_WAIT."""
-    end = time.monotonic() + LOCK_WAIT
-    while True:
-        try:
-            os.mkdir(lock)
-            return True
-        except (FileExistsError, PermissionError):  # Windows refuses mkdir while the last lock is being removed
-            try:
-                if time.time() - os.stat(lock).st_mtime > LOCK_STALE:
-                    os.rmdir(lock)
-                    continue
-            except OSError:
-                pass
-            if time.monotonic() > end:
-                return False
-            time.sleep(0.005)
-        except OSError:
-            return False
-
-
 def append(vdir, line):
-    """Parallel async hooks append at once, and on Windows an append is a seek then a write, so two of them
-    overwrite each other; the lock orders them. Without it after LOCK_WAIT the line is written anyway (R4.5)
-    and the trim waits for a later write."""
-    j, lock = vdir / JOURNAL, str(vdir / LOCK)
-    held = locked(lock)
-    try:
+    """Parallel async hooks append at once; the journal's lock orders them (hook_wire.holding). Without it the line
+    is written anyway and the trim waits for a later write."""
+    j = vdir / JOURNAL
+    with wire.holding(j) as held:
         with open(j, "a", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
         if held:
             lines = j.read_text(encoding="utf-8").splitlines()
             if len(lines) > KEEP + KEEP // 4:  # trim in batches, not on every write
                 wire.atomic_write(j, "\n".join(lines[-KEEP:]) + "\n")
-    finally:
-        if held:
-            os.rmdir(lock)
 
 
 def last(vdir):
@@ -237,7 +209,7 @@ def selftest():
             for t in others:
                 t.join()
         kept = [json.loads(l).get("regency.event") for l in (vdir / JOURNAL).read_text(encoding="utf-8").splitlines()]
-        cases.append((others and "parallel" in kept and not (vdir / LOCK).exists(), "a line written during a trim survives it"))
+        cases.append((others and "parallel" in kept and not list(vdir.glob(".*.lock")), "a line written during a trim survives it"))
         env = os.environ.get("CLAUDE_PROJECT_DIR")
         os.environ["CLAUDE_PROJECT_DIR"] = str(root)  # where a file outside every repository falls back to
         n = len((vdir / JOURNAL).read_text(encoding="utf-8").splitlines())

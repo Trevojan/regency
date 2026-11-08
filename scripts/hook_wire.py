@@ -18,6 +18,7 @@ Adoption gate: hooks that WRITE (lineage, journal) act only when the project alr
 
 Pure standard library, Python 3.8+. Importing it writes nothing.
 """
+import contextlib
 import datetime
 import hashlib
 import json
@@ -25,6 +26,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # an installed plugin runs from a cache that may be read-only
@@ -144,6 +146,43 @@ def sha256(path):
         for chunk in iter(lambda: f.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+LOCK_WAIT, LOCK_STALE = 3.0, 10.0  # seconds: wait for a lock, then go on without it; older is a killed hook's
+
+
+@contextlib.contextmanager
+def holding(path):
+    """Hold path's lock while a block reads and rewrites the file, so parallel hooks take turns: on Windows an append
+    is a seek then a write, and a rewrite drops what landed after its read. The lock is a directory beside the file
+    (mkdir is atomic on every platform, and git never shows an empty one). Yields False when it was not had within
+    LOCK_WAIT: the block runs anyway, since a hook never waits for good (R4.5)."""
+    lock, held = str(Path(path).parent / f".{Path(path).name}.lock"), False
+    end = time.monotonic() + LOCK_WAIT
+    while not held:
+        try:
+            os.mkdir(lock)
+            held = True
+        except (FileExistsError, PermissionError):  # Windows refuses mkdir while the last lock is being removed
+            try:
+                if time.time() - os.stat(lock).st_mtime > LOCK_STALE:
+                    os.rmdir(lock)
+                    continue
+            except OSError:
+                pass
+            if time.monotonic() > end:
+                break
+            time.sleep(0.005)
+        except OSError:
+            break
+    try:
+        yield held
+    finally:
+        if held:
+            try:
+                os.rmdir(lock)
+            except OSError:
+                pass
 
 
 def atomic_write(path, text):
