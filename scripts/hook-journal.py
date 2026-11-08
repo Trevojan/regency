@@ -6,7 +6,8 @@ the latest KEEP lines ("latest actions only", method step generate-shortcuts). h
 last line back at SessionStart, so a fresh or compacted context resumes from a trace, not from memory.
 
 Events recorded (all async except SessionEnd, none can block anything; R4.5: no Stop gate):
-  PostToolUse        file writes; shell commands only when they change git state or are hazardous
+  PostToolUse        file writes inside the repository; shell commands only when they change git state or
+                     are hazardous
   SubagentStart/Stop role agents entering and leaving
   TaskCreated/Completed  the task list moving
   PreCompact         the context is about to be compacted
@@ -71,7 +72,10 @@ def record(event, repo):
                      "gen_ai.tool.call.id": event.get("tool_use_id")})
         if tool in wire.WRITE_TOOLS:
             p = wire.target_path(event)
-            line["regency.target"] = (wire.rel_posix(p, repo) or str(p)) if p else None
+            rel = wire.rel_posix(p, repo) if p else None
+            if p and not rel:
+                return None  # a file outside the repository (a commit message, memory, scratch) is not its work
+            line["regency.target"] = rel
         elif tool in wire.SHELL_TOOLS:
             cmd = wire.tool_input(event).get("command", "")
             found = hazard.classify(cmd)
@@ -234,6 +238,13 @@ def selftest():
                 t.join()
         kept = [json.loads(l).get("regency.event") for l in (vdir / JOURNAL).read_text(encoding="utf-8").splitlines()]
         cases.append((others and "parallel" in kept and not (vdir / LOCK).exists(), "a line written during a trim survives it"))
+        env = os.environ.get("CLAUDE_PROJECT_DIR")
+        os.environ["CLAUDE_PROJECT_DIR"] = str(root)  # where a file outside every repository falls back to
+        n = len((vdir / JOURNAL).read_text(encoding="utf-8").splitlines())
+        respond(post("Write", file_path=str(Path(tmp) / "jobs/msg.txt")))
+        cases.append((len((vdir / JOURNAL).read_text(encoding="utf-8").splitlines()) == n,
+                      "a write outside the repository is not recorded"))
+        os.environ.pop("CLAUDE_PROJECT_DIR") if env is None else os.environ.update(CLAUDE_PROJECT_DIR=env)
         respond(dict(base, cwd=str(bare), hook_event_name="SessionEnd", reason="other"))
         cases.append((not (bare / ".guidelines/.shortcuts/.virtual").exists(), "adoption gate holds"))
         return wire.check(cases)
