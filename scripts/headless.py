@@ -41,6 +41,7 @@ PLACEHOLDERS = {"root", "route", "profile", "profile_summary"}
 ROUTE_ID = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
 SHIM_UNSAFE = re.compile(r'[%^&|<>!"\r\n]')  # cmd.exe would read these inside a .cmd shim's arguments
 KINDS = ("script", "command", "prompt")
+RUN_ENV = {"PYTHONUTF8": "1", "MSYS_NO_PATHCONV": "1", "REGENCY_HEADLESS": "1"}  # the last: hook-verbs.py records nothing from this run
 
 
 def load(path=TABLE):
@@ -205,7 +206,7 @@ def run(argv):
     if kind(route) == "prompt" and not prompt:
         print(f"route '{route['id']}' needs text: {route.get('hint', '<text>')}")
         return 2
-    env = dict(os.environ, PYTHONUTF8="1", MSYS_NO_PATHCONV="1")
+    env = dict(os.environ, **RUN_ENV)
     if prompt is None:
         if dry:
             print(subprocess.list2cmdline(cmd))
@@ -288,6 +289,7 @@ def selftest():
     argv, stdin, _ = compose(table, route(table, "ongoing"), [], "", root)
     check("script route: no model", stdin is None and argv[-1] == "ongoing" and "claude" not in argv)
     check("shim guard", shim_risk(["c.CMD", "a&b"]) == ["a&b"] and not shim_risk(["c.exe", "a&b"]))
+    check("a run says nobody attends it", RUN_ENV.get("REGENCY_HEADLESS") == "1")
     for m in misses:
         print("MISS", m)
     print(f"selftest: {n - len(misses)}/{n} planted defects detected")

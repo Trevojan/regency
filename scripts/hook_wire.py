@@ -280,6 +280,12 @@ def regent_text(prompt):
     return (text[orphans[-1].end():] if orphans else text).strip()
 
 
+def unattended():
+    """True when nobody is at the prompt, so what it holds is material and no word of the Regent's: a run of headless.py, or
+    one Claude Code itself marks so (`claude -p`, seen live on 2.1.302; an interactive session reads 1)."""
+    return bool(os.environ.get("REGENCY_HEADLESS")) or os.environ.get("CLAUDE_CODE_SESSION_ATTENDED") == "0"
+
+
 def opening_verb(prompt, table):
     """The (phrase, meaning, command) a short message opens with, or None. Slash commands never match."""
     p = re.sub(r"\s+", " ", (prompt or "").strip().lower())
