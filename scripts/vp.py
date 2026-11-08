@@ -38,6 +38,7 @@ from pathlib import Path
 
 SKIP = {".git", "node_modules", ".venv", "bin", "obj", "dist", "build", "discard", ".obsidian",
         "templates"}  # templates: scaffold seeds such as regency's library/templates, never a project's own
+JOURNAL = ".shortcuts/.virtual/checkpoints.jsonl"  # hook-journal.py's file, tracked (library/hooks.md §4)
 
 
 def find_manifest(start):
@@ -225,11 +226,15 @@ def cmd_trace(vdir, repo):
     else:
         print(f"git branch: {branch or '(detached)'}")
         dirty = lines_of(git(repo, "status", "--short"))
+        journal = [l for l in dirty if l.rstrip().endswith(JOURNAL)]
+        dirty = [l for l in dirty if l not in journal]
         print(f"uncommitted: {len(dirty)}")
         for l in dirty[:20]:
             print("   ", l)
         if len(dirty) > 20:
             print(f"    ... {len(dirty) - 20} more")
+        if journal:
+            print("uncommitted hooks journal: written by hook-journal.py, not work; the cycle commits it last, alone")
         default = next((b for b in ("main", "master") if git(repo, "rev-parse", "--verify", "--quiet", b) is not None), None)
         if default:
             unmerged = [b.strip().lstrip("* ").strip() for b in lines_of(git(repo, "branch", "--no-merged", default))]
@@ -460,6 +465,13 @@ def selftest():
             cases.append((code == 1 and "(no Unit: trailer)" in out, "a draft commit without Unit: is named"))
             code, out = run(cmd_trace, vdir, repo)
             cases.append(("unverified draft commits: 1" in out, "trace names unverified draft commits"))
+            (vdir / "checkpoints.jsonl").write_text('{"ts": "1"}\n', encoding="utf-8")
+            g("add", "-A")
+            g("commit", "-qm", "chore(virtual): the hooks journal")
+            with open(vdir / "checkpoints.jsonl", "a", encoding="utf-8") as f:
+                f.write('{"ts": "2"}\n')
+            code, out = run(cmd_trace, vdir, repo)
+            cases.append(("uncommitted: 0" in out and "hooks journal" in out, "journal-only dirt is one line, not work"))
         else:
             cases.append((True, "git unavailable: draft-commit cases skipped"))
     finally:
