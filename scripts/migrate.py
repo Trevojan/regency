@@ -38,6 +38,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 GUIDELINE_PROBES = (".guidelines", "Docs/.guidelines", "docs/.guidelines")  # library/layouts.md §1
 STAMP = ".shortcuts/regency.json"
+JOURNAL = ".shortcuts/.virtual/checkpoints.jsonl"  # hook-journal.py's file, tracked (library/hooks.md §4)
 KINDS = ("mkdir", "rename", "move", "delete", "rewrite", "create", "replace", "beside", "stamp")
 UPDATE_PLUGIN = "/regency:latest"
 BEFORE = re.compile(r"^[\w-]+\.py$")  # a step's `before`: one of regency's own scripts, run first
@@ -288,8 +289,12 @@ def git_clean(repo):
         return False, "git is not available"
     if r.returncode != 0:
         return False, "not a git repository: an update must be revertible, so commit the project to git first"
-    if r.stdout.strip():
-        return False, f"the tree has uncommitted changes ({len(r.stdout.strip().splitlines())}): commit or stash them first"
+    dirty = [l for l in r.stdout.splitlines() if l.strip()]
+    work = [l for l in dirty if not l.rstrip().endswith(JOURNAL)]
+    if work:
+        return False, f"the tree has uncommitted changes ({len(work)}): commit or stash them first"
+    if dirty:
+        return True, "the hooks journal is uncommitted: hook-journal.py wrote it, not work, and the update leaves it alone"
     return True, None
 
 
@@ -367,7 +372,7 @@ def apply(start, plan_id, root=ROOT):
         return 2, [f"refused: {why}"]
     g = repo / pl["guidelines"]
     files = {f"{sc}/{rel}": body for sc, s in scaffold_files(root).items() for rel, (_, _, body) in s["files"].items()}
-    lines = []
+    lines = [f"note        {why}"] if why else []
     for op in pl["ops"]:
         p = g / op["path"]
         if op.get("before"):
@@ -527,6 +532,14 @@ def selftest():
             code, lines = apply(proj, plan(proj, reg)["id"], reg)
             ok(code == 2 and "uncommitted" in lines[0], "a dirty tree is refused")
             (g / ".plan" / "scratch.md").unlink()
+            journal = g / ".shortcuts/.virtual/checkpoints.jsonl"
+            journal.write_text('{"ts": "1"}\n', encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-qm", "chore(virtual): the hooks journal")
+            with open(journal, "a", encoding="utf-8") as f:
+                f.write('{"ts": "2"}\n')
+            clean, why = git_clean(proj)
+            ok(clean and "hooks journal" in (why or ""), "a tree dirty only with the hooks journal is clean, named in one line")
             ok(apply(proj, "UPD-00000000", reg)[0] == 2, "a stale plan id is refused")
             code, lines = apply(proj, pl["id"], reg)
             done = [l for l in lines if l.startswith("done")]
