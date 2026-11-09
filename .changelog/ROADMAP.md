@@ -149,3 +149,7 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   (QA, 2026-11-06). The Regent's call put that out of the promise; a real fix needs something that runs after git parses.
 - A linked worktree of a repository with a `push` grant is refused: the grant is keyed on the folder. It errs toward
   stopping (QA, 2026-11-06).
+- `hook-hazard.py --selftest` misses one case on Linux, `cmd /c "cd /d ..\other && git clean -fd"` (added in `b4a9987`):
+  217/218, so doctor fails in CI on `plumbing` from run 26 (`3396665`, 2026-11-08).
+- `hook-refs.py --selftest` crashes on git 2.43: the case for a moved plugin writes `.git/regency-hooks/pre-push`
+  before that folder exists (`FileNotFoundError`). CI's git 2.56 takes the configuration path and passes 147/147.
