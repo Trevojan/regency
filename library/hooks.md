@@ -94,7 +94,8 @@ What stays out, named so nobody reads more into this:
   `env -u GIT_CONFIG_COUNT`, `env -i`. What overrides this one by name: `-c hook.regency.enabled=false` and the other
   `-c hook.regency.*`; on the `core.hooksPath` way, `-c core.hooksPath=`. What is no `git push`: `gh pr merge`, the API.
 - Where the setting is not: a session opened outside a repository; a settings file that is tracked, unreadable or holding
-  another `GIT_CONFIG_*`, where a context line says so.
+  another `GIT_CONFIG_*`; a session whose own environment already sets `GIT_CONFIG_*`, as a cloud session's git proxy
+  does. A context line says so at the session's start.
 - A terminal started from an agent's shell inherits the setting and the session variables, so it reads as an agent's.
   Whether a `!` command's shell carries them is not yet seen; if it does, a `!` push of `main` needs a grant too.
 
