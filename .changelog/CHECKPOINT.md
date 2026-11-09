@@ -34,7 +34,8 @@ the old author.
   level names, the two proposal subas and two machine-side installs (path-scoped rules, auto-mode entries).
 - CI: `.github/workflows/doctor.yml` runs `build.py --check` and doctor on pull requests and on pushes to
   `main`, `testing` and `plumbing*`; it passes on `main` and `testing` at 3.3 (2026-11-06) and fails on `plumbing` from
-  run 26 (`3396665`, 2026-11-08): `hook-hazard.py --selftest` 217/218 on Linux (`ROADMAP.md`, candidates).
+  run 26 (`3396665`, 2026-11-08), `hook-hazard.py --selftest` 217/218 on Linux. The fix waits on the session branch
+  `ccr-6dc600c5-kfeqpi`, where doctor is 0 fail on Linux (2026-11-09).
 - The repository is public. Its hardening is the Regent's in GitHub's settings: rulesets on `main` and the release
   tags, the `doctor` check required on `main`, private vulnerability reporting, secret scanning, Discussions.
 - `main`'s ruleset `main-tain` refuses force-pushes, merge commits and unsigned commits. The re-authored history is

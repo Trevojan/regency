@@ -210,10 +210,10 @@ above).
   (QA, 2026-11-06). The Regent's call put that out of the promise; a real fix needs something that runs after git parses.
 - A linked worktree of a repository with a `push` grant is refused: the grant is keyed on the folder. It errs toward
   stopping (QA, 2026-11-06).
-- `hook-hazard.py --selftest` misses one case on Linux, `cmd /c "cd /d ..\other && git clean -fd"` (added in `b4a9987`):
-  217/218, so doctor fails in CI on `plumbing` from run 26 (`3396665`, 2026-11-08).
-- `hook-refs.py --selftest` crashes on git 2.43: the case for a moved plugin writes `.git/regency-hooks/pre-push`
-  before that folder exists (`FileNotFoundError`). CI's git 2.56 takes the configuration path and passes 147/147.
 - The README's key features still say the guards "hold file writes after a destructive command", the hazard watch 3.1
   retired, and name neither the Judge's grants nor the model set per role at spawn. An outside review (DeepSeek,
   2026-11-09) read the guards as fixed and proposed path rules and model tiers regency already has.
+- `hook-refs.py` installs nowhere a session's own environment already sets `GIT_CONFIG_*`, and a cloud session's git
+  proxy does (`GIT_CONFIG_COUNT=3`, seen 2026-11-09): there only the text guard stands over `main`, as the start line
+  says, and the README's runtime guarantee names no such exception. Entries appended after the session's own would let
+  both stand, but a count that drifts from the session's breaks every git command: a design for the Regent and QA.
