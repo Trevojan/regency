@@ -22,6 +22,7 @@
     {"id": "doctor-required", "title": "doctor as a required check on main", "state": "backlog", "who": "RGN", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "install", "title": "keep one install (machine and account)", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "judge-live", "title": "first live grant: where the pop-up's answers arrive", "state": "backlog", "issue": 4, "source": ".changelog/ROADMAP.md#the-judge-the-next-limits"},
+    {"id": "stage-time", "title": "time and tokens per stage in the review packet: the instrument for Sleepy Runs", "state": "backlog", "issue": 2, "source": ".changelog/ROADMAP.md#lessons-weighed-openharness-2026-11-09"},
     {"id": "levels-rename", "title": "the 25 old D1-D4 level names in library/orders/ and library/team/", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "suba-restamp", "title": "re-read and re-stamp suba-strategy and suba-research", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "vp-stale-count", "title": "vp.py trace counts the format example in library/hooks.md as a STALE line", "state": "backlog", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
@@ -55,6 +56,7 @@
     {"id": "C-12", "title": "drop the words 'Big-O basis'", "state": "backlog", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
 
     {"id": "release-plan", "title": "packages and releases: the Regent decides R0, then R1 to R6", "state": "blocked", "blocked_by": "RGN: the five answers of R0", "source": ".changelog/ROADMAP.md#packages-and-releases-the-plan"},
+    {"id": "secret-paths", "title": "credential paths (~/.ssh, ~/.aws and the like) guarded, the section 6 norm first", "state": "blocked", "blocked_by": "RGN: denied, asked or grantable", "source": ".changelog/ROADMAP.md#lessons-weighed-openharness-2026-11-09"},
     {"id": "step-10", "title": "/regency:normalise", "state": "blocked", "issue": 7, "blocked_by": "RGN: doubts N1 and N2", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
     {"id": "hazard-cloud", "title": "a hazard hold a cloud session could not release", "state": "blocked", "blocked_by": "RGN: closed by 3.1 (the Judge locks nothing), or still owed", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
     {"id": "infrastructure", "title": "money operations; a cloud API over HTTP is a write", "state": "blocked", "issue": 9, "blocked_by": "RGN: still for hook-hazard.py after 3.1, or for the Judge", "source": ".changelog/ROADMAP.md#queued-from-the-book"},

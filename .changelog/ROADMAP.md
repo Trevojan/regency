@@ -90,6 +90,20 @@ Not established: whether an immutable release can be withdrawn after a bad publi
 Python 3.8, the floor doctor enforces; whether a required check binds the Regent's admin pushes (N18); whether
 `claude plugin validate` runs in CI without a login.
 
+## Lessons weighed: OpenHarness (2026-11-09)
+
+DeepSeek mapped HKUDS/OpenHarness against regency by function, at the Regent's request: of its 32 rows, 25 are built
+here, pending (#5), provided by Claude Code or refused by a named rule, and 7 came back as missing in regency's layer,
+proposed as five items. Each was checked against the code here. Candidates, not decisions.
+
+| Proposal | Verdict | Why (rung or gate) | Lands |
+|---|---|---|---|
+| Credential paths denied (`~/.ssh`, `~/.aws`, `~/.kube`, `~/.gnupg` and the like) | candidate | nothing guards them: `hook-acts-guard.py` guards writes to acts and grant stores, `hook-hazard.py` judges destructive acts; conventions §6 gives secrets to their owner with no mechanism behind it; security is never skipped (§15.3) | the norm first (§6: denied, asked, or grantable), then a kind in `hook-hazard.py` and deny rules in `library/automode.json` |
+| Time and tokens per stage in the review packet | candidate, as #2's instrument | the journal stamps each subagent's start and stop with its role and unit but keeps 200 lines; tokens are recorded nowhere; Claude Code reports a session's cost itself | Sleepy Runs (#2): measure framing against building before changing the pass |
+| Persistent, searchable memory (`MEMORY.md`, top-k on resume) | refused | rung 2: work resumes from traces, not from memory (§10); a lesson that recurs is caught by `gov.py recur` and written down as a script, template or norm the Regent ratifies (rule zero, §1) | reopens when `recur` shows a recurring finding no script, template or norm can hold |
+| A dry-run preview with a ready / warning / blocked verdict | refused | rung 2: `/regency:station:check` gives green, amber or red per unit and holds a red pass; `/regency:team:declare` declares a pass and dispatches nothing | packs in health and the resume line (#5) |
+| Hook priority | refused | §15.4, no consumer: Claude Code runs an event's hooks in parallel (`library/hooks.md` §3 relies on it), and the pack dispatcher keeps the most restrictive answer whatever the order | — |
+
 ## Milestones walked
 
 | Version | Capability gained |
