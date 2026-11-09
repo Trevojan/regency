@@ -98,8 +98,8 @@ proposed as five items. Each was checked against the code here. Candidates, not 
 
 | Proposal | Verdict | Why (rung or gate) | Lands |
 |---|---|---|---|
-| Credential paths denied (`~/.ssh`, `~/.aws`, `~/.kube`, `~/.gnupg` and the like) | candidate | nothing guards them: `hook-acts-guard.py` guards writes to acts and grant stores, `hook-hazard.py` judges destructive acts; conventions §6 gives secrets to their owner with no mechanism behind it; security is never skipped (§15.3) | the norm first (§6: denied, asked, or grantable), then a kind in `hook-hazard.py` and deny rules in `library/automode.json` |
-| Time and tokens per stage in the review packet | candidate, as #2's instrument | the journal stamps each subagent's start and stop with its role and unit but keeps 200 lines; tokens are recorded nowhere; Claude Code reports a session's cost itself | Sleepy Runs (#2): measure framing against building before changing the pass |
+| Credential paths denied (`~/.ssh`, `~/.aws`, `~/.kube`, `~/.gnupg` and the like) | decided otherwise (the Regent, 2026-11-09) | "Regency isn't meant to deal with credentials, only the steering": the agent asks the Regent to log in, checks it with the tool's own status command, proceeds, or warns with the error and where to fix it; it never reads a credential, and regency lists no credential path and guards none | conventions §6 and `library/automode.json` (`1bc71c8`); #10 closes when `main` holds them |
+| Time and tokens per stage in the review packet | the first step of #2 (the Regent, 2026-11-09) | the journal stamps each subagent's start and stop with its role and unit but keeps 200 lines; tokens are recorded nowhere; Claude Code reports a session's cost itself | Sleepy Runs (#2): measure framing against building before changing the pass |
 | Persistent, searchable memory (`MEMORY.md`, top-k on resume) | refused | rung 2: work resumes from traces, not from memory (§10); a lesson that recurs is caught by `gov.py recur` and written down as a script, template or norm the Regent ratifies (rule zero, §1) | reopens when `recur` shows a recurring finding no script, template or norm can hold |
 | A dry-run preview with a ready / warning / blocked verdict | refused | rung 2: `/regency:station:check` gives green, amber or red per unit and holds a red pass; `/regency:team:declare` declares a pass and dispatches nothing | packs in health and the resume line (#5) |
 | Hook priority | refused | §15.4, no consumer: Claude Code runs an event's hooks in parallel (`library/hooks.md` §3 relies on it), and the pack dispatcher keeps the most restrictive answer whatever the order | — |
@@ -169,12 +169,13 @@ aim to improve Harnessing"; "code issues must be noted, but not as true regency 
 
 | Issue | What |
 |---|---|
-| [#2](https://github.com/Trevojan/regency/issues/2) | Sleepy Runs (the Regent, 2026-11-05): at work, a team pass spent about 2 h on framing and challenge loops before any code, when the user wanted build first, review after; review behaviour on multiple parallel runs, with many concurring models |
+| [#2](https://github.com/Trevojan/regency/issues/2) | Sleepy Runs (the Regent, 2026-11-05): at work, a team pass spent about 2 h on framing and challenge loops before any code, when the user wanted build first, review after; review behaviour on multiple parallel runs, with many concurring models; its first step, time per stage in the review packet (comment, 2026-11-09) |
 | [#3](https://github.com/Trevojan/regency/issues/3) | the open doubts N1, N2 and N14 |
 | [#4](https://github.com/Trevojan/regency/issues/4) | the Judge: the next limits |
 | [#5](https://github.com/Trevojan/regency/issues/5) | packs: the next limits to break |
 | [#7](https://github.com/Trevojan/regency/issues/7) | the method chain's open steps: 4, 5, 10, 11, 12 and 15 |
 | [#9](https://github.com/Trevojan/regency/issues/9) | queued from the book, all but `hazard-cloud`, C-10 and C-12 |
+| [#10](https://github.com/Trevojan/regency/issues/10) | logins are the Regent's: ask, check, proceed or warn where to fix; never read a credential |
 
 ## Candidates seen while building
 
