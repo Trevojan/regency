@@ -201,9 +201,11 @@ SUBSTITUTION = re.compile(r"\$\(|`|<\(")  # what it prints joins the line, and n
 
 
 def resolve(arg, here):
-    """The absolute path a shell would act on, or None when no script can know it ($d, an unknown cwd). A glob reads as the
-    folder its literal part leads to, since what it expands to stays under that unless it climbs out after the glob."""
-    if here is None or re.search(r"[$%{]", arg):
+    """The absolute path a shell would act on, or None when no script can know it ($d, an unknown cwd, a backslash off
+    Windows: a separator to a Windows shell, a plain character or an escape to any other, and nothing here knows which
+    shell runs the line). A glob reads as the folder its literal part leads to, since what it expands to stays under
+    that unless it climbs out after the glob."""
+    if here is None or re.search(r"[$%{]", arg) or (os.name != "nt" and "\\" in arg):
         return None
     glob = GLOB.search(arg)
     if glob:
@@ -617,7 +619,8 @@ def selftest():
                     "git -C /tmp/x/other clean -fd", "cd /tmp/x/other && git clean -fdx", "git -C /tmp/x/other reset --hard",
                     "git -C /tmp/x/other push -f origin side", "git -C /tmp/x/other branch -D x",
                     "git -C ../bare.git branch -D x", "cd ../bare.git && git branch -D x", "git -C ../bare.git update-ref -d refs/heads/feat",
-                    'cmd /c "cd /d ..\\other && git clean -fd"', "builtin cd ../other && git clean -fd", "command cd ../other && git clean -fd",
+                    'cmd /c "cd /d ..\\other && git clean -fd"', "git -C ..\\other clean -fd", "rm -rf sub\\..\\..\\other",
+                    "builtin cd ../other && git clean -fd", "command cd ../other && git clean -fd",
                     "cd ../other && command git clean -fd", "cd ../other && env git clean -fd", "command git -C ../other reset --hard",
                     "git \\\n -C ../other clean -fd", "cd ../other && git \\\n clean -fd", "git --config-env x.y=HOME -C ../other clean -fd",
                     "for d in ../other; do git -C $d clean -fd; done", 'X=../other; rm -rf "$X"', "rm -rf ../oth*", 'rm -rf "$PWD/../other"',
