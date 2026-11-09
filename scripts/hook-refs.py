@@ -700,8 +700,14 @@ def project_hook_cases(fix, work, agent, regent, remote, configured):
 
 def selftest():
     tmp = tempfile.mkdtemp(prefix="hook-refs-")
-    saved = {k: os.environ.get(k) for k in ("REGENCY_HOOK_STATE", "REGENCY_JUDGE_HOME", "XDG_CONFIG_HOME", "GIT_CONFIG_GLOBAL")}
+    # the session's own GIT_CONFIG_* (a cloud session sets them for its git proxy) would read as another tool's and
+    # leave every install occupied: the cases run on a git environment of their own, and the session gets its back
+    inherited = [k for k in os.environ if re.fullmatch(r"GIT_CONFIG_(?:COUNT|KEY_\d+|VALUE_\d+|PARAMETERS)", k)]
+    saved = {k: os.environ.get(k) for k in ("REGENCY_HOOK_STATE", "REGENCY_JUDGE_HOME", "XDG_CONFIG_HOME", "GIT_CONFIG_GLOBAL",
+                                         *inherited)}
     try:
+        for k in inherited:
+            os.environ.pop(k)
         os.environ["REGENCY_HOOK_STATE"] = str(Path(tmp) / "state0")
         # the machine's own ignore file could hide what the exclude line has to do
         (Path(tmp) / "no-gitconfig").write_text("", encoding="utf-8")
