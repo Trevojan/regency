@@ -199,3 +199,6 @@ above).
   217/218, so doctor fails in CI on `plumbing` from run 26 (`3396665`, 2026-11-08).
 - `hook-refs.py --selftest` crashes on git 2.43: the case for a moved plugin writes `.git/regency-hooks/pre-push`
   before that folder exists (`FileNotFoundError`). CI's git 2.56 takes the configuration path and passes 147/147.
+- The README's key features still say the guards "hold file writes after a destructive command", the hazard watch 3.1
+  retired, and name neither the Judge's grants nor the model set per role at spawn. An outside review (DeepSeek,
+  2026-11-09) read the guards as fixed and proposed path rules and model tiers regency already has.
