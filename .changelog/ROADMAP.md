@@ -59,6 +59,37 @@ decision.
 | A machine grant for every repository | `*` in the `repo` column, by a ratified hand edit | a `for machine *` scope word |
 | The Judge as a session's lead | grants only | the RGN-DV charter: projects, units, fuel; the Judge may deny or stop, never approve its own way past a grant; the work ends at the review packet |
 
+## Packages and releases: the plan
+
+A candidate (the causal engine, 2026-11-09, on the Regent's request), not a decision. The aim: one version, one
+content, from the tag to every install. Today a version names more than one: `.changelog/`, `CLAUDE.md` and the README
+ship in the `.plugin` and change between bumps (four of them since `954e691`, still 3.3), and Claude Code refreshes an
+install only when the version changes (`library/maintaining.md`).
+
+| # | Step | Who | Because | Complete when |
+|---|---|---|---|---|
+| R0 | Decide: (a) every version that reaches `main` is one immutable release `v<a.b>`, tagged on `main` only; (b) an account trial takes a `testing` build, and a change after a trial bumps `b`; (c) the release attestation alone, or build provenance too; (d) Windows in CI; (e) `v3.3` by hand now, or `v3.4` first | RGN | the cache keys on the version; only the Regent publishes | the five answers are dated here |
+| R1 | Immutable releases on; a ruleset on `refs/tags/v*` (the Regent creates; no update, no delete); `doctor` required on `main` | RGN | a published immutable release takes no fix, so it is published from a draft that already holds its asset | the settings show all three |
+| R2 | `doctor.yml` as a matrix: `ubuntu-latest`, `ubuntu:24.04` (git 2.43), `windows-latest`; the `claude` CLI at a pinned version, so doctor runs `claude plugin validate` | DV | the last week's defects were platform ones (cp1252 in 3.2, `hazard-cmd-linux`, `refs-old-git`), and CI never ran Claude Code's own validator | the two Linux defects show red on their job, then green after their fixes; all three jobs green at 3.4's commit |
+| R3 | `release.yml` on a pushed `v*` tag, its one job holding `contents: write`: check out the tag; refuse unless the tag equals `plugin.json` and `registry.json`, the commit is on `main` and `.changelog` names the version; `build.py --check`, doctor, `package.py`; a draft release with `regency-<v>.plugin`, its `.sha256` and `HISTORY.md`'s section as notes | DV | a build from a clean checkout of the tag closes `package-dirty`; a tag runs the workflow from its own commit, so the workflow ships inside the version it releases | on a scratch copy of the repository, a tag yields a draft whose asset matches a local `package.py` build of the commit byte for byte; a tag that disagrees with `plugin.json` yields none |
+| R4 | `build.py` generates the README's pinned install and verify lines from `plugin.json` | DV | the README pins `v3.3`, which does not exist: the line is hand-written | `build.py --check` fails on a pin that differs from the version |
+| R5 | Ship 3.4: the matrix green, QA's third pass, `testing`, `main`; the Regent tags `v3.4`, reads the draft, publishes | RGN, QA | `/regency:latest`, `release.yml` and the generated pin exist on `plumbing` only; the first release must carry them, or its installs cannot follow the next one by command | `gh release verify v3.4` and `verify-asset` pass, their first live run; `marketplace add Trevojan/regency#v3.4` installs 3.4 |
+| R6 | Converge the installs: `/regency:latest` on the machine, the verified asset on the account, the folder install kept on purpose or removed (N11) | RGN | an install from a working tree runs content no release holds, under a release's version | `/regency:latest:check` says the install fits; `health copies` shows no version naming two contents; a cloud session lists 3.4 |
+
+R2, R3 and R4 run in parallel on `plumbing`; R1 lands before R5, which waits for all three. After 3.4 the loop holds
+itself: a content change bumps `b`, each version on `main` is released, and `/regency:latest:check` with `health
+copies` are the sensors of drift.
+
+**GitHub Packages: none now.** No consumer reads a registry: Claude Code installs regency from a git marketplace or
+an account upload, and regency has no dependency to publish (standard library only), so nothing enters (conventions
+§15.4). The one candidate, a station image on `ghcr.io` for the CI matrix and cloud environments, stops at rung 4:
+the runners and `ubuntu:24.04` already give the platforms. It reopens when the matrix's tool setup passes a threshold
+the Regent declares, or a cloud environment's setup script needs the same pinned tools.
+
+Not established: whether an immutable release can be withdrawn after a bad publish; whether the runners still offer
+Python 3.8, the floor doctor enforces; whether a required check binds the Regent's admin pushes (N18); whether
+`claude plugin validate` runs in CI without a login.
+
 ## Milestones walked
 
 | Version | Capability gained |

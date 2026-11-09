@@ -45,7 +45,8 @@ the old author.
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
 2. QA's third pass on `plumbing`, against the forms it landed on `b760d8f`; accept or refuse; bump to 3.4; merge up to `main`.
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
-   `/regency:latest` moves this machine to the tag; test the pinned install line.
+   `/regency:latest` moves this machine to the tag; test the pinned install line (the plan: `ROADMAP.md`,
+   Packages and releases).
 4. Keep one install on this machine and the account (N11).
 5. First pop-up grant: confirm where its answers arrive (`library/judge.md` §7). A `grant:` line ran live on 2026-11-06.
 6. Issue #2, Sleepy Runs (`ROADMAP.md`, On GitHub).

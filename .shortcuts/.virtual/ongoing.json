@@ -53,6 +53,7 @@
     {"id": "C-10", "title": "cloud writes: align conventions section 6", "state": "backlog", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
     {"id": "C-12", "title": "drop the words 'Big-O basis'", "state": "backlog", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
 
+    {"id": "release-plan", "title": "packages and releases: the Regent decides R0, then R1 to R6", "state": "blocked", "blocked_by": "RGN: the five answers of R0", "source": ".changelog/ROADMAP.md#packages-and-releases-the-plan"},
     {"id": "step-10", "title": "/regency:normalise", "state": "blocked", "issue": 7, "blocked_by": "RGN: doubts N1 and N2", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
     {"id": "hazard-cloud", "title": "a hazard hold a cloud session could not release", "state": "blocked", "blocked_by": "RGN: closed by 3.1 (the Judge locks nothing), or still owed", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
     {"id": "infrastructure", "title": "money operations; a cloud API over HTTP is a write", "state": "blocked", "issue": 9, "blocked_by": "RGN: still for hook-hazard.py after 3.1, or for the Judge", "source": ".changelog/ROADMAP.md#queued-from-the-book"},
