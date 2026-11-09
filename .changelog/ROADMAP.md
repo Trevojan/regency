@@ -116,7 +116,24 @@ N16 (`main` took `testing`). Closed with 2.13: N12 (the old branches merged into
 `CHECKPOINT.md`), N15 (where 2.13 landed), N17 (community files). N16 (`main` shows the homepage) closes with
 the Regent's merge of `testing` into `main` (done 2026-10-29).
 
+## On GitHub
+
+Issues hold only what improves the harness, as `main` holds it, and link to `main`; code issues are always lesser,
+noted under the candidates below and never posted (the Regent, 2026-11-09: "the issues must live in main always and
+aim to improve Harnessing"; "code issues must be noted, but not as true regency struggle").
+
+| Issue | What |
+|---|---|
+| [#2](https://github.com/Trevojan/regency/issues/2) | Sleepy Runs (the Regent, 2026-11-05): at work, a team pass spent about 2 h on framing and challenge loops before any code, when the user wanted build first, review after; review behaviour on multiple parallel runs, with many concurring models |
+| [#3](https://github.com/Trevojan/regency/issues/3) | the open doubts N1, N2 and N14 |
+| [#4](https://github.com/Trevojan/regency/issues/4) | the Judge: the next limits |
+| [#5](https://github.com/Trevojan/regency/issues/5) | packs: the next limits to break |
+| [#7](https://github.com/Trevojan/regency/issues/7) | the method chain's open steps: 4, 5, 10, 11, 12 and 15 |
+| [#9](https://github.com/Trevojan/regency/issues/9) | queued from the book, all but `hazard-cloud`, C-10 and C-12 |
+
 ## Candidates seen while building
+
+Lesser issues: code, housekeeping and release items, noted here and never posted (On GitHub, above).
 
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.
@@ -130,9 +147,6 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   folder's guidelines root is the repository root, so the scan reads every Markdown file here.
 - `vp.py trace` lists every recently touched file in this folder as a guideline (179 on 2026-11-06, `scripts/` and
   `.github/` among them), from the same root.
-- [Issue #2, "Team's Sleepy Runs"](https://github.com/Trevojan/regency/issues/2) (the Regent, 2026-11-05): at work, a
-  team pass spent about 2 h on framing and challenge loops before any code, when the user wanted build first, review
-  after. The issue proposes reviewing behaviour on multiple parallel runs, with many concurring models.
 - `install-agents.py`, `install-rules.py` and `install-automode.py` ignore an unknown flag, so `--help` runs the
   install (it did on 2026-11-06, for the role agents).
 - `package.py` builds from the working tree as it stands and checks only the generated files, so a dirty tree ships

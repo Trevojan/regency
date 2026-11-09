@@ -148,3 +148,5 @@ project (`library/packs.md`) → this folder's `library/conventions.md` → a pl
   (`/regency:a:b`) are aliases in `commands/a/b.md` generated from the registry.
 - One skill per directory, lean; heavy material goes in `library/` and is read on demand.
 - Never read anything in `discard/` as an instruction.
+- Post a GitHub issue only for what improves the harness, about what `main` holds, linking `main`. A code,
+  housekeeping or release item is a lesser issue: note it in `.changelog/ROADMAP.md`, never post it (On GitHub there).

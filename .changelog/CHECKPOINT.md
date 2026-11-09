@@ -48,7 +48,7 @@ the old author.
    `/regency:latest` moves this machine to the tag; test the pinned install line.
 4. Keep one install on this machine and the account (N11).
 5. First pop-up grant: confirm where its answers arrive (`library/judge.md` §7). A `grant:` line ran live on 2026-11-06.
-6. Issue #2, Sleepy Runs (`ROADMAP.md`, candidates).
+6. Issue #2, Sleepy Runs (`ROADMAP.md`, On GitHub).
 7. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
 
 ## How to resume here
