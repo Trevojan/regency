@@ -155,6 +155,12 @@ takes a `push` grant).
   Cloud CLIs may **read** freely (list, get, describe, logs, plan). A cloud **write** runs only when the
   Regent quoted that exact command in a message of the current pass (the work between two of the
   Regent's messages); `scripts/hook-hazard.py` denies every other one.
+- **Logins are the Regent's** (the Regent, 2026-11-09). When work needs a login, ask the Regent to log in,
+  check with the tool's own status command that it is live, then proceed. Never read a credential: a failed
+  login is the Regent's to fix, so report the error and *where* to fix it (the tool's login command, the
+  environment's settings, the account) and carry on with what does not depend on it. regency steers and does
+  not deal with credentials: where a tool keeps them, how a programming language loads them and what a
+  harness allows stay in their owners' jurisdiction, and regency lists no credential path and guards none.
 - In a repository or dataset the Regent does not own: study and document on a separate branch, apply
   no fixes, do not edit shared configuration (`CLAUDE.md`, pipelines, queries owned by others), and ask
   before touching anything outside the Regent's own code.
