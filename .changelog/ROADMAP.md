@@ -133,7 +133,8 @@ aim to improve Harnessing"; "code issues must be noted, but not as true regency 
 
 ## Candidates seen while building
 
-Lesser issues: code, housekeeping and release items, noted here and never posted (On GitHub, above).
+Lesser issues, noted here and never posted: every code issue, and anything that does not improve the harness (On GitHub,
+above).
 
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.

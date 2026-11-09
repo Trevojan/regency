@@ -1,5 +1,5 @@
 {
-  "_about": "regency's own work: the first peek on returning to this folder (python scripts/vp.py ongoing). It points, never copies: the detail is in .changelog/. The hooks and /regency:health read a project's .guidelines/ only, so this ledger is read by vp.py alone. An item's issue is the GitHub issue that tracks it, for harness struggles only: code, housekeeping and release items are lesser and carry none (.changelog/ROADMAP.md, On GitHub).",
+  "_about": "regency's own work: the first peek on returning to this folder (python scripts/vp.py ongoing). It points, never copies: the detail is in .changelog/. The hooks and /regency:health read a project's .guidelines/ only, so this ledger is read by vp.py alone. An item's issue is the GitHub issue that tracks it, for harness struggles only: a code issue, or anything that does not improve the harness, is lesser and carries none (.changelog/ROADMAP.md, On GitHub).",
   "schema": 1,
   "updated": "2026-11-09",
   "items": [
