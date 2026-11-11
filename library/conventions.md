@@ -194,6 +194,7 @@ command named in context, and a ratify verb records every changed grant store as
 | health check, checkup | every health check that applies here, one line per finding | `/regency:health` |
 | release the kraken, solte o kraken | two full teams, passes chained on the declared fuel | `/regency:team:extreme-go-horse` |
 | ratify grants, ratifique as concessões | record every changed grant store (`JD.md`) as the Regent's | `judge.py ratify --yes` |
+| verifique as issues, check the issues | every issue against its verdict: adopt, flatten or ignore | `/regency:issues` |
 | juiz, judge | what the Regent's grants allow here, and new ones put to the Regent | `/regency:judge` |
 
 ## 10. Returning to a repository

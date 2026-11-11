@@ -6,7 +6,8 @@
       "mode": "dontAsk",
       "tools": ["Read", "Grep", "Glob", "Skill"],
       "scripts": ["vp.py", "station.py check", "station.py line", "gov.py queue", "gov.py fit", "hook-journal.py --tail",
-                  "hook-resume.py --print", "doctor.py", "conventions_check.py", "build.py --check"]
+                  "hook-resume.py --print", "doctor.py", "conventions_check.py", "build.py --check",
+                  "issues.py check", "issues.py status", "issues.py measure"]
     },
     "work": {
       "summary": "auto mode under library/automode.json; whatever would need a person is denied and reported",
@@ -39,6 +40,7 @@
     {"id": "journal", "summary": "the last checkpoints of agent work", "script": "hook-journal.py", "args": ["--tail"], "hint": "[n]", "default": ["20"]},
     {"id": "resume-line", "summary": "the one-line resume slice for this folder", "script": "hook-resume.py", "args": ["--print"]},
     {"id": "queue", "summary": "packets routed to the Regent", "script": "gov.py", "args": ["queue"]},
+    {"id": "issues", "summary": "every issue against its verdict; tracker writes never run headless", "script": "issues.py", "args": ["check"], "hint": "[--json <file>]"},
 
     {"id": "ask", "summary": "a free question about the repository; reads only", "prompt": true, "profile": "read", "hint": "<question>"},
     {"id": "measure", "summary": "what a change would touch, or what the tree already changed", "command": "measure-changes", "profile": "read", "hint": "<intended change | tree>", "default": ["tree"]},
