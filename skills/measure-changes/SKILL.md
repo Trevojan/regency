@@ -1,7 +1,7 @@
 ---
 name: measure-changes
 description: "Regency measure-changes. Read-only: say what would change, or what the working tree already changed, with numbers and impact radius (files, tests, norms, STALE slices, risk). Applies nothing, writes nothing. Use for /regency:measure-changes, or when the Regent says 'vê isso', 'diga o que mudaria', 'mede', 'how big is this change', 'what would this touch', without wanting it done."
-argument-hint: "<intended change | 'tree'>"
+argument-hint: "<intended change | 'tree' | 'issue' <n>>"
 disable-model-invocation: true
 ---
 
@@ -19,6 +19,9 @@ Reading, searching and running read-only queries are allowed.
 
 - **`tree`** (or no argument and the tree has uncommitted changes): measure what is already changed.
   Use `git status --short`, `git diff --stat` and `git diff` as evidence.
+- **`issue <n>`**: the intended change is what the issue asks for. Start from
+  `python scripts/issues.py measure <n>` (the paths it cites, its checklist, its verdict), read the issue and its
+  comments, then measure as an intended change. Posting the result on the issue is `/regency:issues question`.
 - **an intended change** (any other argument): measure what *would* change if it were done. Find the
   code by reading and searching; never by trying it.
 
@@ -42,7 +45,7 @@ Reading, searching and running read-only queries are allowed.
 ## Output
 
 ```text
-Change     <one line: what, and mode (tree | intended)>
+Change     <one line: what, and mode (tree | intended | issue #n)>
 Footprint  <n> files (<m> modified · <a> new · <d> deleted), ~<lines> lines
 Radius     <consumers/callers/slices affected>, evidence: <command or file>
 Norms      touches: <ids> · contradicts: <ids or none>

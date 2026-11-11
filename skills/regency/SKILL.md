@@ -61,7 +61,7 @@ with a first argument (`/regency:engine critical`); both forms are equivalent.
 | `/regency:team:just-in-time` | Speed mode: an Opus QA seeds the contract and task cards, Haiku DVs draft every task of the range in dependency waves, the QA gates each wave and accepts nothing; all DRAFT/UNVERIFIED on plumbing until a normal pass verifies it. | `<from> <to>` | same playbook, subcommand `just-in-time` |
 | `/regency:proceed` | Work the whole queue: keep taking tasks, queue doubts, stop only at a real blocker or an empty queue. Never commits, merges or pushes. | `[scope or queue pointer]` | `skills/proceed/SKILL.md` |
 | `/regency:arrange-cycle-commit` | Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. Never pushes main. | `[scope]` | `skills/arrange-cycle-commit/SKILL.md` |
-| `/regency:measure-changes` | Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing. | `<intended change \| 'tree'>` | `skills/measure-changes/SKILL.md` |
+| `/regency:measure-changes` | Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing. | `<intended change \| 'tree' \| 'issue' <n>>` | `skills/measure-changes/SKILL.md` |
 | `/regency:engine` | Run one of the five inference engines on a claim, plan, decision, system or repository. | `<critical\|causal\|decision\|control\|clean> <material>` | `skills/engine/SKILL.md` |
 | `/regency:engine:critical` | Audit a claim, argument or design goal: validity, support, semantics, defeaters. | `<claim or material>` | same playbook, subcommand `critical` |
 | `/regency:engine:causal` | Turn goals, resources and constraints into a causal, testable architecture and the smallest sufficient roadmap. | `<brief>` | same playbook, subcommand `causal` |
@@ -116,6 +116,17 @@ with a first argument (`/regency:engine critical`); both forms are equivalent.
 | `/regency:health:pipeline` | Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code. | `[--cases FILE] [--scan PATH ...]` | same playbook, subcommand `pipeline` |
 | `/regency:serious-doctor-appointment` | Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor. | `[guidelines root]` | `skills/serious-doctor-appointment/SKILL.md` |
 | `/regency:judge` | The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line. | `[list \| <folders or task> \| revoke <id> \| ratify]` | `skills/judge/SKILL.md` |
+| `/regency:issues` | Check the repository's issues against the project's records: a verdict per issue (adopt, flatten, ignore), acts on the tracker (close, publish), and one issue's status (question, revise, measure). A verdict is the Regent's; a tracker write plans first and runs on the Regent's yes. | `[check \| adopt\|flatten\|ignore <n> \| close <n> \| publish <item> \| status [n] \| question\|revise\|measure <n>]` | `skills/issues/SKILL.md` |
+| `/regency:issues:check` | Every issue against its verdict: untriaged, broken, orphan, closed, open, moved. Exits 1 while one needs the Regent. | `` | same playbook, subcommand `check` |
+| `/regency:issues:adopt` | Verdict: the issue is work here, held by a ledger item. | `<n>` | same playbook, subcommand `adopt` |
+| `/regency:issues:flatten` | Verdict: the issue is lesser, kept as one note line in the project's queue. | `<n>` | same playbook, subcommand `flatten` |
+| `/regency:issues:ignore` | Verdict: nothing is owed here; the reason is recorded. | `<n>` | same playbook, subcommand `ignore` |
+| `/regency:issues:close` | Close the issue, completed or not-planned. Plans first; runs on the Regent's yes. | `<n> [completed \| not-planned]` | same playbook, subcommand `close` |
+| `/regency:issues:publish` | A ledger item, a doubt or a finding becomes a new issue. Plans first; runs on the Regent's yes. | `<item>` | same playbook, subcommand `publish` |
+| `/regency:issues:status` | One line per issue, or one issue whole: state, age, checklist, verdict. Read-only. | `[n]` | same playbook, subcommand `status` |
+| `/regency:issues:question` | Add one comment to the issue; changes nothing else. Plans first; runs on the Regent's yes. | `<n> <doubt>` | same playbook, subcommand `question` |
+| `/regency:issues:revise` | Replace the issue's description, or fold it under one line. Plans first; runs on the Regent's yes. | `<n> [fold]` | same playbook, subcommand `revise` |
+| `/regency:issues:measure` | Measure what the issue would change, through measure-changes. Applies and posts nothing. | `<n>` | same playbook, subcommand `measure` |
 <!-- regency:dispatch:end -->
 
 ## Maintaining regency itself

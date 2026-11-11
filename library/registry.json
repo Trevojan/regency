@@ -59,7 +59,7 @@
       "id": "measure-changes",
       "skill": "measure-changes",
       "summary": "Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing.",
-      "args": "<intended change | 'tree'>"
+      "args": "<intended change | 'tree' | 'issue' <n>>"
     },
     {
       "id": "engine",
@@ -360,6 +360,64 @@
       "skill": "judge",
       "summary": "The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line.",
       "args": "[list | <folders or task> | revoke <id> | ratify]"
+    },
+    {
+      "id": "issues",
+      "skill": "issues",
+      "summary": "Check the repository's issues against the project's records: a verdict per issue (adopt, flatten, ignore), acts on the tracker (close, publish), and one issue's status (question, revise, measure). A verdict is the Regent's; a tracker write plans first and runs on the Regent's yes.",
+      "args": "[check | adopt|flatten|ignore <n> | close <n> | publish <item> | status [n] | question|revise|measure <n>]",
+      "subs": [
+        {
+          "id": "check",
+          "summary": "Every issue against its verdict: untriaged, broken, orphan, closed, open, moved. Exits 1 while one needs the Regent.",
+          "args": ""
+        },
+        {
+          "id": "adopt",
+          "summary": "Verdict: the issue is work here, held by a ledger item.",
+          "args": "<n>"
+        },
+        {
+          "id": "flatten",
+          "summary": "Verdict: the issue is lesser, kept as one note line in the project's queue.",
+          "args": "<n>"
+        },
+        {
+          "id": "ignore",
+          "summary": "Verdict: nothing is owed here; the reason is recorded.",
+          "args": "<n>"
+        },
+        {
+          "id": "close",
+          "summary": "Close the issue, completed or not-planned. Plans first; runs on the Regent's yes.",
+          "args": "<n> [completed | not-planned]"
+        },
+        {
+          "id": "publish",
+          "summary": "A ledger item, a doubt or a finding becomes a new issue. Plans first; runs on the Regent's yes.",
+          "args": "<item>"
+        },
+        {
+          "id": "status",
+          "summary": "One line per issue, or one issue whole: state, age, checklist, verdict. Read-only.",
+          "args": "[n]"
+        },
+        {
+          "id": "question",
+          "summary": "Add one comment to the issue; changes nothing else. Plans first; runs on the Regent's yes.",
+          "args": "<n> <doubt>"
+        },
+        {
+          "id": "revise",
+          "summary": "Replace the issue's description, or fold it under one line. Plans first; runs on the Regent's yes.",
+          "args": "<n> [fold]"
+        },
+        {
+          "id": "measure",
+          "summary": "Measure what the issue would change, through measure-changes. Applies and posts nothing.",
+          "args": "<n>"
+        }
+      ]
     }
   ]
 }

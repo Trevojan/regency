@@ -33,6 +33,7 @@ None found → the project has no guidelines. Say so, continue with the library 
 | Attic (superseded docs) | `.history/` | — |
 | Code ↔ norm lineage | `.shortcuts/.virtual/manifesto.json` (or `manifest.json`) | — |
 | Work ledger (ongoing vs backlog) — the first peek on returning | `.shortcuts/.virtual/ongoing.json` | — |
+| Issue verdicts (adopt, flatten, ignore; one row per issue of the repository's tracker — `library/issues.md` §2) | `.shortcuts/.virtual/issues.json` | — |
 | The one store (the exact index and every file's fingerprint; a gitignored cache — `library/shortcuts.md` §3) | `.shortcuts/.virtual/index.sqlite` | — |
 | Health check sets (one per part; `pipeline.json` for watched cases; written by the appointment, run once ratified — `library/health.md` §5) | `.shortcuts/.health/<part>.json` | `.shortcuts/.health/<part>.json` |
 | Engine orientation (the project's own engines; the Regent chooses whether they rule this repository — `library/health.md` §3) | `.sources/ENGINES.md` | `SOURCES/ENGINES.md` |
