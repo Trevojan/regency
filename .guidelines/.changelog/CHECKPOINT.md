@@ -49,8 +49,8 @@ the old author.
 
 ## How to resume here
 
-1. Read this file, then `../CLAUDE.md`.
-2. `python scripts/vp.py ongoing` — this folder's ledger (`.shortcuts/.virtual/ongoing.json`): what is ongoing,
+1. Read this file, then `../../CLAUDE.md`.
+2. `python scripts/vp.py ongoing` — this folder's ledger (`.guidelines/.shortcuts/.virtual/ongoing.json`): what is ongoing,
    in review, blocked on the Regent or only backlog; each item points at its row here or in `ROADMAP.md`.
 3. `python scripts/doctor.py` — the folder is intact when it says `0 fail`.
 4. `git log --oneline -15` on `plumbing` for the latest commits.

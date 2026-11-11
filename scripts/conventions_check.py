@@ -16,7 +16,7 @@ Checks (library/conventions.md section 0, 11, 12, 13; library/ids.md)
   language  FAIL for Portuguese in the app's own sources (conventions §2): templates, playbooks, scripts and
             samples are English; an input is quoted in backticks or double quotes, and the Regent's verbs
             (conventions §9) are input
-  changelog FAIL when .changelog/ (the record a model with no context reads: README, HISTORY, CHECKPOINT)
+  changelog FAIL when .guidelines/.changelog/ (the record a model with no context reads: README, HISTORY, CHECKPOINT)
             does not name the version in force: a README row **a.b**, a HISTORY heading "## a.b", the
             CHECKPOINT title (the Regent, 2026-10-29)
   subagent  each library/subagents/suba-*: SKILL.md present, name == folder, metadata.owner agrees with
@@ -188,9 +188,9 @@ class Checker:
         if not reg_p.is_file():
             return
         v = str(json.loads(reg_p.read_text(encoding="utf-8-sig")).get("version", ""))
-        d = self.root / ".changelog"
+        d = self.root / ".guidelines" / ".changelog"
         if not d.is_dir():
-            return self.rec("FAIL", "changelog", ".changelog/ is missing: the history, roadmap and checkpoint a model"
+            return self.rec("FAIL", "changelog", ".guidelines/.changelog/ is missing: the history, roadmap and checkpoint a model"
                                                  " with no context reads")
         ver = re.escape(v)
         wants = (("README.md", rf"^\|\s*\*\*{ver}\*\*\s*\|", f"a row **{v}**"),
@@ -418,8 +418,8 @@ def selftest():
         root = Path(tmp)
         (root / "library").mkdir()
         (root / "library" / "registry.json").write_text('{"version": "2.13"}', encoding="utf-8")
-        log = root / ".changelog"
-        log.mkdir()
+        log = root / ".guidelines" / ".changelog"
+        log.mkdir(parents=True)
         (log / "README.md").write_text("| version | decided |\n|---|---|\n| **2.13** | x |\n", encoding="utf-8")
         (log / "HISTORY.md").write_text("# History\n\n## 2.13\n\nx\n", encoding="utf-8")
         (log / "CHECKPOINT.md").write_text("# Checkpoint · regency 2.13 · 2026-10-29\n", encoding="utf-8")

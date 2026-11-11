@@ -123,9 +123,6 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
 - Two suba spines whose alignment stamps drifted (`suba-strategy`, `suba-research`): re-read, then re-stamp.
 - The required status check `doctor` on `main`: the workflow last passed there at 3.1.
 - The `v3.3` release from `main`, with the `.plugin` attached; the README's pinned install points at it.
-- This folder's own ledger (`.shortcuts/.virtual/ongoing.json`) is read by `vp.py` alone: the hooks and
-  `/regency:health` find a ledger under a `.guidelines/` root only (`hook_wire.virtual_dir`), and a `.guidelines/`
-  here would make the folder an unstamped project for the version gate.
 - `vp.py trace` counts the format example in `library/hooks.md` as a STALE line waiting for the Regent: this
   folder's guidelines root is the repository root, so the scan reads every Markdown file here.
 - `vp.py trace` lists every recently touched file in this folder as a guideline (179 on 2026-11-06, `scripts/` and

@@ -8,8 +8,8 @@ this folder, so it can be copied, mounted or pointed at from anywhere.
 
 1. Read `library/conventions.md` (labels, language, doubts, "proceed", git verbs, permissions,
    reporting). It binds every command below.
-2. Read `.changelog/CHECKPOINT.md`: the version in force, the branches, what is pending. The road so far
-   and ahead is in `.changelog/` (ROADMAP, HISTORY).
+2. Read `.guidelines/.changelog/CHECKPOINT.md`: the version in force, the branches, what is pending. The road so far
+   and ahead is in `.guidelines/.changelog/` (ROADMAP, HISTORY).
 3. Do not assume a project layout. Find the project's documents with `library/layouts.md`.
 4. Run `python scripts/doctor.py` if you are unsure the folder is intact (read-only).
 5. To do something, pick a command from the table, open its playbook and follow it. If the plugin
@@ -109,8 +109,8 @@ project (`library/packs.md`) → this folder's `library/conventions.md` → a pl
 |---|---|
 | `skills/<id>/SKILL.md` | one playbook per command (the plugin's skills) |
 | `commands/<id>/<sub>.md` | generated aliases for `/regency:<id>:<sub>` — never edit |
-| `.shortcuts/.virtual/ongoing.json` | this folder's own work ledger (`python scripts/vp.py ongoing`): ongoing, review, blocked, backlog; each item points into `.changelog/` |
-| `.changelog/` | `CHECKPOINT.md` (where the work stands), `ROADMAP.md` (the method chain, the queue, open doubts), `HISTORY.md` (every version and the decisions behind it); `conventions_check.py` fails when it does not name the version in force |
+| `.guidelines/` | regency as its own project: `.shortcuts/README.md` (the entry index), `.shortcuts/.virtual/ongoing.json` (the work ledger, `python scripts/vp.py ongoing`), `.shortcuts/regency.json` (the stamp), `.orders/` (Orders), `.changelog/` |
+| `.guidelines/.changelog/` | `CHECKPOINT.md` (where the work stands), `ROADMAP.md` (the method chain, the queue, open doubts), `HISTORY.md` (every version and the decisions behind it); `conventions_check.py` fails when it does not name the version in force |
 | `.github/` | security policy, support, conduct, code owners, issue forms, PR template, the doctor workflow, Dependabot, the banner and the mark (repository only) |
 | `README.md` | the repository's homepage: install, quick start, architecture, API surface (badges and module map generated) |
 | `library/REFERENCE.md` | the long form: how it works, every command (generated table), the team, hooks, machine setup, portability, layout |

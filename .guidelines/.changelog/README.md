@@ -10,8 +10,8 @@ Read in this order, and stop as soon as you have what the task needs:
 | # | File | Gives you | Cost |
 |---|---|---|---|
 | 1 | [`CHECKPOINT.md`](CHECKPOINT.md) | the version in force, the branches, what is live, what is pending, the next step | one screen |
-| 2 | [`../CLAUDE.md`](../CLAUDE.md) | how to work in this folder: start here, every command, the map | one screen + the command table |
-| 3 | [`../library/conventions.md`](../library/conventions.md) | how the Regent works; binds every command | long; read the section the task touches |
+| 2 | [`../../CLAUDE.md`](../../CLAUDE.md) | how to work in this folder: start here, every command, the map | one screen + the command table |
+| 3 | [`../../library/conventions.md`](../../library/conventions.md) | how the Regent works; binds every command | long; read the section the task touches |
 | 4 | [`ROADMAP.md`](ROADMAP.md) | the north star, the method chain with what is built, the queue, the open doubts | two screens |
 | 5 | [`HISTORY.md`](HISTORY.md) | every version, newest first: what it added, the Regent's decisions behind it, the proof | read one version at a time |
 

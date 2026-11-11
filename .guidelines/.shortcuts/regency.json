@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "regency": "3.3",
+  "updated": "2026-11-11",
+  "files": {
+    ".orders/README.md": "1da712532c2e",
+    ".shortcuts/.virtual/README.md": "a280cf3ce4aa",
+    ".shortcuts/.virtual/manifesto.json": "2bc39198ecfa",
+    ".shortcuts/README.md": "68e7820dae4f"
+  },
+  "history": [],
+  "merged": {
+    ".changelog/README.md": "e82c404fa895"
+  }
+}

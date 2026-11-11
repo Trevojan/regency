@@ -233,7 +233,7 @@ reversible. The installers never overwrite a file they did not create.
 ```text
 regency/
 ├── .claude-plugin/        plugin.json, marketplace.json (the folder is its own marketplace)
-├── .changelog/            CHECKPOINT, ROADMAP, HISTORY: the road so far for a model with no context
+├── .guidelines/           regency as its own project: .changelog (CHECKPOINT, ROADMAP, HISTORY), .shortcuts (index, ledger, stamp), .orders
 ├── .github/               community files, CI, the banner and the mark (not shipped in the .plugin)
 ├── CLAUDE.md              read by Claude Code when opened here
 ├── README.md              the repository's homepage
