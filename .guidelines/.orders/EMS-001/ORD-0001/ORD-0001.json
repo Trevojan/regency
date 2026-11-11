@@ -1,0 +1,3310 @@
+{
+  "type": "GlyphAST",
+  "schema": 2,
+  "version": "4.7.10.08",
+  "source": {
+    "length": 8538,
+    "checksum": "343f8c78467a3200",
+    "encoding": "utf-8",
+    "newline": "lf",
+    "uri": null
+  },
+  "stores": {
+    "templates": "7356ea9b88319980",
+    "rules": "767e5432cdc6d400",
+    "expansions": "6862eb9f3b5c18fa"
+  },
+  "projection": "full",
+  "segments": [
+    {
+      "type": "Segment",
+      "mood": [
+        {
+          "name": "clm",
+          "gloss": "calm",
+          "order": 0
+        }
+      ],
+      "isReturn": false,
+      "continues": false,
+      "breaks": 0,
+      "autoClosedCount": 0,
+      "body": [
+        {
+          "type": "Command",
+          "raw": "block",
+          "canonical": "BLOCK",
+          "tier": "struct",
+          "gloss": "Block",
+          "element": "block",
+          "isAlias": false,
+          "chainElement": false,
+          "origin": "root",
+          "slotName": false,
+          "editorial": false,
+          "name": null,
+          "depth": 0,
+          "autoClosed": false,
+          "suggestion": null,
+          "emotions": [],
+          "species": "atom",
+          "compositionDepth": 0,
+          "at": {
+            "s": 6,
+            "e": 12
+          },
+          "body": [
+            {
+              "type": "Literal",
+              "value": "regency on other harnesses",
+              "form": "tick",
+              "slot": null,
+              "role": "operand",
+              "at": {
+                "s": 12,
+                "e": 40
+              }
+            },
+            {
+              "type": "Command",
+              "raw": "ctx",
+              "canonical": "CTX",
+              "tier": "instr",
+              "gloss": "Context",
+              "element": "context",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 43,
+                "e": 47
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "regency runs on Claude Code only; the Regent wants other models and their harnesses to work under the same rules",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 47,
+                    "e": 161
+                  }
+                },
+                {
+                  "type": "Literal",
+                  "value": "the regency repository, main at 3.3",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 162,
+                    "e": 199
+                  }
+                },
+                {
+                  "type": "Literal",
+                  "value": "2026-11-11",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 200,
+                    "e": 212
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "intn",
+              "canonical": "INTN",
+              "tier": "instr",
+              "gloss": "Intention",
+              "element": "intention",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "composite",
+              "compositionDepth": 1,
+              "at": {
+                "s": 216,
+                "e": 221
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "one source of regency, one generated target per harness, so a rule is written once and every harness reads the same rule",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 221,
+                    "e": 343
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "prob",
+              "canonical": "PROB",
+              "tier": "instr",
+              "gloss": "Problem",
+              "element": "problem",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "composite",
+              "compositionDepth": 1,
+              "at": {
+                "s": 347,
+                "e": 352
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "the doctrine, the playbooks and the scripts are portable, and the surface around them is Claude Code's: the plugin manifest, skill frontmatter, command aliases, the hooks wire, the question pop-up, role subagents with model names, the auto-mode profile, the headless runner and CLAUDE.md",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 352,
+                    "e": 641
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "alt",
+              "canonical": "ALT",
+              "tier": "instr",
+              "gloss": "Alternative",
+              "element": "alternative",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "composite",
+              "compositionDepth": 1,
+              "at": {
+                "s": 645,
+                "e": 649
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "one branch per harness",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 649,
+                    "e": 673
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "deny",
+                  "canonical": "DENY",
+                  "tier": "instr",
+                  "gloss": "Deny",
+                  "element": "deny",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 673,
+                    "e": 678
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "parallel copies drift and every fix is picked once per branch; plumbing, testing and main already mean maturity",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 678,
+                        "e": 791
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 797,
+                "e": 805
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "locks",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 805,
+                    "e": 812
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "nev",
+                  "canonical": "NEV",
+                  "tier": "instr",
+                  "gloss": "Never",
+                  "element": "never",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": true,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 817,
+                    "e": 821
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a branch per harness, or a second hand-kept copy of any playbook, script or norm",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 821,
+                        "e": 903
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "cnst",
+                  "canonical": "CNST",
+                  "tier": "instr",
+                  "gloss": "Constraint",
+                  "element": "constraint",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 909,
+                    "e": 914
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "every target file is generated from library/registry.json and library/targets.json by scripts/build.py and is never edited by hand",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 914,
+                        "e": 1046
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "cnst",
+                  "canonical": "CNST",
+                  "tier": "instr",
+                  "gloss": "Constraint",
+                  "element": "constraint",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1052,
+                    "e": 1057
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "the Claude Code target stays byte-identical at every commit: build.py --check up to date and doctor 0 fail",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1057,
+                        "e": 1165
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "cnst",
+                  "canonical": "CNST",
+                  "tier": "instr",
+                  "gloss": "Constraint",
+                  "element": "constraint",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1171,
+                    "e": 1176
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "regency code stays Python, standard library only; nothing is vendored",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1176,
+                        "e": 1247
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "cnst",
+                  "canonical": "CNST",
+                  "tier": "instr",
+                  "gloss": "Constraint",
+                  "element": "constraint",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1253,
+                    "e": 1258
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a format enters only with a consumer that parses it and a self-test that plants a defect per rule",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1258,
+                        "e": 1357
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "mand",
+                  "canonical": "MAND",
+                  "tier": "instr",
+                  "gloss": "Mandatory",
+                  "element": "mandatory",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1363,
+                    "e": 1368
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "each fact about another harness is read from that harness's current documentation and cited with its date in library/targets.md; none comes from a model's memory",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1368,
+                        "e": 1531
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "nev",
+                  "canonical": "NEV",
+                  "tier": "instr",
+                  "gloss": "Never",
+                  "element": "never",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": true,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1537,
+                    "e": 1541
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a credential of any harness is read, stored or guarded; logins are the Regent's",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1541,
+                        "e": 1622
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "mand",
+                  "canonical": "MAND",
+                  "tier": "instr",
+                  "gloss": "Mandatory",
+                  "element": "mandatory",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1628,
+                    "e": 1633
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "small split commits on plumbing, then testing, then main; the Regent pushes main",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1633,
+                        "e": 1715
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 1721,
+                "e": 1729
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "limits",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 1729,
+                    "e": 1737
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "lim",
+                  "canonical": "LIM",
+                  "tier": "instr",
+                  "gloss": "Limitation",
+                  "element": "limitation",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1742,
+                    "e": 1746
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a harness without tool-call hooks cannot be guarded at the moment of the call; there a guard is a git hook, a CI check or only a written rule, and the target says which",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1746,
+                        "e": 1916
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "lim",
+                  "canonical": "LIM",
+                  "tier": "instr",
+                  "gloss": "Limitation",
+                  "element": "limitation",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 1922,
+                    "e": 1926
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "how well a smaller model follows a long playbook is outside regency's reach; the answer is to move rules from prose into scripts, never to fork the playbook",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 1926,
+                        "e": 2084
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "lim",
+                  "canonical": "LIM",
+                  "tier": "instr",
+                  "gloss": "Limitation",
+                  "element": "limitation",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 2090,
+                    "e": 2094
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "adopting Claude Code plugins as packs stays a Claude Code feature in this Order",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 2094,
+                        "e": 2175
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "lim",
+                  "canonical": "LIM",
+                  "tier": "instr",
+                  "gloss": "Limitation",
+                  "element": "limitation",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 2181,
+                    "e": 2185
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a harness without subagents runs the roles one after another in fresh contexts, or declares the team pass unsupported",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 2185,
+                        "e": 2304
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 2310,
+                "e": 2318
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "trunk",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 2318,
+                    "e": 2325
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 2330,
+                    "e": 2338
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S01 measure the surface",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 2338,
+                        "e": 2363
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 2370,
+                        "e": 2374
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "library/targets.md: one row per harness-specific surface of regency, classed portable, generated, adapter or unsupported",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 2374,
+                            "e": 2496
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 2504,
+                        "e": 2507
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "list every file and script that names Claude Code, a Claude model, a Claude Code tool or a path under the user's .claude folder; read the current documentation of each candidate harness for its entry file, command format, hook events, subagents, question tool and headless mode",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 2507,
+                            "e": 2786
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "mand",
+                      "canonical": "MAND",
+                      "tier": "instr",
+                      "gloss": "Mandatory",
+                      "element": "mandatory",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 2794,
+                        "e": 2799
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "a capability matrix, harness by surface, each cell with its source and date",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 2799,
+                            "e": 2876
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 2884,
+                        "e": 2888
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "every hit of a search for claude, CLAUDE_PLUGIN_ROOT, AskUserQuestion, Opus, Sonnet and Haiku across skills, library, scripts and hooks is in the table or marked portable",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 2888,
+                            "e": 3060
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 3067,
+                    "e": 3075
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S02 the targets table",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 3075,
+                        "e": 3098
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3105,
+                        "e": 3109
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S01 accepted by the Regent",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3109,
+                            "e": 3137
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3145,
+                        "e": 3149
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "library/targets.json as the single source of every target: id, entry file, command format, hook support, role tiers, status; claude-code is the first row and describes what exists today",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3149,
+                            "e": 3336
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3344,
+                        "e": 3347
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "build.py loads the table and refuses an unknown key; conventions_check.py validates it; doctor runs both",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3347,
+                            "e": 3453
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3461,
+                        "e": 3465
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "build.py --check is up to date with the table present and the generated Claude Code files unchanged",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3465,
+                            "e": 3566
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 3573,
+                    "e": 3581
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S03 entry files",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 3581,
+                        "e": 3598
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3605,
+                        "e": 3609
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S02",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3609,
+                            "e": 3614
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3622,
+                        "e": 3626
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "AGENTS.md, and one entry file per target that needs its own name, generated from the same source text as CLAUDE.md: start here, the command table with playbook paths, the map, the rules",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3626,
+                            "e": 3813
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3821,
+                        "e": 3824
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "move the hand-written parts of CLAUDE.md into one source that build.py renders per target; each entry file names its harness only where the harness differs",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3824,
+                            "e": 3981
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 3989,
+                        "e": 3993
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "a fresh session of a second harness, given only the repository, opens its entry file, finds a playbook by the table and runs doctor",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 3993,
+                            "e": 4126
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 4133,
+                    "e": 4141
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S04 role tiers",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 4141,
+                        "e": 4157
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4164,
+                        "e": 4168
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S02",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4168,
+                            "e": 4173
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4181,
+                        "e": 4185
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "the team, the speed modes and the role agents name tiers, lead, builder and drafter, instead of model names; targets.json maps each tier to a model per target",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4185,
+                            "e": 4345
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4353,
+                        "e": 4356
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "replace model names in library/team/SPEED_MODES.md, skills/team/SKILL.md and library/agents; install-agents.py reads the claude-code mapping",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4356,
+                            "e": 4498
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4506,
+                        "e": 4510
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "the claude-code mapping reproduces today's models exactly; speed.py and gov.py self-tests pass",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4510,
+                            "e": 4606
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 4613,
+                    "e": 4621
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S05 commands per target",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 4621,
+                        "e": 4646
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4653,
+                        "e": 4657
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S03",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4657,
+                            "e": 4662
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4670,
+                        "e": 4674
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "package.py builds dist/target-id for each target: the command surface in that harness's own format where it has one, the entry file and the shared library, skills and scripts",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4674,
+                            "e": 4850
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 4858,
+                        "e": 4861
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "one emitter function per command format in build.py; a target with no command format gets the table and the read-as-files route only",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 4861,
+                            "e": 4995
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5003,
+                        "e": 5007
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "each release in dist runs doctor on its own paths, with no dependency on the repository",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5007,
+                            "e": 5096
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 5103,
+                    "e": 5111
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S06 guards beyond the hooks",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 5111,
+                        "e": 5140
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5147,
+                        "e": 5151
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S01",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5151,
+                            "e": 5156
+                          }
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "the git-native push check from plumbing is on main",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5157,
+                            "e": 5209
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5217,
+                        "e": 5221
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "library/hooks.md holds one row per guard and target: enforced by a harness hook, by a git hook, by doctor in CI, or asked only",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5221,
+                            "e": 5349
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5357,
+                        "e": 5360
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "hook_wire.py reads the event of each harness that has hooks through one adapter per target; what git can refuse moves to git hooks installed by one script",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5360,
+                            "e": 5516
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "mand",
+                      "canonical": "MAND",
+                      "tier": "instr",
+                      "gloss": "Mandatory",
+                      "element": "mandatory",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5524,
+                        "e": 5529
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "a target never claims a guard it does not enforce",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5529,
+                            "e": 5580
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5588,
+                        "e": 5592
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "each guard's self-test passes on the sample event of every target that claims it",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5592,
+                            "e": 5674
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 5681,
+                    "e": 5689
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S07 doubts and headless without the pop-up",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 5689,
+                        "e": 5733
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5740,
+                        "e": 5744
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S03",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5744,
+                            "e": 5749
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5757,
+                        "e": 5761
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "conventions section 3 and library/automation.md state how a decision reaches the Regent where no question tool exists, and which headless routes each target runs or refuses, with the reason",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5761,
+                            "e": 5952
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 5960,
+                        "e": 5963
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "a blocker ends the reply with one Decision block, two options and a free line; the Judge records a grant only from the Regent's own grant line on such a harness",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 5963,
+                            "e": 6125
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 6133,
+                        "e": 6137
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "headless.py --check resolves every route for every target or names its refusal",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6137,
+                            "e": 6217
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "section",
+                  "canonical": "SECTION",
+                  "tier": "struct",
+                  "gloss": "Section",
+                  "element": "section",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 6224,
+                    "e": 6232
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "S08 proof on a real pass",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 6232,
+                        "e": 6258
+                      }
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "req",
+                      "canonical": "REQ",
+                      "tier": "instr",
+                      "gloss": "Requirement",
+                      "element": "requirement",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 6265,
+                        "e": 6269
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "S03",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6269,
+                            "e": 6274
+                          }
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "S04",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6275,
+                            "e": 6280
+                          }
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "S05",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6281,
+                            "e": 6286
+                          }
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "S06",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6287,
+                            "e": 6292
+                          }
+                        },
+                        {
+                          "type": "Literal",
+                          "value": "S07",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6293,
+                            "e": 6298
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "tgt",
+                      "canonical": "TGT",
+                      "tier": "instr",
+                      "gloss": "Target",
+                      "element": "target",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 6306,
+                        "e": 6310
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "one unit of a test project taken through a team pass, or through proceed where the pass is unsupported, on one harness that is not Claude Code, reading generated files only",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6310,
+                            "e": 6484
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "in",
+                      "canonical": "INS",
+                      "tier": "instr",
+                      "gloss": "Instruction",
+                      "element": "instruction",
+                      "isAlias": true,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 6492,
+                        "e": 6495
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "measure time, the guards that fired and the rules the model missed; add health check targets with one line per target; generate the README support matrix from targets.json",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6495,
+                            "e": 6668
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Command",
+                      "raw": "rdy",
+                      "canonical": "RDY",
+                      "tier": "instr",
+                      "gloss": "Ready",
+                      "element": "ready",
+                      "isAlias": false,
+                      "chainElement": false,
+                      "origin": "nest",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 6676,
+                        "e": 6680
+                      },
+                      "body": [
+                        {
+                          "type": "Literal",
+                          "value": "the review packet of that pass reaches the Regent with its measurements",
+                          "form": "tick",
+                          "slot": null,
+                          "role": "operand",
+                          "at": {
+                            "s": 6680,
+                            "e": 6753
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 6760,
+                "e": 6768
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "branches",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 6768,
+                    "e": 6778
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 6783,
+                    "e": 6787
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "CLAUDE.md, which already states that the playbooks work the same when read as files",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 6787,
+                        "e": 6872
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 6878,
+                    "e": 6882
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "library/registry.json and scripts/build.py, the generator that already emits aliases, tables and README blocks",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 6882,
+                        "e": 6994
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7000,
+                    "e": 7004
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "scripts/package.py, the allowlist build of the installable archive",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7004,
+                        "e": 7072
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7078,
+                    "e": 7082
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "scripts/hook_wire.py, the one wire contract every hook shares",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7082,
+                        "e": 7145
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7151,
+                    "e": 7155
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "plumbing commit 85b7e54, the push check as a hook in git's own configuration",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7155,
+                        "e": 7233
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7239,
+                    "e": 7243
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "library/headless.json and library/automode.json, the two Claude-only profiles",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7243,
+                        "e": 7322
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ref",
+                  "canonical": "REF",
+                  "tier": "instr",
+                  "gloss": "Reference",
+                  "element": "reference",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7328,
+                    "e": 7332
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": ".changelog/ROADMAP.md, N19 and the method chain",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7332,
+                        "e": 7381
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 7387,
+                "e": 7395
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "doubts",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 7395,
+                    "e": 7403
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "ask",
+                  "canonical": "ASK",
+                  "tier": "instr",
+                  "gloss": "Ask",
+                  "element": "ask",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7408,
+                    "e": 7412
+                  },
+                  "body": [
+                    {
+                      "type": "Command",
+                      "raw": "hmn",
+                      "canonical": "HMN",
+                      "tier": "meta",
+                      "gloss": "Human",
+                      "element": "human",
+                      "isAlias": false,
+                      "chainElement": true,
+                      "origin": "extend",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 7413,
+                        "e": 7416
+                      },
+                      "body": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "which harnesses come first, and in which order",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7416,
+                        "e": 7464
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ask",
+                  "canonical": "ASK",
+                  "tier": "instr",
+                  "gloss": "Ask",
+                  "element": "ask",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7470,
+                    "e": 7474
+                  },
+                  "body": [
+                    {
+                      "type": "Command",
+                      "raw": "hmn",
+                      "canonical": "HMN",
+                      "tier": "meta",
+                      "gloss": "Human",
+                      "element": "human",
+                      "isAlias": false,
+                      "chainElement": true,
+                      "origin": "extend",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 7475,
+                        "e": 7478
+                      },
+                      "body": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "are AGENTS.md and the other entry files committed beside CLAUDE.md, or emitted to dist only",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7478,
+                        "e": 7571
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ask",
+                  "canonical": "ASK",
+                  "tier": "instr",
+                  "gloss": "Ask",
+                  "element": "ask",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7577,
+                    "e": 7581
+                  },
+                  "body": [
+                    {
+                      "type": "Command",
+                      "raw": "hmn",
+                      "canonical": "HMN",
+                      "tier": "meta",
+                      "gloss": "Human",
+                      "element": "human",
+                      "isAlias": false,
+                      "chainElement": true,
+                      "origin": "extend",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 7582,
+                        "e": 7585
+                      },
+                      "body": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "does this Order wait for plumbing's 3.4 to reach main, since S06 leans on it",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7585,
+                        "e": 7663
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ask",
+                  "canonical": "ASK",
+                  "tier": "instr",
+                  "gloss": "Ask",
+                  "element": "ask",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7669,
+                    "e": 7673
+                  },
+                  "body": [
+                    {
+                      "type": "Command",
+                      "raw": "hmn",
+                      "canonical": "HMN",
+                      "tier": "meta",
+                      "gloss": "Human",
+                      "element": "human",
+                      "isAlias": false,
+                      "chainElement": true,
+                      "origin": "extend",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 7674,
+                        "e": 7677
+                      },
+                      "body": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "which version carries it: a content change, or a major rule invented",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7677,
+                        "e": 7747
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "ask",
+                  "canonical": "ASK",
+                  "tier": "instr",
+                  "gloss": "Ask",
+                  "element": "ask",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 7753,
+                    "e": 7757
+                  },
+                  "body": [
+                    {
+                      "type": "Command",
+                      "raw": "hmn",
+                      "canonical": "HMN",
+                      "tier": "meta",
+                      "gloss": "Human",
+                      "element": "human",
+                      "isAlias": false,
+                      "chainElement": true,
+                      "origin": "extend",
+                      "slotName": false,
+                      "editorial": false,
+                      "name": null,
+                      "depth": 3,
+                      "autoClosed": false,
+                      "suggestion": null,
+                      "emotions": [],
+                      "species": "atom",
+                      "compositionDepth": 0,
+                      "at": {
+                        "s": 7758,
+                        "e": 7761
+                      },
+                      "body": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value": "are lead, builder and drafter the tier names",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 7761,
+                        "e": 7807
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "assm",
+              "canonical": "ASSM",
+              "tier": "instr",
+              "gloss": "Assumption",
+              "element": "assumption",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "composite",
+              "compositionDepth": 2,
+              "at": {
+                "s": 7813,
+                "e": 7818
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "regency's rules survive outside Claude Code when they live in scripts and git rather than in the harness; one pass on a hookless harness that breaks a guard unseen knocks this down",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 7818,
+                    "e": 8000
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "section",
+              "canonical": "SECTION",
+              "tier": "struct",
+              "gloss": "Section",
+              "element": "section",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 8005,
+                "e": 8013
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "fruit",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 8013,
+                    "e": 8020
+                  }
+                },
+                {
+                  "type": "Command",
+                  "raw": "tgt",
+                  "canonical": "TGT",
+                  "tier": "instr",
+                  "gloss": "Target",
+                  "element": "target",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 8025,
+                    "e": 8029
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "two targets or more build from one source with build.py --check up to date and doctor 0 fail",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 8029,
+                        "e": 8123
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "tgt",
+                  "canonical": "TGT",
+                  "tier": "instr",
+                  "gloss": "Target",
+                  "element": "target",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 8129,
+                    "e": 8133
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "a harness that is not Claude Code finishes a pass on a test project from generated files only",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 8133,
+                        "e": 8228
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "tgt",
+                  "canonical": "TGT",
+                  "tier": "instr",
+                  "gloss": "Target",
+                  "element": "target",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "atom",
+                  "compositionDepth": 0,
+                  "at": {
+                    "s": 8234,
+                    "e": 8238
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "health reports each target's coverage and the README shows the generated support matrix",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 8238,
+                        "e": 8327
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Command",
+                  "raw": "vrfy",
+                  "canonical": "VRFY",
+                  "tier": "instr",
+                  "gloss": "Verify",
+                  "element": "verify",
+                  "isAlias": false,
+                  "chainElement": false,
+                  "origin": "nest",
+                  "slotName": false,
+                  "editorial": false,
+                  "name": null,
+                  "depth": 2,
+                  "autoClosed": false,
+                  "suggestion": null,
+                  "emotions": [],
+                  "species": "composite",
+                  "compositionDepth": 1,
+                  "at": {
+                    "s": 8333,
+                    "e": 8338
+                  },
+                  "body": [
+                    {
+                      "type": "Literal",
+                      "value": "no playbook, script or norm exists in two hand-kept copies, on any branch",
+                      "form": "tick",
+                      "slot": null,
+                      "role": "operand",
+                      "at": {
+                        "s": 8338,
+                        "e": 8413
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Command",
+              "raw": "fin",
+              "canonical": "FIN",
+              "tier": "instr",
+              "gloss": "Finally",
+              "element": "finally",
+              "isAlias": false,
+              "chainElement": false,
+              "origin": "nest",
+              "slotName": false,
+              "editorial": false,
+              "name": null,
+              "depth": 1,
+              "autoClosed": false,
+              "suggestion": null,
+              "emotions": [],
+              "species": "atom",
+              "compositionDepth": 0,
+              "at": {
+                "s": 8419,
+                "e": 8423
+              },
+              "body": [
+                {
+                  "type": "Literal",
+                  "value": "the work ends at the Regent's review packet; opening, closing and versioning this Order are the Regent's acts",
+                  "form": "tick",
+                  "slot": null,
+                  "role": "operand",
+                  "at": {
+                    "s": 8423,
+                    "e": 8534
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

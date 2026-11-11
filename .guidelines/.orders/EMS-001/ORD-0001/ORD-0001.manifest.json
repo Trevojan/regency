@@ -1,0 +1,16 @@
+{
+  "order": "ORD-0001",
+  "engine": "4.7.10.08",
+  "emitted": "2026-11-11T13:52:43.938Z",
+  "files": [
+    "ORD-0001.pgml",
+    "ORD-0001.xml",
+    "ORD-0001.json",
+    "ORD-0001.hgml"
+  ],
+  "source": "/tmp/claude-0/-home-user-regency/3322e55c-12a6-5c04-b94a-f42f51693351/scratchpad/order.pgml",
+  "diagnostics": {
+    "fix": 0,
+    "total": 0
+  }
+}

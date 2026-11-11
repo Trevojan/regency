@@ -1,0 +1,276 @@
+[block
+  'regency on other harnesses'
+  [ctx
+    'regency runs on Claude Code only; the Regent wants other models and their harnesses to work under the same rules'
+    'the regency repository, main at 3.3'
+    '2026-11-11'
+  [/ctx]
+  [dfn
+    'one source of regency, one generated target per harness, so a rule is written once and every harness reads the same rule'
+    [tgt
+      [rsn[/rsn]
+    [/tgt]
+  [/dfn]
+  [error
+    'the doctrine, the playbooks and the scripts are portable, and the surface around them is Claude Code’s: the plugin manifest, skill frontmatter, command aliases, the hooks wire, the question pop-up, role subagents with model names, the auto-mode profile, the headless runner and CLAUDE.md'
+    [ctx[/ctx]
+  [/error]
+  [neq
+    'one branch per harness'
+    [deny
+      'parallel copies drift and every fix is picked once per branch; plumbing, testing and main already mean maturity'
+    [/deny]
+    [core[/core]
+  [/neq]
+  [eq
+    [tgt[/tgt]
+  [/eq]
+  [section
+    'locks'
+    [nev
+      'a branch per harness, or a second hand-kept copy of any playbook, script or norm'
+    [/nev]
+    [cnst
+      'every target file is generated from library/registry.json and library/targets.json by scripts/build.py and is never edited by hand'
+    [/cnst]
+    [cnst
+      'the Claude Code target stays byte-identical at every commit: build.py --check up to date and doctor 0 fail'
+    [/cnst]
+    [cnst
+      'regency code stays Python, standard library only; nothing is vendored'
+    [/cnst]
+    [cnst
+      'a format enters only with a consumer that parses it and a self-test that plants a defect per rule'
+    [/cnst]
+    [mand
+      'each fact about another harness is read from that harness’s current documentation and cited with its date in library/targets.md; none comes from a model’s memory'
+    [/mand]
+    [nev
+      'a credential of any harness is read, stored or guarded; logins are the Regent’s'
+    [/nev]
+    [mand
+      'small split commits on plumbing, then testing, then main; the Regent pushes main'
+    [/mand]
+  [/section]
+  [section
+    'limits'
+    [lim
+      'a harness without tool-call hooks cannot be guarded at the moment of the call; there a guard is a git hook, a CI check or only a written rule, and the target says which'
+    [/lim]
+    [lim
+      'how well a smaller model follows a long playbook is outside regency’s reach; the answer is to move rules from prose into scripts, never to fork the playbook'
+    [/lim]
+    [lim
+      'adopting Claude Code plugins as packs stays a Claude Code feature in this Order'
+    [/lim]
+    [lim
+      'a harness without subagents runs the roles one after another in fresh contexts, or declares the team pass unsupported'
+    [/lim]
+  [/section]
+  [section
+    'trunk'
+    [section
+      'S01 measure the surface'
+      [tgt
+        'library/targets.md: one row per harness-specific surface of regency, classed portable, generated, adapter or unsupported'
+      [/tgt]
+      [ins
+        'list every file and script that names Claude Code, a Claude model, a Claude Code tool or a path under the user’s .claude folder; read the current documentation of each candidate harness for its entry file, command format, hook events, subagents, question tool and headless mode'
+      [/ins]
+      [mand
+        'a capability matrix, harness by surface, each cell with its source and date'
+      [/mand]
+      [rdy
+        'every hit of a search for claude, CLAUDE_PLUGIN_ROOT, AskUserQuestion, Opus, Sonnet and Haiku across skills, library, scripts and hooks is in the table or marked portable'
+      [/rdy]
+    [/section]
+    [section
+      'S02 the targets table'
+      [req
+        'S01 accepted by the Regent'
+      [/req]
+      [tgt
+        'library/targets.json as the single source of every target: id, entry file, command format, hook support, role tiers, status; claude-code is the first row and describes what exists today'
+      [/tgt]
+      [ins
+        'build.py loads the table and refuses an unknown key; conventions_check.py validates it; doctor runs both'
+      [/ins]
+      [rdy
+        'build.py --check is up to date with the table present and the generated Claude Code files unchanged'
+      [/rdy]
+    [/section]
+    [section
+      'S03 entry files'
+      [req
+        'S02'
+      [/req]
+      [tgt
+        'AGENTS.md, and one entry file per target that needs its own name, generated from the same source text as CLAUDE.md: start here, the command table with playbook paths, the map, the rules'
+      [/tgt]
+      [ins
+        'move the hand-written parts of CLAUDE.md into one source that build.py renders per target; each entry file names its harness only where the harness differs'
+      [/ins]
+      [rdy
+        'a fresh session of a second harness, given only the repository, opens its entry file, finds a playbook by the table and runs doctor'
+      [/rdy]
+    [/section]
+    [section
+      'S04 role tiers'
+      [req
+        'S02'
+      [/req]
+      [tgt
+        'the team, the speed modes and the role agents name tiers, lead, builder and drafter, instead of model names; targets.json maps each tier to a model per target'
+      [/tgt]
+      [ins
+        'replace model names in library/team/SPEED_MODES.md, skills/team/SKILL.md and library/agents; install-agents.py reads the claude-code mapping'
+      [/ins]
+      [rdy
+        'the claude-code mapping reproduces today’s models exactly; speed.py and gov.py self-tests pass'
+      [/rdy]
+    [/section]
+    [section
+      'S05 commands per target'
+      [req
+        'S03'
+      [/req]
+      [tgt
+        'package.py builds dist/target-id for each target: the command surface in that harness’s own format where it has one, the entry file and the shared library, skills and scripts'
+      [/tgt]
+      [ins
+        'one emitter function per command format in build.py; a target with no command format gets the table and the read-as-files route only'
+      [/ins]
+      [rdy
+        'each release in dist runs doctor on its own paths, with no dependency on the repository'
+      [/rdy]
+    [/section]
+    [section
+      'S06 guards beyond the hooks'
+      [req
+        'S01'
+        'the git-native push check from plumbing is on main'
+      [/req]
+      [tgt
+        'library/hooks.md holds one row per guard and target: enforced by a harness hook, by a git hook, by doctor in CI, or asked only'
+      [/tgt]
+      [ins
+        'hook_wire.py reads the event of each harness that has hooks through one adapter per target; what git can refuse moves to git hooks installed by one script'
+      [/ins]
+      [mand
+        'a target never claims a guard it does not enforce'
+      [/mand]
+      [rdy
+        'each guard’s self-test passes on the sample event of every target that claims it'
+      [/rdy]
+    [/section]
+    [section
+      'S07 doubts and headless without the pop-up'
+      [req
+        'S03'
+      [/req]
+      [tgt
+        'conventions section 3 and library/automation.md state how a decision reaches the Regent where no question tool exists, and which headless routes each target runs or refuses, with the reason'
+      [/tgt]
+      [ins
+        'a blocker ends the reply with one Decision block, two options and a free line; the Judge records a grant only from the Regent’s own grant line on such a harness'
+      [/ins]
+      [rdy
+        'headless.py --check resolves every route for every target or names its refusal'
+      [/rdy]
+    [/section]
+    [section
+      'S08 proof on a real pass'
+      [req
+        'S03'
+        'S04'
+        'S05'
+        'S06'
+        'S07'
+      [/req]
+      [tgt
+        'one unit of a test project taken through a team pass, or through proceed where the pass is unsupported, on one harness that is not Claude Code, reading generated files only'
+      [/tgt]
+      [ins
+        'measure time, the guards that fired and the rules the model missed; add health check targets with one line per target; generate the README support matrix from targets.json'
+      [/ins]
+      [rdy
+        'the review packet of that pass reaches the Regent with its measurements'
+      [/rdy]
+    [/section]
+  [/section]
+  [section
+    'branches'
+    [ref
+      'CLAUDE.md, which already states that the playbooks work the same when read as files'
+    [/ref]
+    [ref
+      'library/registry.json and scripts/build.py, the generator that already emits aliases, tables and README blocks'
+    [/ref]
+    [ref
+      'scripts/package.py, the allowlist build of the installable archive'
+    [/ref]
+    [ref
+      'scripts/hook_wire.py, the one wire contract every hook shares'
+    [/ref]
+    [ref
+      'plumbing commit 85b7e54, the push check as a hook in git’s own configuration'
+    [/ref]
+    [ref
+      'library/headless.json and library/automode.json, the two Claude-only profiles'
+    [/ref]
+    [ref
+      '.changelog/ROADMAP.md, N19 and the method chain'
+    [/ref]
+  [/section]
+  [section
+    'doubts'
+    [ask
+      [hmn[/hmn]
+      'which harnesses come first, and in which order'
+    [/ask]
+    [ask
+      [hmn[/hmn]
+      'are AGENTS.md and the other entry files committed beside CLAUDE.md, or emitted to dist only'
+    [/ask]
+    [ask
+      [hmn[/hmn]
+      'does this Order wait for plumbing’s 3.4 to reach main, since S06 leans on it'
+    [/ask]
+    [ask
+      [hmn[/hmn]
+      'which version carries it: a content change, or a major rule invented'
+    [/ask]
+    [ask
+      [hmn[/hmn]
+      'are lead, builder and drafter the tier names'
+    [/ask]
+  [/section]
+  [add
+    'regency’s rules survive outside Claude Code when they live in scripts and git rather than in the harness; one pass on a hookless harness that breaks a guard unseen knocks this down'
+    [core[/core]
+  [/add]
+  [nev
+    [cmp
+      [true[/true]
+    [/cmp]
+  [/nev]
+  [section
+    'fruit'
+    [tgt
+      'two targets or more build from one source with build.py --check up to date and doctor 0 fail'
+    [/tgt]
+    [tgt
+      'a harness that is not Claude Code finishes a pass on a test project from generated files only'
+    [/tgt]
+    [tgt
+      'health reports each target’s coverage and the README shows the generated support matrix'
+    [/tgt]
+    [cmp
+      'no playbook, script or norm exists in two hand-kept copies, on any branch'
+      [true[/true]
+    [/cmp]
+  [/section]
+  [fin
+    'the work ends at the Regent’s review packet; opening, closing and versioning this Order are the Regent’s acts'
+  [/fin]
+[/block]

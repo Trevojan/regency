@@ -1,0 +1,267 @@
+<glyph-package engine="4.7.10.08">
+  <schema/>
+  <block once="true">
+    <mood dominant="calm"/>
+    <block name="regency on other harnesses">
+      <context>
+        <user-input>regency runs on Claude Code only; the Regent wants other models and their harnesses to work under the same rules</user-input>
+        <user-input>the regency repository, main at 3.3</user-input>
+        <user-input>2026-11-11</user-input>
+      </context>
+      <intention>
+        <invoke reads="[DFN[TGT[RSN]]]" species="composite" depth="1"/>
+        <user-input>one source of regency, one generated target per harness, so a rule is written once and every harness reads the same rule</user-input>
+      </intention>
+      <problem>
+        <invoke reads="[ERROR[CTX]]" species="composite" depth="1"/>
+        <user-input>the doctrine, the playbooks and the scripts are portable, and the surface around them is Claude Code's: the plugin manifest, skill frontmatter, command aliases, the hooks wire, the question pop-up, role subagents with model names, the auto-mode profile, the headless runner and CLAUDE.md</user-input>
+      </problem>
+      <alternative>
+        <invoke reads="[NEQ[CORE]],[EQ[TGT]]" species="composite" depth="1"/>
+        <user-input>one branch per harness</user-input>
+        <deny>
+          <user-input>parallel copies drift and every fix is picked once per branch; plumbing, testing and main already mean maturity</user-input>
+        </deny>
+      </alternative>
+      <section name="locks" binds="locks">
+        <never force="editorial">
+          <user-input>a branch per harness, or a second hand-kept copy of any playbook, script or norm</user-input>
+        </never>
+        <constraint>
+          <user-input>every target file is generated from library/registry.json and library/targets.json by scripts/build.py and is never edited by hand</user-input>
+        </constraint>
+        <constraint>
+          <user-input>the Claude Code target stays byte-identical at every commit: build.py --check up to date and doctor 0 fail</user-input>
+        </constraint>
+        <constraint>
+          <user-input>regency code stays Python, standard library only; nothing is vendored</user-input>
+        </constraint>
+        <constraint>
+          <user-input>a format enters only with a consumer that parses it and a self-test that plants a defect per rule</user-input>
+        </constraint>
+        <mandatory>
+          <user-input>each fact about another harness is read from that harness's current documentation and cited with its date in library/targets.md; none comes from a model's memory</user-input>
+        </mandatory>
+        <never force="editorial">
+          <user-input>a credential of any harness is read, stored or guarded; logins are the Regent's</user-input>
+        </never>
+        <mandatory>
+          <user-input>small split commits on plumbing, then testing, then main; the Regent pushes main</user-input>
+        </mandatory>
+      </section>
+      <section name="limits" binds="limits">
+        <limitation>
+          <user-input>a harness without tool-call hooks cannot be guarded at the moment of the call; there a guard is a git hook, a CI check or only a written rule, and the target says which</user-input>
+        </limitation>
+        <limitation>
+          <user-input>how well a smaller model follows a long playbook is outside regency's reach; the answer is to move rules from prose into scripts, never to fork the playbook</user-input>
+        </limitation>
+        <limitation>
+          <user-input>adopting Claude Code plugins as packs stays a Claude Code feature in this Order</user-input>
+        </limitation>
+        <limitation>
+          <user-input>a harness without subagents runs the roles one after another in fresh contexts, or declares the team pass unsupported</user-input>
+        </limitation>
+      </section>
+      <section name="trunk" binds="trunk">
+        <section name="S01 measure the surface">
+          <target>
+            <user-input>library/targets.md: one row per harness-specific surface of regency, classed portable, generated, adapter or unsupported</user-input>
+          </target>
+          <instruction>
+            <user-input>list every file and script that names Claude Code, a Claude model, a Claude Code tool or a path under the user's .claude folder; read the current documentation of each candidate harness for its entry file, command format, hook events, subagents, question tool and headless mode</user-input>
+          </instruction>
+          <mandatory>
+            <user-input>a capability matrix, harness by surface, each cell with its source and date</user-input>
+          </mandatory>
+          <ready>
+            <user-input>every hit of a search for claude, CLAUDE_PLUGIN_ROOT, AskUserQuestion, Opus, Sonnet and Haiku across skills, library, scripts and hooks is in the table or marked portable</user-input>
+          </ready>
+        </section>
+        <section name="S02 the targets table">
+          <requirement>
+            <user-input>S01 accepted by the Regent</user-input>
+          </requirement>
+          <target>
+            <user-input>library/targets.json as the single source of every target: id, entry file, command format, hook support, role tiers, status; claude-code is the first row and describes what exists today</user-input>
+          </target>
+          <instruction>
+            <user-input>build.py loads the table and refuses an unknown key; conventions_check.py validates it; doctor runs both</user-input>
+          </instruction>
+          <ready>
+            <user-input>build.py --check is up to date with the table present and the generated Claude Code files unchanged</user-input>
+          </ready>
+        </section>
+        <section name="S03 entry files">
+          <requirement>
+            <user-input>S02</user-input>
+          </requirement>
+          <target>
+            <user-input>AGENTS.md, and one entry file per target that needs its own name, generated from the same source text as CLAUDE.md: start here, the command table with playbook paths, the map, the rules</user-input>
+          </target>
+          <instruction>
+            <user-input>move the hand-written parts of CLAUDE.md into one source that build.py renders per target; each entry file names its harness only where the harness differs</user-input>
+          </instruction>
+          <ready>
+            <user-input>a fresh session of a second harness, given only the repository, opens its entry file, finds a playbook by the table and runs doctor</user-input>
+          </ready>
+        </section>
+        <section name="S04 role tiers">
+          <requirement>
+            <user-input>S02</user-input>
+          </requirement>
+          <target>
+            <user-input>the team, the speed modes and the role agents name tiers, lead, builder and drafter, instead of model names; targets.json maps each tier to a model per target</user-input>
+          </target>
+          <instruction>
+            <user-input>replace model names in library/team/SPEED_MODES.md, skills/team/SKILL.md and library/agents; install-agents.py reads the claude-code mapping</user-input>
+          </instruction>
+          <ready>
+            <user-input>the claude-code mapping reproduces today's models exactly; speed.py and gov.py self-tests pass</user-input>
+          </ready>
+        </section>
+        <section name="S05 commands per target">
+          <requirement>
+            <user-input>S03</user-input>
+          </requirement>
+          <target>
+            <user-input>package.py builds dist/target-id for each target: the command surface in that harness's own format where it has one, the entry file and the shared library, skills and scripts</user-input>
+          </target>
+          <instruction>
+            <user-input>one emitter function per command format in build.py; a target with no command format gets the table and the read-as-files route only</user-input>
+          </instruction>
+          <ready>
+            <user-input>each release in dist runs doctor on its own paths, with no dependency on the repository</user-input>
+          </ready>
+        </section>
+        <section name="S06 guards beyond the hooks">
+          <requirement>
+            <user-input>S01</user-input>
+            <user-input>the git-native push check from plumbing is on main</user-input>
+          </requirement>
+          <target>
+            <user-input>library/hooks.md holds one row per guard and target: enforced by a harness hook, by a git hook, by doctor in CI, or asked only</user-input>
+          </target>
+          <instruction>
+            <user-input>hook_wire.py reads the event of each harness that has hooks through one adapter per target; what git can refuse moves to git hooks installed by one script</user-input>
+          </instruction>
+          <mandatory>
+            <user-input>a target never claims a guard it does not enforce</user-input>
+          </mandatory>
+          <ready>
+            <user-input>each guard's self-test passes on the sample event of every target that claims it</user-input>
+          </ready>
+        </section>
+        <section name="S07 doubts and headless without the pop-up">
+          <requirement>
+            <user-input>S03</user-input>
+          </requirement>
+          <target>
+            <user-input>conventions section 3 and library/automation.md state how a decision reaches the Regent where no question tool exists, and which headless routes each target runs or refuses, with the reason</user-input>
+          </target>
+          <instruction>
+            <user-input>a blocker ends the reply with one Decision block, two options and a free line; the Judge records a grant only from the Regent's own grant line on such a harness</user-input>
+          </instruction>
+          <ready>
+            <user-input>headless.py --check resolves every route for every target or names its refusal</user-input>
+          </ready>
+        </section>
+        <section name="S08 proof on a real pass">
+          <requirement>
+            <user-input>S03</user-input>
+            <user-input>S04</user-input>
+            <user-input>S05</user-input>
+            <user-input>S06</user-input>
+            <user-input>S07</user-input>
+          </requirement>
+          <target>
+            <user-input>one unit of a test project taken through a team pass, or through proceed where the pass is unsupported, on one harness that is not Claude Code, reading generated files only</user-input>
+          </target>
+          <instruction>
+            <user-input>measure time, the guards that fired and the rules the model missed; add health check targets with one line per target; generate the README support matrix from targets.json</user-input>
+          </instruction>
+          <ready>
+            <user-input>the review packet of that pass reaches the Regent with its measurements</user-input>
+          </ready>
+        </section>
+      </section>
+      <section name="branches" binds="branches">
+        <reference>
+          <user-input>CLAUDE.md, which already states that the playbooks work the same when read as files</user-input>
+        </reference>
+        <reference>
+          <user-input>library/registry.json and scripts/build.py, the generator that already emits aliases, tables and README blocks</user-input>
+        </reference>
+        <reference>
+          <user-input>scripts/package.py, the allowlist build of the installable archive</user-input>
+        </reference>
+        <reference>
+          <user-input>scripts/hook_wire.py, the one wire contract every hook shares</user-input>
+        </reference>
+        <reference>
+          <user-input>plumbing commit 85b7e54, the push check as a hook in git's own configuration</user-input>
+        </reference>
+        <reference>
+          <user-input>library/headless.json and library/automode.json, the two Claude-only profiles</user-input>
+        </reference>
+        <reference>
+          <user-input>.changelog/ROADMAP.md, N19 and the method chain</user-input>
+        </reference>
+      </section>
+      <section name="doubts" binds="doubts">
+        <ask>
+          <chain>
+            <human/>
+          </chain>
+          <user-input>which harnesses come first, and in which order</user-input>
+        </ask>
+        <ask>
+          <chain>
+            <human/>
+          </chain>
+          <user-input>are AGENTS.md and the other entry files committed beside CLAUDE.md, or emitted to dist only</user-input>
+        </ask>
+        <ask>
+          <chain>
+            <human/>
+          </chain>
+          <user-input>does this Order wait for plumbing's 3.4 to reach main, since S06 leans on it</user-input>
+        </ask>
+        <ask>
+          <chain>
+            <human/>
+          </chain>
+          <user-input>which version carries it: a content change, or a major rule invented</user-input>
+        </ask>
+        <ask>
+          <chain>
+            <human/>
+          </chain>
+          <user-input>are lead, builder and drafter the tier names</user-input>
+        </ask>
+      </section>
+      <assumption>
+        <invoke reads="[ADD[CORE]],[NEV[VRFY]]" species="composite" depth="2"/>
+        <user-input>regency's rules survive outside Claude Code when they live in scripts and git rather than in the harness; one pass on a hookless harness that breaks a guard unseen knocks this down</user-input>
+      </assumption>
+      <section name="fruit" binds="fruit">
+        <target>
+          <user-input>two targets or more build from one source with build.py --check up to date and doctor 0 fail</user-input>
+        </target>
+        <target>
+          <user-input>a harness that is not Claude Code finishes a pass on a test project from generated files only</user-input>
+        </target>
+        <target>
+          <user-input>health reports each target's coverage and the README shows the generated support matrix</user-input>
+        </target>
+        <verify>
+          <invoke reads="[CMP-TRUE[[CORE],[TGT]]]" species="composite" depth="1"/>
+          <user-input>no playbook, script or norm exists in two hand-kept copies, on any branch</user-input>
+        </verify>
+      </section>
+      <finally>
+        <user-input>the work ends at the Regent's review packet; opening, closing and versioning this Order are the Regent's acts</user-input>
+      </finally>
+    </block>
+  </block>
+</glyph-package>

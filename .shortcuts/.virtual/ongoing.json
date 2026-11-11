@@ -16,6 +16,7 @@
     {"id": "issues-command", "title": "/regency:issues: the nine verbs, scripts/issues.py, the verdict record", "state": "review", "who": "DV", "since": "2026-11-11",
      "where": ["branch:claude/focused-wozniak-xad1vm", "scripts/issues.py", "skills/issues/SKILL.md", "library/issues.md"], "next": "the Regent reviews it and settles N19 (issues --selftest 23/23)", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
 
+    {"id": "other-harnesses", "title": "regency on other harnesses: one source, one generated target per harness (ORD-0001, eight steps S01-S08)", "state": "backlog", "who": "RGN", "source": ".guidelines/.orders/EMS-001/ORD-0001/ORD-0001.xml"},
     {"id": "release", "title": "publish the release main holds (v3.3) with the .plugin attached; test the pinned install", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "doctor-required", "title": "doctor as a required check on main", "state": "backlog", "who": "RGN", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
     {"id": "install", "title": "keep one install of 3.3 (machine and account)", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
