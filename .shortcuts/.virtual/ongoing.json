@@ -1,7 +1,7 @@
 {
   "_about": "regency's own work: the first peek on returning to this folder (python scripts/vp.py ongoing). It points, never copies: the detail is in .changelog/. The hooks and /regency:health read a project's .guidelines/ only, so this ledger is read by vp.py alone.",
   "schema": 1,
-  "updated": "2026-11-06",
+  "updated": "2026-11-11",
   "items": [
     {"id": "vp-seed", "title": "vp.py takes the scaffold seed in library/templates for the ledger", "state": "review", "who": "DV", "since": "2026-11-03",
      "where": ["branch:plumbing", "scripts/vp.py"], "next": "the Regent reviews 3.3 on main (vp.py --selftest 13/13)", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},
@@ -13,6 +13,8 @@
      "where": ["branch:plumbing", "scripts/migrate.py"], "next": "the Regent reviews 3.3 on main (migrate --selftest 44/44)", "source": ".changelog/HISTORY.md#33"},
     {"id": "authoring", "title": "commits: the Regent as author, Claude [Model] as co-author", "state": "review", "who": "DV", "since": "2026-11-06",
      "where": ["library/conventions.md", "skills/arrange-cycle-commit/SKILL.md", "CONTRIBUTING.md"], "next": "the Regent reviews 3.3 on main; other sessions read the rule after the next install", "source": ".changelog/HISTORY.md#33"},
+    {"id": "issues-command", "title": "/regency:issues: the nine verbs, scripts/issues.py, the verdict record", "state": "review", "who": "DV", "since": "2026-11-11",
+     "where": ["branch:claude/focused-wozniak-xad1vm", "scripts/issues.py", "skills/issues/SKILL.md", "library/issues.md"], "next": "the Regent reviews it and settles N19 (issues --selftest 23/23)", "source": ".changelog/ROADMAP.md#open-doubts-the-regent-decides"},
 
     {"id": "release", "title": "publish the release main holds (v3.3) with the .plugin attached; test the pinned install", "state": "backlog", "who": "RGN", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "doctor-required", "title": "doctor as a required check on main", "state": "backlog", "who": "RGN", "source": ".changelog/ROADMAP.md#candidates-seen-while-building"},

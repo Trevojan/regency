@@ -108,6 +108,7 @@ Decisions taken while writing the Manual, waiting to be applied (dated; the sour
 | N4 | the record's machine-side pending block | drop it, or keep it until each line is confirmed |
 | N10 | seventeen silent exception handlers in the scripts | declare the meant ones (`health: allow-silent`), or make each report what it skipped |
 | N11 | installs on this machine (2026-11-06): one live, `regency~g3` 3.1, behind this folder's 3.3; `regency` 3.0 and `regency~g2` 3.1 sit in `~/.claude/plugins/.trash` | keep one, or keep a second on purpose |
+| N19 | `/regency:issues` (2026-11-11), built from the Regent's nine verbs while the Regent was away: what `flatten` means; where `measure` lives; which version carries it | `flatten` is a note line plus the folded description, as #6 and #8 were closed, or another meaning; `measure` is a mode of `/regency:measure-changes`, or its own; 3.4 with `plumbing`'s work, or 3.5 |
 | N14 | projects already carrying the old step letter in ledgers, Orders and trailers | a migration step rewrites regency-owned shapes, or history stays and new ids use `S##` |
 
 Closed with 3.1: N13 (the folder moved to `plumbing`; its 2.4 draft, all of it already in 3.0, dropped 2026-11-02) and
