@@ -32,7 +32,8 @@ Checks
      state block, R7 on idx's store), vp.py (the ledger and its drafts) and speed.py
      (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) and judge.py
-     (grants: parse, scopes, cover, STALE, ratify, revoke) each pass their own
+     (grants: parse, scopes, cover, STALE, ratify, revoke) and issues.py (verdicts, the check's six levels, tracker
+     writes as plans) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
  18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
@@ -378,7 +379,7 @@ def check_ux():
 
 def check_engines():
     for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py",
-                 "judge.py"):
+                 "judge.py", "issues.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
