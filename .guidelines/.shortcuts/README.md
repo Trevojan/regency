@@ -26,7 +26,7 @@
 | blocked | infrastructure ← RGN: still for hook-hazard.py after 3.1, or for the Judge |
 | blocked | N1 ← RGN |
 | blocked | N2 ← RGN |
-| last checkpoint | 2026-11-11T14:05:48+00:00 Bash rmdir .shortcuts/.virtual .shortcuts 2>&1; sed -n 124,130p .guidelines/.changelog/ROADMAP.md; python3 - <<'E' |
+| last checkpoint | 2026-11-11T14:12:00+00:00 SessionEnd other |
 | STALE | 0 |
 | latest Order | — |
 <!-- /shortcuts:state -->
