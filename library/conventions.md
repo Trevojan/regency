@@ -93,6 +93,14 @@ from its brief; a UI rule changes there first, then in code.
     as done. A *pass* is an entire run of the agents after they receive the Regent's input.
   - `main` — the docs and the latest merge from `testing`: where the Regent judges whether the work is
     done or needs better guidance. The Regent pushes it (below).
+- **Beside the contract, never in it** (the Regent, 2026-11-16). Two lanes hold no code and merge into
+  nothing, so `/regency:arrange-cycle-commit` never touches them (`library/analytics.md`):
+  - `analytics` — an orphan, report-only branch: one folder per analysis pass (`AN-##`), read against two
+    pinned commits (the spec on `main`, the code on `plumbing` or `testing`), so the coding agent starts
+    from findings instead of rebuilding them. Written by `/regency:repository-analytics-baseline` and
+    `/regency:repository-analytics-delta`; emptied of residue by `/regency:repository-analytics-triage`.
+  - `alpha-###` — an annotated tag on one pinned commit, carrying the manifest of a bounded release the
+    Regent tests (`/regency:alpha-simple-release`). A tag, not a branch: a capsule never moves.
 - **The Regent pushes `main`.** An agent pushes `main`/`master` only under a `push` grant of the Regent's (§5,
   `library/judge.md`), and force-pushes or rewrites published history only on the Regent's own line or a `history` grant
   (§5); two hooks (`scripts/guard-push.py`, `scripts/hook-refs.py`) enforce the first. `/regency:arrange-cycle-commit`

@@ -31,6 +31,8 @@ None found → the project has no guidelines. Say so, continue with the library 
 | Frontend documentation | `.ux/` (index `.ux/README.md`, brief `.ux/BRIEF.md`; scaffolded by `/regency:ux-init`) | — |
 | Domain packs of this project, and which packs are active here | `.packs/<id>/` and `.packs/active.json` (`/regency:pack`, `library/packs.md`) | — |
 | Attic (superseded docs) | `.history/` | — |
+| Analysis passes — residue until triaged, never a norm (`library/analytics.md`) | `.analytics/AN-##/` on the orphan `analytics` branch only; never on `main`, `plumbing` or `testing` | the same path under `Docs/.guidelines/` |
+| Alpha simple releases (exported source and build, gitignored by itself) | `<repo>/.alpha/alpha-###/` | the same |
 | Code ↔ norm lineage | `.shortcuts/.virtual/manifesto.json` (or `manifest.json`) | — |
 | Work ledger (ongoing vs backlog) — the first peek on returning | `.shortcuts/.virtual/ongoing.json` | — |
 | The one store (the exact index and every file's fingerprint; a gitignored cache — `library/shortcuts.md` §3) | `.shortcuts/.virtual/index.sqlite` | — |
