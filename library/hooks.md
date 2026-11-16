@@ -40,6 +40,7 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
 | `SessionEnd` | — | `hook-shortcuts.py` | recorder | none: rewrites the generated state block of `.shortcuts/README.md` when the state moved (R7.3) |
+| `PostToolUse` | `Read` | `hook-reads.py` | recorder (async) | none: one row per file read into the one store, for the reconstruction measure (`library/shortcuts.md` §8) |
 | `SessionStart`, `UserPromptSubmit`, `PreToolUse` (`*`), `PostToolUse` (`*`), `PreCompact`, `SessionEnd` | as wired | `hook-packs.py` | dispatcher | the merged answer of the hooks of the packs active in this project and ratified by the Regent; none when no pack is active (`library/packs.md` §6) |
 
 ## 2. Guards
@@ -235,6 +236,13 @@ At `SessionEnd`, `shortcuts.refresh()`: the block between the `shortcuts:state` 
 write. No scan, so it fits the shared 1.5 s `SessionEnd` budget. The engine is `scripts/shortcuts.py`
 (`library/shortcuts.md`).
 
+### Reads — `hook-reads.py`
+
+At `PostToolUse` of the Read tool, in an adopted project, one row in the `reads` table of the one store: session,
+agent, path, the file's sha256, the lines the call returned and their bytes — no text. `scripts/reconstruction.py`
+reads the table back as the context-reconstruction ratio (`/regency:measure-context-reconstruction`). Async, so a
+read never waits on it; the table keeps the latest 50 000 rows.
+
 ### Heartbeats — every hook
 
 `hook_wire.serve` leaves one small file per (script, event) under the plugin's state folder
@@ -249,6 +257,7 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 |---|---|---|---|
 | `<virtual>/index.sqlite` — nodes | lineage (one file per write, once built), `idx.py build`, `shortcuts.py index` | `idx.py`, lineage, resume, `shortcuts.py drift` | project — a cache, gitignored by `<virtual>/.gitignore` |
 | `<virtual>/index.sqlite` — prints | lineage, `shortcuts.py` (`record`, `index`, `refresh`) | `shortcuts.py drift`, `check`, `peek`; resume | the same file (R12: one store) |
+| `<virtual>/index.sqlite` — reads | reads (one row per Read) | `reconstruction.py` | the same file (R12: one store) |
 | `.shortcuts/README.md` state block | shortcuts (`SessionEnd`, handoff) | every returning agent | project |
 | `<virtual>/checkpoints.jsonl` | journal | resume, handoff | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |

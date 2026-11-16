@@ -30,6 +30,9 @@ The whole cycle the harness aims to run, step by step, each pausing where the Re
 | 13 | Specialise the harness for a domain: adopt any plugin or skill, per project | `/regency:pack`, `library/packs.md` (3.0) | built |
 | 14 | Standing permissions: where and how an act may run without asking, granted only by the Regent | `/regency:judge`, `library/judge.md` (3.1) | built |
 | 15 | The Judge leads a session for an autonomous developer (RGN-DV), inside a charter the Regent ratified | the RGN-DV charter | open |
+| 16 | Analyse the repository once, outside the coding session: findings kept on a lane, re-read only where the code or the spec moved, triaged by the Regent | `/regency:repository-analytics-baseline`, `-delta`, `-triage`, `library/analytics.md` | built, unversioned |
+| 17 | A bounded release the Regent tests, pinned to a tag with its manifest | `/regency:alpha-simple-release` | built, unversioned |
+| 18 | Know where to look before searching; measure what sessions rebuild | `/regency:locate-with-fts5`, `/regency:measure-context-reconstruction` | built, unversioned |
 
 The MIN that runs today: steps 1–3, 6–9, 13 and 14, plus the engines, roles, Orders, the Scribe, `ux-init`,
 `tailwind-audit` and `station`.
@@ -116,6 +119,11 @@ N16 (`main` took `testing`). Closed with 2.13: N12 (the old branches merged into
 the Regent's merge of `testing` into `main` (done 2026-10-29).
 
 ## Candidates seen while building
+
+- Measure before the next layer (the 2026-11-16 discussion of a compiled resume context): run
+  `/regency:measure-context-reconstruction` over real sessions first; a resume capsule or cached search recipes on
+  `locate.py` are built only for the files and queries the measure shows being rebuilt.
+- The resume line could name the analytics lane's live count (`analytics.py status`) once a project uses the lane.
 
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.

@@ -46,6 +46,8 @@ the old author.
 3. Keep one install of 3.3 on this machine and the account (N11).
 4. First live grant: confirm where the pop-up's answers arrive (`library/judge.md` §7).
 5. The RGN-DV charter (`ROADMAP.md`, the Judge's next limits).
+6. The Regent sets the version of the analytics lane and its search and measure (six commands, `ROADMAP.md` steps
+   16–18, built on `claude/brave-bohr-bvi8np` on 2026-11-16): `+b` or `+a` (conventions §13).
 
 ## How to resume here
 
