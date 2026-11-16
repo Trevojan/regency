@@ -56,10 +56,40 @@
       "args": "[scope]"
     },
     {
+      "id": "repository-analytics-baseline",
+      "skill": "repository-analytics-baseline",
+      "summary": "One full analysis pass on the orphan analytics branch: an isolated agent wearing suba-recon compares the spec on main with the code on testing or plumbing at two pinned commits and returns gaps, diagnostics, findings and suggestions, recorded as AN-## without touching the working tree.",
+      "args": "[scope paths] [spec=<ref>] [code=<ref>]"
+    },
+    {
+      "id": "repository-analytics-delta",
+      "skill": "repository-analytics-delta",
+      "summary": "Re-read only what moved since the previous analysis pass: the changed code and guideline files and the live findings they touch; nothing changed means no pass. Takes the Regent's alpha notes as material.",
+      "args": "[scope paths] [spec=<ref>] [code=<ref>] [notes]"
+    },
+    {
+      "id": "repository-analytics-triage",
+      "skill": "repository-analytics-triage",
+      "summary": "The Regent disposes the analytics lane's live findings in pop-ups: promote into its axis on the working branch, recycle for the next delta, or trash with its reason; every disposition recorded on the lane.",
+      "args": "[finding ids or pass id]"
+    },
+    {
+      "id": "alpha-simple-release",
+      "skill": "alpha-simple-release",
+      "summary": "Cut a bounded release for the Regent to test: an annotated tag alpha-### on one pinned commit carrying its manifest (scope, build, check steps, limits, open findings), the source exported and built under .alpha/; the tag is pushed only on the Regent's yes.",
+      "args": "[ref] [what the Regent wants to test]"
+    },
+    {
       "id": "measure-changes",
       "skill": "measure-changes",
       "summary": "Read-only: say what would change (or what the working tree already changed) with numbers and impact. Applies nothing.",
       "args": "<intended change | 'tree'>"
+    },
+    {
+      "id": "measure-context-reconstruction",
+      "skill": "measure-context-reconstruction",
+      "summary": "Measure the context each session rebuilds, read-only: the bytes an earlier session already read unchanged, the in-session repeats, and the files most re-read unchanged, from the reads hook-reads.py journals, with the method.",
+      "args": "[sessions=<n>] [top=<n>]"
     },
     {
       "id": "engine",
@@ -259,6 +289,12 @@
           "args": ""
         }
       ]
+    },
+    {
+      "id": "locate-with-fts5",
+      "skill": "locate-with-fts5",
+      "summary": "Find where a word, identifier or phrase lives before grepping: a contentless SQLite FTS5 index over the project's structural nodes returns locations (path, line, node, section chain), never text, and falls back to rg; mostly called by the harness.",
+      "args": "<terms> [--path PREFIX] [--any]"
     },
     {
       "id": "tailwind-audit",
