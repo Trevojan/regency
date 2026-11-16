@@ -161,9 +161,9 @@ the ledger's `where` evidence, every `STALE` slice and the latest Order to exact
 line and byte range, hash — so a resumed session reads the bytes it needs instead of re-inferring
 the prose.
 
-Still direction: per-language syntax trees (the block rule is deliberately one rule), order labels
-that survive an edit without renumbering the file, and a full-text FM-index; the trigram sketch
-covers recovery today.
+Still direction: per-language syntax trees (the block rule is deliberately one rule) and order labels
+that survive an edit without renumbering the file. Full-text lookup over the same nodes is
+`scripts/locate.py` (`library/shortcuts.md` §7); the trigram sketch covers recovery.
 
 ## 7. Ancestry worth remembering
 

@@ -36,12 +36,15 @@ and exact, written for the harness, not for reading.
 |---|---|---|---|
 | `prints` | `shortcuts.py` (`record`, `index`, `refresh`), `hook-lineage.py` | one fingerprinted file | `path` (repo-relative), `sha256`, `bytes`, `mtime_ns`, `prev_sha256` (what the last change replaced), `at`, `session`, `source` (`hook`, `lineage`, `scan`, `refresh`, `manual`, `import`) |
 | `nodes`, `files`, `cites`, `tombs`, `moves`, `shortcuts` | `idx.py` | one structural node, file, citation, tombstone, move, raw shortcut | `virtualpath.md` §6 |
+| `search` (FTS5, contentless), `search_rows`, `search_files` | `locate.py` | one node's own lines in the inverted index; its location; one indexed file's size, mtime and hash | §7 |
+| `reads` | `hook-reads.py` | one Read of a file: session, agent, path, sha256, lines, bytes | §8 |
 | `meta` | both | one fact about the store | `schema`, `built` (set by `idx.py build`), `prints_migrated_from`, `prints_migrated_at`, `prints_migrate_error` |
 
 Rules:
 
-- **One store, two writers, no overlap.** `idx.py build` clears its own tables and keeps `prints`;
-  `shortcuts.py` writes only `prints` and reads the nodes.
+- **One store, one writer per table.** `idx.py build` clears its own tables and keeps every other;
+  `shortcuts.py` writes only `prints` and reads the nodes; `locate.py` writes only the `search` tables;
+  `hook-reads.py` writes only `reads`.
 - **A store that holds only prints is not an index.** Until `idx.py build` (or the first `shortcuts.py
   index`) sets `meta.built`, the write hook keeps the conservative file-level rule (`virtualpath.md` §2)
   and never grows a partial index.
@@ -113,6 +116,7 @@ which the state moved; that is accepted (R7.3).
 | `PreToolUse` Edit/Write | `hook-acts-guard.py` | `shortcuts.guard_generated()`: deny a hand edit of the state block |
 | `SessionStart` | `hook-resume.py` | `shortcuts.summary_part()`: `shortcuts check N · drift N` in the resume line |
 | `SessionEnd` | `hook-shortcuts.py` | `shortcuts.refresh()`: silent, adoption-gated, never fails; fits the 1.5 s budget (no scan) |
+| `PostToolUse` Read | `hook-reads.py` | one `reads` row (§8); async, adoption-gated |
 
 ## 6. Operating
 
@@ -125,4 +129,31 @@ which the state moved; that is accepted (R7.3).
 | rewrite the state block | `python scripts/shortcuts.py refresh` (`--init` once) |
 | import the old JSON | `python scripts/shortcuts.py migrate` (also automatic on first open) |
 | the prints as JSON | `python scripts/shortcuts.py export` |
-| health | `python scripts/shortcuts.py --selftest` (doctor runs it) |
+| where does this word live? | `python scripts/locate.py query <terms>` (§7) |
+| how much context do sessions rebuild? | `python scripts/reconstruction.py report` (§8) |
+| health | `python scripts/shortcuts.py --selftest`, `locate.py --selftest`, `reconstruction.py --selftest` (doctor runs them) |
+
+## 7. Search — `locate.py`
+
+Where a word lives, before a broad grep (`/regency:locate-with-fts5`, mostly called by the harness). A contentless
+FTS5 table indexes, for every structural node `idx.py`'s parser finds, only the node's **own** lines — those no
+child node holds — so every line is indexed once and a hit names the deepest node holding it. The store keeps the
+inverted index and the node rows, never the text: a hit is a location (path, the first matching line, the node's
+range and id, its section chain), and the text is read from the file.
+
+| Rule | How |
+|---|---|
+| fresh at every query | each candidate file's size and mtime against `search_files`; only the files that moved are re-parsed (the parser's light mode: ids and ranges, no hashes) |
+| scope | the guidelines root, the manifest's targets and the files git tracks; `index --guidelines-only` narrows it |
+| an SQLite without contentless delete | the index is rebuilt whole when a file changed (`meta.search_delete = rebuild`) |
+| no FTS5, or no `.shortcuts/.virtual` | one JSON line with the `rg` command to run instead, exit 3 |
+| lexical, not a regex engine | patterns, multiline matches and exact error strings stay with Grep |
+
+## 8. Reads and the reconstruction measure
+
+`hook-reads.py` adds one row to `reads` per Read of a file in the repository (session, agent, path, sha256, lines
+and bytes returned). `scripts/reconstruction.py report` measures, per session, the bytes read, the bytes
+**carried** — the same path at the same hash already read by an earlier session — and their ratio, the bytes
+**repeated** inside the session, and the files most often re-read unchanged across sessions
+(`/regency:measure-context-reconstruction`). Tokens are bytes / 4, an estimate. Bash reads, Grep and Glob output,
+tool results, the system prompt and the prompt cache are not measured.
