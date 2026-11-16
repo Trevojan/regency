@@ -32,7 +32,9 @@ Checks
      state block, R7 on idx's store), vp.py (the ledger and its drafts) and speed.py
      (fuel, ranges, waves, fuel packets), migrate.py (gate, plan, apply, stamp) and health.py (names, size,
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) and judge.py
-     (grants: parse, scopes, cover, STALE, ratify, revoke) each pass their own
+     (grants: parse, scopes, cover, STALE, ratify, revoke), analytics.py (the lane: plan, record, brief, triage on an
+     orphan branch), alpha.py (tag, export, build), locate.py (the FTS5 index) and reconstruction.py (the reread
+     measure) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
  18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
@@ -82,7 +84,7 @@ REQUIRED_WIRING = (
     ("UserPromptSubmit", "", "hook-verbs.py"),
     ("PreCompact", "", "hook-journal.py"), ("SubagentStop", "", "hook-journal.py"),
     ("SubagentStart", "", "hook-gov.py"), ("PostToolUse", "Agent", "hook-gov.py"), ("PostToolUse", "Task", "hook-gov.py"),
-    ("SessionEnd", "", "hook-shortcuts.py"),
+    ("SessionEnd", "", "hook-shortcuts.py"), ("PostToolUse", "Read", "hook-reads.py"),
     ("PreToolUse", "Read", "hook-packs.py"), ("PostToolUse", "Read", "hook-packs.py"),
     ("SessionStart", "startup", "hook-packs.py"), ("UserPromptSubmit", "", "hook-packs.py"),
     ("PreCompact", "", "hook-packs.py"), ("SessionEnd", "", "hook-packs.py"),
@@ -315,6 +317,7 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-lineage.py": {"hook_event_name": "PostToolUse", "tool_name": "Edit", "tool_input": {"file_path": "nowhere.txt"}},
     "hook-journal.py": {"hook_event_name": "PreCompact", "trigger": "auto"},
     "hook-shortcuts.py": {"hook_event_name": "SessionEnd", "reason": "other"},
+    "hook-reads.py": {"hook_event_name": "PostToolUse", "tool_name": "Read", "tool_input": {"file_path": "a.txt"}},
     "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-refs.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
@@ -382,7 +385,7 @@ def check_ux():
 
 def check_engines():
     for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py",
-                 "judge.py"):
+                 "judge.py", "analytics.py", "alpha.py", "locate.py", "reconstruction.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
