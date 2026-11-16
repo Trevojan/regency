@@ -232,5 +232,181 @@
         }
       }
     }
+  },
+  "returns_direct": {
+    "type": "object",
+    "required": [
+      "packet",
+      "findings",
+      "carried",
+      "not_inspected"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "packet": {
+        "type": "object",
+        "required": [
+          "mode",
+          "spec_sha",
+          "target_sha"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "enum": [
+              "baseline",
+              "delta"
+            ],
+            "description": "the pass mode, copied from the packet"
+          },
+          "spec_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,64}$",
+            "examples": [
+              "3f2a9b1"
+            ],
+            "description": "the spec commit, copied from the packet"
+          },
+          "target_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,64}$",
+            "examples": [
+              "3f2a9b1"
+            ],
+            "description": "the code commit, copied from the packet"
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a scope path, copied from the packet"
+            }
+          }
+        }
+      },
+      "findings": {
+        "type": "array",
+        "maxItems": 40,
+        "items": {
+          "type": "object",
+          "required": [
+            "kind",
+            "title",
+            "observed",
+            "where",
+            "evidence",
+            "destination",
+            "key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "gap",
+                "diagnostic",
+                "finding",
+                "suggestion"
+              ],
+              "description": "which of the four views"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "one line"
+            },
+            "observed": {
+              "type": "string",
+              "minLength": 1,
+              "description": "what is seen at the target commit, nothing inferred"
+            },
+            "inferred": {
+              "type": "string",
+              "minLength": 1,
+              "description": "what is concluded beyond the observation"
+            },
+            "against": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the spec slice it relates to, path#anchor at the spec commit"
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "path or path:line at the target commit"
+              }
+            },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "a command and what it showed"
+              }
+            },
+            "destination": {
+              "enum": [
+                ".plan",
+                ".sources",
+                ".constraints",
+                ".decisions",
+                "ledger",
+                "none"
+              ],
+              "description": "where it lands if the Regent promotes it"
+            },
+            "key": {
+              "$ref": "gov:key"
+            }
+          }
+        }
+      },
+      "carried": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "status",
+            "evidence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "$ref": "ids:analysis-finding"
+            },
+            "status": {
+              "enum": [
+                "still",
+                "cleared"
+              ],
+              "description": "observed again at the target commit, or no longer"
+            },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "a command and what it showed"
+              }
+            }
+          }
+        }
+      },
+      "not_inspected": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "what the pass did not reach"
+        }
+      }
+    }
   }
 }

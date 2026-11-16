@@ -83,8 +83,9 @@ files, PO's subas run no shell.
 - The role's final message carries **one envelope per suba it wore**; the boundary checks and records
   them (§10). The orchestrator never forwards an envelope: a later role's packet is built from
   artefacts (packets.md §2).
-- **Direct mode** is the one exception. A suba the toolkit also exposes as a command — today only
-  suba-scribe, through `/regency:scribe` — returns to whoever called the command with `via: direct`
+- **Direct mode** is the one exception. A suba the toolkit also exposes as a command — today
+  suba-scribe, through `/regency:scribe`, and suba-recon, the analyst of `/regency:repository-analytics-baseline`
+  and `/regency:repository-analytics-delta` — returns to whoever called the command with `via: direct`
   and no `gov` block, carries none of its owner's authority there, and follows its contract's
   `returns_direct`.
 
