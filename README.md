@@ -10,8 +10,8 @@
 <p align="center">
 <!-- regency:badges:begin -->
   <a href="#versioning"><img alt="version: 3.3" src="https://img.shields.io/badge/regency-3.3-00D7FF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="commands: 64" src="https://img.shields.io/badge/commands-64-A66CFF?style=flat-square&labelColor=000000"></a>
-  <a href="#api-surface"><img alt="skills: 19" src="https://img.shields.io/badge/skills-19-8FD3FF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="commands: 70" src="https://img.shields.io/badge/commands-70-A66CFF?style=flat-square&labelColor=000000"></a>
+  <a href="#api-surface"><img alt="skills: 25" src="https://img.shields.io/badge/skills-25-8FD3FF?style=flat-square&labelColor=000000"></a>
 <!-- regency:badges:end -->
   <a href="#requirements"><img alt="Claude Code 2.1.201 or later" src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.201-00D7FF?style=flat-square&labelColor=000000&logo=claude&logoColor=00D7FF"></a>
   <a href="#requirements"><img alt="Python 3.8 or later, standard library only" src="https://img.shields.io/badge/python-3.8%2B%20%C2%B7%20stdlib-0B7A3E?style=flat-square&labelColor=000000&logo=python&logoColor=8FD3FF"></a>
@@ -58,6 +58,14 @@ reads it instead of inferring it.
   and hold file writes after a destructive command. Guards fail closed.
 - **Code-to-norm lineage.** Norm slices govern code paths. Every write re-fingerprints the file in a
   SQLite index and marks the governing slices `STALE` until the Regent checks them.
+- **Analytics lane.** An isolated agent compares the spec on `main` with the code on `testing` or `plumbing`
+  at two pinned commits and leaves gaps, diagnostics, findings and suggestions on an orphan `analytics`
+  branch that merges into nothing. A delta re-reads only what moved; the Regent triages the residue; a
+  coding agent reads the brief of its own files (`library/analytics.md`). `/regency:alpha-simple-release`
+  pins a bounded release to a tag carrying its manifest.
+- **Search and measure.** `/regency:locate-with-fts5` answers where a term lives from a contentless FTS5
+  index (locations, never text); `/regency:measure-context-reconstruction` measures how much each session
+  re-reads unchanged.
 - **Version gate.** Each project carries a stamp. `/regency:update` migrates what regency owns on one
   approval, in a clean git tree, and never touches the project's own text.
 - **Health checkup.** `/regency:health` runs 12 checks with the levels `FAIL`, `WARN`, `STALE`,
@@ -199,7 +207,12 @@ Every command, generated from `library/registry.json`; each name links to its pl
 | [`/regency:team`](skills/team/SKILL.md) | One orchestrated pass over one unit of work. | `declare` `status` `reopen` `extreme-go-horse` `just-in-time` |
 | [`/regency:proceed`](skills/proceed/SKILL.md) | Work the whole queue. | — |
 | [`/regency:arrange-cycle-commit`](skills/arrange-cycle-commit/SKILL.md) | Split the finished work into small, described commits, merge up to main following the project's branch contract, then push every branch except main. | — |
+| [`/regency:repository-analytics-baseline`](skills/repository-analytics-baseline/SKILL.md) | One full analysis pass on the orphan analytics branch. | — |
+| [`/regency:repository-analytics-delta`](skills/repository-analytics-delta/SKILL.md) | Re-read only what moved since the previous analysis pass. | — |
+| [`/regency:repository-analytics-triage`](skills/repository-analytics-triage/SKILL.md) | The Regent disposes the analytics lane's live findings in pop-ups. | — |
+| [`/regency:alpha-simple-release`](skills/alpha-simple-release/SKILL.md) | Cut a bounded release for the Regent to test. | — |
 | [`/regency:measure-changes`](skills/measure-changes/SKILL.md) | Read-only: say what would change. | — |
+| [`/regency:measure-context-reconstruction`](skills/measure-context-reconstruction/SKILL.md) | Measure the context each session rebuilds, read-only. | — |
 | [`/regency:engine`](skills/engine/SKILL.md) | Run one of the five inference engines on a claim, plan, decision, system or repository. | `critical` `causal` `decision` `control` `clean` |
 | [`/regency:role`](skills/role/SKILL.md) | Act as exactly one team role under its own contract. | `po` `dv` `qa` `da` |
 | [`/regency:scribe`](skills/scribe/SKILL.md) | Call suba-scribe to write a text for the caller. | — |
@@ -209,6 +222,7 @@ Every command, generated from `library/registry.json`; each name links to its pl
 | [`/regency:update`](skills/update/SKILL.md) | Bring a project to the installed regency. | `plan` `check` |
 | [`/regency:pack`](skills/pack/SKILL.md) | Domain packs: adopt any Claude Code plugin or skill as it is into regency's packs/ or a project's .packs/, switch one on per project, ratify its hooks, run its playbooks. | `adopt` `run` |
 | [`/regency:virtualpath`](skills/virtualpath/SKILL.md) | Query the code-to-norm lineage registry and the work ledger. | `code` `slice` `stale` `ongoing` `trace` `drafts` |
+| [`/regency:locate-with-fts5`](skills/locate-with-fts5/SKILL.md) | Find where a word, identifier or phrase lives before grepping. | — |
 | [`/regency:tailwind-audit`](skills/tailwind-audit/SKILL.md) | Audit, fix or build a Tailwind frontend against a design-system norm. | — |
 | [`/regency:station`](skills/station/SKILL.md) | Mise-en-place before a pass. | `check` `gate` `scaffold` `line` |
 | [`/regency:health`](skills/health/SKILL.md) | The Regent's checkup, one line per finding with its method. | `project` `harness` `doctor` `shortcuts` `version` `copies` `distributable` `engines` `hooks` `queues` `context` `pipeline` |
