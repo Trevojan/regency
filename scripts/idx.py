@@ -330,8 +330,9 @@ def parse_code(lines):
     return nodes
 
 
-def parse(rel, raw):
-    """(nodes, cites) of one file, with ids, ranges, order and hashes resolved."""
+def parse(rel, raw, light=False):
+    """(nodes, cites) of one file, with ids, ranges, order and hashes resolved. light: ids, ranges and order only -
+    no hashes, no sketch, no cites (scripts/locate.py, which needs where a node is, never whether it changed)."""
     lines, offs = split(raw)
     name = rel.lower()
     flat = len(raw) > MAX_BYTES or Path(name).suffix in FLAT_EXT or name.endswith((".min.js", ".min.css"))
@@ -359,15 +360,20 @@ def parse(rel, raw):
         nd["id"] = hashlib.sha256(f"{rel}\0{chain(k)}\0{seen[slot]}".encode("utf-8")).hexdigest()[:12]
         seen[slot] += 1
         nd["ord"] = rank
-        body = [lines[x] for x in range(nd["l0"], nd["l1"]) if wire.STALE_MARK not in lines[x]]
-        key_text = lines[nd["key_line"]] if nd["key_line"] is not None else None
-        nd["exact"], nd["shape"], nd["body"] = hashes(body, key_text)
-        nd["sketch"] = sketch(body)
+        if light:
+            nd["exact"] = nd["shape"] = nd["body"] = nd["sketch"] = ""
+        else:
+            body = [lines[x] for x in range(nd["l0"], nd["l1"]) if wire.STALE_MARK not in lines[x]]
+            key_text = lines[nd["key_line"]] if nd["key_line"] is not None else None
+            nd["exact"], nd["shape"], nd["body"] = hashes(body, key_text)
+            nd["sketch"] = sketch(body)
         nd["b0"] = offs[nd["l0"]] if nd["l0"] < len(offs) else len(raw)
         nd["b1"] = offs[nd["l1"]] if nd["l1"] < len(offs) else len(raw)
     for nd in nodes:
         nd["parent_id"] = nodes[nd["parent"]]["id"] if nd["parent"] is not None else None
     cites = []
+    if light:
+        return nodes, cites
     pats = cite_patterns()
     by_depth = sorted(nodes, key=lambda nd: -nd["depth"])
     for x, line in enumerate(lines):
