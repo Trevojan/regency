@@ -148,6 +148,94 @@ Optional — drop it when it does not apply: `unit`, `gov.key`, `doubts`, `ledge
 The map and every brief go verbatim between `<<<ARTEFACT <name>` and `ARTEFACT>>>` lines, so QA passes them on
 unreworded.
 
+## Direct mode — the analyst of an analytics pass
+
+Called by `/regency:repository-analytics-baseline` and `/regency:repository-analytics-delta`
+(`library/analytics.md`), dispatched as one isolated agent so the analysis never fills the coding session's
+context. Here recon returns to the command that called it, with none of QA's authority: it sets no severity,
+verifies nothing for acceptance and writes no brief for DV.
+
+**Input.** The packet `python scripts/analytics.py plan` prints: the spec commit (`main`), the code commit
+(`plumbing` or `testing`), the guidelines root, the scope, and for a delta the changed files and the findings to
+re-check. Nothing else is needed; ask for nothing the packet does not carry.
+
+**Read, never write.** Code at the code commit through `git show <target_sha>:<path>`,
+`git grep -n <pattern> <target_sha> -- <paths>` and `git ls-tree -r --name-only <target_sha>`; the spec at the
+spec commit the same way. No checkout, no file written, no commit, no branch: the command records the pass.
+
+**Workflow.**
+
+1. Spec first: the guideline documents at the spec commit, in the packet's scope.
+2. Lineage: `python scripts/vp.py code <file>` names the slices that govern a file; read them before the file.
+3. Code at the code commit, scope by scope. A delta reads only the changed files and the findings to re-check.
+4. One finding per observation, in the Regent's four views: `gap` (the spec asks, the code lacks), `diagnostic`
+   (how a part behaves, with the command that shows it), `finding` (a defect or a constraint the code breaks),
+   `suggestion` (a decision only the Regent can take). `observed` holds what is seen; anything concluded goes to
+   `inferred`, never into `observed`.
+5. Each finding names `where` at the code commit, `against` at the spec commit when a slice applies, the
+   `evidence` (the command and what it showed), the axis it would land in if promoted, and a `key` (ALIGNMENT §4).
+6. A delta answers every finding the packet carries: `still` or `cleared`, with evidence.
+7. Name what was not inspected.
+
+## Return to the caller
+
+One JSON envelope in a `json` code fence, from the template below — generated from
+[`contract.json`](contract.json) by `scripts/build.py`. Checked with
+`python scripts/returns.py check --suba suba-recon --direct -`.
+
+<!-- regency:return:begin direct -->
+```json
+{
+  "envelope": 1,
+  "suba": "suba-recon",
+  "via": "direct",
+  "body": {
+    "packet": {
+      "mode": "<baseline | delta>",
+      "spec_sha": "<the spec commit, copied from the packet, e.g. 3f2a9b1>",
+      "target_sha": "<the code commit, copied from the packet, e.g. 3f2a9b1>",
+      "scope": ["<a scope path, copied from the packet>"]
+    },
+    "findings": [
+      {
+        "kind": "<gap | diagnostic | finding | suggestion>",
+        "title": "<one line>",
+        "observed": "<what is seen at the target commit, nothing inferred>",
+        "inferred": "<what is concluded beyond the observation>",
+        "against": "<the spec slice it relates to, path#anchor at the spec commit>",
+        "where": ["<path or path:line at the target commit>"],
+        "evidence": ["<a command and what it showed>"],
+        "destination": "<.plan | .sources | .constraints | .decisions | ledger | none>",
+        "key": "<key, e.g. contract-nullable>"
+      }
+    ],
+    "carried": [
+      {
+        "id": "<analysis-finding, e.g. AN-03-07>",
+        "status": "<still | cleared>",
+        "evidence": ["<a command and what it showed>"]
+      }
+    ],
+    "not_inspected": ["<what the pass did not reach>"]
+  },
+  "doubts": [
+    {
+      "doubt": "<the doubt, as a closed question>",
+      "key": "<miss-, gap- or gap-skill- plus a topic, e.g. gap-skill-code-comprehension>",
+      "decides": "<who decides: a role, or a person label>"
+    }
+  ],
+  "artefacts": ["<the name of an ARTEFACT block in the same message, e.g. risk-opinion>"],
+  "terminal": {
+    "state": "<SUCCESS | FAILURE | UNRESOLVED | ESCALATED | BLOCKED | CANCELLED | RESOURCE_EXHAUSTED>",
+    "why": "<one line saying why>"
+  }
+}
+```
+
+Optional — drop it when it does not apply: `doubts`, `artefacts`, `body.packet.scope`, `body.findings[].inferred`, `body.findings[].against`.
+<!-- regency:return:end -->
+
 `terminal.state` comes from QA.md §19.11. QA checks it before it enters its packet: `python scripts/returns.py check --suba suba-recon -`.
 
 ## Limits
