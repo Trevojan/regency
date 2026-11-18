@@ -37,7 +37,9 @@ refused its four Major defects; the Regent accepted the lane writes and `locate.
 measure's "carried" as line-level (its fourth defect). The second QA pass met all four; the PO accepted
 `e34f27c` with conditions (`inspection/PO-analytics-lane-02-accept.md`). The Regent, the same day: close only once
 the conditions land and QA sees them; the interleaved-session limit (D17 there) stands as a stated limit; reads
-journalled before line offsets stay out of the measure, counted apart. The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
+journalled before line offsets stay out of the measure, counted apart. QA's third pass met both conditions
+(`inspection/QA-analytics-lane-03.md`) and the unit closed on `plumbing` (`Verified-Draft: analytics-lane`); its
+open defects wait in the ledger (`elicitation-followups`, `docs-lag-D19`). The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
 there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e24` and `1cbdb2f` sit unmerged on
 `origin/ccr-6dc600c5-kfeqpi`.
 
@@ -55,9 +57,9 @@ there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e2
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. DV on `plumbing`: the four Major defects of `inspection/QA-analytics-lane-01.md`, then a fresh QA pass; the guards line's gate
-   (`a2c4e24`, `1cbdb2f`), then QA's third pass against the forms it landed on `b760d8f`; accept or refuse; bump to
-   3.4; merge up to `main`.
+2. DV on `plumbing`: the guards line's gate (`a2c4e24`, `1cbdb2f`), then QA's third pass against the forms it landed on
+   `b760d8f`; accept or refuse. The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
+   line, which comes before it in the same history. Then bump to 3.4; D19 (`docs-lag-D19`); merge up to `main`.
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
    `/regency:latest` moves this machine to the tag; test the pinned install line.
 4. Keep one install on this machine and the account (N11).
