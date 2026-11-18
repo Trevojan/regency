@@ -85,7 +85,9 @@ class of finding that keeps coming back is the signal to transcribe it into a ch
 | `trashed` | the Regent, at triage | discarded with a one-line reason (nothing disappears in silence) |
 | `cleared` | `record` of a delta | the analyst observed it no longer holds at the newer code commit |
 
-Only the Regent triages (`/regency:repository-analytics-triage`, one pop-up per batch). Promoting is not copying:
+Only the Regent triages (`/regency:repository-analytics-triage`): the questions come from
+`analytics.py triage-schema` through the elicitation engine, and `triage --from-elicit` records only the answers
+the Regent confirmed in the pop-up (`library/elicitation.md` §6). Promoting is not copying:
 the agent writes the axis entry the axis's README asks for, cites the finding id, and the commit is ordinary docs
 work for `/regency:arrange-cycle-commit`.
 

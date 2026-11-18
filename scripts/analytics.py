@@ -14,12 +14,15 @@ temporary index, so the working tree, the current branch and every uncommitted f
            suggestions), INDEX.json and the branch README in one commit on `analytics`
   status   passes and live counts                 brief PATH ...   live findings touching those paths
   show ID  one finding whole, with its state      triage ID=STATE[:ARG] ...   the Regent's dispositions
+  triage-schema   the elicitation schema for the live findings (scripts/elicit.py): disposition, then the axis
+           of a promotion or the reason of a trash; `triage --from-elicit EL-####` records only the answers the
+           Regent confirmed in the pop-up
 
 The lane is created only with --create-branch, after the Regent's yes (conventions §5). Nothing here pushes.
 
 Modes:  plan --mode baseline|delta [--spec REF] [--target REF] [--scope PATH ...] · record FILE|- [--create-branch]
-        [--trailer LINE ...] · status · brief PATH ... · show ID · triage ASSIGNMENT ... [--trailer LINE ...]
-        · --selftest                                                    (each mode takes --repo DIR)
+        [--trailer LINE ...] · status · brief PATH ... · show ID · triage-schema [ID ...] [--pass AN-##]
+        · triage ASSIGNMENT ... | --from-elicit EL-#### [--trailer LINE ...] · --selftest   (each takes --repo DIR)
 Pure standard library, Python 3.8+.
 """
 import argparse
@@ -36,6 +39,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hook_wire as wire  # noqa: E402
+import elicit  # noqa: E402  (the triage questions: asked through the engine, answered only by the Regent)
 import returns  # noqa: E402  (check_message, extract: the analyst's envelope against its contract)
 
 BRANCH = "analytics"
@@ -444,6 +448,102 @@ def triage(repo, assignments, trailers=()):
     return {"commit": commit, "triaged": done, "live": len(live(idx)), "push": f"git push -u {REMOTE} {BRANCH}"}
 
 
+# ---------- triage through the elicitation engine --------------------------------------------
+
+TRIAGE_SCHEMA = "analytics-triage"
+AXES = (".plan", "ledger", ".decisions", ".sources", ".constraints")
+AXIS_NOTE = {".plan": "authorised by the Regent, not yet built", "ledger": "a backlog item in the work ledger",
+             ".decisions": "a dated decision, in the Regent's words", ".sources": "a source that decided something",
+             ".constraints": "a rule of the artefact, in the Regent's words"}
+
+
+def slot_of(prefix, fid):
+    return f"{prefix}_{fid.lower().replace('-', '_')}"
+
+
+def header_of(fid, suffix=""):
+    text = f"{fid} {suffix}".strip()
+    return text if len(text) <= elicit.HEADER_MAX else f"{fid[-(elicit.HEADER_MAX - len(suffix) - 1):]} {suffix}"
+
+
+def triage_schema(repo, ids=(), pass_id=None):
+    """The elicitation schema for the live findings: generated from INDEX.json by this script, never by an agent."""
+    idx, _, tip = load(repo)
+    lv = live(idx)
+    unknown = [i for i in ids if i not in lv]
+    if unknown:
+        raise LaneError("not live in this lane: " + ", ".join(unknown))
+    pick = [k for k in sorted(lv) if (not ids or k in ids) and (not pass_id or lv[k]["pass"] == pass_id)]
+    if not pick:
+        raise LaneError("no live finding to triage")
+    qs = []
+    for n, k in enumerate(pick):
+        f, d = lv[k], slot_of("d", k)
+        dest = f.get("destination") if f.get("destination") in AXES else ".plan"
+        axes = [dest] + [a for a in AXES if a != dest][:3]
+        title = f"{k} ({f['kind']}, {bare((f.get('where') or [''])[0])}): {f['title']} - promote, recycle or trash?"
+        qs += [{"id": f"D_{k}", "slot": d, "header": header_of(k), "order": n * 10,
+                "prompt": title.replace("{", "(").replace("}", ")"),
+                "options": [{"value": "promoted", "label": "Promote", "description": f"written into {dest} on the working branch"},
+                            {"value": "recycled", "label": "Recycle", "description": "kept live: the next delta re-checks it"},
+                            {"value": "trashed", "label": "Trash", "description": "discarded, with its reason"}]},
+               {"id": f"P_{k}", "slot": slot_of("p", k), "header": header_of(k, "to"), "order": n * 10 + 1,
+                "depends_on": [d], "when": {"param": d, "equals": "promoted"}, "other": True,
+                "prompt": f"{k} ({{{d}}}): into which axis does it land?",
+                "options": [{"value": a, "label": a, "description": AXIS_NOTE[a]} for a in axes]},
+               {"id": f"R_{k}", "slot": slot_of("r", k), "header": header_of(k, "why"), "order": n * 10 + 2,
+                "depends_on": [d], "when": {"param": d, "equals": "trashed"}, "other": True,
+                "prompt": f"{k} ({{{d}}}): why is it trashed?",
+                "options": [{"value": "wrong observation", "label": "Wrong observation",
+                             "description": "what was observed does not hold"},
+                            {"value": "duplicate", "label": "Duplicate", "description": "another finding says the same"},
+                            {"value": "out of scope", "label": "Out of scope", "description": "not this project's concern"}]}]
+    schema = {"schema": TRIAGE_SCHEMA, "version": 1,
+              "about": "generated by analytics.py triage-schema from the analytics lane's live findings", "questions": qs}
+    bad = elicit.problems(schema)
+    if bad:
+        raise LaneError("the generated triage schema does not hold: " + " · ".join(bad[:4]))
+    return schema
+
+
+def triage_from_elicit(repo, sid, trailers=()):
+    """Record the dispositions the Regent confirmed in the pop-up; an agent's proposal records nothing."""
+    store = elicit.Store(repo)
+    try:
+        st = elicit.status(store, sid)
+    finally:
+        store.close()
+    if st["schema"] != TRIAGE_SCHEMA:
+        raise LaneError(f"{sid} is not a triage session ({st['schema']})")
+    qs, params = st["questions"], st["parameters"]
+
+    def regent(prefix, k):
+        q = qs.get(f"{prefix}_{k}")
+        p = params.get(q["slot"]) if q else None
+        ok = q and q["status"] == "answered" and p and p["status"] == "confirmed" and p["source"] == "regent"
+        return p["value"] if ok else None
+
+    assignments, undecided, done = [], [], []
+    lv = live(load(repo)[0])
+    for qid in qs:
+        if not qid.startswith("D_"):
+            continue
+        k = qid[2:]
+        if k not in lv:
+            done.append(k)       # triaged already, by an earlier run over this session
+            continue
+        d = regent("D", k)
+        arg = {"promoted": regent("P", k), "trashed": regent("R", k), "recycled": ""}.get(d) if d else None
+        if d is None or arg is None:
+            undecided.append(k)
+            continue
+        assignments.append(f"{k}={d}" + (f":{arg}" if arg else ""))
+    if not assignments:
+        raise LaneError("no finding has the Regent's complete answer yet: " + ", ".join(undecided))
+    out = triage(repo, assignments, trailers)
+    return dict(out, session=sid, undecided=undecided, already=done)
+
+
 # ---------- cli --------------------------------------------------------------------------------
 
 def cli(argv):
@@ -463,8 +563,12 @@ def cli(argv):
     sub.add_parser("brief").add_argument("paths", nargs="+")
     sub.add_parser("show").add_argument("id")
     t = sub.add_parser("triage")
-    t.add_argument("assignments", nargs="+")
+    t.add_argument("assignments", nargs="*")
+    t.add_argument("--from-elicit")
     t.add_argument("--trailer", action="append", default=[])
+    ts = sub.add_parser("triage-schema")
+    ts.add_argument("ids", nargs="*")
+    ts.add_argument("--pass", dest="pass_id")
     a = ap.parse_args(argv)
     if not a.cmd:
         ap.print_help()
@@ -482,9 +586,15 @@ def cli(argv):
             print("\n".join(brief(repo, a.paths)))
         elif a.cmd == "show":
             print(json.dumps(finding(repo, a.id), ensure_ascii=False, indent=1))
+        elif a.cmd == "triage-schema":
+            print(json.dumps(triage_schema(repo, a.ids, a.pass_id), ensure_ascii=False, indent=1))
         elif a.cmd == "triage":
-            print(json.dumps(triage(repo, a.assignments, a.trailer), ensure_ascii=False))
-    except (LaneError, OSError, ValueError, KeyError) as e:
+            if bool(a.from_elicit) == bool(a.assignments):
+                raise LaneError("give the assignments, or --from-elicit EL-####, not both")
+            out = triage_from_elicit(repo, a.from_elicit, a.trailer) if a.from_elicit else \
+                triage(repo, a.assignments, a.trailer)
+            print(json.dumps(out, ensure_ascii=False))
+    except (LaneError, elicit.Refused, elicit.NoStore, OSError, ValueError, KeyError) as e:
         print(f"analytics.py: {e}", file=sys.stderr)
         return 2
     return 0
@@ -597,6 +707,33 @@ def selftest():
         cases.append((status(repo)[0].startswith("analytics: branch local · passes 2 · live 0"), "status: passes and live counts"))
         cases.append((git(repo, "status", "--porcelain") == "" and git(repo, "branch", "--show-current").strip() == "testing",
                       "the work tree stays clean and on its branch through every lane write"))
+        (repo / ".guidelines/.shortcuts/.virtual").mkdir(parents=True)
+        record(repo, envelope(plan(repo, "delta"), [sample("finding", "src/approve.py:5", "reverse skips the {audit}"),
+                                                     sample("diagnostic", "src/other.py", "X is never read")]))
+        schema = triage_schema(repo)
+        ids = [q["id"] for q in schema["questions"]]
+        cases.append((ids == ["D_AN-03-01", "P_AN-03-01", "R_AN-03-01", "D_AN-03-02", "P_AN-03-02", "R_AN-03-02"]
+                      and "(audit)" in schema["questions"][0]["prompt"],
+                      "triage-schema: disposition, then the axis or the reason, per live finding; a valid schema"))
+        store = elicit.Store(repo)
+        sid = elicit.start(store, schema, "triage")["session_id"]
+        elicit.record_answer(store, sid, "D_AN-03-01", "Promote")
+        elicit.record_answer(store, sid, "P_AN-03-01", ".plan")
+        elicit.record_answer(store, sid, "D_AN-03-02", "Trash")
+        elicit.accept(store, sid, "R_AN-03-02", "duplicate", "agent")
+        store.close()
+        t1 = triage_from_elicit(repo, sid)
+        cases.append((t1["triaged"] == ["AN-03-01=promoted"] and t1["undecided"] == ["AN-03-02"]
+                      and finding(repo, "AN-03-01")["history"][-1].get("to") == ".plan"
+                      and finding(repo, "AN-03-02")["state"] == "open",
+                      "triage --from-elicit: the Regent's complete answers are recorded; an agent's proposal records nothing"))
+        store = elicit.Store(repo)
+        elicit.record_answer(store, sid, "R_AN-03-02", "Duplicate")
+        store.close()
+        t2 = triage_from_elicit(repo, sid)
+        cases.append((t2["triaged"] == ["AN-03-02=trashed"] and t2["already"] == ["AN-03-01"]
+                      and finding(repo, "AN-03-02")["history"][-1].get("why") == "duplicate",
+                      "triage --from-elicit: the reason the Regent gave completes the trash"))
     return wire.check(cases)
 
 

@@ -20,17 +20,22 @@ records the answers and writes what a promotion needs. It decides nothing itself
 2. `python scripts/analytics.py status`: the `live` lines are the queue. None → say so and stop. An argument
    narrows the queue to those ids, or to one pass (`AN-##`).
 
-## 1. Ask
+## 1. Ask — through the engine
 
-For each live finding, `python scripts/analytics.py show <id>` gives it whole. Ask in pop-ups, up to four
-findings per pop-up, one question each, standalone (the id, the kind, the title, `where`, one line of what was
-observed):
+The questions are generated, asked and checked by the elicitation engine (`library/elicitation.md` §4), so a
+disposition exists only once the Regent picked it in the pop-up:
 
-| Option | Records |
-|---|---|
-| Promote to `<its destination>` | `ID=promoted:<path#anchor>`: the slice the entry will land in |
-| Recycle | `ID=recycled`: the next delta re-checks it |
-| Trash | `ID=trashed:<reason>`: the free text is the reason; ask again when none is given |
+```bash
+python scripts/analytics.py triage-schema [<ids> | --pass AN-##] > <scratchpad>/triage.json
+python scripts/elicit.py start <scratchpad>/triage.json --task triage-<YYYY-MM-DD>
+python scripts/elicit.py next --session EL-#### --wave 4
+```
+
+Pass `ask.questions` to the pop-up exactly as given; `python scripts/analytics.py show <id>` gives a finding whole
+when the Regent asks for it. Per finding the engine asks the disposition (Promote, Recycle, Trash), then only the
+question that follows from it: the axis of a promotion, or the reason of a trash. Repeat `next` until `complete`.
+The hook records each answer and refuses a re-ask; when the Regent changes an answer in chat,
+`python scripts/elicit.py reopen --session EL-#### --question <id> --because "<their words>"`, then ask again.
 
 Read the marked option **and** the free text of every answer (conventions §3): a free text can change the
 destination, cut the answer short or say do not proceed.
@@ -38,8 +43,12 @@ destination, cut the answer short or say do not proceed.
 ## 2. Record
 
 ```bash
-python scripts/analytics.py triage <ID=STATE[:ARG]> ... --trailer "<Co-Authored-By line>" --trailer "<session line>"
+python scripts/analytics.py triage --from-elicit EL-#### --trailer "<Co-Authored-By line>" --trailer "<session line>"
 ```
+
+Only the answers the Regent confirmed are recorded; a finding still `undecided` stays live. Typed assignments
+(`analytics.py triage ID=STATE[:ARG] ...`) remain for a surface that delivers no answers to the hook, and only
+with the Regent's words quoted in the report.
 
 Then `git push -u origin analytics` (plain; a rejection is reported, never forced).
 
