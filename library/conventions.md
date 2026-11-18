@@ -70,6 +70,10 @@ from its brief; a UI rule changes there first, then in code.
   If an answer is cut off, ask the cut part again. Do the side-requests hidden in an answer.
 - **Record answers** in the project's docs, with the date, marking the newest answer as the one in
   force and pointing back to the one it replaces.
+- **Ask through the engine when a schema exists** (the Regent, 2026-11-18). A playbook that ships or generates an
+  elicitation schema asks with `python scripts/elicit.py next` and passes its questions to the pop-up as given;
+  `scripts/hook-elicit.py` refuses a question already answered, still blocked or reworded, and only the Regent's
+  answer confirms a value (`library/elicitation.md`).
 - **"Proceed" and its synonyms** (*prossiga*, *siga em frente*, *continue*, *vá em frente*, *bora*)
   mean: work the **whole queue** until a blocker or an empty queue — not one task.
 - Never deduce what the Regent did not say. When unsure whether something was already said, **search
