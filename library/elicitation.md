@@ -81,9 +81,16 @@ revision) and returns to the queue. The same value again changes nothing. Every 
 parameters, never project knowledge: they reach an axis only through the command that owns that axis (triage
 writes nothing a pass found until the Regent answered). An open session never moves to another version of its
 schema: reset it first. The stored schema is checked against its hash at every load. Two open sessions may hold the
-same question (one schema started under two tasks, two days of triage): the pop-up, its denial and its answer belong
-to one session only, the one whose rendering the pop-up carries and, among equal renderings, the one that rendered it
-last (§5); nothing crosses to the other.
+same question (one schema started under two tasks, two days of triage): each time the hook sees a pop-up entry it
+matches the entry to one session only, the one whose rendering the entry carries and, among equal renderings, the one
+that rendered it last (§5); the denial, the count and the answer are recorded in that session alone, never in both.
+
+**Limit, stated: identical renderings asked interleaved.** The pop-up carries no session identity, so two renderings
+that are identical (the same question under the same upstream values) cannot be told apart. When they are asked
+interleaved (session A renders the question and asks it, then session B renders the same question before the Regent's
+answer arrives), `PostToolUse` matches the entry to B, the session that rendered last: the answer is recorded in B,
+under B's task, and A's question is left unanswered, still to ask. The trigger is another agent working on the same
+repository, or `next` run on B before A's pop-up is asked.
 
 ## 4. The protocol
 
@@ -108,9 +115,15 @@ other question passes untouched and nothing is recorded for it, and a project wi
 written to.
 
 When several open sessions hold the question, the entry belongs to the session whose current rendering it carries,
-then to the one that rendered it last (`elicit.py next`), then to the one updated last: the denial, the count and the
-answer go to that session alone. Wording is compared as the pop-up shows it: a run of spaces or a line break counts as
-one space, on both sides.
+then to the one that rendered it last (`elicit.py next`), then to the one updated last, then to the one with the
+higher session id: the denial, the count and the answer go to that session alone (the limit this leaves is in §3).
+Where the hook recognises an entry and where `PreToolUse` checks it against the engine's rendering, wording is
+compared with every run of whitespace (spaces, tabs, line breaks) counted as one space, on both sides.
+
+The `PostToolUse` answer lookup does not normalise whitespace: an answer is found only under the entry's question
+text exactly as the entry carries it, as a key of `answers` or quoted in the result text. An answer keyed or echoed
+with other spacing is not found: the context line says `<question id>: no answer`, or that no answers reached the hook;
+nothing is confirmed, and the question stays to ask.
 
 | Event | Does |
 |---|---|
@@ -132,7 +145,7 @@ when it cannot run, the pop-up is blocked rather than asked unprotected.
 
 | Consumer | Schema | Reads back |
 |---|---|---|
-| `/regency:repository-analytics-triage` | `python scripts/analytics.py triage-schema [ids \| --pass AN-##]`: per live finding, the disposition, then the axis of a promotion or the reason of a trash | `analytics.py triage --from-elicit EL-####`: only `confirmed` answers from the Regent; the session is closed (`elicit.py reset --session EL-####`) once no finding in it is undecided |
+| `/regency:repository-analytics-triage` | `python scripts/analytics.py triage-schema [ids \| --pass AN-##]`: per live finding, the disposition, then the axis of a promotion or the reason of a trash | `analytics.py triage --from-elicit EL-####`: only `confirmed` answers from the Regent; it leaves the session open. Closing it once its `undecided` list comes back empty is a step of the triage playbook, which the agent runs: `elicit.py reset --session EL-####` |
 
 A schema extension an agent discovers is checked and kept as proposed (`elicit.py propose <schema> --onto
 EL-####`): it never activates itself. A schema becomes active only as a file the Regent ratified, or as the output

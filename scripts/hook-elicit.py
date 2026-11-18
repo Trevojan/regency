@@ -308,6 +308,17 @@ def selftest():
         respond(ev("PostToolUse", asked, base, tool_input={"questions": asked, "answers": {asked[0]["question"]: "B"}}))
         cases.append((values(base, new) == {"rule": ("B", "confirmed")} and values(base, old) == {},
                       "D1. the answer goes to the session that rendered the question last, never to an older one"))
+        base = wire.build_fixture(Path(tmp) / "older-rendered-last")
+        s = elicit.Store(base)
+        old = elicit.start(s, elicit.load_file(elicit.EXAMPLE), "triage-2026-11-17")["session_id"]
+        new = elicit.start(s, elicit.load_file(elicit.EXAMPLE), "triage-2026-11-18")["session_id"]
+        elicit.next_questions(s, new)
+        asked = elicit.next_questions(s, old)["ask"]["questions"]
+        s.close()
+        allowed = respond(ev("PreToolUse", asked, base))
+        respond(ev("PostToolUse", asked, base, tool_input={"questions": asked, "answers": {asked[0]["question"]: "B"}}))
+        cases.append((allowed is None and values(base, old) == {"rule": ("B", "confirmed")} and values(base, new) == {},
+                      "D1. the older session rendered the question last: the pop-up and its answer are its own"))
 
         done = wire.build_fixture(Path(tmp) / "complete")
         s = elicit.Store(done)

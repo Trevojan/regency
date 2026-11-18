@@ -1033,6 +1033,15 @@ def selftest():
         cases.append((hit is not None and hit[0]["session_id"] == new,
                       "D1. two open sessions hold the same question: the one that rendered it last owns it"))
         two.close()
+        older_last = Store(wire.build_fixture(Path(tmp) / "older-last"))
+        older = start(older_last, schema, "triage-2026-11-17")["session_id"]
+        newer = start(older_last, schema, "triage-2026-11-18")["session_id"]
+        next_questions(older_last, newer)
+        asked = next_questions(older_last, older)["ask"]["questions"][0]
+        hit = locate_question(older_last, asked["header"], asked["question"])
+        cases.append((hit is not None and hit[0]["session_id"] == older,
+                      "D1. the older session rendered the question last: it owns it, not the newer one"))
+        older_last.close()
         spaced = json.loads(json.dumps(schema))
         spaced["questions"][1]["prompt"] = "For the selected rule ({rule}),  which option\nshould be used as the base?"
         sp = Store(wire.build_fixture(Path(tmp) / "spaced"))
