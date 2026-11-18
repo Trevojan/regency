@@ -31,7 +31,7 @@ the old author.
 ## Team
 
 regency runs at adoption stage 5 (`library/team/ORCHESTRATION.md` §21; the Regent, 2026-11-18): every role is an
-agent. QA opinions are acts kept byte for byte in `opinions/`, with their probes beside them; they stay in the
+agent. QA opinions are acts kept byte for byte in `inspection/`, with their probes beside them; they stay in the
 repository and never ship (`scripts/package.py`). The first QA pass on the analytics lane (`QA-analytics-lane-01`)
 refused its four Major defects; the Regent accepted the lane writes and `locate.py` with QA's residual risk, and defined the reread
 measure's "carried" as line-level (its fourth defect). The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
@@ -52,7 +52,7 @@ there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e2
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. DV on `plumbing`: the four Major defects of `opinions/QA-analytics-lane-01.md`, then a fresh QA pass; the guards line's gate
+2. DV on `plumbing`: the four Major defects of `inspection/QA-analytics-lane-01.md`, then a fresh QA pass; the guards line's gate
    (`a2c4e24`, `1cbdb2f`), then QA's third pass against the forms it landed on `b760d8f`; accept or refuse; bump to
    3.4; merge up to `main`.
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;

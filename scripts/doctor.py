@@ -66,7 +66,7 @@ IMPORTED = ("library/team/_draft/", "library/templates/", "library/examples/", "
 UPSTREAM = re.compile(r"^packs/[^/]+/upstream/")  # an adopted pack's source, kept verbatim: its own rules, not regency's
 # review records stored byte for byte (QA opinions and their probes, conventions §7): they name the machine they ran
 # on, are never rewritten, and never ship (scripts/package.py RECORDS)
-RECORDS = (".changelog/opinions/",)
+RECORDS = (".changelog/inspection/",)
 ABS_PATTERNS = [re.compile(p) for p in (
     r"[A-Za-z]:\\+Users\\", r"[A-Za-z]:/Users/", r"/Users/[A-Za-z0-9_.-]+/", r"/home/[A-Za-z0-9_.-]+/", r"/mnt/(user|skills|data)",
     r"AppData[\\/]",

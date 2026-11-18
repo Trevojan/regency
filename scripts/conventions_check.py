@@ -41,7 +41,7 @@ CANONICAL = {"agents", "claude", "protocol", "team", "team-orchestration", "orch
              "readme", "changelog", "briefing"}
 LEGACY_LEVEL = re.compile(r"(?<![\w.-])D[1-4](?![\w])")
 LEGACY_EXEMPT = ("library/ids.md", "library/examples/", "discard/",
-                 ".changelog/opinions/")  # review records, verbatim: their defect ids D1, D2... are not level names
+                 ".changelog/inspection/")  # review records, verbatim: their defect ids D1, D2... are not level names
 OLD_STEP = re.compile(r"\bM(?:\d{2}|##)\.D(?:\d{2}|##)|`D##`")
 STEP_SUFFIXES = {".md", ".xml", ".py", ".json", ".pgml", ".html", ".toml"}
 CANONICAL_EXEMPT = ("library/examples/", "discard/")  # samples are named after what they show
