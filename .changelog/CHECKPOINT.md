@@ -34,7 +34,10 @@ regency runs at adoption stage 5 (`library/team/ORCHESTRATION.md` §21; the Rege
 agent. QA opinions are acts kept byte for byte in `inspection/`, with their probes beside them; they stay in the
 repository and never ship (`scripts/package.py`). The first QA pass on the analytics lane (`QA-analytics-lane-01`)
 refused its four Major defects; the Regent accepted the lane writes and `locate.py` with QA's residual risk, and defined the reread
-measure's "carried" as line-level (its fourth defect). The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
+measure's "carried" as line-level (its fourth defect). The second QA pass met all four; the PO accepted
+`e34f27c` with conditions (`inspection/PO-analytics-lane-02-accept.md`). The Regent, the same day: close only once
+the conditions land and QA sees them; the interleaved-session limit (D17 there) stands as a stated limit; reads
+journalled before line offsets stay out of the measure, counted apart. The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
 there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e24` and `1cbdb2f` sit unmerged on
 `origin/ccr-6dc600c5-kfeqpi`.
 
