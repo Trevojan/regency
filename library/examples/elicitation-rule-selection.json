@@ -1,0 +1,57 @@
+{
+  "schema": "rule-selection",
+  "version": 1,
+  "about": "Worked example of library/elicitation.md: one upstream choice, two questions that depend on it. elicit.py --selftest runs it as the acceptance scenario.",
+  "questions": [
+    {
+      "id": "Q_RULE",
+      "slot": "rule",
+      "header": "Rule",
+      "prompt": "Which rule should govern this case?",
+      "options": [
+        {"value": "A", "label": "A", "description": "Rule A governs the case"},
+        {"value": "B", "label": "B", "description": "Rule B governs the case"}
+      ],
+      "order": 0
+    },
+    {
+      "id": "Q_BASE",
+      "slot": "base_option",
+      "header": "Base",
+      "prompt": "For the selected rule ({rule}), which option should be used as the base?",
+      "depends_on": ["rule"],
+      "options": [
+        {"value": "X1", "label": "X1", "description": "X1 as the base"},
+        {"value": "Y1", "label": "Y1", "description": "Y1 as the base"},
+        {"value": "Z1", "label": "Z1", "description": "Z1 as the base"}
+      ],
+      "order": 10
+    },
+    {
+      "id": "Q_RELEASE",
+      "slot": "release_option",
+      "header": "Release",
+      "prompt": "Regarding the selected rule ({rule}), which options should be allowed?",
+      "depends_on": ["rule"],
+      "multi": true,
+      "options": [
+        {"value": "X2", "label": "X2", "description": "Allow X2"},
+        {"value": "Y2", "label": "Y2", "description": "Allow Y2"},
+        {"value": "Z2", "label": "Z2", "description": "Allow Z2", "when": {"param": "rule", "equals": "B"}}
+      ],
+      "order": 20
+    },
+    {
+      "id": "Q_NOTE",
+      "slot": "owner",
+      "header": "Owner",
+      "prompt": "Who owns the case?",
+      "options": [
+        {"value": "RGN", "label": "The Regent", "description": "The Regent owns it"},
+        {"value": "RGN-PO", "label": "The product owner", "description": "The product's human owner owns it"}
+      ],
+      "other": true,
+      "order": 30
+    }
+  ]
+}
