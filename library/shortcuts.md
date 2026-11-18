@@ -38,13 +38,14 @@ and exact, written for the harness, not for reading.
 | `nodes`, `files`, `cites`, `tombs`, `moves`, `shortcuts` | `idx.py` | one structural node, file, citation, tombstone, move, raw shortcut | `virtualpath.md` §6 |
 | `search` (FTS5, contentless), `search_rows`, `search_files` | `locate.py` | one node's own lines in the inverted index; its location; one indexed file's size, mtime and hash | §7 |
 | `reads` | `hook-reads.py` | one Read of a file: session, agent, path, sha256, lines, bytes | §8 |
+| `elicit_schemas`, `elicit_sessions`, `elicit_params`, `elicit_questions`, `elicit_events` | `elicit.py` (the hook calls it) | one schema snapshot; one session; one slot's value, status, revision, provenance, fingerprint; one question's presentation; one transition | `library/elicitation.md` |
 | `meta` | both | one fact about the store | `schema`, `built` (set by `idx.py build`), `prints_migrated_from`, `prints_migrated_at`, `prints_migrate_error` |
 
 Rules:
 
 - **One store, one writer per table.** `idx.py build` clears its own tables and keeps every other;
   `shortcuts.py` writes only `prints` and reads the nodes; `locate.py` writes only the `search` tables;
-  `hook-reads.py` writes only `reads`.
+  `hook-reads.py` writes only `reads`; `elicit.py` writes only the `elicit_*` tables.
 - **A store that holds only prints is not an index.** Until `idx.py build` (or the first `shortcuts.py
   index`) sets `meta.built`, the write hook keeps the conservative file-level rule (`virtualpath.md` §2)
   and never grows a partial index.

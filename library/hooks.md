@@ -39,6 +39,8 @@ journal, which records and never blocks. Doctor fails if a `Stop` hook appears.
 | `PostToolUse` | `Edit\|Write\|MultiEdit\|NotebookEdit` | `hook-lineage.py` | recorder | fingerprint into the one store (`shortcuts.record`); re-index the file (`scripts/idx.py`); STALE under the slices whose governed nodes changed (R4.3, R12) |
 | `PreToolUse` | `AskUserQuestion` | `hook-judge.py` | guard | `deny` a Judge question (`JD grant`) that arrives with its answers filled in |
 | `PostToolUse` | `AskUserQuestion` | `hook-judge.py` | recorder | records the grant of each Judge question the Regent answered with a scope (R15) |
+| `PreToolUse` | `AskUserQuestion` | `hook-elicit.py` | guard | `deny` an elicitation question already answered under unchanged upstream values, blocked, not applicable, reworded, or sent with its answers filled in (`library/elicitation.md` §5) |
+| `PostToolUse` | `AskUserQuestion` | `hook-elicit.py` | recorder | the Regent's answer to each elicitation question becomes its confirmed value; one context line |
 | `PostToolUse`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `PreCompact`, `SessionEnd` | as wired | `hook-journal.py` | recorder (async) | none: appends one checkpoint line |
 | `SubagentStart` | — | `hook-gov.py` | recorder | one governance slice line for a regency role or `suba-` (§3) |
 | `PostToolUse` | `Agent\|Task` | `hook-gov.py` | recorder | routes the returned packet: G1 → ledger, G2/G3 → Regent; a role packet dispatched with a `Stage:` line is also checked against its return shape, and every suba envelope in it against its contract (`scripts/returns.py`); one context line |
@@ -164,6 +166,14 @@ ratification: `library/judge.md`.
 **Consent** (3.0). `python scripts/packs.py ratify ... --yes` lets a pack's hooks run code on the machine in one
 project; so does `judge.py ratify --yes`, which records a changed grant store. `hook-hazard.py` classifies both as `consent` and asks: only the Regent approves it, after reading the review
 that the same command prints without `--yes` (T5; `library/packs.md` §5).
+
+### Elicitation — `hook-elicit.py` (engine: `scripts/elicit.py`)
+
+A question an open elicitation session's schema defines is asked once, as the engine renders it: before the pop-up
+shows, the guard refuses it when it is already answered and not reopened on the Regent's word, still blocked, not
+applicable, worded or optioned otherwise, or arrives with answers filled in; after it, the Regent's answers become
+the confirmed values, and only the slots that read a changed value are invalidated. Every other question passes
+untouched and nothing is read for it. A question asked in chat reaches no hook (`library/elicitation.md` §5).
 
 ### Pack dispatcher — `hook-packs.py`
 
@@ -318,6 +328,7 @@ fails open on a surface becomes visible (R11.11; `library/health.md` §6).
 | `<virtual>/index.sqlite` — nodes | lineage (one file per write, once built), `idx.py build`, `shortcuts.py index` | `idx.py`, lineage, resume, `shortcuts.py drift` | project — a cache, gitignored by `<virtual>/.gitignore` |
 | `<virtual>/index.sqlite` — prints | lineage, `shortcuts.py` (`record`, `index`, `refresh`) | `shortcuts.py drift`, `check`, `peek`; resume | the same file (R12: one store) |
 | `<virtual>/index.sqlite` — reads | reads (one row per Read) | `reconstruction.py` | the same file (R12: one store) |
+| `<virtual>/index.sqlite` — `elicit_*` | elicit (`elicit.py`, through `hook-elicit.py` for the Regent's answers) | `elicit.py`, `hook-elicit.py`, `analytics.py triage --from-elicit` | the same file (R12: one store) |
 | `.shortcuts/README.md` state block | shortcuts (`SessionEnd`, handoff) | every returning agent | project |
 | `<virtual>/checkpoints.jsonl` | journal | resume, handoff, `health.py hooks` | project |
 | `<virtual>/gov-queue.jsonl` | gov | `gov.py queue`, `gov.py fit`, the Regent | project |

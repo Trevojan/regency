@@ -33,6 +33,7 @@ The whole cycle the harness aims to run, step by step, each pausing where the Re
 | 16 | Analyse the repository once, outside the coding session: findings kept on a lane, re-read only where the code or the spec moved, triaged by the Regent | `/regency:repository-analytics-baseline`, `-delta`, `-triage`, `library/analytics.md` | built, unversioned |
 | 17 | A bounded release the Regent tests, pinned to a tag with its manifest | `/regency:alpha-simple-release` | built, unversioned |
 | 18 | Know where to look before searching; measure what sessions rebuild | `/regency:locate-with-fts5`, `/regency:measure-context-reconstruction` | built, unversioned |
+| 19 | Ask once: questions whose eligibility, options and wording the Harness owns, confirmed only by the Regent's answer | `scripts/elicit.py`, `hook-elicit.py`, `library/elicitation.md`; first consumer: the analytics triage | built, unversioned |
 
 The MIN that runs today: steps 1–3, 6–9, 13 and 14, plus the engines, roles, Orders, the Scribe, `ux-init`,
 `tailwind-audit` and `station`.
@@ -125,6 +126,11 @@ the Regent's merge of `testing` into `main` (done 2026-10-29).
   `/regency:measure-context-reconstruction` over real sessions first; a resume capsule or cached search recipes on
   `locate.py` are built only for the files and queries the measure shows being rebuilt.
 - The resume line could name the analytics lane's live count (`analytics.py status`) once a project uses the lane.
+- More schemas for the engine (`library/elicitation.md` §6): the alpha manifest's questions, `/regency:init`'s
+  briefing, the `.ux/` brief waves; `alarms-once` (queued above) could ride on it.
+- `hook-judge.py` reads the `"question"="answer"` result text with a pattern that stops at the first double quote
+  inside an answer; `hook-elicit.py` splits on the known question texts instead.
+- Agent-proposed schema extensions are kept as proposed (`elicit.py propose`); no command activates one yet.
 
 - The 25 old level names (`D` followed by a digit) left in `library/orders/` and `library/team/`: step 4 of
   the original build plan renames them; doctor warns on each.

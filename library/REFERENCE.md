@@ -179,6 +179,7 @@ line at most. Full reference: `library/hooks.md`.
 | `hook-shortcuts.py` | session end | rewrites the generated state block of `.shortcuts/README.md` when the state moved |
 | `hook-verbs.py` | the Regent's message | opens a pass: records the quoted cloud commands and the Regent's `grant:` lines, ratifies changed grant stores on a ratify verb, names the command for a Regent verb (conventions §9) |
 | `hook-judge.py` | before / after the Judge's pop-up | denies a Judge question that arrives answered; records the grant of each question the Regent answered with a scope |
+| `hook-elicit.py` | before / after a pop-up | refuses an elicitation question already answered, blocked or reworded; records the Regent's answer as the confirmed value and invalidates only its dependents (`library/elicitation.md`) |
 | `hook-reads.py` | after a file read | records the read (path, hash, lines, bytes; no text) in the one store, for `/regency:measure-context-reconstruction` |
 
 Recorders write only in a project that already has `.shortcuts/.virtual/`; outside the Regent's projects
@@ -243,11 +244,12 @@ regency/
 ├── skills/<id>/SKILL.md   the playbooks, one per command
 ├── commands/<id>/<sub>.md generated aliases for /regency:<id>:<sub>
 ├── library/               REFERENCE (this file), conventions, ids, layouts, registry, hooks, health,
-│                          virtualpath, shortcuts, analytics, automation, task-granulation, maintaining; team/,
+│                          virtualpath, shortcuts, analytics, elicitation, automation, task-granulation,
+│                          maintaining; team/,
 │                          agents/, subagents/, engines/, orders/, rules/, templates/, migrations/, examples/
 ├── scripts/               build · doctor · package · health · migrate · conventions_check · vp · idx ·
 │                          shortcuts · gov · returns · speed · station · ux · headless · analytics · alpha ·
-│                          locate · reconstruction · install-agents ·
+│                          locate · reconstruction · elicit · install-agents ·
 │                          install-rules · install-automode · guard-push · hook_wire · hook-*
 ├── dist/                  generated .plugin archives (package.py); never edit, never commit
 └── discard/               superseded material (see discard/INDEX.md); safe to omit when sharing

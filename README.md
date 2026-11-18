@@ -66,6 +66,10 @@ reads it instead of inferring it.
 - **Search and measure.** `/regency:locate-with-fts5` answers where a term lives from a contentless FTS5
   index (locations, never text); `/regency:measure-context-reconstruction` measures how much each session
   re-reads unchanged.
+- **Questions asked once.** A playbook with an elicitation schema asks through `scripts/elicit.py`: the
+  Harness decides which question is eligible, renders it from the stored answers, refuses a repeat or a
+  reworded one at the pop-up, confirms only the Regent's answer and invalidates only what depended on a
+  changed one (`library/elicitation.md`).
 - **Version gate.** Each project carries a stamp. `/regency:update` migrates what regency owns on one
   approval, in a clean git tree, and never touches the project's own text.
 - **Health checkup.** `/regency:health` runs 12 checks with the levels `FAIL`, `WARN`, `STALE`,
