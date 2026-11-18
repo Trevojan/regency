@@ -31,6 +31,7 @@ MANIFEST = ROOT / ".claude-plugin" / "plugin.json"
 SHIPPED = [".changelog", ".claude-plugin", "CLAUDE.md", "README.md", "LICENSE", "commands", "hooks", "library", "packs",
            "scripts", "skills"]
 REPO_ONLY = {"CONTRIBUTING.md"}  # the repository's own pages; a .plugin does not need them
+RECORDS = (".changelog/opinions/",)  # review records kept byte for byte (QA opinions, their probes): repository only
 SKIP_DIRS = {"__pycache__", ".git", "node_modules"}
 SKIP_FILES = {".DS_Store", "Thumbs.db"}
 SKIP_SUFFIXES = {".pyc", ".pyo", ".plugin"}
@@ -48,7 +49,7 @@ def shipped_files():
             for p in sorted(path.rglob("*")):
                 rel = p.relative_to(ROOT)
                 if p.is_file() and not (set(rel.parts) & SKIP_DIRS) and p.name not in SKIP_FILES \
-                        and p.suffix not in SKIP_SUFFIXES:
+                        and p.suffix not in SKIP_SUFFIXES and not rel.as_posix().startswith(RECORDS):
                     files.append(p)
     return sorted(files, key=lambda p: p.relative_to(ROOT).as_posix())
 

@@ -64,6 +64,9 @@ SKIP_DIRS = {"discard", ".git", "node_modules", "__pycache__"}
 IMPORTED = ("library/team/_draft/", "library/templates/", "library/examples/", "library/team/ORBITAL_AGENTS.md",
             "library/engines/", "library/orders/")
 UPSTREAM = re.compile(r"^packs/[^/]+/upstream/")  # an adopted pack's source, kept verbatim: its own rules, not regency's
+# review records stored byte for byte (QA opinions and their probes, conventions §7): they name the machine they ran
+# on, are never rewritten, and never ship (scripts/package.py RECORDS)
+RECORDS = (".changelog/opinions/",)
 ABS_PATTERNS = [re.compile(p) for p in (
     r"[A-Za-z]:\\+Users\\", r"[A-Za-z]:/Users/", r"/Users/[A-Za-z0-9_.-]+/", r"/home/[A-Za-z0-9_.-]+/", r"/mnt/(user|skills|data)",
     r"AppData[\\/]",
@@ -177,7 +180,7 @@ def check_paths():
     bad = 0
     for p in files():
         r = rel(p)
-        if p.suffix != ".md" or r.startswith(IMPORTED) or UPSTREAM.match(r):
+        if p.suffix != ".md" or r.startswith(IMPORTED + RECORDS) or UPSTREAM.match(r):
             continue
         for tok in PATH_TOKEN.findall(p.read_text(encoding="utf-8-sig", errors="replace")):
             t = tok.rstrip(".,;:)")
@@ -195,7 +198,7 @@ def check_absolute_paths():
     bad = 0
     for p in files():
         r = rel(p)
-        if p.suffix.lower() in {".zip", ".skill", ".png", ".jpg", ".gif", ".pdf"}:
+        if p.suffix.lower() in {".zip", ".skill", ".png", ".jpg", ".gif", ".pdf"} or r.startswith(RECORDS):
             continue
         if r.endswith(".claude/settings.local.json"):  # this machine's own file, never committed: scripts/hook-refs.py keeps a path there
             continue
