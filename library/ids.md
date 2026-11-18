@@ -31,6 +31,7 @@ never typed: `M03.S02.T04 [F1–F3]`.
 | `AN-##` | an analysis pass on the `analytics` branch, numbered per project (`library/analytics.md`) | `AN-03` |
 | `AN-##-##` | one finding of a pass; its id never changes, its disposition lives in the branch's `INDEX.json` | `AN-03-07` |
 | `alpha-###` | an alpha simple release: the annotated tag and its manifest (`library/analytics.md` §6) | `alpha-002` |
+| `EL-####` | an elicitation session: one schema version, one task, numbered per store (`library/elicitation.md`) | `EL-0003` |
 | `a.b` | regency's own version: `+b` content change, `+a` major rule finished, reinterpreted or invented; no caps | `2.0`, `99.999` |
 
 ## People
@@ -64,6 +65,7 @@ never typed: `M03.S02.T04 [F1–F3]`.
   "analysis-pass":{"pattern": "^AN-\\d{2,}$", "example": "AN-03"},
   "analysis-finding":{"pattern": "^AN-\\d{2,}-\\d{2,}$", "example": "AN-03-07"},
   "alpha":   {"pattern": "^alpha-\\d{3,}$",   "example": "alpha-002"},
+  "elicitation":{"pattern": "^EL-\\d{4,}$",   "example": "EL-0003"},
   "version": {"pattern": "^\\d+\\.\\d+$",     "example": "2.0"},
   "person":  {"pattern": "^RGN(-(PO|Client|DA|DV-\\d+))?$", "example": "RGN-DV-2"}
 }
