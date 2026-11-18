@@ -34,7 +34,8 @@ Checks
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) and judge.py
      (grants: parse, scopes, cover, STALE, ratify, revoke), analytics.py (the lane: plan, record, brief, triage on an
      orphan branch), alpha.py (tag, export, build), locate.py (the FTS5 index) and reconstruction.py (the reread
-     measure) each pass their own
+     measure) and elicit.py (the elicitation engine: schema, eligibility, rendering, invalidation, recovery,
+     concurrency) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
  18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
@@ -77,6 +78,7 @@ REQUIRED_WIRING = (
     ("PreToolUse", "NotebookEdit", "hook-acts-guard.py"),
     ("PostToolUse", "Edit", "hook-lineage.py"), ("PostToolUse", "Write", "hook-lineage.py"),
     ("PreToolUse", "AskUserQuestion", "hook-judge.py"), ("PostToolUse", "AskUserQuestion", "hook-judge.py"),
+    ("PreToolUse", "AskUserQuestion", "hook-elicit.py"), ("PostToolUse", "AskUserQuestion", "hook-elicit.py"),
     ("PostToolUse", "Edit", "hook-journal.py"), ("PostToolUse", "Bash", "hook-journal.py"),
     ("SessionStart", "startup", "hook-resume.py"), ("SessionStart", "resume", "hook-resume.py"),
     ("SessionStart", "compact", "hook-resume.py"),
@@ -89,7 +91,7 @@ REQUIRED_WIRING = (
     ("SessionStart", "startup", "hook-packs.py"), ("UserPromptSubmit", "", "hook-packs.py"),
     ("PreCompact", "", "hook-packs.py"), ("SessionEnd", "", "hook-packs.py"),
 )
-GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py", "hook-judge.py"}
+GUARDS = {"guard-push.py", "hook-hazard.py", "hook-acts-guard.py", "hook-judge.py", "hook-elicit.py"}
 MANIFEST_DESCRIPTION_MAX = 500  # the account install's validator; a local `claude plugin validate` let 618 through
 FORBIDDEN_EVENTS = {"Stop": "R4.5: no Stop hook; the next-step line lives in each playbook"}
 
@@ -318,6 +320,8 @@ SAMPLE_EVENTS = {  # one realistic event per script, fed through stdin exactly a
     "hook-journal.py": {"hook_event_name": "PreCompact", "trigger": "auto"},
     "hook-shortcuts.py": {"hook_event_name": "SessionEnd", "reason": "other"},
     "hook-reads.py": {"hook_event_name": "PostToolUse", "tool_name": "Read", "tool_input": {"file_path": "a.txt"}},
+    "hook-elicit.py": {"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion",
+                       "tool_input": {"questions": [{"header": "Rule", "question": "Which rule?"}]}},
     "hook-resume.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-refs.py": {"hook_event_name": "SessionStart", "source": "startup"},
     "hook-verbs.py": {"hook_event_name": "UserPromptSubmit", "prompt": "prossiga"},
@@ -385,7 +389,7 @@ def check_ux():
 
 def check_engines():
     for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py",
-                 "judge.py", "analytics.py", "alpha.py", "locate.py", "reconstruction.py"):
+                 "judge.py", "analytics.py", "alpha.py", "locate.py", "reconstruction.py", "elicit.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
