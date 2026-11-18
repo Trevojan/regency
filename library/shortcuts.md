@@ -37,7 +37,7 @@ and exact, written for the harness, not for reading.
 | `prints` | `shortcuts.py` (`record`, `index`, `refresh`), `hook-lineage.py` | one fingerprinted file | `path` (repo-relative), `sha256`, `bytes`, `mtime_ns`, `prev_sha256` (what the last change replaced), `at`, `session`, `source` (`hook`, `lineage`, `scan`, `refresh`, `manual`, `import`) |
 | `nodes`, `files`, `cites`, `tombs`, `moves`, `shortcuts` | `idx.py` | one structural node, file, citation, tombstone, move, raw shortcut | `virtualpath.md` §6 |
 | `search` (FTS5, contentless), `search_rows`, `search_files` | `locate.py` | one node's own lines in the inverted index; its location; one indexed file's size, mtime and hash | §7 |
-| `reads` | `hook-reads.py` | one Read of a file: session, agent, path, sha256, lines, bytes | §8 |
+| `reads` | `hook-reads.py` | one Read of a file: session, agent, path, sha256, lines (`l0`–`l1`), bytes, `b0` (the byte offset the first line starts at) | §8 |
 | `elicit_schemas`, `elicit_sessions`, `elicit_params`, `elicit_questions`, `elicit_events` | `elicit.py` (the hook calls it) | one schema snapshot; one session; one slot's value, status, revision, provenance, fingerprint; one question's presentation; one transition | `library/elicitation.md` |
 | `meta` | both | one fact about the store | `schema`, `built` (set by `idx.py build`), `prints_migrated_from`, `prints_migrated_at`, `prints_migrate_error` |
 
@@ -152,9 +152,13 @@ range and id, its section chain), and the text is read from the file.
 
 ## 8. Reads and the reconstruction measure
 
-`hook-reads.py` adds one row to `reads` per Read of a file in the repository (session, agent, path, sha256, lines
-and bytes returned). `scripts/reconstruction.py report` measures, per session, the bytes read, the bytes
-**carried** — the same path at the same hash already read by an earlier session — and their ratio, the bytes
-**repeated** inside the session, and the files most often re-read unchanged across sessions
-(`/regency:measure-context-reconstruction`). Tokens are bytes / 4, an estimate. Bash reads, Grep and Glob output,
+`hook-reads.py` adds one row to `reads` per Read of a file in the repository (session, agent, path, sha256, the
+lines returned, their bytes and the byte offset the first of them starts at). `scripts/reconstruction.py report`
+measures, per session, the bytes read; the bytes **carried** — only the lines of a read that an earlier session
+already read at the same path and the same hash, counted in bytes (line-level, the Regent's definition of 2026-11-18)
+— and their ratio; the bytes **repeated** inside the session; and the files most often re-read unchanged across
+sessions, a session counting when it re-read any of the file's lines (`/regency:measure-context-reconstruction`).
+Carried bytes are exact: the rows of one content hold the line ranges and byte offsets they cover. A row journalled
+without an offset (before the column existed) is left out of the measure and counted on a line of its own; the hook
+adds the column to such a store on its next write. Tokens are bytes / 4, an estimate. Bash reads, Grep and Glob output,
 tool results, the system prompt and the prompt cache are not measured.

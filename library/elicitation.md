@@ -46,7 +46,7 @@ condition of the question or of one of its options names.
 
 | Field | Rule |
 |---|---|
-| `header` | 1–12 characters, unique in the schema: the pop-up's chip, and the key the hook recognises the question by |
+| `header` | 1–12 characters, unique in the schema: the pop-up's chip; the hook recognises the question by it together with its wording or its options (§5) |
 | `options` | 2–4 (the pop-up's limit), each with a value, a label and a description; an option's `when` hides it while false |
 | `other` | a typed answer is accepted as the value; otherwise only an option's value or label is |
 | `multi` | the value is the sorted list of the chosen option values |
@@ -80,7 +80,10 @@ revision) and returns to the queue. The same value again changes nothing. Every 
 **Scope.** A session is one schema version and one task (`EL-####`, `library/ids.md`). Its answers are task
 parameters, never project knowledge: they reach an axis only through the command that owns that axis (triage
 writes nothing a pass found until the Regent answered). An open session never moves to another version of its
-schema: reset it first. The stored schema is checked against its hash at every load.
+schema: reset it first. The stored schema is checked against its hash at every load. Two open sessions may hold the
+same question (one schema started under two tasks, two days of triage): the pop-up, its denial and its answer belong
+to one session only, the one whose rendering the pop-up carries and, among equal renderings, the one that rendered it
+last (§5); nothing crosses to the other.
 
 ## 4. The protocol
 
@@ -99,20 +102,28 @@ and never taken as answered because the agent proposed a value.
 ## 5. The hook contract
 
 `hook-elicit.py` on `AskUserQuestion` (`library/hooks.md` §1). An entry is an engine question when an open
-session's schema has a question with that header; every other question passes untouched, and a project without
-elicitation sessions is never written to.
+session's schema has a question with that header **and** the entry carries either the wording the engine renders for
+it now or only labels of that question's options; an entry that shares the header alone is another question. Every
+other question passes untouched and nothing is recorded for it, and a project without elicitation sessions is never
+written to.
+
+When several open sessions hold the question, the entry belongs to the session whose current rendering it carries,
+then to the one that rendered it last (`elicit.py next`), then to the one updated last: the denial, the count and the
+answer go to that session alone. Wording is compared as the pop-up shows it: a run of spaces or a line break counts as
+one space, on both sides.
 
 | Event | Does |
 |---|---|
 | `PreToolUse` | `deny` an engine question that is answered and not reopened (counted `repeat_denied`), blocked, skipped, worded, optioned or multi-selected otherwise than the engine renders it, or sent with its answers filled in; the reason carries the rendering to use |
-| `PostToolUse` | each answer through `elicit.record_answer`; one context line |
+| `PostToolUse` | each answer through `elicit.record_answer`, into the session the entry belongs to; one context line |
 
 Answers are read from `tool_input.answers`, then `tool_response.answers`, then the `"question"="answer"` result
 text, split on the known question texts so an answer holding quotes or commas is read whole. No answer reaching the
 hook confirms nothing: the questions stay eligible.
 
 **Limits, stated.** A question asked in plain chat reaches no hook: the guard covers the pop-up only, which is why
-the protocol asks through it. A surface that never delivers answers to `PostToolUse` cannot confirm anything; the
+the protocol asks through it. An engine question reworded and re-optioned at once is not recognised: it passes, and
+its answer confirms nothing. A surface that never delivers answers to `PostToolUse` cannot confirm anything; the
 context line says so. An agent with a shell could write the store directly: the store is a cache the hooks and
 scripts own, and the events table keeps every transition for audit. The guard fails closed (`onFailure: block`);
 when it cannot run, the pop-up is blocked rather than asked unprotected.
@@ -121,7 +132,7 @@ when it cannot run, the pop-up is blocked rather than asked unprotected.
 
 | Consumer | Schema | Reads back |
 |---|---|---|
-| `/regency:repository-analytics-triage` | `python scripts/analytics.py triage-schema [ids \| --pass AN-##]`: per live finding, the disposition, then the axis of a promotion or the reason of a trash | `analytics.py triage --from-elicit EL-####`: only `confirmed` answers from the Regent |
+| `/regency:repository-analytics-triage` | `python scripts/analytics.py triage-schema [ids \| --pass AN-##]`: per live finding, the disposition, then the axis of a promotion or the reason of a trash | `analytics.py triage --from-elicit EL-####`: only `confirmed` answers from the Regent; the session is closed (`elicit.py reset --session EL-####`) once no finding in it is undecided |
 
 A schema extension an agent discovers is checked and kept as proposed (`elicit.py propose <schema> --onto
 EL-####`): it never activates itself. A schema becomes active only as a file the Regent ratified, or as the output

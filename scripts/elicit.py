@@ -347,6 +347,11 @@ def label_of(schema, slot, value):
     return ", ".join(labels.get(v, str(v)) for v in vals)
 
 
+def spoken(text):
+    """Wording as the pop-up compares it: a run of spaces or a line break is one space."""
+    return " ".join(str(text or "").split())
+
+
 def shown_text(text):
     text = re.sub(r"[\x00-\x1f\x7f]+", " ", str(text))
     text = " ".join(text.split())
@@ -444,6 +449,12 @@ class Store:
     def open_sessions(self):
         rows = self.con.execute("SELECT * FROM elicit_sessions WHERE status='open'").fetchall()
         return [(dict(r), self.schema_of(r["schema_hash"])) for r in rows]
+
+    def last_presented(self, sid, qid):
+        """The event id of the session's latest rendering of the question (`next`); 0 when it never rendered it."""
+        row = self.con.execute("SELECT MAX(event_id) FROM elicit_events WHERE session_id=? AND "
+                               "event='question_presented' AND entity=?", (sid, qid)).fetchone()
+        return row[0] or 0
 
 
 # ---------- operations -----------------------------------------------------------------------
@@ -726,26 +737,34 @@ def reset(store, sid):
     return {"success": True, "event": "reset", "session_id": sess["session_id"], "task_id": sess["task_id"]}
 
 
-def locate_question(store, header, text=None):
-    """(session, schema, question) an AskUserQuestion entry stands for, by its header; None when no open session
-    asks it. Several candidates: the one whose current rendering equals the text, else the latest session."""
-    want = str(header or "").strip().lower()
+def label_key(label):
+    return RECOMMENDED.sub("", str(label)).strip().casefold()
+
+
+def locate_question(store, header, text=None, labels=None):
+    """(session, schema, question) an AskUserQuestion entry stands for; None when it stands for no open session's
+    question. It stands for one when it carries the question's header and either the wording the engine renders for
+    it now (spaces aside) or only labels of its options: an entry sharing the header alone is another question.
+    Several sessions: the one whose rendering it carries, then the one that rendered it last, then the latest."""
+    want, words = str(header or "").strip().lower(), spoken(text)
+    picked = {label_key(x) for x in labels or []}
     found = []
     for sess, schema in store.open_sessions():
         q = next((x for x in schema["questions"] if x["header"].strip().lower() == want), None)
-        if q:
-            found.append((sess, schema, q))
+        if q is None:
+            continue
+        try:
+            worded = text is not None and spoken(render(schema, q, store.params(sess["session_id"]))) == words
+        except Refused:
+            worded = False
+        optioned = bool(picked) and picked <= {label_key(o["label"]) for o in q["options"]}
+        if worded or optioned:
+            rank = (worded, store.last_presented(sess["session_id"], q["id"]), sess["updated_at"], sess["session_id"])
+            found.append((rank, sess, schema, q))
     if not found:
         return None
-    if text is not None and len(found) > 1:
-        for sess, schema, q in found:
-            params = store.params(sess["session_id"])
-            try:
-                if render(schema, q, params) == " ".join(str(text).split()):
-                    return sess, schema, q
-            except Refused:
-                continue
-    return sorted(found, key=lambda f: (f[0]["updated_at"], f[0]["session_id"]))[-1]
+    _, sess, schema, q = max(found, key=lambda f: f[0])
+    return sess, schema, q
 
 
 # ---------- cli -----------------------------------------------------------------------------
@@ -1004,6 +1023,28 @@ def selftest():
         cases.append((reset(store3, sid2)["event"] == "reset" and status(store3, sid2)["session_status"] == "closed",
                       "reset closes one session and keeps its history"))
         store3.close()
+        two = Store(wire.build_fixture(Path(tmp) / "two"))
+        old = start(two, schema, "triage-2026-11-17")["session_id"]
+        next_questions(two, old)
+        record_answer(two, old, "Q_RULE", "B")
+        new = start(two, schema, "triage-2026-11-18")["session_id"]
+        asked = next_questions(two, new)["ask"]["questions"][0]
+        hit = locate_question(two, asked["header"], asked["question"])
+        cases.append((hit is not None and hit[0]["session_id"] == new,
+                      "D1. two open sessions hold the same question: the one that rendered it last owns it"))
+        two.close()
+        spaced = json.loads(json.dumps(schema))
+        spaced["questions"][1]["prompt"] = "For the selected rule ({rule}),  which option\nshould be used as the base?"
+        sp = Store(wire.build_fixture(Path(tmp) / "spaced"))
+        first_sid = start(sp, spaced, "M01.S01.T03")["session_id"]
+        record_answer(sp, first_sid, "Q_RULE", "A")
+        wording = next_questions(sp, first_sid)["ask"]["questions"][0]
+        later_sid = start(sp, spaced, "M01.S01.T04")["session_id"]
+        record_answer(sp, later_sid, "Q_RULE", "B")
+        hit = locate_question(sp, wording["header"], wording["question"])
+        cases.append((hit is not None and hit[0]["session_id"] == first_sid,
+                      "D3. a prompt holding a double space or a line break is matched as the pop-up shows it"))
+        sp.close()
         try:
             Store(wire.build_fixture(Path(tmp) / "bare", with_virtual=False))
             cases.append((False, "no .virtual: no state is invented"))

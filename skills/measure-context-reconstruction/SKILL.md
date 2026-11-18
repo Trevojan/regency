@@ -28,9 +28,10 @@ python scripts/reconstruction.py report [--sessions <n>] [--top <n>]
 
 | Line | Means | When it is high |
 |---|---|---|
-| `carried` and `ratio` | content an earlier session already read, unchanged, read again | the entry index, the ledger or a brief does not carry what sessions need: transcribe it |
+| `carried` and `ratio` | the lines an earlier session already read, unchanged, read again (in bytes) | the entry index, the ledger or a brief does not carry what sessions need: transcribe it |
 | `repeated` | the same lines read twice in one session | the agent lost track inside the session: a slice or a shorter file helps |
-| `rebuilt <path>` | a file re-read unchanged in that many sessions | the first candidate for a shortcut row, an analytics brief or a `locate-with-fts5` query |
+| `rebuilt <path>` | a file some of whose lines were re-read unchanged in that many sessions | the first candidate for a shortcut row, an analytics brief or a `locate-with-fts5` query |
+| `left out` | reads journalled before line offsets were kept: not in any number above | it only falls, as the store keeps the latest reads; say how many were left out |
 
 ## 3. Report
 
@@ -39,6 +40,7 @@ Window    <n> session(s) · read <KB> (~tokens) · carried <KB> · ratio <%> · 
 Rebuilt   <path> × <sessions> (one line each, the top ones)
 Proposal  <one line per rebuilt file: the cheapest rung that would carry it - an index row, a brief, a script>
 Method    <the method line, as printed>
+Left out  <n> read(s) without line offsets (only when the report prints a left-out line)
 Not measured  Bash reads, Grep and Glob output, tool results, the system prompt, the prompt cache
 ```
 

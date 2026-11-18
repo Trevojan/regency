@@ -46,7 +46,8 @@ destination, cut the answer short or say do not proceed.
 python scripts/analytics.py triage --from-elicit EL-#### --trailer "<Co-Authored-By line>" --trailer "<session line>"
 ```
 
-Only the answers the Regent confirmed are recorded; a finding still `undecided` stays live. Typed assignments
+Only the answers the Regent confirmed are recorded; a finding still `undecided` stays live. When `undecided` comes
+back empty the session has served: close it, `python scripts/elicit.py reset --session EL-####`. Typed assignments
 (`analytics.py triage ID=STATE[:ARG] ...`) remain for a surface that delivers no answers to the hook, and only
 with the Regent's words quoted in the report.
 

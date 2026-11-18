@@ -2,8 +2,10 @@
 """hook-elicit.py - the pop-up side of the elicitation engine: an engine question is asked as the engine says, once.
 
 library/elicitation.md §5. A thin adapter: every decision is scripts/elicit.py's. A pop-up question is an engine
-question when an open elicitation session's schema has a question with that header; every other question passes
-untouched, and nothing is read or written for it.
+question when an open elicitation session's schema has a question with that header and the entry carries either its
+current wording (spaces aside) or only labels of its options; every other question passes untouched, and nothing is
+recorded for it. Several open sessions holding the question: it belongs to the one whose rendering it carries, then to
+the one that rendered it last, and to no other.
 
 PreToolUse   AskUserQuestion   deny an engine question that is already answered under unchanged upstream values
                                and not reopened on the Regent's word (counted as repeat_denied), blocked, not
@@ -53,6 +55,15 @@ def questions(event):
     return [q for q in qs if isinstance(q, dict)] if isinstance(qs, list) else []
 
 
+def labels(q_in):
+    return [str(o.get("label", "")) for o in q_in.get("options") or [] if isinstance(o, dict)]
+
+
+def locate(store, q_in):
+    """The (session, schema, question) a pop-up entry stands for, or None: elicit.locate_question decides."""
+    return elicit.locate_question(store, q_in.get("header"), q_in.get("question"), labels(q_in))
+
+
 def flat(resp):
     if isinstance(resp, str):
         return resp
@@ -89,7 +100,7 @@ def pre(event, store):
     denials = []
     filled = wire.tool_input(event).get("answers")
     for q_in in questions(event):
-        hit = elicit.locate_question(store, q_in.get("header"), q_in.get("question"))
+        hit = locate(store, q_in)
         if not hit:
             continue
         sess, schema, q = hit
@@ -118,9 +129,8 @@ def pre(event, store):
             continue
         shown = [o for o in q["options"] if o["value"] in st["options"]]
         want = elicit.ask_item(schema, q, params, shown)
-        got_labels = [str(o.get("label", "")) for o in q_in.get("options") or [] if isinstance(o, dict)]
-        if (" ".join(str(q_in.get("question", "")).split()) != want["question"]
-                or got_labels != [o["label"] for o in want["options"]]
+        if (elicit.spoken(q_in.get("question")) != elicit.spoken(want["question"])
+                or labels(q_in) != [o["label"] for o in want["options"]]
                 or bool(q_in.get("multiSelect")) != want["multiSelect"]):
             with store.tx():
                 store.event(sid, "presentation_refused", q["id"], {"expected": want["question"]})
@@ -133,7 +143,7 @@ def pre(event, store):
 def post(event, store):
     engine = []
     for q_in in questions(event):
-        hit = elicit.locate_question(store, q_in.get("header"), q_in.get("question"))
+        hit = locate(store, q_in)
         if hit:
             engine.append((q_in, hit))
     if not engine:
@@ -268,6 +278,64 @@ def selftest():
                       "answers holding quotes and commas are read whole from the result text"))
         out = respond(ev("PostToolUse", [note_q], tool_response="the dialog was dismissed"))
         cases.append(("nothing was confirmed" in ctx(out), "post: no answer reached the hook, so nothing is confirmed"))
+
+        def values(base, session):
+            s = elicit.Store(base)
+            try:
+                return {k: (v["value"], v["status"]) for k, v in s.params(session).items()}
+            finally:
+                s.close()
+
+        def two_sessions(name, old_answers):
+            base = wire.build_fixture(Path(tmp) / name)
+            s = elicit.Store(base)
+            old = elicit.start(s, elicit.load_file(elicit.EXAMPLE), "triage-2026-11-17")["session_id"]
+            elicit.next_questions(s, old)
+            if old_answers:
+                elicit.record_answer(s, old, "Q_RULE", "B")
+            new = elicit.start(s, elicit.load_file(elicit.EXAMPLE), "triage-2026-11-18")["session_id"]
+            asked = elicit.next_questions(s, new)["ask"]["questions"]
+            s.close()
+            return base, old, new, asked
+
+        base, old, new, asked = two_sessions("answered-before", True)
+        allowed = respond(ev("PreToolUse", asked, base))
+        respond(ev("PostToolUse", asked, base, tool_input={"questions": asked, "answers": {asked[0]["question"]: "A"}}))
+        cases.append((allowed is None and values(base, new) == {"rule": ("A", "confirmed")}
+                      and values(base, old) == {"rule": ("B", "confirmed")},
+                      "D1. an older session that answered the question neither denies nor takes the newer one's"))
+        base, old, new, asked = two_sessions("unanswered-before", False)
+        respond(ev("PostToolUse", asked, base, tool_input={"questions": asked, "answers": {asked[0]["question"]: "B"}}))
+        cases.append((values(base, new) == {"rule": ("B", "confirmed")} and values(base, old) == {},
+                      "D1. the answer goes to the session that rendered the question last, never to an older one"))
+
+        done = wire.build_fixture(Path(tmp) / "complete")
+        s = elicit.Store(done)
+        sid_done = elicit.start(s, elicit.load_file(elicit.EXAMPLE), "done-last-week")["session_id"]
+        for qid, value in (("Q_RULE", "B"), ("Q_BASE", "X1"), ("Q_RELEASE", "X2"), ("Q_NOTE", "RGN")):
+            elicit.record_answer(s, sid_done, qid, value)
+        s.close()
+        unrelated = {"question": "Who should own the deploy pipeline change?", "header": "Owner",
+                     "options": [{"label": "Platform team", "description": "p"}, {"label": "App team", "description": "a"}]}
+        pre_out = respond(ev("PreToolUse", [unrelated], done))
+        post_out = respond(ev("PostToolUse", [unrelated], done,
+                              tool_input={"questions": [unrelated], "answers": {unrelated["question"]: "App team"}}))
+        s = elicit.Store(done)
+        st_done = elicit.status(s, sid_done)
+        s.close()
+        cases.append((pre_out is None and post_out is None and st_done["metrics"]["repeat_denied"] == 0
+                      and st_done["parameters"]["owner"]["value"] == "RGN",
+                      "D2. a pop-up that shares only a header with an engine question passes untouched, nothing recorded"))
+
+        gap = wire.build_fixture(Path(tmp) / "spaced")
+        spaced = elicit.load_file(elicit.EXAMPLE)
+        spaced["questions"][0]["prompt"] = "AN-01-01 (gap, src/a.py): approve()  has no reversal\npath - which rule?"
+        s = elicit.Store(gap)
+        sid_gap = elicit.start(s, spaced, "triage-2026-11-18")["session_id"]
+        verbatim = elicit.next_questions(s, sid_gap)["ask"]["questions"]
+        s.close()
+        cases.append((respond(ev("PreToolUse", verbatim, gap)) is None,
+                      "D3. the engine's own rendering of a prompt holding a double space or a line break is allowed"))
         return wire.check(cases)
 
 
