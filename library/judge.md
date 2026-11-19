@@ -26,8 +26,14 @@ Ids: `JD-S##` (session), `JD-R##` (repo), `JD-M##` (machine), `JD-P##` (a file t
 
 **Covered** means: every path the act names matches a glob of **one** grant of its kind. An act that names no path
 (`git reset --hard`, `git rebase`, `git branch -D`) needs `**`. A glob reads as the folder its literal part leads to,
-unless it climbs out after the glob. A `cd` earlier in the chain moves where the later paths resolve. A git act is judged
-where it runs, through its `-C` too: `**` and every relative glob stop at this repository. A path no script can place is
+unless it climbs out after the glob. A `cd` earlier in the chain moves where the later paths resolve. A path written
+inside the repository is in it only where the file system lands it: every symbolic link on it followed, the last one too,
+and every `..` read from where a link leads; and short of any repository nested in the work tree, a folder below the
+root that holds its own `.git` (a clone, a submodule) or is a bare repository. The repository's own `.git` stays in it.
+A path that lands outside reads as the absolute place it lands, so `**` and every relative glob stop short of it, an
+absolute glob may name it, and the Judge proposes that place. A path written outside the repository is read as written. A git act is
+judged where it runs, through its `-C` too: in the repository git finds from there, so `**` and every relative glob stop
+at this repository and a nested one is another. A path no script can place is
 covered by no grant, `**` included: `"$d"`, `$( )`, backticks, `xargs`, `env -C`, `GIT_DIR`, `GIT_WORK_TREE`,
 `core.worktree`, a `cd` to an unknown place or after `( )`, a git act in a folder no script can know (`cd "$X"`,
 `--git-dir`), and a backslash read off Windows, where it may be a separator or an escape.

@@ -15,8 +15,9 @@ push to main. A grant answers them ahead of time, for named places and one or mo
   why      required: a grant without a reason grants nothing
 
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
-path (git reset --hard, git rebase, git branch -D) needs `**`. A path no script can resolve ("$d", a 'cd' to an
-unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
+path (git reset --hard, git rebase, git branch -D) needs `**`. A path is in the repository where the file system lands
+it: a symbolic link out of it, or a repository nested in its work tree, takes the path outside, where `**` and relative
+globs do not reach. A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
 '+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
 software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
@@ -101,11 +102,31 @@ def matches(path, glob):
 
 
 def relative(path, repo):
-    """The act's path as a grant reads it: relative posix inside the repository ('' = its root), else absolute."""
+    """The act's path as a grant reads it: relative posix inside the repository ('' = its root), else absolute. A path
+    written inside is inside only where the file system lands it (lands_in); otherwise it reads as that place."""
+    written = Path(os.path.normpath(str(path)))
     try:
-        return Path(os.path.normpath(str(path))).relative_to(Path(os.path.normpath(str(repo)))).as_posix().strip(".")
+        inside = written.relative_to(Path(os.path.normpath(str(repo))))
     except ValueError:
-        return Path(os.path.normpath(str(path))).as_posix()
+        return written.as_posix()
+    return inside.as_posix().strip(".") if lands_in(path, repo) else Path(os.path.realpath(str(path))).as_posix()
+
+
+def lands_in(path, repo):
+    """True when the file system lands the path in this repository: under its root once every symbolic link is followed,
+    and in no repository nested in its work tree. The repository's own .git folder is in it."""
+    real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
+    way = [real] + list(real.parents)
+    if top not in way:
+        return False
+    if top / ".git" in way:
+        return True
+    return not any(holds_repository(folder) for folder in way[:way.index(top)])
+
+
+def holds_repository(folder):
+    """A folder git runs in as a repository of its own: it holds a .git (a clone, a submodule), or it is a bare one."""
+    return (folder / ".git").exists() or all((folder / part).exists() for part in ("HEAD", "objects", "refs"))
 
 
 # ---------- the Regent's grant lines -----------------------------------------------------------
@@ -463,7 +484,7 @@ def main(argv):
         return 0
     if mode == "check" and len(args) >= 3:
         kind = args[1]
-        paths = args[2:] if kind == "push" else [Path(os.path.normpath(str(Path.cwd() / a))) for a in args[2:]]
+        paths = args[2:] if kind == "push" else [Path.cwd() / a for a in args[2:]]  # its '..' stay for relative() to settle
         g = covers(event, repo, kind, paths)
         print(f"covered by {line(g)}" if g else f"no grant covers it; the Judge proposes: {propose(kind, paths, repo)}")
         return 0 if g else 1
@@ -604,6 +625,7 @@ def selftest():
         cases.append((covers(ev, root, "delete", [outside]) is not None, "an absolute glob covers a path outside"))
         cases.append((covers(ev, root, "delete", [Path(tmp) / "elsewhere"]) is None
                       and not matches("/abs/x", "**"), "'**' never reaches outside the repository"))
+        cases += landing_cases(tmp, root, ev2)
         cases.append((revoke(ev, root, "JD-S01") == "this session" and "JD-S01" not in {g["id"] for g in grants(ev, root)}
                       and revoke(ev, root, "JD-S99") is None, "revoke removes one grant; an unknown id removes nothing"))
         cases.append((revoke(ev, root, "JD-M01").startswith("machine") and state(machine_store()) == "absent"
@@ -626,6 +648,36 @@ def selftest():
                           "backslashes read as slashes"))
         cases += shell_cases(tmp, root)
         return wire.check(cases)
+
+
+def landing_cases(tmp, root, event):
+    """'**' as the file system lands a path. By now the repository's store grants delete '**' (JD-R09, ratified)."""
+    nested, bare = root / "nested", root / "vendor.git"
+    (nested / ".git").mkdir(parents=True)
+    for part in ("objects", "refs"):
+        (bare / part).mkdir(parents=True)
+    (bare / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    cases = [(covers(event, root, "delete", [nested]) is None and covers(event, root, "delete", [nested / "src"]) is None
+              and covers(event, root, "delete", [bare / "refs"]) is None and covers(event, root, "delete", [root / "src"]) is not None,
+              "'**' stops at a repository nested in the work tree, a bare one too")]
+    outside = Path(tmp) / "outside"
+    outside.mkdir()
+    try:
+        (root / "link").symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        print("judge: this system cannot create a symbolic link: those cases did not run")
+        return cases
+    cases.append((covers(event, root, "delete", [root / "link" / "x"]) is None and covers(event, root, "delete", [root / "link" / ".." / "x"]) is None
+                  and propose("delete", [root / "link"], root) == f"grant: delete {outside.resolve().as_posix()}/** for session -- <why>",
+                  "'**' never reaches out through a symbolic link, and the Judge proposes where the path lands"))
+
+    def check(path):
+        return subprocess.run([sys.executable, __file__, "check", "delete", path, "--repo", str(root)], cwd=str(root),
+                              capture_output=True, text=True, encoding="utf-8").returncode
+
+    cases.append((check("link/../x") == 1 and check("link/x") == 1 and check("src") == 0,
+                  "check answers as the guard does: a '..' after a link climbs from where the link leads"))
+    return cases
 
 
 def shell_cases(tmp, root):

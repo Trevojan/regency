@@ -204,7 +204,8 @@ def resolve(arg, here):
     """The absolute path a shell would act on, or None when no script can know it ($d, an unknown cwd, a backslash off
     Windows: a separator to a Windows shell, a plain character or an escape to any other, and nothing here knows which
     shell runs the line). A glob reads as the folder its literal part leads to, since what it expands to stays under
-    that unless it climbs out after the glob."""
+    that unless it climbs out after the glob. Its '..' stay: the file system settles them past each symbolic link, and
+    judge.relative reads the path where it lands."""
     if here is None or re.search(r"[$%{]", arg) or (os.name != "nt" and "\\" in arg):
         return None
     glob = GLOB.search(arg)
@@ -214,7 +215,7 @@ def resolve(arg, here):
         arg = re.match(r"^(?:.*[\\/])?", arg[:glob.start()]).group(0) or "."
     m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
     p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
-    return Path(os.path.normpath(str(p if p.is_absolute() else Path(here) / p)))
+    return p if p.is_absolute() else Path(here) / p
 
 
 def operands(args):
@@ -244,7 +245,8 @@ def git_folder(args, here):
 def act_paths(kind, label, w, here, root=None):
     """The paths an act names, for a grant to cover: [] names none (it needs '**'); a None in the list is one no script can
     know, which no grant covers; None = never grantable. A git act is judged where it runs: what it names resolves against
-    that folder, and `**` is this repository, the one whose .git is on the way up from there."""
+    that folder, and `**` is this repository only when git finds it from there (judge.lands_in): no link out of it, no
+    repository nested in it."""
     if name(w[0]) in ("sudo", "doas"):
         w = words(w[1:])
     cmd, args = name(w[0]), w[1:]
@@ -266,8 +268,7 @@ def act_paths(kind, label, w, here, root=None):
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
         if paths:
             return [resolve(a, where) for a in paths]
-    top = next((p for p in [where] + list(where.parents) if (p / ".git").exists()), None)
-    return [] if root is None or top == root else [where]
+    return [] if root is None or judge.lands_in(where, root) else [where]
 
 
 def acts(command, cwd, depth=0, root=None):
@@ -638,6 +639,7 @@ def selftest():
             cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7", cwd=bare))) == "ask", f"a session moved to a folder outside: {cmd}"))
         out = respond(ev("PreToolUse", 'rm -rf "$X"', sid="s7"))
         cases.append(("no grant covers it" in reason(out) and "proposes" not in reason(out), "and it says so, proposing no grant that would not cover it"))
+        cases += repository_edge_cases(tmp, root, ev, verdict, reason)
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"
@@ -666,6 +668,45 @@ def selftest():
         out = respond(ev("PreToolUse", "git reset --hard", sid="s6"))
         cases.append((verdict(out) == "ask" and "STALE" in reason(out), "a changed table is STALE: it grants nothing and says so"))
         return wire.check(cases)
+
+
+def repository_edge_cases(tmp, root, ev, verdict, reason):
+    """Where '**' ends, as the file system lands a path: a symbolic link out of the repository, a repository nested in its
+    work tree (a clone, a bare one). Session s7 holds delete, discard and history '**' for the fixture's repository."""
+    def git_folder_shape(folder):  # what git reads as a repository's own folder: HEAD, objects, refs
+        for part in ("objects", "refs"):
+            (folder / part).mkdir(parents=True, exist_ok=True)
+        (folder / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+
+    git_folder_shape(root / ".git")  # this repository's own, as git leaves it
+    git_folder_shape(root / "vendor.git")  # a bare repository in the work tree
+    (root / "nested" / ".git").mkdir(parents=True)  # a clone in the work tree
+    (root / "nested" / "sub").mkdir()
+    cases = []
+    for cmd in ("git -C nested push -f origin side", "git -C nested reset --hard", "cd nested && git reset --hard",
+                "git -C nested checkout -- .", "git -C nested/sub clean -fd", "cd nested/sub && git reset --hard", "rm -rf nested",
+                "rm -rf nested/sub", "git -C vendor.git branch -D x", "git -C vendor.git update-ref -d refs/heads/x", "rm -rf vendor.git/refs"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' stops at a repository nested in the work tree: {cmd}"))
+    outside = Path(tmp) / "outside"
+    (outside / "precious").mkdir(parents=True)
+    try:
+        (root / "link").symlink_to(outside, target_is_directory=True)
+        (root / "away").symlink_to(Path(tmp) / "other", target_is_directory=True)
+        (root / "inner").symlink_to(root / "src", target_is_directory=True)
+    except (OSError, NotImplementedError):
+        print("hook-hazard: this system cannot create a symbolic link: those cases did not run")
+        return cases
+    for cmd in ("rm -rf link/*", "rm -rf link/", "find link/ -delete", "rm -rf link/precious", "rm -rf link/../x",
+                "cd link && rm -rf ../x", "git -C link/.. clean -fd", "git -C link reset --hard", "git -C away push -f origin side",
+                "cd away && git clean -fd"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' stops where a symbolic link leaves the repository: {cmd}"))
+    out = respond(ev("PreToolUse", "rm -rf link/precious", sid="s7"))
+    cases.append((f"'grant: delete {(outside / 'precious').resolve().as_posix()}/** for session" in reason(out),
+                  f"and the Judge proposes the place it lands ({reason(out)[-110:]})"))
+    for cmd in ("rm -rf inner/*", "find inner/ -delete", "git -C inner reset --hard", "rm -rf src/../build", "rm -f .git/index.lock",
+                "git -C src reset --hard"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and still covers what stays in this repository: {cmd}"))
+    return cases
 
 
 if __name__ == "__main__":

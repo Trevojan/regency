@@ -126,9 +126,12 @@ Commands are tokenised by `guard-push.py`'s quote-aware splitter: text inside a 
 `echo` is not a command; `bash -c "…"` is read inside. Every segment of a chain is judged: a confirmed
 cloud write chained with `rm` still asks for the `rm`.
 
-**Where a git act runs.** Each `cd`, `pushd`, `Push-Location` and global `-C` moves it, as git and the shell would, and what
-it names resolves from there. A grant of `**` or a relative glob stops at this repository; a folder no script can know
-(`cd "$X"`, a `popd`, `--git-dir`, `--work-tree`) is covered by no grant.
+**Where an act lands.** Each `cd`, `pushd`, `Push-Location` and global `-C` moves where the later paths and git acts
+resolve, and every path is placed where the file system lands it, through each symbolic link on the way. A git act runs in
+the repository git finds from there: one nested in the work tree (a folder holding its own `.git`, or a bare repository)
+is another repository. A grant of `**` or a relative glob stops at this repository, so a path a link leads out of it, or
+into a nested repository, asks unless an absolute glob names the place it lands (`library/judge.md` §2); a folder no
+script can know (`cd "$X"`, a `popd`, `--git-dir`, `--work-tree`) is covered by no grant.
 
 **Where the cloud verb sits.** `kubectl`, `helm`, `terraform`, `gsutil`, `bq` and the other single-verb
 CLIs: the first word after the command. `aws`: the second (`aws <service> <operation>`, where
