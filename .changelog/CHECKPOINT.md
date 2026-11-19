@@ -43,7 +43,9 @@ open defects wait in the ledger (`elicitation-followups`, `docs-lag-D19`). The g
 run 44568896975); its third QA pass escalated (`inspection/QA-grant-latest-03.md`). The Regent, 2026-11-19: back to
 DV past T4 for the symlink and nested-repository defects, the rest to the backlog; the cloud-session gap over `main`
 is not accepted (backlog); the line ships as 4.0; a subagent's hand-back read as the Regent's words by
-`hook-verbs.py` becomes a unit of its own (`verbs-agent-text`). The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
+`hook-verbs.py` becomes a unit of its own (`verbs-agent-text`); the station gains Make (`station-make`): runner-neutral,
+the Makefile ratified by its contents, regency's own Makefile, its repeated targets offered to the Judge as grants,
+built by a team pass once grant-latest closes. The guards line's gate is red in CI since `3396665` (`hook-refs.py` passes
 there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e24` and `1cbdb2f` sit unmerged on
 `origin/ccr-6dc600c5-kfeqpi`.
 
@@ -63,7 +65,8 @@ there; `hook-hazard.py` 217/218): its QA pass waits on DV, and the fixes `a2c4e2
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
 2. DV on `plumbing`: the guards line's defects through a symlink and in a nested repository, in
    `inspection/QA-grant-latest-03.md`, then a fresh QA; accept or refuse. The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
-   line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`.
+   line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
+   team pass on `station-make` (the Regent, 2026-11-19).
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
    `/regency:latest` moves this machine to the tag; test the pinned install line.
 4. Keep one install on this machine and the account (N11).
