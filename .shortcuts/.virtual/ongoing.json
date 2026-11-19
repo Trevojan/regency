@@ -4,7 +4,7 @@
   "updated": "2026-11-18",
   "items": [
     {"id": "grant-latest", "title": "the Regent's own line, the push grant, /regency:latest, the push guard on real refs (hook-refs.py)", "state": "ongoing", "who": "DV", "since": "2026-11-06",
-     "where": ["branch:plumbing", "scripts/guard-push.py", "scripts/hook-refs.py", "scripts/hook-hazard.py", "scripts/judge.py", "skills/latest/SKILL.md"], "next": "DV: the gate is red in CI since 3396665 (hook-hazard.py 217/218); fixes a2c4e24 and 1cbdb2f on origin/ccr-6dc600c5-kfeqpi; then QA's third pass", "source": ".changelog/CHECKPOINT.md#next-in-order"},
+     "where": ["branch:plumbing", "pass:grant-latest dv.build 3", "scripts/guard-push.py", "scripts/hook-refs.py", "scripts/hook-hazard.py", "scripts/judge.py", "skills/latest/SKILL.md"], "next": "DV: the gate is red in CI since 3396665 (hook-hazard.py 217/218); fixes a2c4e24 and 1cbdb2f on origin/ccr-6dc600c5-kfeqpi; then QA's third pass", "source": ".changelog/CHECKPOINT.md#next-in-order"},
     {"id": "analytics-lane", "title": "the analytics lane, the alpha release, FTS5 search, the reread measure, the elicitation engine", "state": "review", "who": "DV", "since": "2026-11-16",
      "where": ["branch:plumbing", "pass:analytics-lane qa.verify 1", "pass:analytics-lane qa.verify 2", "pass:analytics-lane po.accept 2 @e34f27c", "pass:analytics-lane qa.verify 3 @daba076", "scripts/analytics.py", "scripts/alpha.py", "scripts/locate.py", "scripts/reconstruction.py", "scripts/elicit.py", "scripts/hook-reads.py", "scripts/hook-elicit.py"],
      "next": "verified on plumbing (QA-analytics-lane-03, Verified-Draft); plumbing -> testing waits on the guards line (grant-latest); D19 before main", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
