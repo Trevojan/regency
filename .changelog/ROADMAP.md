@@ -34,6 +34,7 @@ The whole cycle the harness aims to run, step by step, each pausing where the Re
 | 17 | A bounded release the Regent tests, pinned to a tag with its manifest | `/regency:alpha-simple-release` | built, unversioned |
 | 18 | Know where to look before searching; measure what sessions rebuild | `/regency:locate-with-fts5`, `/regency:measure-context-reconstruction` | built, unversioned |
 | 19 | Ask once: questions whose eligibility, options and wording the Harness owns, confirmed only by the Regent's answer | `scripts/elicit.py`, `hook-elicit.py`, `library/elicitation.md`; first consumer: the analytics triage | built, unversioned |
+| 20 | Call, never re-write: a routine operation runs as a tested block, its arguments checked against a card, its writes confirmed by the Agent or by the Regent's yes on a hashed plan | `/regency:blocks`, `scripts/blocks.py`, `library/blocks.md` | built, unversioned |
 
 The MIN that runs today: steps 1–3, 6–9, 13 and 14, plus the engines, roles, Orders, the Scribe, `ux-init`,
 `tailwind-audit` and `station`.

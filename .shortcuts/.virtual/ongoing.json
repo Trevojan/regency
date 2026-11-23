@@ -1,7 +1,7 @@
 {
   "_about": "regency's own work: the first peek on returning to this folder (python scripts/vp.py ongoing). It points, never copies: the detail is in .changelog/. The hooks and /regency:health read a project's .guidelines/ only, so this ledger is read by vp.py alone.",
   "schema": 1,
-  "updated": "2026-11-18",
+  "updated": "2026-11-23",
   "items": [
     {"id": "grant-latest", "title": "the Regent's own line, the push grant, /regency:latest, the push guard on real refs (hook-refs.py)", "state": "ongoing", "who": "DV", "since": "2026-11-06",
      "where": ["branch:plumbing", "pass:grant-latest dv.build 3", "pass:grant-latest qa.verify 3 escalated", "pass:grant-latest dv.build 4", "pass:grant-latest qa.verify 4 refused @9fbb2c1", "pass:grant-latest dv.build 5", "scripts/guard-push.py", "scripts/hook-refs.py", "scripts/hook-hazard.py", "scripts/judge.py", "skills/latest/SKILL.md"], "next": "DV fixes N1, N2, N8 and N5 (the Regent: it asks) of .changelog/inspection/QA-grant-latest-04.md, past T4 on the Regent's word (2026-11-23); then a fresh QA", "source": ".changelog/CHECKPOINT.md#next-in-order"},
@@ -12,6 +12,10 @@
     {"id": "analytics-lane", "title": "the analytics lane, the alpha release, FTS5 search, the reread measure, the elicitation engine", "state": "review", "who": "DV", "since": "2026-11-16",
      "where": ["branch:plumbing", "pass:analytics-lane qa.verify 1", "pass:analytics-lane qa.verify 2", "pass:analytics-lane po.accept 2 @e34f27c", "pass:analytics-lane qa.verify 3 @daba076", "scripts/analytics.py", "scripts/alpha.py", "scripts/locate.py", "scripts/reconstruction.py", "scripts/elicit.py", "scripts/hook-reads.py", "scripts/hook-elicit.py"],
      "next": "verified on plumbing (QA-analytics-lane-03, Verified-Draft); plumbing -> testing waits on the guards line (grant-latest); D19 before main", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
+    {"id": "blocks", "title": "/regency:blocks: tested code blocks the Agent calls instead of writing code - card, router, three confirmation levels, plan token; seed blocks next-id, version-bump, json-set, block-new", "state": "review", "who": "DV", "since": "2026-11-23",
+     "where": ["branch:blocks", "scripts/blocks.py", "scripts/blocks/", "skills/blocks/SKILL.md", "library/blocks.md"],
+     "next": "a QA pass (DV accepts nothing it built): blocks.py --selftest 17/17 and 4/4, 16/16 planted mutants killed, doctor 0 fail; then onto plumbing", "source": ".changelog/ROADMAP.md#the-method-chain-the-max-of-the-ladder"},
+    {"id": "blocks-next", "title": "the next blocks, from measured repeats only: a ledger-move block (this ledger is laid out by hand, so json-set refuses it) and a count of find's NONE answers", "state": "backlog", "source": "library/blocks.md"},
     {"id": "elicitation-followups", "title": "the elicitation engine's open defects, in the PO's order: D9 and D8; D17's session marker, D18 and D21 once the live pop-up contract is seen; D5-D7, D10-D12; G1's cases S1-S4; D23, D24", "state": "backlog", "source": ".changelog/inspection/PO-analytics-lane-02-accept.md"},
     {"id": "docs-lag-D19", "title": "library/hooks.md (the elicitation guard's header + wording/labels rule) and library/REFERENCE.md (hook-reads' b0) lag the analytics-lane fix", "state": "backlog", "source": ".changelog/inspection/QA-analytics-lane-02.md"},
     {"id": "vp-seed", "title": "vp.py takes the scaffold seed in library/templates for the ledger", "state": "review", "who": "DV", "since": "2026-11-03",
