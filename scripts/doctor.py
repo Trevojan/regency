@@ -34,8 +34,8 @@ Checks
      queues, distributable, engines, hooks, context, pipeline, underuse, the appointment) and judge.py
      (grants: parse, scopes, cover, STALE, ratify, revoke), analytics.py (the lane: plan, record, brief, triage on an
      orphan branch), alpha.py (tag, export, build), locate.py (the FTS5 index) and reconstruction.py (the reread
-     measure) and elicit.py (the elicitation engine: schema, eligibility, rendering, invalidation, recovery,
-     concurrency) each pass their own
+     measure), elicit.py (the elicitation engine: schema, eligibility, rendering, invalidation, recovery,
+     concurrency) and blocks.py (the runner's checks, then every block's selftest) each pass their own
      --selftest, planting a defect per rule; history.json holds the fingerprint of every current template
      under the current version (migrate.py record --check)
  18. the headless route table resolves (scripts/headless.py --check: scripts, registry commands, profiles,
@@ -392,7 +392,8 @@ def check_ux():
 
 def check_engines():
     for name in ("gov.py", "returns.py", "idx.py", "shortcuts.py", "vp.py", "speed.py", "migrate.py", "health.py",
-                 "judge.py", "analytics.py", "alpha.py", "locate.py", "reconstruction.py", "elicit.py"):
+                 "judge.py", "analytics.py", "alpha.py", "locate.py", "reconstruction.py", "elicit.py",
+                 "blocks.py"):
         s = ROOT / "scripts" / name
         if not s.is_file():
             rec("FAIL", f"scripts/{name} is missing")
