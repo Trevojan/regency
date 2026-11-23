@@ -136,6 +136,7 @@ Every command and subcommand, from `library/registry.json`:
 | `/regency:health:pipeline` | Watched runs of the declared input-process-output cases (silent errors, unreachable messages, wrong shapes, inconsistent outputs) and a silent-error scan of the code. | `[--cases FILE] [--scan PATH ...]` | same playbook, subcommand `pipeline` |
 | `/regency:serious-doctor-appointment` | Assemble the caring topics of a project - which health checks each guidelines part needs and which input-process-output can be watched - as a proposal written only on the Regent's yes and run only once ratified. Called by /regency:health:doctor. | `[guidelines root]` | `skills/serious-doctor-appointment/SKILL.md` |
 | `/regency:judge` | The Judge: what the Regent's grants let run without asking here (where, how, which scope), and new grants put to the Regent in one pop-up, recorded only from the Regent's answer or 'grant:' line. | `[list \| <folders or task> \| revoke <id> \| ratify]` | `skills/judge/SKILL.md` |
+| `/regency:blocks` | Call a tested code block instead of writing code: find names the block and its exact call; run checks the arguments against its card, writes atomically and applies its confirmation (read, agent, or the Regent's yes in one pop-up). | `<intent> \| run <id> key=value ... \| list \| test [id]` | `skills/blocks/SKILL.md` |
 <!-- regency:dispatch:end -->
 
 `/regency:<id>:<sub>` is the same playbook as `/regency:<id> <sub>`. With no plugin loaded, open the
