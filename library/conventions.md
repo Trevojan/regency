@@ -19,6 +19,8 @@ the harness has to fill gaps, the better both sides perform.
 - Script output is **sliced**: one finding or one subject per line or per short file, so a reader takes the
   slice it needs instead of reconstructing the whole. Slices are also the recovery path when something goes off.
 - When a prose instruction keeps being re-explained, that is the signal to turn it into code or a template.
+- A routine operation a tested block covers is called, never written again: `python scripts/blocks.py find <intent>`
+  first, then the block's exact call and its confirmation (`library/blocks.md`).
 - "One Regent should be able and encouraged to use full potential of the Harness whenever a task may be
   accomplished" (R11.14): a check, a command or a skill that exists is used before the same work is reasoned again.
 
