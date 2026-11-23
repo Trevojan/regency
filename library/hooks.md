@@ -126,12 +126,21 @@ Commands are tokenised by `guard-push.py`'s quote-aware splitter: text inside a 
 `echo` is not a command; `bash -c "…"` is read inside. Every segment of a chain is judged: a confirmed
 cloud write chained with `rm` still asks for the `rm`.
 
-**Where an act lands.** Each `cd`, `pushd`, `Push-Location` and global `-C` moves where the later paths and git acts
-resolve, and every path is placed where the file system lands it, through each symbolic link on the way. A git act runs in
-the repository git finds from there: one nested in the work tree (a folder holding its own `.git`, or a bare repository)
-is another repository. A grant of `**` or a relative glob stops at this repository, so a path a link leads out of it, or
-into a nested repository, asks unless an absolute glob names the place it lands (`library/judge.md` §2); a folder no
-script can know (`cd "$X"`, a `popd`, `--git-dir`, `--work-tree`) is covered by no grant.
+**Where an act lands.** Each `cd`, `pushd` and `Push-Location` moves the shell as bash moves it: logically, a `..`
+taking off the folder written before it (`cd current && cd ..` is back where it started, wherever `current` links), and
+where the file system lands it when bash's own reading finds no folder or under `cd -P`. git's global `-C` moves as git
+does, where the file system lands it. From there the later paths and git acts resolve: every path is placed where the
+file system lands it, through each symbolic link on the way, and a git act runs in the repository git finds: one nested
+in the work tree (a folder holding its own `.git`, or a bare repository) is another repository. A recursive removal
+(`rm -r`, `find`, `Remove-Item -Recurse`, `rd /s`, `del /s`, `git clean -ff`) also reaches every repository nested below
+a folder it names (the Regent, 2026-11-23), found by a search that follows no link, enters no `.git` and stops after
+3 seconds, when the act asks. A grant of `**` or a relative glob stops at this repository, so a path a link leads out of
+it, into a nested repository, or a removal that reaches one, asks unless an absolute glob names the place it lands
+(`library/judge.md` §2); a folder no script can know (`cd "$X"`, a `popd`, `--git-dir`, `--work-tree`) is covered by no
+grant. The search took 0.45 s over 26,064 folders and 200,036 files on Linux; 1.4 million files run past its 3 seconds,
+so there `rm -rf .` asks under `delete **`. Not read: `set -P` or `set -o physical` (each `cd` then reads its links),
+PowerShell's own reading of a `..` in a path, and git's `--recurse-submodules`, which reaches nested repositories with
+no removal.
 
 **Where the cloud verb sits.** `kubectl`, `helm`, `terraform`, `gsutil`, `bq` and the other single-verb
 CLIs: the first word after the command. `aws`: the second (`aws <service> <operation>`, where

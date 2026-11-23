@@ -17,7 +17,7 @@ push to main. A grant answers them ahead of time, for named places and one or mo
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
 path (git reset --hard, git rebase, git branch -D) needs `**`. A path is in the repository where the file system lands
 it: a symbolic link out of it, or a repository nested in its work tree, takes the path outside, where `**` and relative
-globs do not reach. A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
+globs do not reach; a recursive removal also acts on every repository nested below a folder it names. A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
 '+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
 software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
@@ -29,7 +29,8 @@ says 'ratify grants' (conventions §9) or approves `judge.py ratify --yes`, whic
 
 Modes:
   list   [--repo DIR]                     the grants that reach this repository, this session's too; STALE stores named
-  check  <kind> <path>... [--repo DIR]    the grant that covers the act, or the grant line the Judge proposes
+  check  <kind> <path>... [--repo DIR]    the grant that covers the act, or the grant line the Judge proposes; for
+                                          delete, with the repositories nested below each path
   revoke <id> [--repo DIR]                remove one grant (narrowing needs nobody)
   ratify [--yes] [--repo DIR]             without --yes: the review of each STALE store; with it: record them
   --selftest
@@ -43,6 +44,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import unicodedata
 from pathlib import Path
 
@@ -124,9 +126,52 @@ def lands_in(path, repo):
     return not any(holds_repository(folder) for folder in way[:way.index(top)])
 
 
+ALL = "**"  # in an act's paths: the act names no path of its own, so only '**' covers it (beside what else it reaches)
+GIT, BARE = ".git", ("HEAD", "objects", "refs")  # what marks a folder git runs in as a repository of its own
+WALK_SECONDS = 3.0  # what one hook call may spend looking below the folders an act names, inside hooks.json's 10 s
+
+
 def holds_repository(folder):
     """A folder git runs in as a repository of its own: it holds a .git (a clone, a submodule), or it is a bare one."""
-    return (folder / ".git").exists() or all((folder / part).exists() for part in ("HEAD", "objects", "refs"))
+    return (folder / GIT).exists() or all((folder / part).exists() for part in BARE)
+
+
+def is_repository(names):
+    """The same mark, read off a folder's listing."""
+    return GIT in names or set(BARE) <= names
+
+
+def repositories_below(path, repo, pick=None, deadline=None):
+    """The repositories nested in the work tree below a folder of this repository, which a recursive act reaches (the
+    Regent, 2026-11-23): every folder under where the path lands, links not followed, no .git entered, each repository
+    found ending the search there. pick: which children of that folder the act names (a glob's first part). [] for a
+    path that lands outside this repository or in its own .git; None when the deadline passes first."""
+    if not lands_in(path, repo):
+        return []
+    real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
+    if top / GIT in [real] + list(real.parents):
+        return []
+    found, todo = [], [real]
+    while todo:
+        if deadline is not None and time.monotonic() > deadline:
+            return None
+        folder = todo.pop()
+        try:
+            with os.scandir(folder) as listing:
+                entries = list(listing)
+        except OSError:
+            continue  # what this user cannot read, an act it runs cannot go below either
+        if folder != real and is_repository({e.name for e in entries}):
+            found.append(folder)
+            continue
+        for e in entries:
+            try:
+                down = e.name != GIT and e.is_dir(follow_symlinks=False) and (folder != real or pick is None or pick(e.name))
+            except OSError:
+                down = False
+            if down:
+                todo.append(Path(e.path))
+    return sorted(found)
 
 
 # ---------- the Regent's grant lines -----------------------------------------------------------
@@ -362,7 +407,7 @@ def covers(event, repo, kind, paths):
     the act names no path. A push names its branch instead of a path."""
     if kind not in KINDS or paths is None or None in paths:
         return None
-    want = [relative(p, repo) for p in paths] or ["**"]
+    want = [ALL if p == ALL else relative(p, repo) for p in paths] or [ALL]
     for g in grants(event, repo):
         if kind not in g.get("how", []) or not g.get("why"):
             continue
@@ -378,7 +423,7 @@ def propose(kind, paths, repo):
         return f"grant: push {' '.join(paths)} for session -- <why>"
     globs = []
     for p in paths or [None]:
-        r = "**" if p is None else relative(p, repo)
+        r = "**" if p is None or p == ALL else relative(p, repo)
         g = "**" if r in ("", "**") else (r.rstrip("/") + "/**" if Path(p).is_dir() else r)
         if g not in globs:
             globs.append(g)
@@ -485,6 +530,13 @@ def main(argv):
     if mode == "check" and len(args) >= 3:
         kind = args[1]
         paths = args[2:] if kind == "push" else [Path.cwd() / a for a in args[2:]]  # its '..' stay for relative() to settle
+        if kind == "delete":  # removing a folder reaches the repositories nested below it, as the guard reads it
+            deadline = time.monotonic() + WALK_SECONDS
+            for found in [repositories_below(p, repo, deadline=deadline) for p in list(paths)]:
+                paths += [None] if found is None else found
+        if None in paths:
+            print("no grant covers it: no script could tell, in time, every repository it reaches")
+            return 1
         g = covers(event, repo, kind, paths)
         print(f"covered by {line(g)}" if g else f"no grant covers it; the Judge proposes: {propose(kind, paths, repo)}")
         return 0 if g else 1
@@ -677,6 +729,20 @@ def landing_cases(tmp, root, event):
 
     cases.append((check("link/../x") == 1 and check("link/x") == 1 and check("src") == 0,
                   "check answers as the guard does: a '..' after a link climbs from where the link leads"))
+    cases.append((check(".") == 1 and check("src") == 0,
+                  "check answers as the guard does: removing a folder reaches the repositories nested below it"))
+    (nested / "deep" / ".git").mkdir(parents=True)  # below a repository already found: not searched
+    (root / "src").mkdir(exist_ok=True)
+    (root / "src" / "away").symlink_to(Path(tmp) / "other", target_is_directory=True)  # a link below: not followed
+    (root / ".git" / "modules" / "sub" / "objects").mkdir(parents=True)  # the repository's own .git: not searched
+    for part in ("HEAD", "refs"):
+        (root / ".git" / "modules" / "sub" / part).mkdir()
+    real = Path(os.path.realpath(str(root)))
+    cases.append((repositories_below(root, root) == [real / "nested", real / "vendor.git"]
+                  and repositories_below(root, root, pick=lambda n: n.startswith("v")) == [real / "vendor.git"]
+                  and repositories_below(root / "src", root) == [] and repositories_below(root / "link", root) == []
+                  and repositories_below(root / ".git", root) == [] and repositories_below(root, root, deadline=0) is None,
+                  "the search below a folder: links not followed, no .git entered, a found repository ends it, a deadline stops it"))
     return cases
 
 

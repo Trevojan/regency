@@ -12,8 +12,10 @@ PreToolUse   classify every command segment:
                consent       packs.py / judge.py ratify --yes                     ask (the Regent's alone, T5)
                grant store   a shell command that writes a JD.md, judge.json or   deny: only the Regent's words
                              session grants                                       change them (library/judge.md)
-             A 'cd' earlier in the chain moves where later paths resolve. A grant opens only what this reader can place:
-             a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no grant, '**' included.
+             A 'cd' earlier in the chain moves where later paths resolve, as bash moves it (logically). A recursive
+             removal also names every repository nested below the folders it names. A grant opens only what this reader
+             can place: a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no grant, '**'
+             included.
 
 It reads text, so what it does not read it does not ask about: an alias, a script, a word a substitution prints.
 
@@ -29,11 +31,13 @@ approvals scoped by place and kind (policy-as-code allow lists).
 Modes:  (no args) hook · --selftest
 Pure standard library, Python 3.8+.
 """
+import fnmatch
 import importlib.util
 import os
 import re
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -212,10 +216,83 @@ def resolve(arg, here):
     if glob:
         if ".." in re.split(r"[\\/]", arg[glob.start():]):
             return None
-        arg = re.match(r"^(?:.*[\\/])?", arg[:glob.start()]).group(0) or "."
+        arg = glob_parts(arg)[0] or "."
     m = re.match(r"^/([a-zA-Z])/(.*)$", arg) if os.name == "nt" else None
     p = Path(f"{m.group(1)}:/{m.group(2)}" if m else os.path.expanduser(arg))
     return p if p.is_absolute() else Path(here) / p
+
+
+def glob_parts(arg):
+    """A glob's literal folder (up to the separator before its first wildcard) and the part of it that wildcard is in."""
+    glob = GLOB.search(arg)
+    folder = re.match(r"^(?:.*[\\/])?", arg[:glob.start()]).group(0)
+    return folder, re.split(r"[\\/]", arg[len(folder):])[0]
+
+
+def moved(target, here, physical=False):
+    """Where a 'cd' leaves the shell, as bash moves it: logically, each '..' taking off the folder written before it, when
+    every folder before a '..' and the end are folders; otherwise, and under 'cd -P', where the file system lands it. The
+    paths named later land through the file system from there (QA-grant-latest-04 N1, N2, N8)."""
+    t = resolve(target, here)
+    if t is None:
+        return None
+    logical = None if physical else canonical(t)
+    if logical is not None and os.path.isdir(logical):
+        return logical
+    return Path(os.path.realpath(str(t))) if os.path.isdir(t) else t
+
+
+def canonical(t):
+    """bash's own reading of a 'cd' path (sh_canonpath): each '..' takes off the folder before it, which must be one."""
+    kept = []
+    for part in t.parts[1:]:
+        if part == ".." and kept and not os.path.isdir(Path(t.anchor, *kept)):
+            return None
+        kept = kept[:-1] if part == ".." else kept + [part]
+    return Path(t.anchor, *kept)
+
+
+def physical_cd(args):
+    """bash's 'cd -P' (the last of -L and -P wins): this one move reads every link on the way."""
+    flags = []
+    for a in args:
+        if not re.fullmatch(r"-[LPe@]+", a):
+            break
+        flags += [c for c in a if c in "LP"]
+    return flags[-1:] == ["P"]
+
+
+RECURSE_SHORT = re.compile(r"^-[fiIdv]*[rR][fiIrRdv]*$")  # rm's own short flags, one of them -r or -R
+
+
+def recursive(cmd, args):
+    """True when a removal goes down through the folders it names: find, rm -r, Remove-Item -Recurse, rd /s, del /s."""
+    flags = args[:args.index("--")] if "--" in args else args
+    return cmd == "find" or any(RECURSE_SHORT.match(a) or (len(a) > 2 and "--recursive".startswith(a)) or a.lower() == "/s"
+                                or (len(a) > 1 and "-recurse".startswith(a.lower().split(":")[0])) for a in flags)
+
+
+def forced_twice(rest):
+    """git clean given -f twice: the second one lets it remove the repositories nested in the work tree (git-clean(1))."""
+    flags = rest[:rest.index("--")] if "--" in rest else rest
+    return sum(("--force".startswith(a) and len(a) > 2) if a.startswith("--") else a[1:].split("e")[0].count("f")
+               for a in flags if a.startswith("-")) >= 2
+
+
+def reached(written, here, root, deadline=None):
+    """The repositories nested in this one below the folders a recursive removal names (the Regent, 2026-11-23): each a
+    place of its own, outside '**' and every relative glob. A glob reaches the folders its wildcard part matches, dot
+    names only when that part opens with a dot, as a shell expands it. A None is a search that ran out of time."""
+    out = []
+    for a in written:
+        p = resolve(a, here)
+        if p is None or root is None:
+            continue
+        part = glob_parts(a)[1] if GLOB.search(a) else None
+        pick = None if part is None else (lambda n, g=part: fnmatch.fnmatchcase(n, g) and (g[:1] == "." or n[:1] != "."))
+        found = judge.repositories_below(p, root, pick, deadline)
+        out += [None] if found is None else found
+    return out
 
 
 def operands(args):
@@ -242,38 +319,43 @@ def git_folder(args, here):
     return where
 
 
-def act_paths(kind, label, w, here, root=None):
+def act_paths(kind, label, w, here, root=None, deadline=None):
     """The paths an act names, for a grant to cover: [] names none (it needs '**'); a None in the list is one no script can
     know, which no grant covers; None = never grantable. A git act is judged where it runs: what it names resolves against
     that folder, and `**` is this repository only when git finds it from there (judge.lands_in): no link out of it, no
-    repository nested in it."""
+    repository nested in it. A recursive removal also names every repository nested below the folders it names."""
     if name(w[0]) in ("sudo", "doas"):
         w = words(w[1:])
     cmd, args = name(w[0]), w[1:]
     if kind not in judge.KINDS or cmd in UNGRANTABLE or cmd.startswith("mkfs."):
         return None
     if cmd in RM_COMMANDS:
-        return [resolve(a, here) for a in operands(args)] or [None]
+        written = operands(args)
+        return [resolve(a, here) for a in written] + reached(written if recursive(cmd, args) else [], here, root, deadline) or [None]
     if cmd == "find":
         stop = next((i for i, a in enumerate(args) if a.startswith(("-", "!"))), len(args))
-        return [resolve(a, here) for a in args[:stop]] or [here]
+        return ([resolve(a, here) for a in args[:stop]] or [here]) + reached(args[:stop] or ["."], here, root, deadline)
     if cmd != "git":
         return []
     where = git_folder(args, here)
     if where is None:
         return [None]
+    below = []
     if label in ("git checkout -- <paths>", "git restore", "git clean -f"):
         verb = next((i for i, a in enumerate(args) if a in ("checkout", "restore", "clean")), None)
         rest = args[verb + 1:] if verb is not None else []
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
+        below = reached(paths or ["."], where, root, deadline) if label == "git clean -f" and forced_twice(rest) else []
         if paths:
-            return [resolve(a, where) for a in paths]
-    return [] if root is None or judge.lands_in(where, root) else [where]
+            return [resolve(a, where) for a in paths] + below
+    named = [] if root is None or judge.lands_in(where, root) else [where]
+    return (named or ([judge.ALL] if below else [])) + below
 
 
-def acts(command, cwd, depth=0, root=None):
+def acts(command, cwd, depth=0, root=None, deadline=None):
     """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves where the later
-    segments of the chain resolve their paths, and a line this reader cannot place leaves a None for no grant to cover."""
+    segments of the chain resolve their paths, as bash moves (moved), and a line this reader cannot place leaves a None
+    for no grant to cover."""
     out, here = [], Path(cwd) if cwd else None
     root = root or here
     text = re.sub(r"\\\r?\n", " ", guard_push.data_only(command))
@@ -282,15 +364,16 @@ def acts(command, cwd, depth=0, root=None):
         if depth < 3 and any(name(t) in SHELLS for t in seg[:1] + w[:1]):
             for t in seg[1:]:
                 if " " in t:
-                    out += acts(t, here, depth + 1, root)
+                    out += acts(t, here, depth + 1, root, deadline)
         if w and name(w[0]) in CD_COMMANDS:
             target = [t for t in operands(w[1:]) if t.lower() != "/d"]  # cmd's cd /d <folder>
+            physical = name(w[0]) == "cd" and physical_cd(w[1:])
             # a 'cd' inside ( ) ends with it, and which ones those are is more than this reader follows
-            here = None if "(" in text or not target or target[0] == "-" else resolve(target[0], here)
+            here = None if "(" in text or not target or target[0] == "-" else moved(target[0], here, physical)
             continue
         f = classify_words(w)
         if f:
-            paths = act_paths(f[0], f[1], w, here, root)
+            paths = act_paths(f[0], f[1], w, here, root, deadline)
             before = seg[:len(seg) - len(w)]
             blind = SUBSTITUTION.search(text) or any(name(t) == "xargs" or t.split("=")[0] in ("-C", "--chdir") for t in before)
             out.append((f[0], f[1], [None] if blind and paths is not None else paths))
@@ -377,7 +460,7 @@ def respond(event):
     command = wire.tool_input(event).get("command", "")
     cwd = event.get("cwd") or os.getcwd()
     repo = wire.repo_root(Path(cwd))
-    found_all = acts(command, cwd, root=repo)
+    found_all = acts(command, cwd, root=repo, deadline=time.monotonic() + judge.WALK_SECONDS)
     writes = [label for kind, label, _ in found_all if kind == "cloud-write"]
     missing = [c for c in writes if c not in confirmed(event)]
     if missing:
@@ -687,6 +770,7 @@ def repository_edge_cases(tmp, root, ev, verdict, reason):
                 "git -C nested checkout -- .", "git -C nested/sub clean -fd", "cd nested/sub && git reset --hard", "rm -rf nested",
                 "rm -rf nested/sub", "git -C vendor.git branch -D x", "git -C vendor.git update-ref -d refs/heads/x", "rm -rf vendor.git/refs"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' stops at a repository nested in the work tree: {cmd}"))
+    cases += nested_reach_cases(tmp, root, ev, verdict, reason)
     outside = Path(tmp) / "outside"
     (outside / "precious").mkdir(parents=True)
     try:
@@ -706,6 +790,68 @@ def repository_edge_cases(tmp, root, ev, verdict, reason):
     for cmd in ("rm -rf inner/*", "find inner/ -delete", "git -C inner reset --hard", "rm -rf src/../build", "rm -f .git/index.lock",
                 "git -C src reset --hard"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and still covers what stays in this repository: {cmd}"))
+    return cases + logical_cd_cases(tmp, root, ev, verdict)
+
+
+def logical_cd_cases(tmp, root, ev, verdict):
+    """A 'cd' moves as bash moves it: logically, a '..' taking off the folder written before it (QA-grant-latest-04 N1, N2,
+    N8). current -> releases/v2 is a link inside the repository; link leads outside; away leads to the repository 'other'."""
+    (root / "releases" / "v2").mkdir(parents=True)
+    (root / "current").symlink_to(root / "releases" / "v2", target_is_directory=True)
+    cases = []
+    for cmd in ("cd current && cd ../../other && git reset --hard", "cd current && cd ../../other && git push -f origin side",
+                "cd current && cd ../../other && git clean -fdx", "cd current && cd ../../other && git branch -D side",
+                "cd current/../../other && git reset --hard"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
+                      f"a git act after a `cd` that climbs through a link inside the repository into another repository asks: {cmd}"))
+    for cmd in ("cd current && cd .. && rm -rf link/*", "cd current/.. && rm -rf link/precious", "cd current && cd ../away && git reset --hard",
+                "cd -P link && cd .. && rm -rf x"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"a 'cd' through a link and back lands where the shell lands: {cmd}"))
+    for cmd in ("cd link/.. && rm -rf build", "cd link && cd .. && rm -rf build", "cd current && cd .. && git reset --hard"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and a 'cd' back into this repository stays in it: {cmd}"))
+    for part in ("w", "src"):  # only under releases/: bash's own reading of current/../w finds no folder
+        (root / "releases" / part).mkdir()
+    for cmd in ("cd current/../w && cd ../.. && rm -rf build", "cd current/../w/../src && cd ../.. && rm -rf build"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow",
+                      f"where bash's own reading finds no folder, the 'cd' lands where the file system does: {cmd}"))
+    return cases
+
+
+def nested_reach_cases(tmp, root, ev, verdict, reason):
+    """A recursive removal that names a folder of this repository reaches the repositories nested below it (the Regent,
+    2026-11-23, QA-grant-latest-04 N5). By now nested/ (a clone) and vendor.git (a bare one) sit at the root."""
+    (root / "vendor" / "lib" / ".git").mkdir(parents=True)
+    (root / "src" / "pages" / "old").mkdir(parents=True, exist_ok=True)  # folders below, none a repository
+    (root / ".git" / "modules" / "sub").mkdir(parents=True)
+    for part in ("HEAD", "objects", "refs"):
+        (root / ".git" / "modules" / "sub" / part).mkdir()
+    cases = []
+    for cmd in ("rm -rf *", "rm -rf .", "rm -rf vendor", "find . -delete", "find vendor -delete", "git clean -ffdx",
+                "Remove-Item -Recurse -Force vendor", "git -C vendor clean -f -f -d"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
+                      f"'**' stops at a repository a recursive removal reaches below a folder it names: {cmd}"))
+    for cmd in ("rm -rf src", "find src -delete", "rm -rf build*", "rm vendor", "git clean -fdx", "rm -rf .git/modules"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow",
+                      f"and a removal that reaches no repository below stays covered: {cmd}"))
+    out = respond(ev("PreToolUse", "rm -rf vendor", sid="s7"))
+    lib = (root / "vendor" / "lib").resolve().as_posix()
+    proposed = f"grant: delete vendor/** {lib}/** for session"
+    granted = proposed in reason(out) and judge.record(ev("x", "", sid="s7n"), root, f"{proposed[7:-12]} -- as proposed", "Regent: message")
+    cases.append((bool(granted) and verdict(respond(ev("PreToolUse", "rm -rf vendor", sid="s7n"))) == "allow",
+                  f"the Judge proposes each repository it reaches, and granting that covers the act ({reason(out)[-120:]})"))
+    places = " ".join(f"{(root / n).resolve().as_posix()}/**" for n in ("nested", "vendor.git", "vendor/lib"))
+    judge.record(ev("x", "", sid="s7p"), root, f"delete {places} -- the nested ones only", "Regent: message")
+    out = respond(ev("PreToolUse", "git clean -ffdx", sid="s7p"))
+    proposed = re.search(r"proposes 'grant: (.*) for session", reason(out))
+    granted = proposed and judge.record(ev("x", "", sid="s7q"), root, f"{proposed.group(1)} -- as proposed", "Regent: message")
+    cases.append((verdict(out) == "ask" and proposed and proposed.group(1).startswith("delete ** ") and bool(granted)
+                  and verdict(respond(ev("PreToolUse", "git clean -ffdx", sid="s7q"))) == "allow",
+                  "an act that names no path still needs '**' beside the repositories it reaches: git clean -ffdx"))
+    budget, judge.WALK_SECONDS = judge.WALK_SECONDS, -1.0
+    out = respond(ev("PreToolUse", "rm -rf src", sid="s7"))
+    judge.WALK_SECONDS = budget
+    cases.append((verdict(out) == "ask" and "No script can tell" in reason(out),
+                  "a search below that runs out of time places nothing, so no grant covers it: rm -rf src"))
     return cases
 
 
