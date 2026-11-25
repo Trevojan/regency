@@ -52,7 +52,10 @@ grant does not cover an act that reaches a nested repository below a folder it n
 defects go to the backlog (`guards-followups`). DV's fifth attempt (`63cd097`) fixed the `cd` defects; its QA pass
 refused it (`inspection/QA-grant-latest-05.md`): after `set -P` in the line, a removal outside the repository runs, and
 two `git clean` forms still remove a nested repository. The Regent, 2026-11-25: a sixth attempt for those three; the
-agents' shell never starts in physical mode; the unit's criticality stays high.
+agents' shell never starts in physical mode; the unit's criticality stays high. DV's sixth attempt (`0c45883`) fixed
+the three; its QA pass signed the line with residual risk (`inspection/QA-grant-latest-06.md`). The Regent,
+2026-11-25: accepted for the line, the older silent allows of the same classes to the backlog (`guards-followups`),
+a command piped into a shell to a unit of its own (`hazard-piped-shell`); next, the PO's accept.
 
 ## Health
 
@@ -68,8 +71,8 @@ agents' shell never starts in physical mode; the unit's criticality stays high.
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. DV on `plumbing`, attempt 6: the guards line's `set -P` regression and the two `git clean` forms, in
-   `inspection/QA-grant-latest-05.md`, then a fresh QA; accept or refuse. The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
+2. The PO's accept of the guards line on `plumbing` (attempt 6, `inspection/QA-grant-latest-06.md`), then the
+   Regent's approval and ratification of its norm text, then its close (`Verified-Draft: grant-latest`). The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
    line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
    team pass on `station-make` (the Regent, 2026-11-19).
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
