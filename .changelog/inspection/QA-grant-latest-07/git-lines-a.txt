@@ -1,0 +1,87 @@
+# --- naming it or a path in it: expected ask under delete **
+rm -rf .git
+rm -rf .git/
+rm -r .git
+rm -fr ./.git
+rm --recursive --force .git
+rm -rf -- .git
+sudo rm -rf .git
+/bin/rm -rf .git
+rm -f .git/index.lock
+rm .git/HEAD
+rm -rf .git/objects
+rm -rf .git/refs/heads
+shred -u .git/config
+unlink .git/index
+rmdir .git
+rm -rf src/../.git
+rm -rf .git/../.git
+rm -rf g/
+rm -rf g/objects
+rm g
+rm -rf self/.git
+cd .git && rm -rf objects
+cd .git && rm -f index.lock
+cd .git && rm -rf .
+cd .git/refs && rm -rf ../objects
+pushd .git && rm -rf hooks
+cd src && rm -rf ../.git
+bash -c 'rm -rf .git'
+sh -c 'rm -rf .'
+eval rm -rf .git
+eval 'rm -rf .git'
+find .git -delete
+find .git -name '*.lock' -delete
+# --- recursion from the root above it: expected ask
+rm -rf .
+rm -rf ./
+rm -rf ../proj
+cd src && rm -rf ..
+cd .. && rm -rf proj
+rm -rf self/
+find . -delete
+find -delete
+find . -name '*.pyc' -delete
+find . -type f -name '*.tmp' -exec rm -f {} +
+find . -path ./.git -prune -o -name '*.tmp' -delete
+find ./ -mindepth 1 -delete
+find src/.. -delete
+# --- a glob on the root whose wildcard matches .git: expected ask
+rm -rf .*
+rm -rf .g*
+rm -rf .git*
+rm -rf .?it
+rm -rf .[g]it
+rm -rf .[!.]*
+rm -rf .??*
+rm -rf .[a-z]*
+rm -rf ./.g*
+rm -f .g*/index.lock
+rm -rf * .*
+rm -rf .[^.]*
+rm -rf * .[^.]*
+rm -rf .[[:alpha:]]*
+shopt -s dotglob; rm -rf *
+shopt -s dotglob && rm -rf *
+GLOBIGNORE=x; rm -rf *
+shopt -s globstar dotglob; rm -rf **
+# --- not reaching it: expected allow
+rm -rf *
+rm -rf src
+rm -rf build
+rm -f .gitignore
+rm -f .gitmodules
+rm -rf .github
+rm -rf .cache
+rm -rf [.]git
+find src -delete
+find src -name x -delete
+git clean -fdx
+git clean -ffdx
+git clean -ffdx -e .git
+rm -rf src/.git
+# --- outside the grant's kind, or never read
+eval true '&&' rm -rf .git
+echo 'rm -rf .git' | bash
+rm -rf lin*/x
+rm -rf link/x
