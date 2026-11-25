@@ -49,7 +49,10 @@ built by a team pass once grant-latest closes. DV's fourth attempt (`9fbb2c1`) f
 refused it (`inspection/QA-grant-latest-04.md`): a git act after a `cd` through a link and back now runs in a
 neighbouring repository. The Regent, 2026-11-23: a fifth attempt for that regression and its two siblings; a `**`
 grant does not cover an act that reaches a nested repository below a folder it names (it asks); the other low
-defects go to the backlog (`guards-followups`).
+defects go to the backlog (`guards-followups`). DV's fifth attempt (`63cd097`) fixed the `cd` defects; its QA pass
+refused it (`inspection/QA-grant-latest-05.md`): after `set -P` in the line, a removal outside the repository runs, and
+two `git clean` forms still remove a nested repository. The Regent, 2026-11-25: a sixth attempt for those three; the
+agents' shell never starts in physical mode; the unit's criticality stays high.
 
 ## Health
 
@@ -65,8 +68,8 @@ defects go to the backlog (`guards-followups`).
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. DV on `plumbing`, attempt 5: the guards line's `cd`-through-a-link defects and the nested-repository reading, in
-   `inspection/QA-grant-latest-04.md`, then a fresh QA; accept or refuse. The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
+2. DV on `plumbing`, attempt 6: the guards line's `set -P` regression and the two `git clean` forms, in
+   `inspection/QA-grant-latest-05.md`, then a fresh QA; accept or refuse. The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
    line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
    team pass on `station-make` (the Regent, 2026-11-19).
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
