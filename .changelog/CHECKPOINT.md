@@ -62,7 +62,11 @@ to state what the code does; and `**` stops short of the repository's own `.git`
 in this line: a seventh attempt, then QA. DV's seventh attempt (`1c4fed2`) did both; its QA pass signed the line
 with residual risk (`inspection/QA-grant-latest-07.md`). The Regent, 2026-11-25: accepted for the line, its older
 silent allows to the backlog, and one model of how bash reads a line becomes a unit of its own (`shell-reading-model`);
-next, the PO's accept of attempt 7.
+the PO accepted attempt 7 (`inspection/PO-grant-latest-07-accept.md`). The Regent, 2026-11-25, at the packet: the
+norm text is ratified after a fix (the glob forms its Not-read list misses, and the `[^…]` reading at the `.git`
+sentence); the agents' shell may set `dotglob`, `GLOBIGNORE` or `globstar`, so before the close an eighth attempt makes
+every root glob that could reach `.git` ask; the line ships as 3.4, not 4.0, and the release tag is `v3.4`; then close
+and build 3.4 on `plumbing`.
 
 ## Health
 
@@ -78,9 +82,9 @@ next, the PO's accept of attempt 7.
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. The PO's accept of the guards line's attempt 7 (`inspection/QA-grant-latest-07.md`), then the Regent's approval
-   and ratification of `judge.md` §2 and `hooks.md` §2, then the close (`Verified-Draft: grant-latest`, 4.0). The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
-   line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
+2. DV on `plumbing`, attempt 8: every root glob that could reach `.git` asks, and the norm text's fix; then QA, then
+   the close (`Verified-Draft: grant-latest`) and the 3.4 build (the Regent, 2026-11-25). The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
+   line, which comes before it in the same history. Then build 3.4 (the Regent, 2026-11-25; it replaces 4.0); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
    team pass on `station-make` (the Regent, 2026-11-19).
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
    `/regency:latest` moves this machine to the tag; test the pinned install line.
