@@ -16,9 +16,10 @@ push to main. A grant answers them ahead of time, for named places and one or mo
 
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
 path (git reset --hard, git rebase, git branch -D) needs `**`. A path is in the repository where the file system lands
-it: a symbolic link out of it, or a repository nested in its work tree, takes the path outside, where `**` and relative
-globs do not reach; a recursive removal also acts on every repository nested below a folder it names (git clean with one
--f, on every bare one, as git reads it). A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
+it: a symbolic link out of it, a repository nested in its work tree, or the repository's own .git takes the path outside,
+where `**` and relative globs do not reach; a recursive removal also acts on every repository nested below a folder it
+names (git clean with one -f, on every bare one, as git reads it), and one that names the root on its own .git (git
+clean never). A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
 '+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
 software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
@@ -31,7 +32,7 @@ says 'ratify grants' (conventions §9) or approves `judge.py ratify --yes`, whic
 Modes:
   list   [--repo DIR]                     the grants that reach this repository, this session's too; STALE stores named
   check  <kind> <path>... [--repo DIR]    the grant that covers the act, or the grant line the Judge proposes; for
-                                          delete, with the repositories nested below each path
+                                          delete, with the repositories nested below each path, and the root's .git
   revoke <id> [--repo DIR]                remove one grant (narrowing needs nobody)
   ratify [--yes] [--repo DIR]             without --yes: the review of each STALE store; with it: record them
   --selftest
@@ -112,12 +113,15 @@ def relative(path, repo):
         inside = written.relative_to(Path(os.path.normpath(str(repo))))
     except ValueError:
         return written.as_posix()
-    return inside.as_posix().strip(".") if lands_in(path, repo) else Path(os.path.realpath(str(path))).as_posix()
+    if lands_in(path, repo) and not in_own_git(path, repo):
+        return inside.as_posix().strip(".")
+    return Path(os.path.realpath(str(path))).as_posix()
 
 
 def lands_in(path, repo):
     """True when the file system lands the path in this repository: under its root once every symbolic link is followed,
-    and in no repository nested in its work tree. The repository's own .git folder is in it."""
+    and in no repository nested in its work tree. The repository's own .git is in it, so a git act run there runs in this
+    repository; a path an act names there is a place of its own (in_own_git)."""
     real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
     way = [real] + list(real.parents)
     if top not in way:
@@ -125,6 +129,21 @@ def lands_in(path, repo):
     if top / ".git" in way:
         return True
     return not any(holds_repository(folder) for folder in way[:way.index(top)])
+
+
+def in_own_git(path, repo):
+    """True when the file system lands the path on the repository's own .git or in it: a place of its own, which '**' and
+    every relative glob stop short of, read as the absolute place it lands (the Regent, 2026-11-25)."""
+    real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
+    return top / GIT in [real] + list(real.parents)
+
+
+def own_git_below(path, repo):
+    """[the repository's own .git] when removing the folder the path names reaches it from above: the path lands on the
+    repository's root, and the root holds a .git (a folder, or the file of a linked worktree or a submodule); else [].
+    Every recursive removal reaches it so, git clean never (the Regent, 2026-11-25)."""
+    real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
+    return [top / GIT] if real == top and os.path.lexists(top / GIT) else []
 
 
 ALL = "**"  # in an act's paths: the act names no path of its own, so only '**' covers it (beside what else it reaches)
@@ -570,10 +589,12 @@ def main(argv):
     if mode == "check" and len(args) >= 3:
         kind = args[1]
         paths = args[2:] if kind == "push" else [Path.cwd() / a for a in args[2:]]  # its '..' stay for relative() to settle
-        if kind == "delete":  # removing a folder reaches the repositories nested below it, as the guard reads it
+        if kind == "delete":  # removing a folder reaches the repositories nested below it, and the root its own .git, as the guard reads it
             deadline = time.monotonic() + WALK_SECONDS
-            for found in [repositories_below(p, repo, deadline=deadline) for p in list(paths)]:
+            for p in list(paths):
+                found = repositories_below(p, repo, deadline=deadline)
                 paths += [None] if found is None else found
+                paths += own_git_below(p, repo)
         if None in paths:
             print("no grant covers it: no script could tell, in time, every repository it reaches")
             return 1
@@ -718,6 +739,7 @@ def selftest():
         cases.append((covers(ev, root, "delete", [Path(tmp) / "elsewhere"]) is None
                       and not matches("/abs/x", "**"), "'**' never reaches outside the repository"))
         cases += landing_cases(tmp, root, ev2)
+        cases += own_git_cases(tmp, root, ev2)
         cases.append((revoke(ev, root, "JD-S01") == "this session" and "JD-S01" not in {g["id"] for g in grants(ev, root)}
                       and revoke(ev, root, "JD-S99") is None, "revoke removes one grant; an unknown id removes nothing"))
         cases.append((revoke(ev, root, "JD-M01").startswith("machine") and state(machine_store()) == "absent"
@@ -792,6 +814,35 @@ def landing_cases(tmp, root, event):
     real = Path(os.path.realpath(str(bc)))
     cases.append((repositories_below(bc, bc, bare=True) == [real / "data" / "inner.git", real / "detached.git", real / "top.git"],
                   "git clean's single -f reaches the bare repositories git reads as one: a clone passed whole, a folder only shaped like one searched through"))
+    return cases
+
+
+def own_git_cases(tmp, root, event):
+    """'**' stops short of the repository's own .git (the Regent, 2026-11-25). By now the repository's store grants delete
+    '**' (JD-R09, ratified) to every session."""
+    real = Path(os.path.realpath(str(root)))
+    own, lock = root / ".git", root / ".git" / "index.lock"
+    cases = [(covers(event, root, "delete", [own]) is None and covers(event, root, "delete", [lock]) is None
+              and covers(event, root, "delete", [root / "src"]) is not None,
+              "'**' stops short of the repository's own .git, and of a path in it")]
+    record({"session_id": "s3r"}, root, "delete .git/** -- named relative", "Regent: message")
+    cases.append((covers({"session_id": "s3r"}, root, "delete", [own]) is None and covers({"session_id": "s3r"}, root, "delete", [lock]) is None,
+                  "and so does a relative glob, one that names it too"))
+    proposed = propose("delete", [own], root)
+    record({"session_id": "s3a"}, root, f"{proposed[7:-21]} -- as proposed", "Regent: message")
+    cases.append((proposed == f"grant: delete {real.as_posix()}/.git/** for session -- <why>"
+                  and covers({"session_id": "s3a"}, root, "delete", [own]) is not None and covers({"session_id": "s3a"}, root, "delete", [lock]) is not None,
+                  f"the Judge proposes the .git as a place of its own, and granting that covers it ({proposed})"))
+
+    def check(path):
+        r = subprocess.run([sys.executable, __file__, "check", "delete", path, "--repo", str(root)], cwd=str(root),
+                           capture_output=True, text=True, encoding="utf-8")
+        return r.returncode, r.stdout
+
+    whole = check(".")
+    cases.append((check(".git")[0] == 1 and check(".git/index.lock")[0] == 1 and check("src")[0] == 0
+                  and whole[0] == 1 and f"{real.as_posix()}/.git/**" in whole[1],
+                  "check answers as the guard does: removing the root reaches its own .git, and naming it or a path in it asks"))
     return cases
 
 

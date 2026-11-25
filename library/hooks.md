@@ -96,9 +96,9 @@ What stays out, named so nobody reads more into this:
 - What skips any hook: `--no-verify` (the text guard asks on the forms it can read), `git send-pack`,
   `env -u GIT_CONFIG_COUNT`, `env -i`. What overrides this one by name: `-c hook.regency.enabled=false` and the other
   `-c hook.regency.*`; on the `core.hooksPath` way, `-c core.hooksPath=`. What is no `git push`: `gh pr merge`, the API.
-- Where the setting is not: a session opened outside a repository; a settings file that is tracked, unreadable or holding
-  another `GIT_CONFIG_*`; a session whose own environment already sets `GIT_CONFIG_*`, as a cloud session's git proxy
-  does. A context line says so at the session's start.
+- Where the setting is not: a session opened outside a repository, where nothing is written and nothing is said; and,
+  with one context line at the session's start, a settings file that is tracked, unreadable or holding another
+  `GIT_CONFIG_*`, or a session whose own environment already sets `GIT_CONFIG_*`, as a cloud session's git proxy does.
 - A terminal started from an agent's shell inherits the setting and the session variables, so it reads as an agent's.
   Whether a `!` command's shell carries them is not yet seen; if it does, a `!` push of `main` needs a grant too.
 
@@ -124,29 +124,32 @@ read as the act itself. `hook-journal.py` reads git verbs the same way.
 
 Commands are tokenised by `guard-push.py`'s quote-aware splitter: text inside a commit message or an
 `echo` is not a command; `bash -c "…"` is read inside. Every segment of a chain is judged: a confirmed
-cloud write chained with `rm` still asks for the `rm`.
+cloud write chained with `rm` still asks for the `rm`. Not read at all, so the act runs with no grant: a command piped
+into a shell (`echo 'rm -rf x' | bash`, N21), and an act an `eval` puts after a quoted operator (`eval true '&&' rm -rf
+x`), which is read as a word of the command before it.
 
-**Where an act lands.** Each `cd`, `pushd` and `Push-Location` moves the shell as bash moves it: logically, a `..`
-taking off the folder written before it (`cd current && cd ..` is back where it started, wherever `current` links), and
-where the file system lands it when bash's own reading finds no folder, under `cd -P`, or in physical mode. The agent's
-shell starts logical, and only the line turns physical mode on (the Regent, 2026-11-25): `set -P` or `set -o physical`,
-read as bash reads a `set` (a letter bash does not know voids it, an unknown `-o` name stops it), until `set +P` or
-`set +o physical`, or a shell the line starts as `bash -P -c …` or `bash -o physical -c …`; `cd -L` stays logical.
-git's global `-C` moves as git does, where the file system lands it. From there the later paths and git acts resolve:
-every path is placed where the file system lands it, through each symbolic link on the way, and a git act runs in the
-repository git finds: one nested in the work tree (a folder holding its own `.git`, or a bare repository) is another
-repository. A recursive removal (`rm -r`, `find`, `Remove-Item -Recurse`, `rd /s`, `del /s`, `git clean -ff`) also
-reaches every repository nested below a folder it names (the Regent, 2026-11-23), and `git clean -f` every bare
-repository there, as git reads one, since git passes whole only a folder whose `.git` it reads as a repository; the
-pattern of git clean's `-e` or `--exclude` is no folder it names. They are found by a search that follows no link,
-enters no `.git` and stops after 3 seconds, when the act asks. A grant of `**` or a relative glob stops at this
-repository, so a path a link leads out of it, into a nested repository, or a removal that reaches one, asks unless an
-absolute glob names the place it lands (`library/judge.md` §2); a folder no script can know (`cd "$X"`, a `popd`,
-`--git-dir`, `--work-tree`) is covered by no grant. The search took 0.45 s over 26,064 folders and 200,036 files on
-Linux; 1.4 million files run past its 3 seconds, so there `rm -rf .` and `git clean -fdx` ask under `delete **`. Not
-read: `SHELLOPTS` naming `physical` for a shell the line starts, PowerShell's own reading of a `..` in a path, git
-clean's `-d` and its exclude patterns (the search reaches more, never less), and git's `--recurse-submodules`, which
-reaches nested repositories with no removal.
+**Where an act lands.** Each `cd`, `pushd` and `Push-Location` moves the shell as bash moves it, logically unless the
+line turns physical mode on, and git's global `-C` moves as git does, where the file system lands it. From there every
+path is placed where the file system lands it, and a git act runs in the repository git finds. `**` and every relative
+glob stop short of a place a link leads out to, of a repository nested in the work tree (a folder holding its own
+`.git`, or `HEAD`, `objects` and `refs`) and of the repository's own `.git`. A recursive removal (`rm -r`, `find`,
+`Remove-Item -Recurse`, `rd /s`, `del /s`, `git clean -ff`) also reaches every repository nested below a folder it names
+(the Regent, 2026-11-23), and the `.git` when it names the root (the Regent, 2026-11-25); `git clean -f` reaches every
+bare repository there, as git reads one, and git clean never the `.git`. Such a place asks unless an absolute glob names
+it; a folder no script can know (`cd "$X"`, a `popd`, `--git-dir`, `--work-tree`) is covered by no grant. The rule, and
+each place where this reader reads less or more than bash and git do, is `library/judge.md` §2: physical mode turned on
+by a form it does not read, or off by a `set +P` bash does not run (N17); git clean's pathspec magic and git's own
+wildcards (N19); a `.git` file git does not read (N20); a glob's bracket (N15) and a link its wildcard matches; a folder
+only shaped like a bare repository (N9, N14); a `..` that climbs out of the repository's text (N3); a link that stays
+inside, matched as written (N4); a link or repository the line itself makes (R6). Not read either: PowerShell's own reading
+of a `..` in a path, and git's `--recurse-submodules`, which reaches nested repositories with no removal.
+
+The search below a folder follows no link, enters no `.git`, and stops after 3 seconds, one deadline for the whole line;
+a search that runs out places nothing, so the act asks. Measured, not promised (QA-grant-latest-06, end to end on one
+Linux machine with a warm cache): 0.62–0.70 s over 26,064 folders and 208,512 files, 0.80–0.88 s over one folder of
+1,000,000 files, and past 3 seconds over 150,000 folders and 1,500,000 files, where `git clean -fdx` at the root asks
+under `delete **`. A slower machine, a cold cache or a network file system reaches the deadline on a smaller tree: more
+prompts, no act let through.
 
 **Where the cloud verb sits.** `kubectl`, `helm`, `terraform`, `gsutil`, `bq` and the other single-verb
 CLIs: the first word after the command. `aws`: the second (`aws <service> <operation>`, where

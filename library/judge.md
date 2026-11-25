@@ -18,43 +18,76 @@ whether an act is covered is decided by `judge.covers()`, a script.
 | Part | Rule |
 |---|---|
 | **how** | `delete`, `discard`, `history`, `layout`: the kinds `hook-hazard.py` asks about and a grant may cover; `push`: the push guards' denial of `main` (below) |
-| **where** | globs relative to the repository root, or absolute. `X/**` covers the folder `X` itself; `*` crosses folders; `**` is the whole repository and never reaches outside it; a relative glob holds no `..` |
+| **where** | globs relative to the repository root, or absolute. `X/**` covers the folder `X` itself; `*` crosses folders; `**` is the whole repository short of its own `.git` and of every repository nested in it, and never reaches outside it; a relative glob holds no `..` |
 | **scope** | where the grant lives (§3); the narrowest, `session`, when the Regent names none |
 | **why** | required: a grant without a reason grants nothing |
 
 Ids: `JD-S##` (session), `JD-R##` (repo), `JD-M##` (machine), `JD-P##` (a file the Regent names), numbered per store.
 
 **Covered** means: every path the act names matches a glob of **one** grant of its kind. An act that names no path
-(`git reset --hard`, `git rebase`, `git branch -D`) needs `**`. A glob reads as the folder its literal part leads to,
-unless it climbs out after the glob. A `cd` (`pushd`, `Push-Location`) earlier in the chain moves the shell as bash moves
+(`git reset --hard`, `git rebase`, `git branch -D`) needs `**`. A path inside the repository is matched by its relative
+form with its leading and trailing dots dropped, so `env/**` covers `.env` and a relative glob that opens with a dot
+covers nothing. A glob in a path reads as the folder its literal part leads to, unless it climbs out after the
+glob; a symbolic link its wildcard part matches is not followed, so `rm -rf lin*/x` reads as the root wherever `link`
+leads.
+
+**Where a `cd` leaves the shell.** A `cd` (`pushd`, `Push-Location`) earlier in the chain moves the shell as bash moves
 it: logically, each `..` taking off the folder written before it, so `cd current && cd ..` is back where it started
 whatever `current` links to; where bash's own reading finds no folder, under `cd -P` and in physical mode, it lands where
-the file system does. The agent's shell starts logical, and only the line itself turns physical mode on (the Regent,
-2026-11-25): `set -P` or `set -o physical`, until `set +P` or `set +o physical`, or a shell it starts as `bash -P -c …` or
-`bash -o physical -c …`; `cd -L` still moves logically. A `set` reads as bash reads it: one holding a letter bash does
-not know changes nothing, and an `-o` name bash does not know stops it there. The later paths and git acts resolve from
-there. A path written
-inside the repository is in it only where the file system lands it: every symbolic link on it followed, the last one too,
-and every `..` read from where a link leads; and short of any repository nested in the work tree, a folder below the
-root that holds its own `.git` (a clone, a submodule) or is a bare repository. The repository's own `.git` stays in it.
-A path that lands outside reads as the absolute place it lands, so `**` and every relative glob stop short of it, an
-absolute glob may name it, and the Judge proposes that place. A path written outside the repository is read as written. A git act is
-judged where it runs, through its `-C` too: in the repository git finds from there, so `**` and every relative glob stop
-at this repository and a nested one is another. **A recursive removal** (`rm -r`, `find`, `Remove-Item -Recurse`,
-`rd /s`, `del /s`, `git clean -ff`) that names a folder of this repository also acts on every repository nested below it
-(the Regent, 2026-11-23). `git clean` with one `-f` acts on every bare repository below it: git passes whole only a
-folder whose `.git` it reads as a repository, and removes a bare one, read as git reads it (a `HEAD` naming a ref or a
-commit, beside `objects/` and `refs/`). Each is a place of its own, which `**` and every relative glob stop short of,
-so the act asks unless an absolute glob names it, the Judge proposes each beside the act's own place, and an act that
-names no path still needs `**` too. A `git clean` names the paths git reads as its own: the pattern of `-e` or
-`--exclude`, glued on or in the next word, is none, so the search starts where git runs; neither that pattern nor `-d`
-narrows it. A glob reaches the folders its wildcard part matches, as a shell expands it. The
-search below follows no link, enters no `.git`, passes a folder its user cannot read (the act cannot go below it either)
-and ends at each repository it finds; one that runs past 3 seconds places nothing, so the act asks. `judge.py check
-delete` looks below its paths the same way. A path no script can place is
-covered by no grant, `**` included: `"$d"`, `$( )`, backticks, `xargs`, `env -C`, `GIT_DIR`, `GIT_WORK_TREE`,
-`core.worktree`, a `cd` to an unknown place or after `( )`, a git act in a folder no script can know (`cd "$X"`,
-`--git-dir`), and a backslash read off Windows, where it may be a separator or an escape.
+the file system does. The agent's shell starts logical (the Regent, 2026-11-25). The reader turns physical mode on at a
+`set -P` or `set -o physical` in the line, and for a shell the line starts as `bash -P -c …` or `bash -o physical -c …`;
+it turns it off at a `set +P` or `set +o physical`; `cd -L` still moves logically. Every `set` in the line is applied in
+the order written, whether bash runs it or not: one after `||`, in a branch not taken, in a pipe or in the background
+counts. A `set` holding a letter bash does not know changes nothing, and an `-o` name bash does not know stops it there;
+`-o` always takes the next word as its name, so `set -o -P` changes nothing here, where bash turns physical mode on. Not
+read, though each turns physical mode on in bash: `shopt -s -o physical`, a `set -P` inside a quoted `eval`, a heredoc fed
+to `bash -P`, and `SHELLOPTS` naming `physical` for a shell the line starts; the quoted words of an `eval` are read as a
+shell of their own, which starts logical. Wherever bash moves physically and the reader logically, a removal through a
+link out of the repository and back lands outside it, and `**` still covers it (N17). The later paths and git acts
+resolve from where the reader leaves the shell, against the file system as it stands before the line runs: a link or a
+repository the line makes is not seen (R6).
+
+**Where a path lands.** A path written inside the repository is in it only where the file system lands it: every
+symbolic link on it followed, the last one too, and every `..` read from where a link leads, except a `..` that climbs
+out of the repository's own text, which is read as written (N3); and short of any repository nested in the work tree, a
+folder below the root that holds its own `.git` (a clone, a submodule) or holds `HEAD`, `objects` and `refs`, which a
+plain folder shaped like a bare repository also does (N9). A path that lands inside is matched as written, not where a
+link inside leads (N4). **`**` stops short of the repository's own `.git`** (the Regent, 2026-11-25): a removal that
+names it, names a path on it or in it, or reaches it from the root above (`rm -rf .git`, `rm -f .git/index.lock`,
+`rm -rf .`, `find .` whatever its tests, a glob on the root whose wildcard part matches `.git`, such as `.*`) asks under
+`**` and under every relative glob, `.git/**` included, as one that reaches a nested repository does, and the Judge
+proposes the `.git`, or the path in it, as an absolute place, so the Regent can grant it by name. git clean never removes
+it. A git act run inside it is read as run in this repository, a submodule's git folder under `.git/modules/` included,
+though git reads that folder as the submodule's own repository. A path that lands outside reads as the absolute place it
+lands, so `**` and every relative glob stop short of it, an absolute glob may name it, and the Judge proposes that place.
+A path written outside the repository is read as written. A git act is judged where it runs, through its `-C` too: in the
+repository git finds from there, so `**` and every relative glob stop at this repository and a nested one is another.
+
+**A recursive removal** (`rm -r`, `find`, `Remove-Item -Recurse`, `rd /s`, `del /s`, `git clean -ff`) that names a folder
+of this repository also acts on every repository nested below it (the Regent, 2026-11-23), found by the names above, so
+a plain folder shaped like a bare repository makes it ask too (N14). `git clean` with one `-f` acts on every bare
+repository below it, read as git reads one (a `HEAD` naming a ref or a commit, beside `objects/` and `refs/`). Its search passes whole a folder whose `.git` is a folder git reads as a
+repository, and a folder whose `.git` is a file, whatever the file holds; git passes the second whole only when the file
+points at a repository, so a bare repository below a `.git` file git does not read is removed and not seen (N20). The
+search runs whatever `-d`, `-x`, `-X` or `-n` say, so a single `-f` with no `-d`, with `-X` or with `-n` asks over a
+bare repository git leaves in place (N18: prompts only). Each repository found is a place of its own, which `**` and
+every relative glob stop short of, so the act asks unless an absolute glob names it, the Judge proposes each beside the
+act's own place, and an act that names no path still needs `**` too. A `git clean` is searched from the paths it names,
+each read as a folder: the pattern of `-e` or `--exclude`, glued on or in the next word, is none, so the search starts
+where git runs, and neither that pattern nor `-d` narrows it. git's pathspec magic (`:!…`, `:^…`, `:(exclude)…`, `:/`)
+is read as a folder that does not exist, and git's own wildcards, which match across `/`, as a shell glob on one level,
+so the search finds less than git removes, and such a git clean can remove a nested clone or a bare repository under
+`**` (N19). A glob reaches the entries its first wildcard part matches, dot names only when that part opens with a dot,
+matched by Python's `fnmatch`: `[!…]` as bash reads it, `[^…]` as a literal `^`, which bash reads as `[!…]`, so the
+search can skip a folder bash picks (N15). The search below follows no link, enters no `.git`, passes a folder the
+hook's user cannot read, which a removal run as that user cannot go below either (one under `sudo` can: N16), and ends
+at each repository it finds; one that runs past 3 seconds places nothing, so the act asks. `judge.py check delete` looks
+below its paths the same way, the root's `.git` included.
+
+A path no script can place is covered by no grant, `**` included: `"$d"`, `$( )`, backticks, `xargs`, `env -C`, `GIT_DIR`,
+`GIT_WORK_TREE`, `core.worktree`, a `cd` to an unknown place or after `( )`, a git act in a folder no script can know
+(`cd "$X"`, `--git-dir`), and a backslash read off Windows, where it may be a separator or an escape. What the guard does
+not read at all is in `library/hooks.md` §2.
 
 **Never granted**, so they keep asking or denying whatever a grant says: installing system software, destructive SQL,
 docker prunes and disk tools (data outside files), cloud writes (conventions §6) and pack consent (T5). `edit` and

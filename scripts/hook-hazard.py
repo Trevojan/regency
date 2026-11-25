@@ -14,9 +14,10 @@ PreToolUse   classify every command segment:
                              session grants                                       change them (library/judge.md)
              A 'cd' earlier in the chain moves where later paths resolve, as bash moves it (logically, until the line
              turns physical mode on: set -P, set -o physical). A recursive removal also names every repository nested
-             below the folders it names (git clean's single -f, the bare ones). A grant opens only what this reader
-             can place: a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no grant, '**'
-             included.
+             below the folders it names (git clean's single -f, the bare ones), and the repository's own .git when it
+             names the root; a path on or in that .git is a place of its own (git clean never). A grant opens only what
+             this reader can place: a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no
+             grant, '**' included.
 
 It reads text, so what it does not read it does not ask about: an alias, a script, a word a substitution prints.
 
@@ -342,10 +343,30 @@ def reached(written, here, root, deadline=None, bare=False):
         p = resolve(a, here)
         if p is None or root is None:
             continue
-        part = glob_parts(a)[1] if GLOB.search(a) else None
-        pick = None if part is None else (lambda n, g=part: fnmatch.fnmatchcase(n, g) and (g[:1] == "." or n[:1] != "."))
-        found = judge.repositories_below(p, root, pick, deadline, bare)
+        found = judge.repositories_below(p, root, picker(a), deadline, bare)
         out += [None] if found is None else found
+    return out
+
+
+def picker(written):
+    """Which entries of its folder a glob names: those its first wildcard part matches, dot names only when that part opens
+    with a dot, as a shell expands it; None for a path that is no glob."""
+    if not GLOB.search(written):
+        return None
+    part = glob_parts(written)[1]
+    return lambda entry: fnmatch.fnmatchcase(entry, part) and (part[:1] == "." or entry[:1] != ".")
+
+
+def own_git(written, here, root, whole):
+    """The repository's own .git, a place of its own, when a removal reaches it from above (the Regent, 2026-11-25): a glob
+    on the root whose wildcard part matches '.git' names it (or a path in it), and a recursive removal (whole) that names
+    the root goes through it. A path written on it or in it is placed by judge.relative. git clean never removes it."""
+    out = []
+    for a in written:
+        p, pick = resolve(a, here), picker(a)
+        reaches = whole if pick is None else pick(judge.GIT)
+        if reaches and p is not None and root is not None:
+            out += judge.own_git_below(p, root)
     return out
 
 
@@ -384,11 +405,13 @@ def act_paths(kind, label, w, here, root=None, deadline=None):
     if kind not in judge.KINDS or cmd in UNGRANTABLE or cmd.startswith("mkfs."):
         return None
     if cmd in RM_COMMANDS:
-        written = operands(args)
-        return [resolve(a, here) for a in written] + reached(written if recursive(cmd, args) else [], here, root, deadline) or [None]
+        written, deep = operands(args), recursive(cmd, args)
+        return ([resolve(a, here) for a in written] + reached(written if deep else [], here, root, deadline)
+                + own_git(written, here, root, deep) or [None])
     if cmd == "find":
         stop = next((i for i, a in enumerate(args) if a.startswith(("-", "!"))), len(args))
-        return ([resolve(a, here) for a in args[:stop]] or [here]) + reached(args[:stop] or ["."], here, root, deadline)
+        return (([resolve(a, here) for a in args[:stop]] or [here]) + reached(args[:stop] or ["."], here, root, deadline)
+                + own_git(args[:stop] or ["."], here, root, True))
     if cmd != "git":
         return []
     where = git_folder(args, here)
@@ -774,7 +797,7 @@ def selftest():
                     '$x="../other"; Remove-Item -Recurse -Force $x', "Remove-Item -Path:../other -Recurse", 'X=../other; cd "$X" && rm -rf sub',
                     "(cd src); rm -rf ../x", "xargs rm -rf < list.txt", "cat list | xargs rm -rf"):
             cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"'**' opens nothing it cannot place: {cmd}"))
-        for cmd in ("rm -rf build*", "rm -rf src/*.log", "rm -rf src build", "find src -delete", "find . -name x -delete",
+        for cmd in ("rm -rf build*", "rm -rf src/*.log", "rm -rf src build", "find src -delete", "find src -name x -delete",
                     "for d in a b; do git clean -fd; done", "git \\\n clean -fd", "command git clean -fd", "if true; then git reset --hard; fi"):
             cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and still covers what it can: {cmd}"))
         for cmd in ("GIT_WORK_TREE=../other git clean -fd sub", "GIT_DIR=../other/.git GIT_WORK_TREE=../other git restore sub/f"):
@@ -784,6 +807,7 @@ def selftest():
         out = respond(ev("PreToolUse", 'rm -rf "$X"', sid="s7"))
         cases.append(("no grant covers it" in reason(out) and "proposes" not in reason(out), "and it says so, proposing no grant that would not cover it"))
         cases += repository_edge_cases(tmp, root, ev, verdict, reason)
+        cases += own_git_cases(tmp, ev, verdict, reason)
         grant("delete ** -- everything", sid="s4")
         cases.append((verdict(respond(ev("PreToolUse", "psql -c 'DROP TABLE users'", sid="s4"))) == "ask"
                       and verdict(respond(ev("PreToolUse", "sudo apt-get install jq", sid="s4"))) == "ask"
@@ -848,7 +872,7 @@ def repository_edge_cases(tmp, root, ev, verdict, reason):
     out = respond(ev("PreToolUse", "rm -rf link/precious", sid="s7"))
     cases.append((f"'grant: delete {(outside / 'precious').resolve().as_posix()}/** for session" in reason(out),
                   f"and the Judge proposes the place it lands ({reason(out)[-110:]})"))
-    for cmd in ("rm -rf inner/*", "find inner/ -delete", "git -C inner reset --hard", "rm -rf src/../build", "rm -f .git/index.lock",
+    for cmd in ("rm -rf inner/*", "find inner/ -delete", "git -C inner reset --hard", "rm -rf src/../build",
                 "git -C src reset --hard"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and still covers what stays in this repository: {cmd}"))
     return cases + logical_cd_cases(tmp, root, ev, verdict)
@@ -873,6 +897,8 @@ def logical_cd_cases(tmp, root, ev, verdict):
     for cmd in ("set -P; cd link && cd .. && rm -rf x", "set -o physical; cd link && cd .. && rm -rf x"):  # QA-grant-latest-05 N11
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
                       f"set -P, then a cd through an outward link and back, then a removal: asks: {cmd}"))
+    cases.append((verdict(respond(ev("PreToolUse", "set -P; pushd link/.. && rm -rf x", sid="s7"))) == "ask",  # QA-grant-latest-06 §4
+                  "set -P, then pushd through an outward link's .. and a removal: asks"))
     for cmd in ("set -eo physical; cd link && cd .. && rm -rf x", "set -Pe; cd link && cd .. && rm -rf x",
                 "set -P -o nosuch; cd link && cd .. && rm -rf x", "set -P; pushd link && cd .. && rm -rf x",
                 "if true; then set -P; fi; cd link && cd .. && rm -rf x", "bash -P -c 'cd link && cd .. && rm -rf x'",
@@ -905,7 +931,7 @@ def nested_reach_cases(tmp, root, ev, verdict, reason):
                 "Remove-Item -Recurse -Force vendor", "git -C vendor clean -f -f -d"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
                       f"'**' stops at a repository a recursive removal reaches below a folder it names: {cmd}"))
-    for cmd in ("rm -rf src", "find src -delete", "rm -rf build*", "rm vendor", "rm -rf .git/modules"):
+    for cmd in ("rm -rf src", "find src -delete", "rm -rf build*", "rm vendor"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow",
                       f"and a removal that reaches no repository below stays covered: {cmd}"))
     out = respond(ev("PreToolUse", "rm -rf vendor", sid="s7"))
@@ -930,6 +956,43 @@ def nested_reach_cases(tmp, root, ev, verdict, reason):
     return cases + git_clean_cases(tmp, ev, verdict)
 
 
+def own_git_cases(tmp, ev, verdict, reason):
+    """'**' stops short of the repository's own .git (the Regent, 2026-11-25): a removal that names it, a path on or in it,
+    or a recursion from the root above it asks, as one that reaches a nested repository does. The fixture holds nothing
+    below but its own .git, so that is what each ask is for."""
+    own = wire.build_fixture(Path(tmp) / "own")
+    for part in ("objects", "refs"):
+        (own / ".git" / part).mkdir(parents=True, exist_ok=True)
+    (own / ".git" / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    (own / "src" / "f").mkdir(parents=True)
+    (own / ".gitignore").write_text("build/\n", encoding="utf-8")
+    for how in ("delete", "discard"):
+        judge.record(ev("x", "", sid="s10"), own, f"{how} ** -- this repository", "Regent: message")
+    cases = []
+    for cmd, tool in (("rm -rf .git", "Bash"), ("rm -rf ./.git/", "Bash"), ("find .git -delete", "Bash"), ("find . -delete", "Bash"),
+                      ("rm -f .git/index.lock", "Bash"), ("Remove-Item -Recurse -Force .git", "PowerShell"), ("rmdir .git", "Bash"),
+                      ("unlink .git", "Bash"), ("rm -rf .git/modules", "Bash"), ("rm -rf .", "Bash"), ("find -delete", "Bash"),
+                      ("find . -name x -delete", "Bash"), ("rm -rf .*", "Bash"), ("rm -rf .git*", "Bash"), ("rm -f .g*/index.lock", "Bash"),
+                      ("cd src && rm -rf ..", "Bash"), ("cd src && rm -rf ../.git", "Bash"), ("rm -rf ../own", "Bash"),
+                      ("Remove-Item -Recurse -Force .", "PowerShell")):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s10", tool=tool, cwd=own))) == "ask",
+                      f"'**' stops short of the repository's own .git: {cmd}"))
+    for cmd in ("rm -rf *", "rm -rf src", "find src -delete", "rm -f .gitignore", "git clean -fdx", "git clean -ffdx",
+                "git -C .git branch -D x", "git reset --hard"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s10", cwd=own))) == "allow",
+                      f"and an act that does not reach it stays covered: {cmd}"))
+    real = Path(os.path.realpath(str(own))).as_posix()
+    for n, (cmd, tool) in enumerate((("rm -rf .git", "Bash"), ("find . -delete", "Bash"), ("rm -f .git/index.lock", "Bash"),
+                                     ("rm -f .g*/index.lock", "Bash"), ("Remove-Item -Recurse -Force .git", "PowerShell"))):
+        out = respond(ev("PreToolUse", cmd, sid="s10", tool=tool, cwd=own))
+        proposed = re.search(r"proposes 'grant: (.*) for session", reason(out))
+        granted = proposed and f"{real}/.git" in proposed.group(1) and judge.record(
+            ev("x", "", sid=f"s10g{n}"), own, f"{proposed.group(1)} -- as proposed", "Regent: message")
+        cases.append((bool(granted) and verdict(respond(ev("PreToolUse", cmd, sid=f"s10g{n}", tool=tool, cwd=own))) == "allow",
+                      f"the Judge proposes the repository's own .git as a place of its own, and granting that covers the act: {cmd}"))
+    return cases
+
+
 def git_clean_cases(tmp, ev, verdict):
     """git clean as git reads it (QA-grant-latest-05 N12, N13): a second -f reaches every repository nested below where it
     runs, one -f the bare ones git reads as repositories, and an exclude pattern is no folder it names. In both fixtures
@@ -940,7 +1003,8 @@ def git_clean_cases(tmp, ev, verdict):
         (folder / "HEAD").write_text(head, encoding="utf-8")
 
     gc, plain = wire.build_fixture(Path(tmp) / "gc"), wire.build_fixture(Path(tmp) / "plain")
-    for root in (gc, plain):
+    clone = wire.build_fixture(Path(tmp) / "clone")  # a nested clone and nothing else below: no bare repository, none shaped like one
+    for root in (gc, plain, clone):
         shaped(root / ".git")
         shaped(root / "tmp" / "clone" / ".git")
         (root / "src" / "f").mkdir(parents=True)
@@ -951,6 +1015,12 @@ def git_clean_cases(tmp, ev, verdict):
     for cmd in ("git clean -ffdx -e keep", "git clean -ffdx -e '*.log'", "git clean -ffdxe keep", "git clean -ffdx --exclude keep"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=gc))) == "ask",
                       f"git clean -ff with an exclude pattern over a nested clone asks: {cmd}"))
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=clone))) == "ask",  # QA-grant-latest-06 §4: the clone alone
+                      f"git clean -ff with an exclude pattern over a nested clone asks, with no bare repository below: {cmd}"))
+    for cmd, label in (("git clean -ffdx", "git clean -ffdx over a nested clone with no bare repository asks"),  # QA-grant-latest-06 §4
+                       ("git clean -ffdx --exc keep", "git clean -ffdx --exc keep over a nested clone asks"),
+                       ("git clean --force --force -dx", "git clean --force --force -dx over a nested clone asks")):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=clone))) == "ask", label))
     for cmd in ("git clean -fdx", "git clean -fd", "git clean -f -d -x -e keep", "git clean -fdxe keep", "git clean -fdx -- ."):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=gc))) == "ask",
                       f"git clean -f over an untracked bare repository in the work tree asks: {cmd}"))
