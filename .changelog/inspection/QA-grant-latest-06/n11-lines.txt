@@ -1,0 +1,54 @@
+# N11's two steps
+set -P; cd link && cd .. && rm -rf x
+set -o physical; cd link && cd .. && rm -rf x
+# the DV's own named variants
+set -eo physical; cd link && cd .. && rm -rf x
+set -Pe; cd link && cd .. && rm -rf x
+set -P -o nosuch; cd link && cd .. && rm -rf x
+set -P; pushd link && cd .. && rm -rf x
+if true; then set -P; fi; cd link && cd .. && rm -rf x
+bash -P -c 'cd link && cd .. && rm -rf x'
+bash -o physical -c 'cd link && cd .. && rm -rf x'
+bash -c -P 'cd link && cd .. && rm -rf x'
+# where bash stays logical (allow is right)
+cd link && cd .. && rm -rf x
+set -e; cd link && cd .. && rm -rf x
+set -P; set +P; cd link && cd .. && rm -rf x
+set -o physical +o physical; cd link && cd .. && rm -rf x
+set -P; cd -L link && cd -L .. && rm -rf x
+set -Ps; cd link && cd .. && rm -rf x
+set -o nosuch -P; cd link && cd .. && rm -rf x
+set -- -P; cd link && cd .. && rm -rf x
+set -P; bash -c 'cd link && cd .. && rm -rf x'
+# QA6 probes: physical in bash (pwd -P shows <F>/a/b/c), so ask is right
+set -P; cd -L link && cd .. && rm -rf x
+bash -c 'set -P; cd link && cd .. && rm -rf x'
+{ set -P; }; cd link && cd .. && rm -rf x
+set -P x -s; cd link && cd .. && rm -rf x
+builtin set -P; cd link && cd .. && rm -rf x
+command set -P; cd link && cd .. && rm -rf x
+set -P && cd link && cd .. && rm -rf x
+set -P
+cd link && cd .. && rm -rf x
+set -oP physical; cd link && cd .. && rm -rf x
+bash -Pc 'cd link && cd .. && rm -rf x'
+/bin/bash -P -c 'cd link && cd .. && rm -rf x'
+env bash -P -c 'cd link && cd .. && rm -rf x'
+bash --norc -P -c 'cd link && cd .. && rm -rf x'
+bash -O extglob -P -c 'cd link && cd .. && rm -rf x'
+set -P; cd link; cd ..; rm -rf x
+set -P; cd link && cd .. && find x -delete
+set -P; cd link && cd .. && git clean -ffdx
+set -P; cd link && cd .. && git reset --hard
+# QA6 probes: physical in bash, read as logical?
+set -o -P; cd link && cd .. && rm -rf x
+shopt -so physical; cd link && cd .. && rm -rf x
+shopt -s -o physical; cd link && cd .. && rm -rf x
+eval 'set -P'; cd link && cd .. && rm -rf x
+eval set -P; cd link && cd .. && rm -rf x
+set -P; true || set +P; cd link && cd .. && rm -rf x
+set -P; if false; then set +P; fi; cd link && cd .. && rm -rf x
+set -P; set +P | cat; cd link && cd .. && rm -rf x
+set -P; set +P & wait; cd link && cd .. && rm -rf x
+set -P; eval 'cd link && cd .. && rm -rf x'
+set -P; eval cd link '&&' cd .. '&&' rm -rf x

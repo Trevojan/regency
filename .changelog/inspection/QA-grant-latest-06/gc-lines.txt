@@ -1,0 +1,48 @@
+# N12's four steps
+git clean -ffdx -e keep
+git clean -ffdx -e '*.log'
+git clean -ffdxe keep
+git clean -ffdx --exclude keep
+# N13's step
+git clean -fdx
+# DV's named variants
+git clean -fd
+git clean -f -d -x -e keep
+git clean -fdxe keep
+git clean -fdx -- .
+git clean -fdx src
+git clean -ffdx src
+git clean -fdx -e vendor.git src
+# QA6: inherited forms
+git clean -ffdx
+git clean -ffdx --exclude=keep
+git clean -ffdx -e keep -- .
+# QA6: more option spellings
+git clean -dffx
+git clean --force --force -dx
+git clean --forc -f -dx -e keep
+git clean -fdx --e keep
+git clean -ffdx -ekeep
+git clean -fe keep -d
+git clean -fdx -e keep -- src
+git clean -f
+git clean -fx
+git clean -fdX
+git -C tmp clean -fdx
+git -C nest clean -fdx
+git -C nest clean -ffdx
+git clean -fdx junk
+git clean -f vendor.git
+git clean -f -- vendor.git
+git clean -fdx -e keep -n
+# QA6: pathspec magic and git's own globs
+git clean -ffdx ':!keep'
+git clean -fdx ':!keep'
+git clean -ffdx ':^keep'
+git clean -ffdx ':(exclude)keep'
+git clean -ffdx ':/'
+cd src && git clean -ffdx ':/'
+git clean -ffdx '*clone*'
+git clean -fdx '*inner*'
+git clean -fdx -- '*.git'
+git clean -ffdx 'tmp/*'

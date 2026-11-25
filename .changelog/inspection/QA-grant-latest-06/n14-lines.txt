@@ -1,0 +1,6 @@
+rm -rf .
+rm -rf *
+find . -delete
+git clean -ffdx
+git clean -fdx
+rm -rf data/objects
