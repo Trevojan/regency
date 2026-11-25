@@ -12,8 +12,9 @@ PreToolUse   classify every command segment:
                consent       packs.py / judge.py ratify --yes                     ask (the Regent's alone, T5)
                grant store   a shell command that writes a JD.md, judge.json or   deny: only the Regent's words
                              session grants                                       change them (library/judge.md)
-             A 'cd' earlier in the chain moves where later paths resolve, as bash moves it (logically). A recursive
-             removal also names every repository nested below the folders it names. A grant opens only what this reader
+             A 'cd' earlier in the chain moves where later paths resolve, as bash moves it (logically, until the line
+             turns physical mode on: set -P, set -o physical). A recursive removal also names every repository nested
+             below the folders it names (git clean's single -f, the bare ones). A grant opens only what this reader
              can place: a path or a folder no script can know ("$d", $( ), GIT_DIR, xargs) is covered by no grant, '**'
              included.
 
@@ -231,8 +232,9 @@ def glob_parts(arg):
 
 def moved(target, here, physical=False):
     """Where a 'cd' leaves the shell, as bash moves it: logically, each '..' taking off the folder written before it, when
-    every folder before a '..' and the end are folders; otherwise, and under 'cd -P', where the file system lands it. The
-    paths named later land through the file system from there (QA-grant-latest-04 N1, N2, N8)."""
+    every folder before a '..' and the end are folders; otherwise, and under 'cd -P' or in physical mode, where the file
+    system lands it. The paths named later land through the file system from there (QA-grant-latest-04 N1, N2, N8;
+    QA-grant-latest-05 N11)."""
     t = resolve(target, here)
     if t is None:
         return None
@@ -252,14 +254,44 @@ def canonical(t):
     return Path(t.anchor, *kept)
 
 
-def physical_cd(args):
-    """bash's 'cd -P' (the last of -L and -P wins): this one move reads every link on the way."""
+def cd_mode(args):
+    """bash's 'cd -P' and 'cd -L', the last of them winning: True (physical), False (logical), or None when the 'cd' names
+    neither and the shell's mode decides."""
     flags = []
     for a in args:
         if not re.fullmatch(r"-[LPe@]+", a):
             break
         flags += [c for c in a if c in "LP"]
-    return flags[-1:] == ["P"]
+    return {"P": True, "L": False}.get("".join(flags)[-1:])
+
+
+SET_LETTERS = "abefhkmnptuvxBCEHPTo"  # bash's own one-letter options to set (o takes a name); any other voids the set
+SET_NAMES = {"allexport", "braceexpand", "emacs", "errexit", "errtrace", "functrace", "hashall", "histexpand", "history",
+             "ignoreeof", "interactive-comments", "keyword", "monitor", "noclobber", "noexec", "noglob", "nolog", "notify",
+             "nounset", "onecmd", "physical", "pipefail", "posix", "privileged", "verbose", "vi", "xtrace"}  # its -o names
+
+
+def shell_mode(args, physical, started=False):
+    """bash's physical mode after a 'set' (-P or -o physical turn it on, +P or +o physical off), or after the options a shell
+    is started with (bash -P -c ...): the words read in order up to '-', '--' or the first that is no option, each o taking
+    the next word. A set word holding a letter bash does not know makes the whole set change nothing, and an -o name it does
+    not know stops it there; a shell started so starts nothing, so its options need no such check (the Regent, 2026-11-25:
+    the agent's shell starts logical, and only the line turns physical mode on)."""
+    options, index = [], 0
+    while index < len(args) and args[index][:1] in ("-", "+") and args[index] not in ("-", "--"):
+        word, index = args[index], index + 1
+        index += word in ("--rcfile", "--init-file")  # a shell's long options say nothing of the mode; these two take a file
+        for letter in "" if word.startswith("--") else word[1:]:
+            options.append((word[0] == "-", letter, args[index] if letter in "oO" and index < len(args) else None))
+            index += letter in "oO"
+    if not started and any(letter not in SET_LETTERS for _, letter, _ in options):
+        return physical
+    for on, letter, value in options:
+        if letter == "o" and not started and value not in SET_NAMES:
+            return physical
+        if letter == "P" or (letter == "o" and value == "physical"):
+            physical = on
+    return physical
 
 
 RECURSE_SHORT = re.compile(r"^-[fiIdv]*[rR][fiIrRdv]*$")  # rm's own short flags, one of them -r or -R
@@ -272,17 +304,39 @@ def recursive(cmd, args):
                                 or (len(a) > 1 and "-recurse".startswith(a.lower().split(":")[0])) for a in flags)
 
 
-def forced_twice(rest):
-    """git clean given -f twice: the second one lets it remove the repositories nested in the work tree (git-clean(1))."""
-    flags = rest[:rest.index("--")] if "--" in rest else rest
-    return sum(("--force".startswith(a) and len(a) > 2) if a.startswith("--") else a[1:].split("e")[0].count("f")
-               for a in flags if a.startswith("-")) >= 2
+def forces(word):
+    """How many -f one word of git clean gives: each f of a short cluster before its first e, or --force cut to a prefix."""
+    if len(word) > 2 and "--force".startswith(word):
+        return 1
+    cluster = re.match(r"-([^-e]*)", word)
+    return cluster.group(1).count("f") if cluster else 0
 
 
-def reached(written, here, root, deadline=None):
+def takes_pattern(word):
+    """A word of git clean whose pattern is the next word: -e, a short cluster ending at its first e, --exclude cut to a
+    prefix (a pattern glued on, -ekeep or --exclude=keep, is in the word itself)."""
+    return bool(re.fullmatch(r"-[^-e]*e", word)) or (len(word) > 2 and "--exclude".startswith(word))
+
+
+def clean_args(rest):
+    """git clean's own reading of its words (parse-options): how many -f it is given, and the paths it names. The pattern
+    of -e or --exclude is no path; '--' ends the options, and a word that is no option is a path on either side of it."""
+    forced, paths, left = 0, [], iter(rest)
+    for word in left:
+        if word == "--":
+            return forced, paths + list(left)
+        forced += forces(word)
+        paths += [] if word.startswith("-") else [word]
+        if takes_pattern(word):
+            next(left, None)
+    return forced, paths
+
+
+def reached(written, here, root, deadline=None, bare=False):
     """The repositories nested in this one below the folders a recursive removal names (the Regent, 2026-11-23): each a
-    place of its own, outside '**' and every relative glob. A glob reaches the folders its wildcard part matches, dot
-    names only when that part opens with a dot, as a shell expands it. A None is a search that ran out of time."""
+    place of its own, outside '**' and every relative glob; bare: only the bare ones, as git clean's single -f reaches them
+    (judge.repositories_below). A glob reaches the folders its wildcard part matches, dot names only when that part opens
+    with a dot, as a shell expands it. A None is a search that ran out of time."""
     out = []
     for a in written:
         p = resolve(a, here)
@@ -290,7 +344,7 @@ def reached(written, here, root, deadline=None):
             continue
         part = glob_parts(a)[1] if GLOB.search(a) else None
         pick = None if part is None else (lambda n, g=part: fnmatch.fnmatchcase(n, g) and (g[:1] == "." or n[:1] != "."))
-        found = judge.repositories_below(p, root, pick, deadline)
+        found = judge.repositories_below(p, root, pick, deadline, bare)
         out += [None] if found is None else found
     return out
 
@@ -345,31 +399,38 @@ def act_paths(kind, label, w, here, root=None, deadline=None):
         verb = next((i for i, a in enumerate(args) if a in ("checkout", "restore", "clean")), None)
         rest = args[verb + 1:] if verb is not None else []
         paths = rest[rest.index("--") + 1:] if "--" in rest else [a for a in rest if not a.startswith("-")]
-        below = reached(paths or ["."], where, root, deadline) if label == "git clean -f" and forced_twice(rest) else []
+        if label == "git clean -f":  # a second -f reaches every repository below, one -f the bare ones (QA-grant-latest-05 N13)
+            forced, paths = clean_args(rest)
+            below = reached(paths or ["."], where, root, deadline, bare=forced < 2)
         if paths:
             return [resolve(a, where) for a in paths] + below
     named = [] if root is None or judge.lands_in(where, root) else [where]
     return (named or ([judge.ALL] if below else [])) + below
 
 
-def acts(command, cwd, depth=0, root=None, deadline=None):
+def acts(command, cwd, depth=0, root=None, deadline=None, physical=False):
     """Every finding with the paths it names: [(kind, label, paths)], nested shells included. A 'cd' moves where the later
-    segments of the chain resolve their paths, as bash moves (moved), and a line this reader cannot place leaves a None
-    for no grant to cover."""
+    segments of the chain resolve their paths, as bash moves (moved): logically, until the line turns physical mode on
+    (shell_mode), and a line this reader cannot place leaves a None for no grant to cover."""
     out, here = [], Path(cwd) if cwd else None
     root = root or here
     text = re.sub(r"\\\r?\n", " ", guard_push.data_only(command))
     for seg in guard_push.segments(text):
         w = words(seg)
         if depth < 3 and any(name(t) in SHELLS for t in seg[:1] + w[:1]):
+            started = bool(w) and name(w[0]) in ("bash", "sh") and shell_mode(w[1:], False, started=True)
             for t in seg[1:]:
                 if " " in t:
-                    out += acts(t, here, depth + 1, root, deadline)
+                    out += acts(t, here, depth + 1, root, deadline, started)
+        if w and name(w[0]) == "set":
+            physical = shell_mode(w[1:], physical)
+            continue
         if w and name(w[0]) in CD_COMMANDS:
             target = [t for t in operands(w[1:]) if t.lower() != "/d"]  # cmd's cd /d <folder>
-            physical = name(w[0]) == "cd" and physical_cd(w[1:])
+            option = cd_mode(w[1:]) if name(w[0]) == "cd" else None
+            mode = physical if option is None else option
             # a 'cd' inside ( ) ends with it, and which ones those are is more than this reader follows
-            here = None if "(" in text or not target or target[0] == "-" else moved(target[0], here, physical)
+            here = None if "(" in text or not target or target[0] == "-" else moved(target[0], here, mode)
             continue
         f = classify_words(w)
         if f:
@@ -809,6 +870,20 @@ def logical_cd_cases(tmp, root, ev, verdict):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"a 'cd' through a link and back lands where the shell lands: {cmd}"))
     for cmd in ("cd link/.. && rm -rf build", "cd link && cd .. && rm -rf build", "cd current && cd .. && git reset --hard"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow", f"and a 'cd' back into this repository stays in it: {cmd}"))
+    for cmd in ("set -P; cd link && cd .. && rm -rf x", "set -o physical; cd link && cd .. && rm -rf x"):  # QA-grant-latest-05 N11
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
+                      f"set -P, then a cd through an outward link and back, then a removal: asks: {cmd}"))
+    for cmd in ("set -eo physical; cd link && cd .. && rm -rf x", "set -Pe; cd link && cd .. && rm -rf x",
+                "set -P -o nosuch; cd link && cd .. && rm -rf x", "set -P; pushd link && cd .. && rm -rf x",
+                "if true; then set -P; fi; cd link && cd .. && rm -rf x", "bash -P -c 'cd link && cd .. && rm -rf x'",
+                "bash -o physical -c 'cd link && cd .. && rm -rf x'", "bash -c -P 'cd link && cd .. && rm -rf x'"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask", f"and so does every other way the line turns physical mode on: {cmd}"))
+    for cmd in ("set -e; cd link && cd .. && rm -rf x", "set -P; set +P; cd link && cd .. && rm -rf x",
+                "set -o physical +o physical; cd link && cd .. && rm -rf x", "set -P; cd -L link && cd -L .. && rm -rf x",
+                "set -Ps; cd link && cd .. && rm -rf x", "set -o nosuch -P; cd link && cd .. && rm -rf x",
+                "set -- -P; cd link && cd .. && rm -rf x", "set -P; bash -c 'cd link && cd .. && rm -rf x'"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow",
+                      f"and where bash stays logical, the 'cd' back stays in this repository: {cmd}"))
     for part in ("w", "src"):  # only under releases/: bash's own reading of current/../w finds no folder
         (root / "releases" / part).mkdir()
     for cmd in ("cd current/../w && cd ../.. && rm -rf build", "cd current/../w/../src && cd ../.. && rm -rf build"):
@@ -830,7 +905,7 @@ def nested_reach_cases(tmp, root, ev, verdict, reason):
                 "Remove-Item -Recurse -Force vendor", "git -C vendor clean -f -f -d"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "ask",
                       f"'**' stops at a repository a recursive removal reaches below a folder it names: {cmd}"))
-    for cmd in ("rm -rf src", "find src -delete", "rm -rf build*", "rm vendor", "git clean -fdx", "rm -rf .git/modules"):
+    for cmd in ("rm -rf src", "find src -delete", "rm -rf build*", "rm vendor", "rm -rf .git/modules"):
         cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s7"))) == "allow",
                       f"and a removal that reaches no repository below stays covered: {cmd}"))
     out = respond(ev("PreToolUse", "rm -rf vendor", sid="s7"))
@@ -852,6 +927,42 @@ def nested_reach_cases(tmp, root, ev, verdict, reason):
     judge.WALK_SECONDS = budget
     cases.append((verdict(out) == "ask" and "No script can tell" in reason(out),
                   "a search below that runs out of time places nothing, so no grant covers it: rm -rf src"))
+    return cases + git_clean_cases(tmp, ev, verdict)
+
+
+def git_clean_cases(tmp, ev, verdict):
+    """git clean as git reads it (QA-grant-latest-05 N12, N13): a second -f reaches every repository nested below where it
+    runs, one -f the bare ones git reads as repositories, and an exclude pattern is no folder it names. In both fixtures
+    tmp/clone is a clone; gc holds an untracked bare repository, plain a folder only shaped like one."""
+    def shaped(folder, head="ref: refs/heads/main\n"):  # HEAD, objects, refs: what git reads as a repository's own folder
+        for part in ("objects", "refs"):
+            (folder / part).mkdir(parents=True, exist_ok=True)
+        (folder / "HEAD").write_text(head, encoding="utf-8")
+
+    gc, plain = wire.build_fixture(Path(tmp) / "gc"), wire.build_fixture(Path(tmp) / "plain")
+    for root in (gc, plain):
+        shaped(root / ".git")
+        shaped(root / "tmp" / "clone" / ".git")
+        (root / "src" / "f").mkdir(parents=True)
+        judge.record(ev("x", "", sid="s9"), root, "delete ** -- this repository", "Regent: message")
+    shaped(gc / "vendor.git")
+    shaped(plain / "data", head="not a repo\n")
+    cases = []
+    for cmd in ("git clean -ffdx -e keep", "git clean -ffdx -e '*.log'", "git clean -ffdxe keep", "git clean -ffdx --exclude keep"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=gc))) == "ask",
+                      f"git clean -ff with an exclude pattern over a nested clone asks: {cmd}"))
+    for cmd in ("git clean -fdx", "git clean -fd", "git clean -f -d -x -e keep", "git clean -fdxe keep", "git clean -fdx -- ."):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=gc))) == "ask",
+                      f"git clean -f over an untracked bare repository in the work tree asks: {cmd}"))
+    cases.append((verdict(respond(ev("PreToolUse", "git clean -fdx", sid="s9", cwd=plain))) == "allow",
+                  "and a removal that reaches no repository below stays covered: git clean -fdx"))
+    for cmd in ("git clean -fdx src", "git clean -ffdx src", "git clean -fdx -e vendor.git src"):
+        cases.append((verdict(respond(ev("PreToolUse", cmd, sid="s9", cwd=gc))) == "allow",
+                      f"and a git clean whose paths reach no repository below stays covered: {cmd}"))
+    budget, judge.WALK_SECONDS = judge.WALK_SECONDS, -1.0
+    out = verdict(respond(ev("PreToolUse", "git clean -fdx", sid="s9", cwd=plain)))
+    judge.WALK_SECONDS = budget
+    cases.append((out == "ask", "a git clean -f's search below that runs out of time places nothing, so no grant covers it"))
     return cases
 
 

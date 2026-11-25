@@ -17,7 +17,8 @@ push to main. A grant answers them ahead of time, for named places and one or mo
 An act is covered when every path it names matches a glob of one grant of its kind. An act that names no
 path (git reset --hard, git rebase, git branch -D) needs `**`. A path is in the repository where the file system lands
 it: a symbolic link out of it, or a repository nested in its work tree, takes the path outside, where `**` and relative
-globs do not reach; a recursive removal also acts on every repository nested below a folder it names. A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
+globs do not reach; a recursive removal also acts on every repository nested below a folder it names (git clean with one
+-f, on every bare one, as git reads it). A path no script can resolve ("$d", a 'cd' to an unknown place) is covered by no grant. A push grant names its branch; deleting that branch, --all, --mirror and a
 '+' refspec stay denied (guard-push.py). Never grantable, so they keep asking or denying: installing system
 software, destructive SQL, docker prunes and disk tools, cloud writes (conventions §6) and pack consent (T5).
 
@@ -141,16 +142,54 @@ def is_repository(names):
     return GIT in names or set(BARE) <= names
 
 
-def repositories_below(path, repo, pick=None, deadline=None):
+def git_reads(folder):
+    """True when git itself reads the folder as a repository's own (is_git_directory): a HEAD naming a ref ('ref: refs/...',
+    or a link to refs/...) or holding a commit id, beside objects/ and refs/ it can enter. A HEAD that is there and cannot
+    be read reads as one: nothing here can tell it is not."""
+    try:
+        named = head_names(folder / "HEAD")
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return True
+    return named and all(os.access(folder / part, os.X_OK) for part in ("objects", "refs"))
+
+
+def head_names(head):
+    """git's validate_headref: a link to refs/..., or a file whose first 255 bytes open with a ref or a commit id."""
+    if head.is_symlink():
+        return os.readlink(head).startswith("refs/")
+    with open(head, "rb") as text:
+        return bool(re.match(rb"ref:\s*refs/|[0-9a-fA-F]{40}", text.read(255)))
+
+
+def bare_meets(folder, names):
+    """What git clean's single -f does with a folder below where it runs, as git reads it: 'found' for a bare repository,
+    which it removes; 'passed' for a repository with a work tree (its .git a file, or a folder git reads as one), which it
+    leaves whole with all below it; None for any other folder, which it goes through."""
+    if GIT in names and (not os.path.isdir(folder / GIT) or git_reads(folder / GIT)):
+        return "passed"
+    return "found" if set(BARE) <= names and git_reads(folder) else None
+
+
+def repository_meets(folder, names):
+    """What a recursive removal meets at a folder below the one it names: 'found' for a repository of its own, by its
+    names (a .git, or HEAD, objects and refs), else None."""
+    return "found" if is_repository(names) else None
+
+
+def repositories_below(path, repo, pick=None, deadline=None, bare=False):
     """The repositories nested in the work tree below a folder of this repository, which a recursive act reaches (the
     Regent, 2026-11-23): every folder under where the path lands, links not followed, no .git entered, each repository
-    found ending the search there. pick: which children of that folder the act names (a glob's first part). [] for a
-    path that lands outside this repository or in its own .git; None when the deadline passes first."""
+    met ending the search there. bare: only the bare ones, as git clean's single -f reaches them (bare_meets). pick: which
+    children of that folder the act names (a glob's first part). [] for a path that lands outside this repository or in
+    its own .git; None when the deadline passes first."""
     if not lands_in(path, repo):
         return []
     real, top = Path(os.path.realpath(str(path))), Path(os.path.realpath(str(repo)))
     if top / GIT in [real] + list(real.parents):
         return []
+    meets = bare_meets if bare else repository_meets
     found, todo = [], [real]
     while todo:
         if deadline is not None and time.monotonic() > deadline:
@@ -161,8 +200,9 @@ def repositories_below(path, repo, pick=None, deadline=None):
                 entries = list(listing)
         except OSError:
             continue  # what this user cannot read, an act it runs cannot go below either
-        if folder != real and is_repository({e.name for e in entries}):
-            found.append(folder)
+        met = folder != real and meets(folder, {e.name for e in entries})
+        if met:
+            found += [folder] if met == "found" else []
             continue
         for e in entries:
             try:
@@ -743,6 +783,15 @@ def landing_cases(tmp, root, event):
                   and repositories_below(root / "src", root) == [] and repositories_below(root / "link", root) == []
                   and repositories_below(root / ".git", root) == [] and repositories_below(root, root, deadline=0) is None,
                   "the search below a folder: links not followed, no .git entered, a found repository ends it, a deadline stops it"))
+    bc = wire.build_fixture(Path(tmp) / "bc")  # what git clean's single -f reaches (QA-grant-latest-05 N13)
+    for folder, head in (("clone/.git", "ref: refs/heads/main\n"), ("clone/in.git", "ref: refs/heads/main\n"), ("data", "not a repo\n"),
+                         ("data/inner.git", "ref:refs/heads/x\n"), ("top.git", "ref: refs/heads/main\n"), ("detached.git", "0" * 40 + "\n")):
+        for part in ("objects", "refs"):
+            (bc / folder / part).mkdir(parents=True, exist_ok=True)
+        (bc / folder / "HEAD").write_text(head, encoding="utf-8")
+    real = Path(os.path.realpath(str(bc)))
+    cases.append((repositories_below(bc, bc, bare=True) == [real / "data" / "inner.git", real / "detached.git", real / "top.git"],
+                  "git clean's single -f reaches the bare repositories git reads as one: a clone passed whole, a folder only shaped like one searched through"))
     return cases
 
 
