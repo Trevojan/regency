@@ -55,7 +55,11 @@ two `git clean` forms still remove a nested repository. The Regent, 2026-11-25: 
 agents' shell never starts in physical mode; the unit's criticality stays high. DV's sixth attempt (`0c45883`) fixed
 the three; its QA pass signed the line with residual risk (`inspection/QA-grant-latest-06.md`). The Regent,
 2026-11-25: accepted for the line, the older silent allows of the same classes to the backlog (`guards-followups`),
-a command piped into a shell to a unit of its own (`hazard-piped-shell`); next, the PO's accept.
+a command piped into a shell to a unit of its own (`hazard-piped-shell`). The PO accepted it
+(`inspection/PO-grant-latest-06-accept.md`) on three conditions: the span stays `0c45883`'s, the Regent ratifies or
+rewords the drafted norm, the version moves to 4.0. The Regent, 2026-11-25: reword `judge.md` §2 and `hooks.md` §2
+to state what the code does; and `**` stops short of the repository's own `.git` (a removal that reaches it asks), fixed
+in this line: a seventh attempt, then QA.
 
 ## Health
 
@@ -71,8 +75,8 @@ a command piped into a shell to a unit of its own (`hazard-piped-shell`); next, 
 ## Next, in order
 
 1. Any other clone of this repository resets to the new heads and never pulls: a pull there recreates the merges.
-2. The PO's accept of the guards line on `plumbing` (attempt 6, `inspection/QA-grant-latest-06.md`), then the
-   Regent's approval and ratification of its norm text, then its close (`Verified-Draft: grant-latest`). The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
+2. DV on `plumbing`, attempt 7: the guards line's norm text reworded to state the code, and `**` stopping short of
+   the repository's own `.git`; then QA; then the Regent's approval and the close (`Verified-Draft: grant-latest`, 4.0). The analytics lane is verified on `plumbing`; `plumbing` → `testing` waits on the guards
    line, which comes before it in the same history. Then bump to 4.0 (the Regent, 2026-11-19); D19 (`docs-lag-D19`); merge up to `main`. Once grant-latest closes, the
    team pass on `station-make` (the Regent, 2026-11-19).
 3. The Regent pushes `main`, turns on immutable releases and publishes `v3.4` with its `.plugin` attached;
